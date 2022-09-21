@@ -18,8 +18,8 @@ function generate_tab_menu(menu_list) {
         console.log(`Creating Menu Item for: ${menu_item_string}`);
 
         const menu_item = (
-            <Link href={url_endpoint} passHref={true} onClick={(e) => {e.preventDefault();} }> 
-                <div className={`styles.tab_button `}>
+            <Link href={url_endpoint} passHref={true} onClick={(e) => {e.preventDefault();} } key={i}> 
+                <div className={`${styles.tab_button}`}>
                     {menu_item_string}
                 </div>
             </Link>
