@@ -221,9 +221,11 @@ class ServerListClass extends React.Component {
                                 }
                             }/>
                         </div>
+                        {/*
                         <div className={styles.filter_button_row}>
                             <button className={styles.apply_filter_button} onClick={(e) => {e.preventDefault(); this.ResetTimer()}}>Apply Filter</button>
                         </div>
+                        */}
                     </div>
                     <div className={styles.server_list_body}>
                         <div className={styles.server_list_table}>
