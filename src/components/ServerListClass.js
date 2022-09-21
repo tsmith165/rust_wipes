@@ -190,7 +190,7 @@ class ServerListClass extends React.Component {
                         {/* Max Server Distance */}
                         <div className={styles.input_container}>
                             <div className={styles.input_label_container}>
-                                <div className={styles.input_label}>Max Distance</div>
+                                <div className={styles.input_label}>Distance</div>
                             </div>
                             <input 
                                 id="max_distance" 

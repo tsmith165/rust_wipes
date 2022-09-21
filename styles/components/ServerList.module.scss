@@ -17,16 +17,10 @@
     width: 100%; 
   }
 
-    .server_list_filter_column {
-      flex: 1 1 35%;
-      min-height: 200px; 
-      background-color: $dark;
-    } 
-
     .server_list_body { 
       min-height: calc(100% - 110px); 
       flex: 1 1 65%; 
-      min-width: 40ch; 
+      min-width: 50ch; 
       padding-left: 20px;
       padding-top: 20px;
     }
@@ -54,7 +48,83 @@
           .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
           .piece_sold { position: absolute; bottom: 10px; right: 10px; }
   
-  #management-button { position: fixed; top: 50px; right: 0; width: 30px; height: 30px; padding: 10px; border-bottom-left-radius: 5px; }
+  .server_list_filter_column {
+    flex: 1 1 35%;
+    min-height: 200px; 
+    background-color: $dark;
+  } 
+      
+    .input_container { 
+      display: flex;
+      flex-direction: row;
+      width: 100%; 
+      padding: 10px 20px; 
+    }
+      .input_label_container { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        width: 12ch; 
+        height: 100%; 
+        padding: 5px 10px; 
+        background-color: $primary; 
+        border-radius: 5px 0px 0px 5px;
+      }                     
+      .input_label { color: $dark; font-weight: 1000 !important; }
+    
+    /* CSS specific to iOS devices */ 
+    @supports (-webkit-touch-callout: none) {
+      .input_textbox { 
+          width: calc(100% - 12ch); 
+          height: 100%; 
+          padding: 6px 10px;
+          color: $light; 
+          background-color: $medium; 
+          border-radius: 0px 5px 5px 0px; 
+          font-size: 14px; 
+          font-weight: bold; 
+      }
+      .input_select { 
+          width: calc(100% - 12ch); 
+          height: 100%;
+          padding: 5px 10px; 
+          background-color: $medium; 
+          color: $primary; 
+          border-radius: 0px 5px 5px 0px; 
+          border: none; 
+          font-size: 14px; 
+          font-weight: bold; 
+      }
+    }
+    
+    /* CSS for other than iOS devices */ 
+    @supports not (-webkit-touch-callout: none) {
+      .input_textbox { 
+          width: calc(100% - 12ch); 
+          height: 100%; 
+          padding: 6px 10px;
+          color: $primary; 
+          background-color: $medium; 
+          border-radius: 0px 5px 5px 0px; 
+          border: none; 
+          font-size: 14px; 
+          font-weight: bold; 
+      }
+      .input_select { 
+          width: calc(100% - 12ch);  
+          height: 100%; 
+          padding: 5px 10px;
+          color: $primary; 
+          background-color: $medium; 
+          border-radius: 0px 5px 5px 0px; 
+          border: none; 
+          font-size: 14px; 
+          font-weight: bold; 
+      }
+      .input_select > option { 
+          font-weight: bold; 
+      }
+    }
 
 .refresh_container { 
   position: fixed;
@@ -88,95 +158,4 @@
   to {
     transform: rotate(359deg);
   }
-}
-
-.input_container { 
-  display: flex; 
-  width: 100%; 
-  padding: 10px 15px; 
-}
-.input_label_container { 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  width: 30%; 
-  height: 100%; 
-  padding: 5px 10px; 
-  background-color: $primary; 
-  border-radius: 5px 0px 0px 5px;                     
-  font-weight: bold; 
-}                     
-.input_label { color: $light; }
-
-/* CSS specific to iOS devices */ 
-@supports (-webkit-touch-callout: none) {
-  .input_textbox { 
-      width: 70%; 
-      height: 100%; 
-      padding: 6px 10px;
-      color: $light; 
-      background-color: $medium; 
-      border-radius: 0px 5px 5px 0px; 
-      font-size: 14px; 
-      font-weight: bold; 
-  }
-  .input_select { 
-      width: 70%; 
-      height: 100%;
-      padding: 5px 10px; 
-      background-color: $medium; 
-      color: $primary; 
-      border-radius: 0px 5px 5px 0px; 
-      border: none; 
-      font-size: 14px; 
-      font-weight: bold; 
-  }
-}
-
-/* CSS for other than iOS devices */ 
-@supports not (-webkit-touch-callout: none) {
-  .input_textbox { 
-      width: 70%; 
-      height: 100%; 
-      padding: 6px 10px;
-      color: $primary; 
-      background-color: $medium; 
-      border-radius: 0px 5px 5px 0px; 
-      border: none; 
-      font-size: 14px; 
-      font-weight: bold; 
-  }
-  .input_select { 
-      width: 70%; 
-      height: 100%; 
-      padding: 5px 10px;
-      color: $primary; 
-      background-color: $medium; 
-      border-radius: 0px 5px 5px 0px; 
-      border: none; 
-      font-size: 14px; 
-      font-weight: bold; 
-  }
-  .input_select > option { 
-      font-weight: bold; 
-  }
-}
-
-.apply_filter_button {
-  position: relative;
-  float: right;
-  padding: 5px 10px;
-  margin-right: 15px !important;
-  color: $medium;
-  background-color: $primary; 
-  border: 2px solid $medium; 
-  border-radius: 5px; 
-  font-weight: bold; 
-  margin-right: 10px; 
-}
-
-.apply_filter_button:hover {
-  background-color: $secondary; 
-  color: $light;
-  border: 2px solid $light; 
 }
