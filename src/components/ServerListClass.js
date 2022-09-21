@@ -237,10 +237,10 @@ class ServerListClass extends React.Component {
                                     {'Server Title'}
                                 </div>
                                 <div className={styles.player_count_cell}>
-                                    {'Online Players'}
+                                    {'Players'}
                                 </div>
                                 <div className={styles.timestamp_cell}>
-                                    {'Time Since Wipe'}
+                                    {'Time Wiped'}
                                 </div>
                             </div>
                             {servers_jsx_array}

@@ -12,19 +12,21 @@
   .server_list_container { 
     position: relative;
     display: flex;
-    flex-direction: row;
-    height: 100%; 
+    flex-wrap: wrap; 
+    height: 100%;
+    width: 100%; 
   }
 
     .server_list_filter_column {
-      width: calc(35%);
-      min-height: 100% !important;
+      flex: 1 1 35%;
+      min-height: 200px; 
       background-color: $dark;
     } 
 
     .server_list_body { 
       min-height: calc(100% - 110px); 
-      width: calc(65%);
+      flex: 1 1 65%; 
+      min-width: 40ch; 
       padding-left: 20px;
       padding-top: 20px;
     }
@@ -38,17 +40,15 @@
 
       .server_container > div { padding: 5px 10px; font-weight: bold; overflow: hidden; white-space: nowrap; line-height: 25px; }
       
-  
-
       .hot_wipe  { color: $hot_wipe; }
       .cool_wipe { color: $cool_wipe; }
       .cold_wipe { color: $cold_wipe; }
       .old_wipe  { color: $light; }
   
-      .rank_cell {width: 10% !important; }
+      .rank_cell { width: 8ch !important; }
       .server_name_cell { width:  50% !important; }
-      .player_count_cell { width: 15% !important;}
-      .timestamp_cell { width: 25% !important; } 
+      .player_count_cell { width: 10ch !important;}
+      .timestamp_cell { width: 20ch !important; } 
   
       .piece_description_container { height: 25px; line-height: 25px; }
           .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
