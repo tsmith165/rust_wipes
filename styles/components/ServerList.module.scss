@@ -70,7 +70,7 @@
         background-color: $primary; 
         border-radius: 5px 0px 0px 5px;
       }                     
-      .input_label { color: $dark; font-weight: 1000 !important; }
+      .input_label { color: $dark; font-weight: bold !important; }
     
     /* CSS specific to iOS devices */ 
     @supports (-webkit-touch-callout: none) {
