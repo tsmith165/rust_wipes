@@ -19,7 +19,7 @@ function generate_tab_menu(menu_list) {
 
         const menu_item = (
             <Link href={url_endpoint} passHref={true} onClick={(e) => {e.preventDefault();} }> 
-                <div className={styles.tab_button}>
+                <div className={`styles.tab_button `}>
                     {menu_item_string}
                 </div>
             </Link>
