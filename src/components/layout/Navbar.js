@@ -3,9 +3,9 @@ import Image from 'next/image'
 
 import styles from "../../../styles/layout/Navbar.module.scss"
 
-import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
+import { menu_list } from "../../../lib/menu_list"
 
-import { menu_list } from "../../../../lib/menu_list"
+// import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 
 function generate_tab_menu(menu_list) {
     var menu_items = [];
