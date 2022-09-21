@@ -7,14 +7,19 @@
 }
     .navbar_container { 
         height: 100px; 
-        width: 100%; 
+        width: 100% !important; 
         overflow: hidden;
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
     }
-        .logo_container {
-            width: calc(35% - 5px);
+
+        .tab_menu_top {
+            width: 100% !important;
+            height: 50px;
+            display: flex;
+            flex-direction: row;
         }
+
             .navbar_logo {
                 position: relative;
                 padding: 0; 
@@ -22,42 +27,28 @@
                 height: 100% !important;  
             }
                 .navbar_logo_img { 
-                    min-height: 80px; 
-                    padding: 10px !important; 
+                    width: auto;
                 }
 
-        .tab_menu_container {
-            width: calc(35% + 5px);
+        .tab_menu_bottom {
+            width: 100%;
+            height: 50px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
         }
-
-            .tab_menu_top {
-                width: 100%;
-                height: 50px;
-                display: flex;
-                flex-direction: row;
+            .tab_button {
+                padding: 15px;
+                font-size: 24px;
+                background-color: $primary;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                margin-left: 5px;
+                font-weight: bold;
             }
-
-            .tab_menu_bottom {
-                width: 100%;
-                height: 50px;
-                display: flex;
-                flex-direction: row;
+            .tab_button:hover {
+                background-color: $secondary;
+                color: $light;
+                font-weight: bold;
             }
-                .tab_button {
-                    padding: 15px;
-                    font-size: 24px;
-                    background-color: $primary;
-                    border-top-left-radius: 10px;
-                    border-top-right-radius: 10px;
-                    margin-right: 5px;
-                    font-weight: bold;
-                }
-                .tab_button:hover {
-                    background-color: $secondary;
-                    color: $light;
-                    font-weight: bold;
-                }
 
 
