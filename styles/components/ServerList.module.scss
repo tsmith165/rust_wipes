@@ -32,7 +32,7 @@
       .server_container:last-of-type { border-bottom: none }
       .server_container:hover { background-color: $medium; }
 
-      .server_container > div { padding: 5px 10px; font-weight: bold; overflow: hidden; white-space: nowrap; line-height: 25px; }
+      .server_container > div { padding: 5px 10px; font-weight: bold; overflow: hidden; white-space: nowrap; line-height: 25px; flex-grow: 1; }
       
       .hot_wipe  { color: $hot_wipe; }
       .cool_wipe { color: $cool_wipe; }
@@ -40,7 +40,7 @@
       .old_wipe  { color: $light; }
   
       .rank_cell { width: 8ch !important; }
-      .server_name_cell { width:  50% !important; }
+      .server_name_cell { width:  calc(100% - 38ch) !important; }
       .player_count_cell { width: 10ch !important;}
       .timestamp_cell { width: 20ch !important; } 
   
@@ -58,7 +58,7 @@
       display: flex;
       flex-direction: row;
       width: 100%; 
-      padding: 10px 10px; 
+      padding: 10px 10px 0px 10px; 
     }
       .input_label_container { 
         display: flex; 
@@ -126,6 +126,37 @@
       }
     }
 
+  .page_selector_container {
+    float: right;
+    margin-right: 20px;
+    margin-top: 10px;
+    background-color: $secondary;
+    padding: 5px 2.5px;
+    border-radius: 5px;
+  }
+    .page_selector {
+      display: flex;
+      flex-direction: row;
+      font-weight: bold;
+      line-height: 20px;
+      color: $dark !important;
+    }
+      .num_servers {
+        width: 8ch;
+        background-color: $secondary;
+        color: $dark;
+        font-weight: bold;
+        padding: 5px 7.5px;
+        border-radius: 5px;
+        border: none;
+      }
+    .page_arrow_icon {
+      fill: $dark !important;
+    }
+    .page_arrow_icon:hover {
+      fill: $light !important;
+    }
+
 .refresh_container { 
   position: fixed;
   top: 50px;
@@ -157,4 +188,11 @@
   to {
     transform: rotate(359deg);
   }
+}
+
+.img_hor_vert {
+  -moz-transform: scale(-1);
+  -o-transform: scale(-1);
+  -webkit-transform: scale(-1);
+  transform: scale(-1);
 }
