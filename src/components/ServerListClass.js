@@ -5,6 +5,7 @@ import Server from '../components/Server'
 
 import styles from '../../styles/components/ServerList.module.scss'
 import CachedIcon from '@material-ui/icons/Cached';
+import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
 class ServerListClass extends React.Component {
     constructor(props) {
@@ -15,20 +16,23 @@ class ServerListClass extends React.Component {
             running: false,
             refreshing: false,
             server_list: [],
+            next_url: 'none',
+            prev_url: 'none',
             server_list_timer: null,
             num_servers: 25,
             min_players: 2,
             max_distance: 5000,
-            country: 'US'
+            country: 'US',
+            current_page: 1
         };
     }
 
     async componentDidMount() {
         console.log(`-------------- Fetching Initial Server List --------------`)
-        const curr_server_list = await this.FetchServers()
+        const [new_server_list, next_url, prev_url] = await this.FetchServers()
         // this.SetServerListFetchInterval()  // disabled as we added button to turn on interval
 
-        this.setState({server_list: curr_server_list})
+        this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
     }
 
     async ToggleRunning() {
@@ -66,6 +70,23 @@ class ServerListClass extends React.Component {
         }
     } 
 
+    async next_page(forward) {
+        const [new_server_list, next_url, prev_url] = await this.FetchServers(false, forward)
+        console.log(`New Server List (Next Line): `)
+        console.log(new_server_list);
+
+        if (forward) {
+            if (next_url != 'none') {
+                this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_page: this.state.current_page + 1})
+            }
+        }
+        else {
+            if (prev_url != 'none') {
+                this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_page: this.state.current_page - 1})
+            }
+        }
+    }
+
     async RunRefreshTimer(post_refresh_state, wait_time) {
         console.log(`Refreshing for set ${wait_time / 1000}s before updating data to state`)
         const refresh_timer = setTimeout(() => {
@@ -77,30 +98,40 @@ class ServerListClass extends React.Component {
 
     async UpdateServerList() {
         console.log(`-------------- Updating Server List --------------`)
-        const new_server_list = await this.FetchServers()
+        const [new_server_list, next_url, prev_url] = await this.FetchServers()
         console.log(`New Server List (Next Line): `)
         console.log(new_server_list);
 
-        const post_refresh_state = {server_list: new_server_list, refreshing: false}
+        const post_refresh_state = {server_list: new_server_list, next_url: next_url, prev_url: prev_url, refreshing: false}
         this.RunRefreshTimer(post_refresh_state, 1500)
 
         clearTimeout(this.state.server_list_timer)
         this.SetServerListFetchInterval()
     } 
     
-    async FetchServers() {
-        var api_call = `https://api.battlemetrics.com/servers?filter[game]=rust&filter[status]=online`
-        api_call    += `&filter[countries][]=${this.state.country}&filter[maxDistance]=${this.state.max_distance}&filter[players][min]=${this.state.min_players}`
-        api_call    += `&page[size]=${this.state.num_servers}&sort=-details.rust_last_wipe`
+    async FetchServers(use_default=true, forward=true) {
+        var api_call = ``
+        if (use_default) {
+            api_call = `https://api.battlemetrics.com/servers?filter[game]=rust&filter[status]=online`
+            api_call    += `&filter[countries][]=${this.state.country}&filter[maxDistance]=${this.state.max_distance}&filter[players][min]=${this.state.min_players}`
+            api_call    += `&page[size]=${this.state.num_servers}&sort=-details.rust_last_wipe`
+        }
+        else {
+            api_call = (forward) ? this.state.next_url : this.state.prev_url
+        }
+
         console.log(api_call)
     
         const bm_response = await fetch(api_call)
         const bm_output = await bm_response.json()
     
-        //console.log(`Update Output (Next Line):`);
-        //console.log(bm_output)
+        console.log(`Fetch Output (Next Line):`);
+        console.log(bm_output)
+
+        var next_url = ('next' in bm_output['links']) ? bm_output['links']['next'] : 'none'
+        var prev_url = ('prev' in bm_output['links']) ? bm_output['links']['prev'] : 'none'
     
-        return bm_output['data']
+        return [bm_output['data'], next_url, prev_url]
     }
 
     render() {
@@ -153,23 +184,6 @@ class ServerListClass extends React.Component {
                 </div>
                 <div className={styles.server_list_container}>
                     <div className={styles.server_list_filter_column}>
-                        {/* # of servers */}
-                        <div className={styles.input_container}>
-                            <div className={styles.input_label_container}>
-                                <div className={styles.input_label}># Servers</div>
-                            </div>
-                            <input 
-                                id="num_servers" 
-                                className={styles.input_textbox} 
-                                defaultValue={25} 
-                                onChange={(e) => {
-                                    e.preventDefault();
-                                    const num_servers = document.getElementById('num_servers').value; 
-                                    console.log(`NEW NUM SERVERS: ${num_servers}`); 
-                                    this.setState({num_servers: num_servers})
-                                }
-                            }/>
-                        </div>
                         {/* Min Player Count */}
                         <div className={styles.input_container}>
                             <div className={styles.input_label_container}>
@@ -244,6 +258,34 @@ class ServerListClass extends React.Component {
                                 </div>
                             </div>
                             {servers_jsx_array}
+                        </div>
+                        <div className={styles.page_selector_container}>
+                            <div className={styles.page_selector}>
+                                <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); this.next_page(false)}}/>
+                                {this.state.current_page}
+                                <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); this.next_page(true)}}/>
+                            </div>
+                        </div>
+                        <div className={styles.page_selector_container}>
+                            <div className={styles.page_selector}>
+                                <select 
+                                    id="num_servers" 
+                                    className={`${styles.num_servers}`} 
+                                    defaultValue={25}
+                                    onChange={(e) => {
+                                        e.preventDefault();
+                                        const num_servers = document.getElementById('num_servers').value; 
+                                        console.log(`NEW NUM SERVERS: ${num_servers}`); 
+                                        this.setState({num_servers: num_servers})
+                                    }}
+                                >
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
