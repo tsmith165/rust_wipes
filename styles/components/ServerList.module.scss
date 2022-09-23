@@ -30,17 +30,17 @@
       .server_container:last-of-type { border-bottom: none }
       .server_container:hover { background-color: $dark; }
 
-      .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; flex-grow: 1; }
+      .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; }
       
       .hot_wipe  { color: $hot_wipe; }
       .cool_wipe { color: $cool_wipe; }
       .cold_wipe { color: $cold_wipe; }
       .old_wipe  { color: $light; }
   
-      .rank_cell { width: 4ch !important; }
-      .server_name_cell { width:  calc(100% - 25ch) !important; }
-      .player_count_cell { width: 5ch !important;}
-      .timestamp_cell { width: 6ch !important; } 
+      .rank_cell { width: 60px !important; }
+      .server_name_cell { width:  calc(100% - 215px) !important;  }
+      .player_count_cell { width: 75px !important;}
+      .timestamp_cell { width: 80px !important; } 
   
       .piece_description_container { height: 25px; line-height: 25px; }
           .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
@@ -71,7 +71,7 @@
         background-color: $primary; 
         border-radius: 5px 0px 0px 5px;
       }                     
-      .input_label { color: $dark; font-weight: bold !important; }
+      .input_label { color: $dark; }
     
     /* CSS specific to iOS devices */ 
     @supports (-webkit-touch-callout: none) {
