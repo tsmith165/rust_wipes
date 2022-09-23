@@ -29,10 +29,13 @@ const Server = ({id, className, url, rank, players, max_players, wipe_date}) => 
     else if (diff < COLD_WIPE) heat_class = styles.cold_wipe;
     else                       heat_class = styles.old_wipe;
 
+    const hours_since_wipe = (diff / 60).toFixed(2);
+
+    final_diff_string += `${hours_since_wipe} hrs`
+
+    /*
     if (diff < 60) final_diff_string = `${diff} minutes `;
     else {
-        var minutes = 0; var hours = 0; var days = 0;
-
         minutes = diff % 60;
         if (diff >= 1440) days = parseInt((diff - minutes) / 1440);
         if (diff >= 60) hours = (diff - (days * 1440) - minutes) / 60;
@@ -40,15 +43,14 @@ const Server = ({id, className, url, rank, players, max_players, wipe_date}) => 
         if (days > 0) final_diff_string += `${days} days `
         if (hours > 0) final_diff_string += `${hours} hrs `
         if (minutes > 0) final_diff_string += `${minutes} mins `
-
-
     }
     final_diff_string += 'ago'
+    */
 
     return (
         <div className={`${styles.server_container} ${heat_class} ${styles.className}`}>
             <div className={styles.rank_cell}>
-                {`# ${rank}`}
+                {`${rank}`}
             </div>
             <div className={styles.server_name_cell}>
                 <Link href={url} className={styles.server_href}>
