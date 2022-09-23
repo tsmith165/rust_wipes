@@ -72,6 +72,13 @@
         border-radius: 5px 0px 0px 5px;
       }                     
       .input_label { color: $dark; }
+
+    .input_split_container {
+      display: flex;
+      flex-direction: row;
+      width: 50%; 
+    }
+    .input_split_container:last-of-type { margin-left: 10px; }
     
     /* CSS specific to iOS devices */ 
     @supports (-webkit-touch-callout: none) {

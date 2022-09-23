@@ -184,39 +184,42 @@ class ServerListClass extends React.Component {
                 </div>
                 <div className={styles.server_list_container}>
                     <div className={styles.server_list_filter_column}>
-                        {/* Min Player Count */}
                         <div className={styles.input_container}>
-                            <div className={styles.input_label_container}>
-                                <div className={styles.input_label}>Min Players</div>
+                            {/* Min Player Count */}
+                            <div className={styles.input_split_container}>
+                                <div className={styles.input_label_container}>
+                                    <div className={styles.input_label}>Min Players</div>
+                                </div>
+                                <input 
+                                    id="min_players" 
+                                    className={styles.input_textbox} 
+                                    defaultValue={2} 
+                                    onChange={(e) => {
+                                        e.preventDefault();
+                                        const min_players = document.getElementById('min_players').value; 
+                                        console.log(`NEW MIN PLAYERS: ${min_players}`); 
+                                        this.setState({min_players: min_players})
+                                    }
+                                }/>
                             </div>
-                            <input 
-                                id="min_players" 
-                                className={styles.input_textbox} 
-                                defaultValue={2} 
-                                onChange={(e) => {
-                                    e.preventDefault();
-                                    const min_players = document.getElementById('min_players').value; 
-                                    console.log(`NEW MIN PLAYERS: ${min_players}`); 
-                                    this.setState({min_players: min_players})
-                                }
-                            }/>
-                        </div>
-                        {/* Max Server Distance */}
-                        <div className={styles.input_container}>
-                            <div className={styles.input_label_container}>
-                                <div className={styles.input_label}>Distance</div>
+
+                            {/* Max Server Distance */}
+                            <div className={styles.input_split_container}>
+                                <div className={styles.input_label_container}>
+                                    <div className={styles.input_label}>Distance</div>
+                                </div>
+                                <input 
+                                    id="max_distance" 
+                                    className={styles.input_textbox} 
+                                    defaultValue={5000} 
+                                    onChange={(e) => {
+                                        e.preventDefault();
+                                        const max_distance = document.getElementById('max_distance').value; 
+                                        console.log(`NEW MAX DISTANCE: ${max_distance}`); 
+                                        this.setState({max_distance: max_distance})
+                                    }
+                                }/>
                             </div>
-                            <input 
-                                id="max_distance" 
-                                className={styles.input_textbox} 
-                                defaultValue={5000} 
-                                onChange={(e) => {
-                                    e.preventDefault();
-                                    const max_distance = document.getElementById('max_distance').value; 
-                                    console.log(`NEW MAX DISTANCE: ${max_distance}`); 
-                                    this.setState({max_distance: max_distance})
-                                }
-                            }/>
                         </div>
                         {/* Country */}
                         <div className={styles.input_container}>
