@@ -37,10 +37,10 @@
       .cold_wipe { color: $cold_wipe; }
       .old_wipe  { color: $light; }
   
-      .rank_cell { width: 55px !important; }
-      .server_name_cell { width:  calc(100vw - 210px) !important;  }
-      .player_count_cell { width: 75px !important;}
-      .timestamp_cell { width: 80px !important; } 
+      .rank_cell { width: 65px !important; }
+      .server_name_cell { width:  calc(100vw - 275px) !important;  }
+      .player_count_cell { width: 100px !important;}
+      .timestamp_cell { width: 110px !important; } 
   
       .piece_description_container { height: 25px; line-height: 25px; }
           .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
