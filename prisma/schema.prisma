@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Server {
+  id              Int      @id
+  rank            Int      
+  title           String
+  wipes           String[]
+  primary_day     Int?
+  primary_hour    Int?
+  secondary_day   Int?
+  secondary_hour  Int?
+  force_wipes     String[]
+  force_wipe_hour String?
+}
