@@ -29,7 +29,7 @@
 
         .hour_wipes_container { padding: 0; margin: 0; }
       
-      .server_container { background-color: $light; color: $primary; font-weight: bold; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
+      .server_container { background-color: $medium; color: $primary; font-weight: bold; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
       .server_container:last-of-type { border-bottom: none }
       .server_container:hover { background-color: $dark; }
 
