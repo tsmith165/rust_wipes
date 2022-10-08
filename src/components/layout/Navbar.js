@@ -42,7 +42,7 @@ const Navbar = ({}) => {
                     <Link href="/" passHref={true} styles={{}}>
                         <a>
                             <div className={styles.navbar_logo}>
-                                <Image className={styles.navbar_logo_img} src='/rust_wipes_logo.png' alt='Rust Logo' priority={false} width={272} height={50}/>
+                                <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={false} width={272} height={50}/>
                             </div>
                         </a>
                     </Link>
