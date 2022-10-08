@@ -24,7 +24,7 @@ const UpcomingServer = ({id, server}) => {
     return (
         <div className={`${styles.server_container}`}>
             <div className={styles.rank_cell}>
-                {`${server.rank}`}
+                {`#${server.rank}`}
             </div>
             <div className={styles.server_name_cell}>
                 <Link href={`${BM_SERVER_BASE_URL}/${server.id}`} className={styles.server_href}>
