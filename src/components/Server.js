@@ -50,7 +50,7 @@ const Server = ({id, className, url, rank, players, max_players, wipe_date}) => 
     return (
         <div className={`${styles.server_container} ${heat_class} ${styles.className}`}>
             <div className={styles.rank_cell}>
-                {`${rank}`}
+                {`#${rank}`}
             </div>
             <div className={styles.server_name_cell}>
                 <Link href={url} className={styles.server_href}>
