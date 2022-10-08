@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             const primary_wipes = await prisma.server.findMany({
                 orderBy: [ {rank: 'asc'} ],
                 where: {
-                    primary_hour: parseInt(weekday), 
+                    primary_day: parseInt(weekday), 
                     rank: {
                         lt: (min_rank + 1)
                     }
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
             const secondary_wipes = await prisma.server.findMany({
                 orderBy: [ {rank: 'asc'} ],
                 where: {
-                    secondary_hour: parseInt(weekday), 
+                    secondary_day: parseInt(weekday), 
                     rank: {
                         lt: (min_rank + 1)
                     }
