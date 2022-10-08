@@ -38,16 +38,16 @@ const Navbar = ({}) => {
     return (
         <nav className={styles.navbar}>
             <div className={styles.navbar_container}>
-                <div className={styles.tab_menu_top}>
+                <div className={styles.navbar_logo_container}>
                     <Link href="/" passHref={true} styles={{}}>
                         <a>
                             <div className={styles.navbar_logo}>
-                                <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={false} width={272} height={50}/>
+                                <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={false} width={544} height={100}/>
                             </div>
                         </a>
                     </Link>
                 </div>
-                <div className={styles.tab_menu_bottom}>
+                <div className={styles.tab_menu}>
                     {tab_menu}
                 </div>
                 {/*
