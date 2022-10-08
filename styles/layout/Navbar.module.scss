@@ -6,45 +6,45 @@
     background-color: $dark;  
 }
     .navbar_container { 
-        height: 100px; 
         width: 100% !important; 
         overflow: hidden;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         margin-left: 5px;
     }
-
-        .tab_menu_top {
-            width: 100% !important;
-            height: 50px;
-            display: flex;
-            flex-direction: row;
+        .navbar_logo_container {
+            height: 100px;
+            width: 544px !important; 
         }
-
             .navbar_logo {
                 position: relative;
                 padding: 0; 
-                width: fit-content; 
-                height: 100% !important;  
+                width: 544px; 
+                height: 100px !important;  
+                align-items: flex-end;
+                display: flex;
             }
                 .navbar_logo_img { 
-                    width: auto;
+                    width: 544px !important; 
+                    height: 100px !important;  
                 }
 
-        .tab_menu_bottom {
-            width: 100%;
+        .tab_menu {
+            width: fit-content;
             height: 50px;
             display: flex;
             flex-direction: row;
+            align-items: flex-end;
         }
+    
             .tab_button {
-                margin-top: 5px;
-                height: 45px;
+                height: 50px;
                 padding: 7.5px 10px;
                 font-size: 24px;
                 background-color: $primary;
-                border-top-left-radius: 10px;
-                border-top-right-radius: 10px;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
                 margin-left: 5px;
             }
             .tab_button:hover {
