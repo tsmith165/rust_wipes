@@ -97,7 +97,7 @@ export default async function handler(req, res) {
                     if (grouped_wipe_dict[wipe.secondary_hour] == undefined) { 
                         grouped_wipe_dict[wipe.secondary_hour] = [wipe_data]
                     } else {
-                        grouped_wipe_dict[wipe.secondary_hour] = wipe_data
+                        grouped_wipe_dict[wipe.secondary_hour].push(wipe_data)
                     }
                 }
             }
