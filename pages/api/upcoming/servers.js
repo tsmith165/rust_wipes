@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         
         const weekday = date.getDay()
         const day = date.getDay()
-        const force_wipe = (weekday == 4 && day < 7) ? true : false
+        const force_wipe = (weekday == 5 && day < 7) ? true : false
 
         console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | Force Wipe: ${force_wipe}`)
 
