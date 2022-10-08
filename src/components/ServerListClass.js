@@ -176,12 +176,6 @@ class ServerListClass extends React.Component {
     
         return (
             <div className={styles.page_container}>
-                <div 
-                    className={`${styles.refresh_container} ${this.state.running ? (styles.running_background) : ('')}`} 
-                    onClick={(e) => {e.preventDefault(); this.ToggleRunning() }}
-                >
-                    <CachedIcon className={`${styles.refresh_icon} ${this.state.refreshing ? (styles.rotate) : ('')}`} />
-                </div>
                 <div className={styles.server_list_container}>
                     <div className={styles.server_list_filter_column}>
                         <div className={styles.input_container}>
@@ -222,21 +216,29 @@ class ServerListClass extends React.Component {
                             </div>
                         </div>
                         {/* Country */}
-                        <div className={styles.input_container}>
-                            <div className={styles.input_label_container}>
-                                <div className={styles.input_label}>Country</div>
+                        <div className={styles.input_and_button_container}>
+                            <div className={styles.input_container}>
+                                <div className={styles.input_label_container}>
+                                    <div className={styles.input_label}>Country</div>
+                                </div>
+                                <input 
+                                    id="country" 
+                                    className={styles.input_textbox} 
+                                    defaultValue={'US'} 
+                                    onChange={(e) => {
+                                        e.preventDefault();
+                                        const country = document.getElementById('country').value; 
+                                        console.log(`NEW COUNTRY: ${country}`); 
+                                        this.setState({country: country})
+                                    }
+                                }/>
                             </div>
-                            <input 
-                                id="country" 
-                                className={styles.input_textbox} 
-                                defaultValue={'US'} 
-                                onChange={(e) => {
-                                    e.preventDefault();
-                                    const country = document.getElementById('country').value; 
-                                    console.log(`NEW COUNTRY: ${country}`); 
-                                    this.setState({country: country})
-                                }
-                            }/>
+                            <div 
+                                className={`${styles.refresh_container} ${this.state.running ? (styles.running_background) : ('')}`} 
+                                onClick={(e) => {e.preventDefault(); this.ToggleRunning() }}
+                            >
+                                <CachedIcon className={`${styles.refresh_icon} ${this.state.refreshing ? (styles.rotate) : ('')}`} />
+                            </div>
                         </div>
                         {/*
                         <div className={styles.filter_button_row}>
