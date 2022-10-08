@@ -14,7 +14,7 @@
         margin-left: 5px;
     }
         .navbar_logo_container {
-            height: 100px;
+            height: fit-content;
             width: 544px !important;
         }
             .navbar_logo {
@@ -22,7 +22,7 @@
                 padding: 0; 
                 width: 544px; 
                 max-width: calc(100vw - 10px) !important;
-                height: 100px !important;  
+                height: fit-content !important;  
                 align-items: flex-end;
                 display: flex;
             }

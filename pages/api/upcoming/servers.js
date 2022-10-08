@@ -9,13 +9,14 @@ export default async function handler(req, res) {
         res.status(402)
     } else {
         const date = new Date(req.body.date)
+        const time_zone = parseInt(req.body.time_zone)
         const min_rank = parseInt(req.body.min_rank)
         
         const weekday = date.getDay()
-        const day = date.getDay()
-        const force_wipe = (weekday == 5 && day < 7) ? true : false
+        const day = date.getDate()
+        const force_wipe = (weekday == 4 && day < 7) ? true : false
 
-        console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | Force Wipe: ${force_wipe}`)
+        console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`)
 
         var server_output = null;
         var final_wipe_array = [];
@@ -62,49 +63,52 @@ export default async function handler(req, res) {
         final_wipe_array.forEach(wipe => {
             console.log(`ID: ${wipe.id} | Primary Wipe: ${wipe.primary_day}-${wipe.primary_hour} | Secondary Wipe: ${wipe.secondary_day}-${wipe.secondary_hour} | Force Wipe Hour: ${wipe.force_wipe_hour}`)
             if (force_wipe) {
+                const time_zoned_wipe_hour = Math.abs((wipe['force_wipe_hour'] + time_zone) % 24)
                 const wipe_data = {
                     id: wipe['id'],
                     rank: wipe['rank'],
                     title: wipe['title'],
-                    wipe_hour: wipe['force_wipe_hour']
+                    wipe_hour: time_zoned_wipe_hour
                 }
-                if (grouped_wipe_dict[wipe['force_wipe_hour']] == undefined) { 
-                    grouped_wipe_dict[wipe['force_wipe_hour']] = [wipe_data]
+                if (grouped_wipe_dict[time_zoned_wipe_hour] == undefined) { 
+                    grouped_wipe_dict[time_zoned_wipe_hour] = [wipe_data]
                 } else {
-                    grouped_wipe_dict[wipe['force_wipe_hour']].push(wipe_data)
+                    grouped_wipe_dict[time_zoned_wipe_hour].push(wipe_data)
                 }
             } else {
                 if (wipe.primary_day == weekday) {
+                    const time_zoned_wipe_hour = Math.abs((wipe['primary_hour'] + time_zone) % 24)
                     const wipe_data = {
                         id: wipe['id'],
                         rank: wipe['rank'],
                         title: wipe['title'],
-                        wipe_hour: wipe['primary_hour']
+                        wipe_hour: time_zoned_wipe_hour
                     }
-                    if (grouped_wipe_dict[wipe['primary_hour']] == undefined) { 
-                        grouped_wipe_dict[wipe['primary_hour']] = [wipe_data]
+                    if (grouped_wipe_dict[time_zoned_wipe_hour] == undefined) { 
+                        grouped_wipe_dict[time_zoned_wipe_hour] = [wipe_data]
                     } else {
-                        grouped_wipe_dict[wipe['primary_hour']].push(wipe_data)
+                        grouped_wipe_dict[time_zoned_wipe_hour].push(wipe_data)
                     }
                 } 
                 else if (wipe.secondary_day == weekday) {
+                    const time_zoned_wipe_hour = Math.abs((wipe['secondary_hour'] + time_zone) % 24)
                     const wipe_data = {
                         id: wipe['id'],
                         rank: wipe['rank'],
                         title: wipe['title'],
-                        wipe_hour: wipe['secondary_hour']
+                        wipe_hour: time_zoned_wipe_hour
                     }
-                    if (grouped_wipe_dict[wipe['secondary_hour']] == undefined) { 
-                        grouped_wipe_dict[wipe['secondary_hour']] = [wipe_data]
+                    if (grouped_wipe_dict[time_zoned_wipe_hour] == undefined) { 
+                        grouped_wipe_dict[time_zoned_wipe_hour] = [wipe_data]
                     } else {
-                        grouped_wipe_dict[wipe['secondary_hour']].push(wipe_data)
+                        grouped_wipe_dict[time_zoned_wipe_hour].push(wipe_data)
                     }
                 }
             }
         });
 
-        console.log(`Upcoming Server Output (Next Line):`);
-        console.log(grouped_wipe_dict)
+        // console.log(`Upcoming Server Output (Next Line):`);
+        // console.log(grouped_wipe_dict)
         res.json(grouped_wipe_dict)
     }
 
