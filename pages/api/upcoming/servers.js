@@ -68,10 +68,10 @@ export default async function handler(req, res) {
                     title: wipe['title'],
                     wipe_hour: wipe['force_wipe_hour']
                 }
-                if (grouped_wipe_dict[wipe.force_wipe_hour] == undefined) { 
-                    grouped_wipe_dict[wipe.force_wipe_hour] = [wipe_data]
+                if (grouped_wipe_dict[wipe['force_wipe_hour']] == undefined) { 
+                    grouped_wipe_dict[wipe['force_wipe_hour']] = [wipe_data]
                 } else {
-                    grouped_wipe_dict[wipe.force_wipe_hour].push(wipe_data)
+                    grouped_wipe_dict[wipe['force_wipe_hour']].push(wipe_data)
                 }
             } else {
                 if (wipe.primary_day == weekday) {
@@ -81,10 +81,10 @@ export default async function handler(req, res) {
                         title: wipe['title'],
                         wipe_hour: wipe['primary_hour']
                     }
-                    if (grouped_wipe_dict[wipe.primary_hour] == undefined) { 
-                        grouped_wipe_dict[wipe.primary_hour] = [wipe_data]
+                    if (grouped_wipe_dict[wipe['primary_hour']] == undefined) { 
+                        grouped_wipe_dict[wipe['primary_hour']] = [wipe_data]
                     } else {
-                        grouped_wipe_dict[wipe.primary_hour].push(wipe_data)
+                        grouped_wipe_dict[wipe['primary_hour']].push(wipe_data)
                     }
                 } 
                 else if (wipe.secondary_day == weekday) {
@@ -94,10 +94,10 @@ export default async function handler(req, res) {
                         title: wipe['title'],
                         wipe_hour: wipe['secondary_hour']
                     }
-                    if (grouped_wipe_dict[wipe.secondary_hour] == undefined) { 
-                        grouped_wipe_dict[wipe.secondary_hour] = [wipe_data]
+                    if (grouped_wipe_dict[wipe['secondary_hour']] == undefined) { 
+                        grouped_wipe_dict[wipe['secondary_hour']] = [wipe_data]
                     } else {
-                        grouped_wipe_dict[wipe.secondary_hour].push(wipe_data)
+                        grouped_wipe_dict[wipe['secondary_hour']].push(wipe_data)
                     }
                 }
             }
