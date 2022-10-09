@@ -54,7 +54,7 @@ class UpcomingWipesClass extends React.Component {
         const current_weekday = date.getDay()
         const force_wipe = (current_weekday == 4 && cur_day < 7) ? true : false;
         const wipe_day_header_str = (force_wipe == true) ? 
-            `Thursday Force Wipes` :
+            `Force Wipes` :
             `${DAY_OF_WEEK_DICT[current_weekday]} Wipes`;
         console.log(`Min Rank: ${min_rank} | Date: ${date} | Force Wipe: ${force_wipe} | Wipe Day Header Str: ${wipe_day_header_str}`)
 
@@ -129,7 +129,7 @@ class UpcomingWipesClass extends React.Component {
                             {/* Time Zone */}
                             <div className={styles.input_split_container}>
                                 <div className={styles.input_label_container}>
-                                    <div className={styles.input_label}>Time Zone</div>
+                                    <div className={styles.input_label}>Time</div>
                                 </div>
                                 <select 
                                     id="time_zone_select" 
@@ -143,12 +143,12 @@ class UpcomingWipesClass extends React.Component {
                                     }}
                                 >
                                     <option value="-10">Hawaii (UTC-10:00)</option>
-                                    <option value="-9">Alaska (UTC-9:00)</option>
-                                    <option value="-7">Pacific (UTC-7:00)</option>
-                                    <option value="-6">Mountain (UTC-6:00)</option>
-                                    <option value="-5">Central (UTC-5:00)</option>
-                                    <option value="-4">Eastern (UTC-4:00)</option>
-                                    <option value="-3">Atlantic (UTC-3:00)</option>
+                                    <option value="-9">Alaska (UTC-09:00)</option>
+                                    <option value="-7">Pacific (UTC-07:00)</option>
+                                    <option value="-6">Mountain (UTC-06:00)</option>
+                                    <option value="-5">Central (UTC-05:00)</option>
+                                    <option value="-4">Eastern (UTC-04:00)</option>
+                                    <option value="-3">Atlantic (UTC-03:00)</option>
                                     <option value="0">Coordinated Universal Time (UTC)</option>
                                     <option value="1">UTC+01:00</option>
                                     <option value="3">UTC+02:00</option>

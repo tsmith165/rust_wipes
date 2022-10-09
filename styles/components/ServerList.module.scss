@@ -16,12 +16,14 @@
     height: 100%;
     width: 100%; 
   }
-
-    .server_list_body { 
+    .server_list_body_container { 
       min-height: calc(100% - 110px); 
       flex: 1 1 65%; 
       min-width: 50ch;
     }
+      .server_list_body { 
+        width: 100vw;
+      }
 
       .server_list_table { position: relative; width: 100%;}
       .server_list_header { background-color: $primary; color: $dark; }
@@ -39,12 +41,12 @@
   
       .rank_cell { min-width: 65px !important; }
       @media (min-width: 800px) {
-        .server_name_cell { min-width: calc(100% - 225px) !important;  }
+        .server_name_cell { min-width: calc(100% - 215px) !important;  }
       }
       @media (max-width: 800px) {
-        .server_name_cell { min-width:  calc(100% - 225px) !important;  }
+        .server_name_cell { min-width:  calc(100% - 215px) !important;  }
       }
-      .player_count_cell { min-width: 85px !important;}
+      .player_count_cell { min-width: 75px !important;}
       .timestamp_cell { min-width: 75px !important; } 
   
       .piece_description_container { height: 25px; line-height: 25px; }

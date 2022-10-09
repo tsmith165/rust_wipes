@@ -16,6 +16,7 @@ export default async function handler(req, res) {
         const day = date.getDate()
         const force_wipe = (weekday == 4 && day < 7) ? true : false
 
+        console.log(`Requesting data with params (Next Line):`)
         console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`)
 
         var server_output = null;
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
             const primary_wipes = await prisma.server.findMany({
                 orderBy: [ {rank: 'asc'} ],
                 where: {
-                    primary_day: parseInt(weekday), 
+                    primary_day: parseInt(weekday) + 1, 
                     rank: {
                         lt: (min_rank + 1)
                     }
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
             const secondary_wipes = await prisma.server.findMany({
                 orderBy: [ {rank: 'asc'} ],
                 where: {
-                    secondary_day: parseInt(weekday), 
+                    secondary_day: parseInt(weekday) + 1, 
                     rank: {
                         lt: (min_rank + 1)
                     }
@@ -58,12 +59,17 @@ export default async function handler(req, res) {
         }
 
         // Print found wipes and group wipes by wipe hour
+        const debug = false;
         var grouped_wipe_dict = {}
-        console.log(`Found wipes:`)
+        if (debug) { console.log(`Found wipes:`) }
         final_wipe_array.forEach(wipe => {
-            console.log(`ID: ${wipe.id} | Primary Wipe: ${wipe.primary_day}-${wipe.primary_hour} | Secondary Wipe: ${wipe.secondary_day}-${wipe.secondary_hour} | Force Wipe Hour: ${wipe.force_wipe_hour}`)
+
+            if (debug) { 
+                console.log(`ID: ${wipe.id} | Primary Wipe: ${wipe.primary_day}-${wipe.primary_hour} | Secondary Wipe: ${wipe.secondary_day}-${wipe.secondary_hour} | Force Wipe Hour: ${wipe.force_wipe_hour}`) 
+            }
+
             if (force_wipe) {
-                const time_zoned_wipe_hour = Math.abs((wipe['force_wipe_hour'] + time_zone) % 24)
+                const time_zoned_wipe_hour = Math.abs((parseInt(wipe.force_wipe_hour) + time_zone) % 24)
                 const wipe_data = {
                     id: wipe['id'],
                     rank: wipe['rank'],
@@ -76,8 +82,8 @@ export default async function handler(req, res) {
                     grouped_wipe_dict[time_zoned_wipe_hour].push(wipe_data)
                 }
             } else {
-                if (wipe.primary_day == weekday) {
-                    const time_zoned_wipe_hour = Math.abs((wipe['primary_hour'] + time_zone) % 24)
+                if (wipe.primary_day == weekday + 1) {
+                    const time_zoned_wipe_hour = Math.abs((parseInt(wipe.primary_hour) + time_zone) % 24)
                     const wipe_data = {
                         id: wipe['id'],
                         rank: wipe['rank'],
@@ -90,8 +96,8 @@ export default async function handler(req, res) {
                         grouped_wipe_dict[time_zoned_wipe_hour].push(wipe_data)
                     }
                 } 
-                else if (wipe.secondary_day == weekday) {
-                    const time_zoned_wipe_hour = Math.abs((wipe['secondary_hour'] + time_zone) % 24)
+                else if (wipe.secondary_day == weekday + 1) {
+                    const time_zoned_wipe_hour = Math.abs((parseInt(wipe.secondary_hour) + time_zone) % 24)
                     const wipe_data = {
                         id: wipe['id'],
                         rank: wipe['rank'],

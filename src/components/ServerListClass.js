@@ -246,23 +246,25 @@ class ServerListClass extends React.Component {
                         </div>
                         */}
                     </div>
-                    <div className={styles.server_list_body}>
-                        <div className={styles.server_list_table}>
-                            <div className={`${styles.server_container} ${styles.old_wipe}`}>
-                                <div className={`${styles.rank_cell} ${styles.server_list_header}`}>
-                                    {'Rank'}
+                    <div className={styles.server_list_body_container}>
+                        <div className={styles.server_list_body}>
+                            <div className={styles.server_list_table}>
+                                <div className={`${styles.server_container} ${styles.old_wipe}`}>
+                                    <div className={`${styles.rank_cell} ${styles.server_list_header}`}>
+                                        {'Rank'}
+                                    </div>
+                                    <div className={`${styles.server_name_cell} ${styles.server_list_header}`}>
+                                        {'Server Title'}
+                                    </div>
+                                    <div className={`${styles.player_count_cell} ${styles.server_list_header}`}>
+                                        {'Players'}
+                                    </div>
+                                    <div className={`${styles.timestamp_cell} ${styles.server_list_header}`}>
+                                        {'Wiped'}
+                                    </div>
                                 </div>
-                                <div className={`${styles.server_name_cell} ${styles.server_list_header}`}>
-                                    {'Server Title'}
+                                {servers_jsx_array}
                                 </div>
-                                <div className={`${styles.player_count_cell} ${styles.server_list_header}`}>
-                                    {'Players'}
-                                </div>
-                                <div className={`${styles.timestamp_cell} ${styles.server_list_header}`}>
-                                    {'Wiped'}
-                                </div>
-                            </div>
-                            {servers_jsx_array}
                         </div>
                         <div className={styles.page_selector_container}>
                             <div className={styles.page_selector}>
