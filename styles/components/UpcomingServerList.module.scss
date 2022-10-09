@@ -8,7 +8,7 @@
 
       .hour_container { width: 100%; }
         .hour_header { display: flex; flex-direction: row; background-color: $primary; color: $dark; padding: 5px; border-bottom: 1px solid $medium; }
-          .hour_header_title { line-height: 24px; font-size: 20px; font-weight: bold; }
+          .hour_header_title { line-height: 24px; font-size: 20px; font-weight: 500 !important; }
 
         .hour_wipes_container { padding: 0; margin: 0; }
       
@@ -16,7 +16,7 @@
       .server_container:last-of-type { border-bottom: none }
       .server_container:hover { background-color: $dark; }
 
-      .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: bold !important; }
+      .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
       
 
       .rank_cell { width: 65px !important; }
