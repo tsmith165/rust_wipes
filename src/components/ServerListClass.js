@@ -7,6 +7,8 @@ import styles from '../../styles/components/ServerList.module.scss'
 import CachedIcon from '@material-ui/icons/Cached';
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
+import { fetch_battlemetrics_servers } from '../../lib/api_calls'
+
 class ServerListClass extends React.Component {
     constructor(props) {
         super(props);
@@ -15,9 +17,9 @@ class ServerListClass extends React.Component {
             debug: false,
             running: false,
             refreshing: false,
-            server_list: [],
-            next_url: 'none',
-            prev_url: 'none',
+            server_list: props.server_list,
+            next_url: props.next_url,
+            prev_url: props.prev_url,
             server_list_timer: null,
             num_servers: 25,
             min_players: 2,
@@ -26,13 +28,13 @@ class ServerListClass extends React.Component {
             current_page: 1
         };
     }
-
+    
     async componentDidMount() {
-        console.log(`-------------- Fetching Initial Server List --------------`)
-        const [new_server_list, next_url, prev_url] = await this.FetchServers()
+        // console.log(`-------------- Fetching Initial Server List --------------`)
+        // const [new_server_list, next_url, prev_url] = await this.FetchServers()
         // this.SetServerListFetchInterval()  // disabled as we added button to turn on interval
 
-        this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
+        // this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
     }
 
     async ToggleRunning() {
@@ -109,6 +111,7 @@ class ServerListClass extends React.Component {
         this.SetServerListFetchInterval()
     } 
     
+    /*
     async FetchServers(use_default=true, forward=true) {
         var api_call = ``
         if (use_default) {
@@ -132,6 +135,21 @@ class ServerListClass extends React.Component {
         var prev_url = ('prev' in bm_output['links']) ? bm_output['links']['prev'] : 'none'
     
         return [bm_output['data'], next_url, prev_url]
+    }
+    */
+
+    async FetchServers(use_default=true, forward=true) {
+        const [new_server_list, next_url, prev_url] = await fetch_battlemetrics_servers(
+            country=this.state.country, 
+            max_distance=this.state.max_distance, 
+            min_players=this.state.min_players, 
+            num_servers=this.state.num_servers, 
+            next_url=this.state.next_url, 
+            prev_url=this.state.prev_url,
+            use_default=use_default, 
+            forward=forward
+        )
+        return [new_server_list, next_url, prev_url]
     }
 
     render() {
