@@ -15,7 +15,7 @@ const DAY_OF_WEEK_DICT = {
 
 export default function Upcoming({server_list}) {
   return (
-    <PageLayout page_title={"Rust Wipes"}>
+    <PageLayout page_title={"Upcoming Wipes"}>
       <UpcomingWipesClass/>
     </PageLayout>
   )

@@ -3,7 +3,7 @@ import ServerListClass from '../src/components/ServerListClass';
 
 export default function Home({}) {
   return (
-    <PageLayout page_title={"Rust Wipes"}>
+    <PageLayout page_title={"Recent Wipes"}>
       <ServerListClass/>
     </PageLayout>
   )
