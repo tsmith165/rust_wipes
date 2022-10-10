@@ -32,7 +32,6 @@ class UpcomingWipesClass extends React.Component {
         const wipe_day_header_str = (force_wipe == true) ? 
             `Thursday Force Wipes` :
             `${DAY_OF_WEEK_DICT[current_weekday]} Wipes`;
-            
 
         this.state = {
             debug: false,
@@ -45,7 +44,8 @@ class UpcomingWipesClass extends React.Component {
     }
 
     async componentDidMount() {
-        await this.fetch_servers(this.state.date)
+        // fetching initial server list in getStaticProps now
+        // await this.fetch_servers(this.state.date)
     }
 
     async fetch_servers(date) {
