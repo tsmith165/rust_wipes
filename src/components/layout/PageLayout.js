@@ -12,7 +12,7 @@ const PageLayout = ({page_title="Rust Wipes", children}) => {
             <Head>
                 <title>{page_title}</title>
                 <meta name="description" content="Rust Wipes" />
-                <link rel="icon" href="/RUST_ICON.png" />
+                <link rel="icon" href="/rust_hazmat_icon.png" />
             </Head>
             
             <main className={styles.main}>
