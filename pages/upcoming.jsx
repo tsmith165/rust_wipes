@@ -21,7 +21,7 @@ export default function Upcoming({server_list}) {
   )
 }
 
-export const getStaticProps= async (context) => {
+export const getStaticProps = async (context) => {
   console.log(`-------------- Fetching Server List --------------`)
   const cur_date = new Date()
   const server_list = await fetch_upcoming_servers_for_week_day(cur_date.getDay() + 1, -7, 5000)
