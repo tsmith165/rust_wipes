@@ -59,7 +59,7 @@ class UpcomingWipesClass extends React.Component {
         console.log(`Min Rank: ${min_rank} | Date: ${date} | Force Wipe: ${force_wipe} | Wipe Day Header Str: ${wipe_day_header_str}`)
 
 
-        const server_list = await fetch_upcoming_servers_for_week_day(date, this.state.time_zone, min_rank)
+        const server_list = await fetch_upcoming_servers_for_week_day(date, this.state.time_zone, min_rank, false)
         this.setState({server_list: server_list, date: date, wipe_day_header_str: wipe_day_header_str, min_rank: min_rank})
     }
 
