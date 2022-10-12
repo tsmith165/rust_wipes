@@ -140,14 +140,14 @@ class ServerListClass extends React.Component {
 
     async FetchServers(use_default=true, forward=true) {
         const [new_server_list, next_url, prev_url] = await fetch_battlemetrics_servers(
-            country=this.state.country, 
-            max_distance=this.state.max_distance, 
-            min_players=this.state.min_players, 
-            num_servers=this.state.num_servers, 
-            next_url=this.state.next_url, 
-            prev_url=this.state.prev_url,
-            use_default=use_default, 
-            forward=forward
+            this.state.country, 
+            this.state.max_distance, 
+            this.state.min_players, 
+            this.state.num_servers, 
+            this.state.next_url, 
+            this.state.prev_url,
+            use_default, 
+            forward
         )
         return [new_server_list, next_url, prev_url]
     }
