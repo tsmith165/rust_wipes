@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         console.log(`Requesting data with params (Next Line):`)
         console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`)
 
-        var force_wipes = null; var primary_wipes = null; var secondary_wipes = null;
+        var force_wipes = null; var primary_wipes = null; var secondary_wipes = null; var final_wipe_array = null;
         if (force_wipe == true) {
             force_wipes = await prisma.server.findMany({
                 orderBy: [ {rank: 'asc'} ],
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
             })
 
             // Combine primary / secondary wipes into one array
-            var final_wipe_array = primary_wipes
+            final_wipe_array = primary_wipes
             secondary_wipes.forEach(wipe => { final_wipe_array.push(wipe) })
         }
 
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         const debug = false;
         var grouped_wipe_dict = {}
         if (debug) { console.log(`Found wipes:`) }
-        final_wipe_array.forEach(wipe => async function() {
+        final_wipe_array.forEach(wipe => {
 
             if (debug) { 
                 console.log(`ID: ${wipe.id} | Primary Wipe: ${wipe.primary_day}-${wipe.primary_hour} | Secondary Wipe: ${wipe.secondary_day}-${wipe.secondary_hour} | Force Wipe Hour: ${wipe.force_wipe_hour}`) 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
 
             if (force_wipe) {
                 const time_zoned_wipe_hour = Math.abs((parseInt(wipe.force_wipe_hour) + time_zone) % 24)
-                var last_wipe_date = await get_latest_force_wipe(wipe.wipes);
+                var last_wipe_date = get_latest_force_wipe(wipe.wipes);
 
                 const wipe_data = {
                     id: wipe.id,
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
             } else {
                 if (wipe.primary_day == weekday + 1) {
                     const time_zoned_wipe_hour = Math.abs((parseInt(wipe.primary_hour) + time_zone) % 24)
-                    var last_wipe_date = await get_latest_weekday_wipe(wipe.wipes, wipe.primary_day);
+                    var last_wipe_date = get_latest_weekday_wipe(wipe.wipes, wipe.primary_day);
                     const wipe_data = {
                         id: wipe.id,
                         rank: wipe.rank,
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
                 } 
                 else if (wipe.secondary_day == weekday + 1) {
                     const time_zoned_wipe_hour = Math.abs((parseInt(wipe.secondary_hour) + time_zone) % 24)
-                    var last_wipe_date = await get_latest_weekday_wipe(wipe.wipes, wipe.secondary_day);
+                    var last_wipe_date = get_latest_weekday_wipe(wipe.wipes, wipe.secondary_day);
                     const wipe_data = {
                         id: wipe['id'],
                         rank: wipe['rank'],
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
     res.end()
 }
 
-async function get_latest_force_wipe(wipe_date_array) {
+function get_latest_force_wipe(wipe_date_array) {
     var last_wipe_date = null;
     wipe_date_array.forEach(wipe_date_str => {
         console.log(wipe_date_str)
@@ -144,7 +144,7 @@ async function get_latest_force_wipe(wipe_date_array) {
     return last_wipe_date
 }
 
-async function get_latest_weekday_wipe(wipe_date_array, wipe_weekday) {
+function get_latest_weekday_wipe(wipe_date_array, wipe_weekday) {
     var last_wipe_date = null;
     wipe_date_array.forEach(wipe_date_str => {
         var wipe_date = new Date(wipe_date_str)
