@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
 import * as gtag from '../lib/gtag'
@@ -14,6 +14,8 @@ const queryClient = new QueryClient();
 
 const App = ({ Component, pageProps }) => {
   const router = useRouter()
+  const [page, setPage] = useState('recent');
+
   useEffect(() => {
     const handleRouteChange = (url) => {
       console.log(`Sending analytics call with url: ${url}`)
@@ -48,7 +50,7 @@ const App = ({ Component, pageProps }) => {
           `,
         }}
       />
-      <Layout>
+      <Layout page={page} setPage={setPage}>
         <Component {...pageProps} />
       </Layout>
     </QueryClientProvider>

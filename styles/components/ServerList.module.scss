@@ -18,7 +18,7 @@
   }
     .server_list_body_container { 
       min-height: calc(100% - 110px); 
-      flex: 1 1 65%; 
+      flex: 1 1 60%; 
       min-width: 50ch;
     }
       .server_list_body { 
@@ -39,22 +39,22 @@
       .cold_wipe { color: $cold_wipe; }
       .old_wipe  { color: $light; }
   
-      .rank_cell { min-width: 65px !important; }
+      .rank_cell { min-width: 65px !important; max-width: 65px; }
       @media (min-width: 800px) {
-        .server_name_cell { min-width: calc(100% - 215px) !important;  }
+        .server_name_cell { width: calc(60% - 225px - 10px) !important; max-width: calc(60% - 225px - 10px) !important; }
       }
       @media (max-width: 800px) {
-        .server_name_cell { min-width:  calc(100% - 215px) !important;  }
+        .server_name_cell { min-width:  calc(100% - 225px) !important;  }
       }
-      .player_count_cell { min-width: 75px !important;}
-      .timestamp_cell { min-width: 75px !important; } 
+      .player_count_cell { min-width: 80px !important; max-width: 80px !important; }
+      .timestamp_cell { min-width: 80px !important; max-width: 80px !important; } 
   
       .piece_description_container { height: 25px; line-height: 25px; }
           .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
           .piece_sold { position: absolute; bottom: 10px; right: 10px; }
   
   .server_list_filter_column {
-    flex: 1 1 35%;
+    flex: 1 1 40%;
     min-height: 20px; 
     background-color: $dark;
   } 
@@ -72,7 +72,8 @@
         display: flex; 
         align-items: center; 
         justify-content: center; 
-        width: 120px; 
+        width: 100px; 
+        max-width: 100px; 
         height: 100%; 
         padding: 5px 5px; 
         background-color: $primary; 
@@ -101,7 +102,7 @@
       .input_textbox { 
           width: calc(100% - 13ch); 
           height: 100%; 
-          padding: 6px 10px;
+          padding: 7.5px 10px;
           color: $light; 
           background-color: $medium; 
           border-radius: 0px 5px 5px 0px; 
@@ -111,7 +112,7 @@
       .input_select { 
           width: calc(100% - 13ch); 
           height: 100%;
-          padding: 5px 10px; 
+          padding: 7.5px 10px; 
           background-color: $medium; 
           color: $primary; 
           border-radius: 0px 5px 5px 0px; 
@@ -126,7 +127,7 @@
       .input_textbox { 
           width: calc(100% - 13ch); 
           height: 100%; 
-          padding: 6px 10px;
+          padding: 7.5px 10px;
           color: $primary; 
           background-color: $medium; 
           border-radius: 0px 5px 5px 0px; 
@@ -137,7 +138,7 @@
       .input_select { 
           width: calc(100% - 13ch);  
           height: 100%; 
-          padding: 5px 10px;
+          padding: 7.5px 10px;
           color: $primary; 
           background-color: $medium; 
           border-radius: 0px 5px 5px 0px; 
