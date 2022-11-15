@@ -8,10 +8,9 @@ class Layout extends React.Component {
     }
 
     render() {
-        console.log(`LAYOUT PAGE: ${this.props.page}`)
         return (
             <>
-                <Navbar page={this.props.page} setPage={this.props.setPage}/>
+                <Navbar url={this.props.url}/>
                 {this.props.children}
             </>
         )
