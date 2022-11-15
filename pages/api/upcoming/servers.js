@@ -31,6 +31,18 @@ export default async function handler(req, res) {
                     }, rank: {
                         lt: (min_rank + 1)
                     }
+                },
+                select: {
+                  id: true,
+                  title: true,
+                  wipes: false,
+                  rank: true,
+                  force_wipes: false,
+                  force_wipe_hour: true,
+                  primary_day: false,
+                  primary_hour: false,
+                  secondary_day: false,
+                  secondary_hour: false,
                 }
             })
             final_wipe_array = force_wipes
@@ -42,6 +54,18 @@ export default async function handler(req, res) {
                     rank: {
                         lt: (min_rank + 1)
                     }
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: false,
+                    primary_day: true,
+                    primary_hour: true,
+                    secondary_day: false,
+                    secondary_hour: false,
                 }
             })
             secondary_wipes = await prisma.server.findMany({
@@ -51,6 +75,18 @@ export default async function handler(req, res) {
                     rank: {
                         lt: (min_rank + 1)
                     }
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: false,
+                    primary_day: false,
+                    primary_hour: false,
+                    secondary_day: true,
+                    secondary_hour: true,
                 }
             })
 

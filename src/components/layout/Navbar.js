@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import React from 'react';
-import { withRouter } from 'next/router'
 
 import styles from "../../../styles/layout/Navbar.module.scss"
 
@@ -9,22 +8,15 @@ import { menu_list } from "../../../lib/menu_list"
 
 // import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 
-export default withRouter(class Navbar extends React.Component {
+export default class Navbar extends React.Component {
     constructor(props) {
       super(props);
-      this.cur_url = props.router.query.id;
-      this.page = props.page;
-      this.setPage = props.setPage;
     }
 
-    generate_navbar(menu_list, cur_url) {
-        console.log("Generating Navbar")
-        console.log(`Current URL (Next Line):`)
-        console.log(cur_url)
-
-        // var cur_menu = (this.cur_url.includes('upcoming')) ? 'upcoming' : 'recent'
-        var cur_menu = this.page
-        console.log(`Current Page: ${this.page}`)
+    generate_navbar(menu_list) {
+        this.curr_pathname = this.props.url
+        console.log(("-".repeat(15)) + " Generating Navbar " + ("-".repeat(15)))
+        console.log(`Current URL: ${this.curr_pathname}`)
     
         var menu_items = [];
         for (var i=0; i < menu_list.length; i++) {
@@ -33,28 +25,24 @@ export default withRouter(class Navbar extends React.Component {
             let menu_item_string = menu_list[i][1];
             let url_endpoint = menu_list[i][3];
     
-            console.log(`Creating Menu Item for: ${menu_item_string} | ${class_name}`);
+            console.log(`Creating Menu Item for URL endpoint: ${url_endpoint} | Active Endpoint: ${this.curr_pathname}`);
     
-            const tab_class = (cur_menu == class_name) ? styles.tab_active : styles.tab_button
+            const tab_class = (this.curr_pathname == url_endpoint) ? styles.tab_active : styles.tab_button
             
-    
             const menu_item = (
-                <Link href={url_endpoint} passHref={true} onClick={(e) => {e.preventDefault(); this.setPage(class_name)} } key={i}> 
+                <Link href={url_endpoint} passHref={true} key={i}> 
                     <div className={`${tab_class}`}>
                         {menu_item_string}
                     </div>
                 </Link>
             )
-    
-    
             menu_items.push(menu_item);
         }
-    
         return menu_items
     }
 
     render() {
-        const tab_menu = this.generate_navbar(menu_list, this.cur_url)
+        const tab_menu = this.generate_navbar(menu_list)
 
         return (
             <nav className={styles.navbar}>
@@ -82,4 +70,4 @@ export default withRouter(class Navbar extends React.Component {
             </nav>
         )
     }
-})
+}

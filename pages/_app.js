@@ -14,12 +14,13 @@ const queryClient = new QueryClient();
 
 const App = ({ Component, pageProps }) => {
   const router = useRouter()
-  const [page, setPage] = useState('recent');
+  const [url, setUrl] = useState(router.pathname)
 
   useEffect(() => {
     const handleRouteChange = (url) => {
       console.log(`Sending analytics call with url: ${url}`)
       gtag.pageview(url)
+      setUrl(url)
     }
     router.events.on('routeChangeComplete', handleRouteChange)
     router.events.on('hashChangeComplete', handleRouteChange)
@@ -50,8 +51,8 @@ const App = ({ Component, pageProps }) => {
           `,
         }}
       />
-      <Layout page={page} setPage={setPage}>
-        <Component {...pageProps} />
+      <Layout url={url}>
+        <Component {...pageProps}/>
       </Layout>
     </QueryClientProvider>
   );
