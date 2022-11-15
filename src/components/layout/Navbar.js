@@ -2,11 +2,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import React from 'react';
 
-import styles from "../../../styles/layout/Navbar.module.scss"
+import styles from "../../../styles/layout/Navbar.module.scss";
 
-import { menu_list } from "../../../lib/menu_list"
-
-// import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
+import { menu_list } from "../../../lib/menu_list";
 
 export default class Navbar extends React.Component {
     constructor(props) {
@@ -30,7 +28,7 @@ export default class Navbar extends React.Component {
             const tab_class = (this.curr_pathname == url_endpoint) ? styles.tab_active : styles.tab_button
             
             const menu_item = (
-                <Link href={url_endpoint} passHref={true} key={i}> 
+                <Link href={url_endpoint} passHref={true} onClick={(e) => {e.preventDefault();}} key={i}> 
                     <div className={`${tab_class}`}>
                         {menu_item_string}
                     </div>
