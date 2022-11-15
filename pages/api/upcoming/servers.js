@@ -21,7 +21,19 @@ export default async function handler(req, res) {
 
         var force_wipes = null; var primary_wipes = null; var secondary_wipes = null; var final_wipe_array = null;
         if (force_wipe == true) {
-            force_wipes = await prisma.server.findMany({
+            force_wipes = await prisma.server.findUnique({
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: true,
+                    primary_day: false,
+                    primary_hour: false,
+                    secondary_day: false,
+                    secondary_hour: false,
+                },
                 orderBy: [ {rank: 'asc'} ],
                 where: {
                     force_wipe_hour: {
@@ -32,10 +44,23 @@ export default async function handler(req, res) {
                         lt: (min_rank + 1)
                     }
                 }
+
             })
             final_wipe_array = force_wipes
         } else {
-            primary_wipes = await prisma.server.findMany({
+            primary_wipes = await prisma.server.findUnique({
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: false,
+                    primary_day: true,
+                    primary_hour: true,
+                    secondary_day: false,
+                    secondary_hour: false,
+                },
                 orderBy: [ {rank: 'asc'} ],
                 where: {
                     primary_day: parseInt(weekday) + 1, 
@@ -44,7 +69,19 @@ export default async function handler(req, res) {
                     }
                 }
             })
-            secondary_wipes = await prisma.server.findMany({
+            secondary_wipes = await prisma.server.findUnique({
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: false,
+                    primary_day: false,
+                    primary_hour: false,
+                    secondary_day: true,
+                    secondary_hour: true,
+                },
                 orderBy: [ {rank: 'asc'} ],
                 where: {
                     secondary_day: parseInt(weekday) + 1, 
