@@ -9,22 +9,16 @@
   background-color: $medium 
 }
 
-  .server_list_container { 
-    position: relative;
-    display: flex;
-    flex-wrap: wrap; 
-    height: 100%;
-    width: 100%; 
+  @media (min-width: 800px) {
+    .server_list_container { position: relative; display: flex; flex-wrap: wrap; height: 100%; width: 100%; }
+    .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; }
+    .server_list_body { width: 100%; }
   }
-    .server_list_body_container { 
-      min-height: calc(100% - 110px); 
-      flex: 1 1 60%; 
-      min-width: 50ch;
-    }
-      .server_list_body { 
-        width: 100vw;
-      }
-
+  @media (max-width: 800px) {
+    .server_list_container { position: relative; display: flex; flex-wrap: wrap; max-height: 100%; height: 100%; width: 100%; }
+    .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; }
+    .server_list_body { width: 100%; max-height: calc(100% - 105px) !important; overflow-y: scroll;  }
+  }
       .server_list_table { position: relative; width: 100%;}
       .server_list_header { background-color: $primary; color: $dark; }
      
@@ -41,7 +35,7 @@
   
       .rank_cell { min-width: 65px !important; max-width: 65px; }
       @media (min-width: 800px) {
-        .server_name_cell { width: calc(60% - 225px - 10px) !important; max-width: calc(60% - 225px - 10px) !important; }
+        .server_name_cell { width: calc(100% - 225px) !important; max-width: calc(100% - 225px) !important; }
       }
       @media (max-width: 800px) {
         .server_name_cell { min-width:  calc(100% - 225px) !important;  }
