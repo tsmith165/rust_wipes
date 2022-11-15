@@ -34,7 +34,6 @@ export default async function handler(req, res) {
                     secondary_day: false,
                     secondary_hour: false,
                 },
-                orderBy: [ {rank: 'asc'} ],
                 where: {
                     force_wipe_hour: {
                         not: {
@@ -43,7 +42,8 @@ export default async function handler(req, res) {
                     }, rank: {
                         lt: (min_rank + 1)
                     }
-                }
+                },
+                orderBy: [ {rank: 'asc'} ]
             })
             final_wipe_array = force_wipes
         } else {
@@ -60,13 +60,13 @@ export default async function handler(req, res) {
                     secondary_day: false,
                     secondary_hour: false,
                 },
-                orderBy: [ {rank: 'asc'} ],
                 where: {
                     primary_day: parseInt(weekday) + 1, 
                     rank: {
                         lt: (min_rank + 1)
                     }
-                }
+                },
+                orderBy: [ {rank: 'asc'} ]
             })
             secondary_wipes = await prisma.server.findUnique({
                 select: {
@@ -81,13 +81,13 @@ export default async function handler(req, res) {
                     secondary_day: true,
                     secondary_hour: true,
                 },
-                orderBy: [ {rank: 'asc'} ],
                 where: {
                     secondary_day: parseInt(weekday) + 1, 
                     rank: {
                         lt: (min_rank + 1)
                     }
-                }
+                },
+                orderBy: [ {rank: 'asc'} ]
             })
 
             // Combine primary / secondary wipes into one array
