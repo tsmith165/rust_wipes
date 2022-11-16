@@ -47,19 +47,16 @@
                 padding: 0px 10px;
                 font-size: 24px;
                 font-weight: bold;
-                color: $tertiary;
-                background-color: $primary;
+                color: $tertiary !important;
+                background-color: $primary !important;
                 border-bottom-left-radius: 5px;
                 border-bottom-right-radius: 5px;
                 border-right: 2px solid $tertiary;
                 border-bottom: 2px solid $tertiary;
             }
-            .tab_button:hover {
-                background-color: $tertiary;
-                color: $primary;
-                border-right: 2px solid $primary;
-                border-bottom: 2px solid $primary;
-            }
+            .tab_button:first-of-type { border-left: 2px solid $tertiary }
+            .tab_button:hover { background-color: $tertiary !important; color: $primary !important; border-right: 2px solid $primary; border-bottom: 2px solid $primary; }
+            .tab_button:hover:first-of-type { border-left: 2px solid $primary }
 
             .tab_active {
                 line-height: 45px;
@@ -75,11 +72,6 @@
                 border-right: 2px solid $primary;
                 border-bottom: 2px solid $primary;
             }
-            .tab_active:hover {
-                background-color: $primary;
-                color: $tertiary;
-                border-right: 2px solid $tertiary;
-                border-bottom: 2px solid $tertiary;
-            }
+            .tab_active:first-of-type { border-left: 2px solid $primary }
 
 
