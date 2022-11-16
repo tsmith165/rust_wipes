@@ -51,15 +51,15 @@
     /* CSS specific to iOS devices */ 
     @supports (-webkit-touch-callout: none) {
       .input_textbox { width: 100%; height: 30px; padding: 6px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; }
-      .input_select {  width: 100%;              height: 30px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
-      .date_picker {   width: 100%;              height: 31px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
+      .input_select {  width: 100%; height: 30px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
+      .date_picker {   width: 100%; height: 31px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
     }
     
     /* CSS for other than iOS devices */ 
     @supports not (-webkit-touch-callout: none) {
       .input_textbox { width: 100%; height: 30px; padding: 6px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
-      .input_select {  width: 100%;              height: 30px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
-      .date_picker {   width: 100%;              height: 31px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
+      .input_select {  width: 100%; height: 30px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
+      .date_picker {   width: 100%; height: 31px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
     }
     .input_select > option { font-weight: bold; }
     .input_select { padding-left: 2px; }
