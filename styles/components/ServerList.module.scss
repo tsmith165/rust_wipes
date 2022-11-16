@@ -4,24 +4,30 @@
   position: absolute;
   height: calc(100% - 100px); 
   width: 100%; 
-  overflow-y: scroll; 
-  overflow-x: hidden; 
-  background-color: $medium 
+  background-color: $medium;
+  overflow-y: hidden; 
+  overflow-x: hidden;
 }
 
   @media (min-width: 800px) {
     .server_list_container { position: relative; display: flex; flex-wrap: wrap; height: 100%; width: 100%; }
-    .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; }
-    .server_list_body { width: 100%; }
+    .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; overflow-y: auto; overflow-x: hidden; background-color: $dark; }
+    .server_list_body { width: 100%; background-color: $medium; }
   }
   @media (max-width: 800px) {
     .server_list_container { position: relative; display: flex; flex-wrap: wrap; max-height: 100%; height: 100%; width: 100%; }
-    .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; }
-    .server_list_body { width: 100%; max-height: calc(100% - 105px) !important; overflow-y: scroll;  }
+    .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; overflow-y: auto; overflow-x: hidden; padding-bottom: 100px; background-color: $dark; }
+    .server_list_body { width: 100%; max-height: calc(100% - 105px) !important; overflow-y: scroll; background-color: $medium;  }
   }
       .server_list_table { position: relative; width: 100%;}
-      .server_list_header { background-color: $primary; color: $dark; }
-     
+      .server_list_header { background-color: $primary; color: $dark; font-size: 18px !important; font-weight: bold; }
+
+      @media (min-width: 800px) {
+        .server_container:first-of-type { position: fixed; width: 60%; }
+      }
+      @media (max-width: 800px) {
+        .server_container:first-of-type { position: fixed; width: 100%; }
+      }
       .server_container { background-color: $medium; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
       .server_container:last-of-type { border-bottom: none }
       .server_container:hover { background-color: $dark; }
@@ -68,12 +74,11 @@
         justify-content: center; 
         min-width: 110px; 
         max-width: 110px; 
-        height: 100%; 
         padding: 5px 5px; 
         background-color: $primary; 
         border-radius: 5px 0px 0px 5px;
       }                     
-      .input_label { color: $dark; }
+      .input_label { color: $dark; font-size: 18px !important; font-weight: bold !important; }
 
     .input_split_container {
       display: flex;
@@ -100,7 +105,7 @@
           color: $light; 
           background-color: $medium; 
           border-radius: 0px 5px 5px 0px; 
-          font-size: 14px; 
+          font-size: 16px; 
           font-weight: bold; 
       }
       .input_select { 
@@ -111,7 +116,7 @@
           color: $primary; 
           border-radius: 0px 5px 5px 0px; 
           border: none; 
-          font-size: 14px; 
+          font-size: 16px; 
           font-weight: bold; 
       }
     }
@@ -126,7 +131,7 @@
           background-color: $medium; 
           border-radius: 0px 5px 5px 0px; 
           border: none; 
-          font-size: 14px; 
+          font-size: 16px; 
           font-weight: bold; 
       }
       .input_select { 
@@ -137,7 +142,7 @@
           background-color: $medium; 
           border-radius: 0px 5px 5px 0px; 
           border: none; 
-          font-size: 14px; 
+          font-size: 16px; 
           font-weight: bold; 
       }
       .input_select > option { 
@@ -146,7 +151,7 @@
     }
 
   .page_selector_container {
-    float: right;
+    float: left;
     margin-right: 10px;
     margin-top: 10px;
     background-color: $secondary;
@@ -165,7 +170,7 @@
         background-color: $secondary;
         color: $dark;
         font-weight: bold;
-        padding: 5px 7.5px;
+        padding: 3.5px 7.5px;
         border-radius: 5px;
         border: none;
       }
