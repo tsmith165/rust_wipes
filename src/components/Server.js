@@ -17,10 +17,10 @@ const Server = ({id, className, url, rank, players, max_players, wipe_date}) => 
 // props.dimensions:      image dimensions: [x, y, width, height]
 
     var today = new Date();
-    var wipe_date = new Date(wipe_date);
+    var wipe_date_obj = new Date(wipe_date);
 
-    var diff = parseInt((today - wipe_date) / 1000 / 60);
-    //console.log(`Today: ${today} | WIPE: ${wipe_date} | DIFF: ${diff}`);
+    var diff = parseInt((today - wipe_date_obj) / 1000 / 60);
+    //console.log(`Today: ${today} | WIPE: ${wipe_date_obj} | DIFF: ${diff}`);
     
     var final_diff_string = "";
     var heat_class = null;

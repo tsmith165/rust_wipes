@@ -3,14 +3,15 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
 import * as gtag from '../lib/gtag'
-import { AppProps } from 'next/app';
+
 import { QueryClientProvider, QueryClient } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
+const queryClient = new QueryClient();
 
 import '../styles/globals/globals.scss'
 import Layout from '../src/components/layout/Layout'
 
-const queryClient = new QueryClient();
+
 
 const App = ({ Component, pageProps }) => {
   const router = useRouter()
