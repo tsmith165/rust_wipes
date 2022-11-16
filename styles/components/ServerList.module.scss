@@ -41,13 +41,13 @@
   
       .rank_cell { min-width: 65px !important; max-width: 65px; }
       @media (min-width: 800px) {
-        .server_name_cell { width: calc(100% - 225px) !important; max-width: calc(100% - 225px) !important; }
+        .server_name_cell { width: calc(100% - 230px) !important; max-width: calc(100% - 230px) !important; }
       }
       @media (max-width: 800px) {
-        .server_name_cell { min-width:  calc(100% - 225px) !important;  }
+        .server_name_cell { min-width:  calc(100% - 230px) !important;  }
       }
       .player_count_cell { min-width: 80px !important; max-width: 80px !important; }
-      .timestamp_cell { min-width: 80px !important; max-width: 80px !important; } 
+      .timestamp_cell { min-width: 85px !important; max-width: 85px !important; } 
   
       .piece_description_container { height: 25px; line-height: 25px; }
           .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
