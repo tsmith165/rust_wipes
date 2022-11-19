@@ -283,32 +283,34 @@ class ServerListClass extends React.Component {
                                 {servers_jsx_array}
                                 </div>
                         </div>
-                        <div className={styles.page_selector_container}>
-                            <div className={styles.page_selector}>
-                                <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); this.next_page(false)}}/>
-                                {this.state.current_page}
-                                <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); this.next_page(true)}}/>
+                        <div className={styles.server_list_page_filter_container}>
+                            <div className={styles.page_selector_container}>
+                                <div className={styles.page_selector}>
+                                    <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); this.next_page(false)}}/>
+                                    {this.state.current_page}
+                                    <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); this.next_page(true)}}/>
+                                </div>
                             </div>
-                        </div>
-                        <div className={styles.page_selector_container}>
-                            <div className={styles.page_selector}>
-                                <select 
-                                    id="num_servers" 
-                                    className={`${styles.num_servers}`} 
-                                    defaultValue={25}
-                                    onChange={(e) => {
-                                        e.preventDefault();
-                                        const num_servers = document.getElementById('num_servers').value; 
-                                        console.log(`NEW NUM SERVERS: ${num_servers}`); 
-                                        this.setState({num_servers: num_servers})
-                                    }}
-                                >
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
+                            <div className={styles.page_selector_container}>
+                                <div className={styles.page_selector}>
+                                    <select 
+                                        id="num_servers" 
+                                        className={`${styles.num_servers}`} 
+                                        defaultValue={25}
+                                        onChange={(e) => {
+                                            e.preventDefault();
+                                            const num_servers = document.getElementById('num_servers').value; 
+                                            console.log(`NEW NUM SERVERS: ${num_servers}`); 
+                                            this.setState({num_servers: num_servers})
+                                        }}
+                                    >
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
