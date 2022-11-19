@@ -19,7 +19,7 @@
         }
             .navbar_logo {
                 position: relative;
-                padding: 0; 
+                padding: 0;
                 width: 544px; 
                 max-width: calc(100vw - 10px) !important;
                 height: fit-content !important;  
@@ -60,7 +60,7 @@
                 .tab_button:hover { background-color: $tertiary !important; color: $primary !important; border-right: 2px solid $primary; border-bottom: 2px solid $primary; }
                 .tab_button:hover:first-of-type { border-left: 2px solid $primary }
             }
-            
+
             .tab_active {
                 line-height: 45px;
                 height: 45px;
