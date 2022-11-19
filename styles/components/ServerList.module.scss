@@ -44,10 +44,12 @@
   
       .rank_cell { min-width: 65px !important; max-width: 65px; }
       @media (min-width: 800px) {
-        .server_name_cell { width: calc(100% - 230px) !important; max-width: calc(100% - 230px) !important; }
+        .server_name_cell { min-width: calc(100vw - 230px) !important; max-width: calc(100vw - 230px) !important; overflow-x: scroll !important; }
+        .server_name_container { width: fit-content; }
       }
       @media (max-width: 800px) {
-        .server_name_cell { min-width:  calc(100% - 230px) !important;  }
+        .server_name_cell { min-width: calc(100vw - 230px) !important; max-width: calc(100vw - 230px) !important; overflow-x: scroll !important; }
+        .server_name_container { width: fit-content; }
       }
       .player_count_cell { min-width: 80px !important; max-width: 80px !important; }
       .timestamp_cell { min-width: 85px !important; max-width: 85px !important; } 
