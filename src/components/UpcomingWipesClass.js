@@ -68,7 +68,7 @@ class UpcomingWipesClass extends React.Component {
             var servers_jsx_array = [];
             
             // console.log(this.state.server_list)
-
+            console.log("Creating Upcoming Server List")
             for (var wipe_hour in this.state.server_list) {
                 const wipe_array = this.state.server_list[wipe_hour]
 
