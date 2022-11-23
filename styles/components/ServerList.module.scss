@@ -147,7 +147,7 @@
   
       .rank_cell { min-width: 65px !important; max-width: 65px; }
       @media (min-width: 800px) {
-        .server_name_cell { min-width: calc(100vw - 230px) !important; max-width: calc(100vw - 230px) !important; overflow-x: scroll !important; }
+        .server_name_cell { min-width: calc(100vw - 230px) !important; max-width: calc(100vw - 230px) !important; overflow-x: hidden !important; }
         .server_name_container { width: fit-content; }
       }
       @media (max-width: 800px) {
