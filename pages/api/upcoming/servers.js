@@ -34,7 +34,7 @@ export default async function handler(req, res) {
                 select: {
                     id: true,
                     title: true,
-                    wipes: false,
+                    wipes: true,
                     rank: true,
                     force_wipes: false,
                     force_wipe_hour: true,
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
                 select: {
                     id: true,
                     title: true,
-                    wipes: false,
+                    wipes: true,
                     rank: true,
                     force_wipes: false,
                     force_wipe_hour: false,
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
                 select: {
                     id: true,
                     title: true,
-                    wipes: false,
+                    wipes: true,
                     rank: true,
                     force_wipes: false,
                     force_wipe_hour: false,
