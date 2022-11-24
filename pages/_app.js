@@ -75,7 +75,7 @@ const App = ({ Component, pageProps }) => {
             {loading ? (
               <Loading {...pageProps}/>
             ) : (
-              <Component {...pageProps}/>
+              <Component {...pageProps} loing={loading}/>
             )}
           </Layout>
         </QueryClientProvider>
