@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
         var force_wipes = null; var primary_wipes = null; var secondary_wipes = null; var final_wipe_array = null;
         if (force_wipe == true) {
-            force_wipes = await prisma.server.findUnique({
+            force_wipes = await prisma.server.findMany({
                 where: {
                     force_wipe_hour: {
                         not: {
