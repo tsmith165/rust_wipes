@@ -9,7 +9,7 @@ class Loading extends React.Component {
     render() {
         return (
             <div className={styles.page_container}>
-                <div className={styles.loading_title}>Loading....</div>
+                <div className={styles.loader}/>
             </div>
         )
     }
