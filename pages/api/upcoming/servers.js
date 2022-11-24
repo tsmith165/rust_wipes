@@ -14,15 +14,14 @@ export default async function handler(req, res) {
         
         const weekday = date.getDay()
         const day = date.getDate()
-        const force_wipe = (weekday == 4 && day < 7) ? true : false
+        const force_wipe = (weekday == 4 && day < 7) ? true : false;
 
-        console.log(`Requesting data with params (Next Line):`)
-        console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`)
+        console.log(`Requesting data with params (Next Line):`);
+        console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`);
 
         var force_wipes = null; var primary_wipes = null; var secondary_wipes = null; var final_wipe_array = null;
         if (force_wipe == true) {
-            force_wipes = await prisma.server.findMany({
-                orderBy: [ {rank: 'asc'} ],
+            force_wipes = await prisma.server.findUnique({
                 where: {
                     force_wipe_hour: {
                         not: {
@@ -31,27 +30,64 @@ export default async function handler(req, res) {
                     }, rank: {
                         lt: (min_rank + 1)
                     }
-                }
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: true,
+                    primary_day: false,
+                    primary_hour: false,
+                    secondary_day: false,
+                    secondary_hour: false,
+                },
+                orderBy: [ {rank: 'asc'} ]
             })
             final_wipe_array = force_wipes
         } else {
             primary_wipes = await prisma.server.findMany({
-                orderBy: [ {rank: 'asc'} ],
                 where: {
                     primary_day: parseInt(weekday) + 1, 
                     rank: {
                         lt: (min_rank + 1)
                     }
-                }
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: false,
+                    primary_day: true,
+                    primary_hour: true,
+                    secondary_day: false,
+                    secondary_hour: false,
+                },
+                orderBy: [ {rank: 'asc'} ]
             })
             secondary_wipes = await prisma.server.findMany({
-                orderBy: [ {rank: 'asc'} ],
                 where: {
                     secondary_day: parseInt(weekday) + 1, 
                     rank: {
                         lt: (min_rank + 1)
                     }
-                }
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    wipes: false,
+                    rank: true,
+                    force_wipes: false,
+                    force_wipe_hour: false,
+                    primary_day: false,
+                    primary_hour: false,
+                    secondary_day: true,
+                    secondary_hour: true,
+                },
+                orderBy: [ {rank: 'asc'} ]
             })
 
             // Combine primary / secondary wipes into one array

@@ -1,0 +1,12 @@
+{
+    "presets": ["next/babel"],
+    "plugins": [
+      [
+        "formatjs",
+        {
+          "ast": true,
+          "idInterpolationPattern": "[sha512:contenthash:base64:6]"
+        }
+      ]
+    ]
+  }
