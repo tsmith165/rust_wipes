@@ -35,7 +35,7 @@ class UpcomingWipesClass extends React.Component {
 
         this.state = {
             debug: false,
-            server_list: props.server_list,
+            server_list: null,
             min_rank: 5000,
             date: cur_date,
             wipe_day_header_str: wipe_day_header_str,
@@ -44,8 +44,7 @@ class UpcomingWipesClass extends React.Component {
     }
 
     async componentDidMount() {
-        // fetching initial server list in getStaticProps now
-        // await this.fetch_servers(this.state.date)
+        await this.fetch_servers(this.state.date)
     }
 
     async fetch_servers(date) {
@@ -176,7 +175,11 @@ class UpcomingWipesClass extends React.Component {
                         </div>
                     </div>
                     <div className={styles.server_list_body}>
-                        {servers_jsx_array}
+                        {this.state.server_list == null ? (
+                            <div className={styles.loader}/>
+                        ) : (
+                            [servers_jsx_array]
+                        )}
                     </div>
                 </div>
             </div>

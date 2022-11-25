@@ -11,7 +11,7 @@ export default function Home({server_list, next_url, prev_url}) {
   )
 }
 
-
+/*
 export const getServerSideProps = async (context) => {
   console.log("Getting Server Side Props")
   const [new_server_list, next_url, prev_url] = await fetch_battlemetrics_servers('US', 5000, 2, 25, '', '', true, true)
@@ -25,3 +25,4 @@ export const getServerSideProps = async (context) => {
       }
   }
 }
+*/
