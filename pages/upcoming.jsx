@@ -21,6 +21,7 @@ export default function Upcoming({server_list}) {
   )
 }
 
+/*
 export const getServerSideProps = async (context) => {
   console.log(`-------------- Fetching Server List --------------`)
   const cur_date = new Date()
@@ -32,3 +33,4 @@ export const getServerSideProps = async (context) => {
       }
   }
 }
+*/
