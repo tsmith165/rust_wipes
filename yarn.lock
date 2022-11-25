@@ -776,23 +776,6 @@ axobject-query@^2.2.0:
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
   integrity sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==
 
-babel-plugin-formatjs@^10.3.31:
-  version "10.3.31"
-  resolved "https://registry.yarnpkg.com/babel-plugin-formatjs/-/babel-plugin-formatjs-10.3.31.tgz#5d7621023ebddad55ad2db8cd3f1cb59a46b2b96"
-  integrity sha512-zdtWGbHHPlLB2305Uea3etfOwt3jAp5/JxcgDchF+XgWZCjjZ5VT5aXsm3mxxO4kUTZF5nuUG7E811Cm0FJRkQ==
-  dependencies:
-    "@babel/core" "^7.10.4"
-    "@babel/helper-plugin-utils" "^7.10.4"
-    "@babel/plugin-syntax-jsx" "7"
-    "@babel/traverse" "7"
-    "@babel/types" "^7.12.11"
-    "@formatjs/icu-messageformat-parser" "2.1.10"
-    "@formatjs/ts-transformer" "3.11.1"
-    "@types/babel__core" "^7.1.7"
-    "@types/babel__helper-plugin-utils" "^7.10.0"
-    "@types/babel__traverse" "^7.1.7"
-    tslib "2.4.0"
-
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
