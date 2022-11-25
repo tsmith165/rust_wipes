@@ -16,7 +16,7 @@ class ServerListClass extends React.Component {
             debug: false,
             running: false,
             refreshing: false,
-            server_list: props.server_list,
+            server_list: null,
             next_url: props.next_url,
             prev_url: props.prev_url,
             server_list_timer: null,
@@ -29,11 +29,11 @@ class ServerListClass extends React.Component {
     }
     
     async componentDidMount() {
-        // console.log(`-------------- Fetching Initial Server List --------------`)
-        // const [new_server_list, next_url, prev_url] = await this.FetchServers()
+        console.log(`-------------- Fetching Initial Server List --------------`)
+        const [new_server_list, next_url, prev_url] = await this.FetchServers()
         // this.SetServerListFetchInterval()  // disabled as we added button to turn on interval
 
-        // this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
+        this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
     }
 
     async ToggleRunning() {
@@ -263,57 +263,63 @@ class ServerListClass extends React.Component {
                         </div>
                         */}
                     </div>
-                    <div className={styles.server_list_body_container}>
-                        <div className={styles.server_list_body}>
-                            <div className={styles.server_list_table}>
-                                <div className={`${styles.server_container} ${styles.old_wipe}`}>
-                                    <div className={`${styles.rank_cell} ${styles.server_list_header}`}>
-                                        {'Rank'}
-                                    </div>
-                                    <div className={`${styles.server_name_cell} ${styles.server_list_header}`}>
-                                        {'Server Title'}
-                                    </div>
-                                    <div className={`${styles.player_count_cell} ${styles.server_list_header}`}>
-                                        {'Players'}
-                                    </div>
-                                    <div className={`${styles.timestamp_cell} ${styles.server_list_header}`}>
-                                        {'Wiped'}
-                                    </div>
-                                </div>
-                                {servers_jsx_array}
-                                </div>
+                    {this.state.server_list == null ? (
+                        <div className={styles.server_list_body_container}>
+                            <div className={styles.loader}/>
                         </div>
-                        <div className={styles.server_list_page_filter_container}>
-                            <div className={styles.page_selector_container}>
-                                <div className={styles.page_selector}>
-                                    <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); this.next_page(false)}}/>
-                                    {this.state.current_page}
-                                    <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); this.next_page(true)}}/>
+                    ) : (
+                        <div className={styles.server_list_body_container}>
+                            <div className={styles.server_list_body}>
+                                <div className={styles.server_list_table}>
+                                    <div className={`${styles.server_container} ${styles.old_wipe}`}>
+                                        <div className={`${styles.rank_cell} ${styles.server_list_header}`}>
+                                            {'Rank'}
+                                        </div>
+                                        <div className={`${styles.server_name_cell} ${styles.server_list_header}`}>
+                                            {'Server Title'}
+                                        </div>
+                                        <div className={`${styles.player_count_cell} ${styles.server_list_header}`}>
+                                            {'Players'}
+                                        </div>
+                                        <div className={`${styles.timestamp_cell} ${styles.server_list_header}`}>
+                                            {'Wiped'}
+                                        </div>
+                                    </div>
+                                    {servers_jsx_array}
                                 </div>
                             </div>
-                            <div className={styles.page_selector_container}>
-                                <div className={styles.page_selector}>
-                                    <select 
-                                        id="num_servers" 
-                                        className={`${styles.num_servers}`} 
-                                        defaultValue={25}
-                                        onChange={(e) => {
-                                            e.preventDefault();
-                                            const num_servers = document.getElementById('num_servers').value; 
-                                            console.log(`NEW NUM SERVERS: ${num_servers}`); 
-                                            this.setState({num_servers: num_servers})
-                                        }}
-                                    >
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
+                            <div className={styles.server_list_page_filter_container}>
+                                <div className={styles.page_selector_container}>
+                                    <div className={styles.page_selector}>
+                                        <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); this.next_page(false)}}/>
+                                        {this.state.current_page}
+                                        <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); this.next_page(true)}}/>
+                                    </div>
+                                </div>
+                                <div className={styles.page_selector_container}>
+                                    <div className={styles.page_selector}>
+                                        <select 
+                                            id="num_servers" 
+                                            className={`${styles.num_servers}`} 
+                                            defaultValue={25}
+                                            onChange={(e) => {
+                                                e.preventDefault();
+                                                const num_servers = document.getElementById('num_servers').value; 
+                                                console.log(`NEW NUM SERVERS: ${num_servers}`); 
+                                                this.setState({num_servers: num_servers})
+                                            }}
+                                        >
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         )
