@@ -6,7 +6,7 @@ import { fetch_battlemetrics_servers } from '../lib/api_calls'
 export default function Home({server_list, next_url, prev_url}) {
   return (
     <PageLayout page_title={"Recent Wipes"} page={"recent"}>
-      <ServerListClass server_list={server_list} next_url={next_url} prev_url={prev_url} />
+      <ServerListClass server_list={server_list} next_url={next_url} prev_url={prev_url}/>
     </PageLayout>
   )
 }

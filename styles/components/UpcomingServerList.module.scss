@@ -52,23 +52,26 @@
         .server_container:last-of-type { border-bottom: none }
         .server_container:hover { background-color: $dark; }
 
-        .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
-        
+        .server_header_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold; }
 
-        .rank_cell { width: 65px !important; }
-        @media (min-width: 765px) {
-          .server_name_cell { width:  calc(100vw - 75px) !important;  }
-        }
-        @media (max-width: 765px) {
-          .server_name_cell { width:  calc(100vw - 75px) !important;  }
-        }
-        .player_count_cell { width: 65px !important;}
-        .timestamp_cell { width: 65px !important; } 
-    
-        .piece_description_container { height: 25px; line-height: 25px; }
-            .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
-            .piece_sold { position: absolute; bottom: 10px; right: 10px; }
-    
+        .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
+        .server_header_container > div { padding: 5px 10px; overflow: hidden; font-weight: bold !important; }
+        
+          .rank_cell { width: 65px !important; }
+          @media (min-width: 765px) {
+            .server_name_cell { width:  calc(100vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
+          }
+          @media (max-width: 765px) {
+            .server_name_cell { width:  calc(100vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
+          }
+          .latest_wipe_cell { width: 100px !important; }
+          .player_count_cell { width: 65px !important;}
+          .timestamp_cell { width: 65px !important; } 
+      
+          .piece_description_container { height: 25px; line-height: 25px; }
+              .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
+              .piece_sold { position: absolute; bottom: 10px; right: 10px; }
+      
 
 
 .img_hor_vert {

@@ -76,6 +76,17 @@ class UpcomingServerGroup extends React.Component {
                     </div>
                 </div>
                 <div className={`${styles.hour_wipes_container} hidden`} id={`hour-${this.wipe_hour}-wipes`}>
+                    <div className={`${styles.server_header_container}`}>
+                        <div className={styles.rank_cell}>
+                            {`Rank`}
+                        </div>
+                        <div className={styles.server_name_cell}>
+                            {`Server Title`}
+                        </div>
+                        <div className={styles.latest_wipe_cell}>
+                            {`Last Wipe`}
+                        </div>
+                    </div>
                     {group_jsx_array}
                 </div>
             </div>

@@ -1,16 +1,17 @@
 import React from 'react';
 
-import Server from '../components/Server'
+import Server from '../components/Server';
 
-import styles from '../../styles/components/ServerList.module.scss'
+import styles from '../../styles/components/ServerList.module.scss';
 import CachedIcon from '@material-ui/icons/Cached';
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
-import { fetch_battlemetrics_servers } from '../../lib/api_calls'
+import { fetch_battlemetrics_servers } from '../../lib/api_calls';
 
 class ServerListClass extends React.Component {
     constructor(props) {
         super(props);
+
         // Don't call this.setState() here!
         this.state = {
             debug: false,
@@ -24,14 +25,27 @@ class ServerListClass extends React.Component {
             min_players: 2,
             max_distance: 5000,
             country: 'US',
-            current_page: 1
+            current_page: 1,
+            window_width: null
         };
     }
+
+    handleResize() {
+        // Set window width/height to state
+        this.setState({
+            window_width: window.innerWidth
+        });
+      }
     
     async componentDidMount() {
         console.log(`-------------- Fetching Initial Server List --------------`)
         const [new_server_list, next_url, prev_url] = await this.FetchServers()
         // this.SetServerListFetchInterval()  // disabled as we added button to turn on interval
+
+        // Add event listener
+        window.addEventListener("resize", this.handleResize);
+
+        this.handleResize()
 
         this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
     }
@@ -152,6 +166,8 @@ class ServerListClass extends React.Component {
     }
 
     render() {
+        console.log(`Window Width: ${this.state.window_width}`)
+
         var servers_jsx_array = [];
 
         if (this.state.server_list != undefined) {
@@ -257,11 +273,21 @@ class ServerListClass extends React.Component {
                                 <CachedIcon className={`${styles.refresh_icon} ${this.state.refreshing ? (styles.rotate) : ('')}`} />
                             </div>
                         </div>
-                        {/*
-                        <div className={styles.filter_button_row}>
-                            <button className={styles.apply_filter_button} onClick={(e) => {e.preventDefault(); this.ResetTimer()}}>Apply Filter</button>
-                        </div>
-                        */}
+                        {this.state.window_width >= 765 ? 
+                            (
+                                <div className={styles.filter_col_ad_container}>
+                                    <div className={styles.filter_col_ad}>
+
+                                    </div>
+                                    <div className={styles.filter_col_ad_blocked}>
+
+                                    </div>
+                                </div>
+                            ) : (
+                                null
+                            )
+                        }
+
                     </div>
                     {this.state.server_list == null ? (
                         <div className={styles.server_list_body_container}>

@@ -26,14 +26,12 @@ const UpcomingServer = ({id, server}) => {
     // console.log("UpcomingServer (Next Line):")
     // console.log(server)
 
-    var d = server.latest_wipe_date;
-    //console.log(server.latest_wipe_date)
-    /*
+    var d = new Date(server.last_wipe_date);
+
     var hour_str = (d.getHours() < 12) ? `${(d.getHours())}AM` : `${((d.getHours()) % 12)}PM`
     if (hour_str == '0AM') { hour_str == '12AM' }
     if (hour_str == '0PM') { hour_str == '12PM' }
-    var last_wipe_date_str = `${monthNames[d.getMonth()]} ${d.getDate()} ${hour_str} ${d.getMinutes()}`
-    */
+    var last_wipe_date_str = `${d.getMonth()}/${d.getDate()} ${hour_str}`
 
     return (
         <div className={`${styles.server_container}`}>
@@ -46,7 +44,7 @@ const UpcomingServer = ({id, server}) => {
                 </Link>
             </div>
             <div className={styles.latest_wipe_cell}>
-                {server.latest_wipe_date}
+                {last_wipe_date_str}
             </div>
         </div>
     )
