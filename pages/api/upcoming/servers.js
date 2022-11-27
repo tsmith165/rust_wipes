@@ -158,8 +158,8 @@ export default async function handler(req, res) {
             }
         });
 
-        console.log(`Upcoming Server Output (Next Line):`);
-        console.log(grouped_wipe_dict)
+        // console.log(`Upcoming Server Output (Next Line):`);
+        // console.log(grouped_wipe_dict)
         res.json(grouped_wipe_dict)
     }
 

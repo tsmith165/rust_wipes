@@ -10,6 +10,7 @@
 }
 
   .server_list_filter_column {
+    position: relative;
     flex: 1 1 40%;
     min-height: 20px; 
     background-color: $dark;
@@ -178,8 +179,12 @@
       .page_arrow_icon { fill: $dark !important; }
       .page_arrow_icon:hover { fill: $light !important; }
 
-.refresh_container { margin: 10px 0px 0px 0px; padding: 2.5px; background-color: $medium !important; border-radius: 5px !important; }
-  .refresh_icon { fill: $light !important; width: 26px !important; height: 22px !important; }
+.refresh_container { margin: 10px 0px 0px 0px; padding: 2.5px; background-color: $medium !important; border-radius: 5px !important; display: flex; justify-content: center; }
+  .refresh_icon { fill: $light !important; width: 26px !important; margin: 0 auto; }
+
+.filter_col_ad_container { position: absolute; bottom: 0px; height: 100px; width: 100%; }
+    .filter_col_ad { background-color: green; width: 100%; height: 100%; }
+    .filter_col_ad_blocked { background-color: orange; width: 100%; height: 100%; }
 
 .rotate { animation: rotation 1.5s infinite linear; }
 .running_background { background-color: $primary !important; }

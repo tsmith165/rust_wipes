@@ -10,7 +10,6 @@ const queryClient = new QueryClient();
 
 import '../styles/globals/globals.scss'
 import Layout from '../src/components/layout/Layout'
-import Loading from '../src/components/Loading'
 
 const App = ({ Component, pageProps }) => {
   const router = useRouter()
@@ -33,11 +32,11 @@ const App = ({ Component, pageProps }) => {
   const [loading, setLoading] = React.useState(false);
   useEffect(() => {
     const start = () => {
-      console.log("start");
+      console.log("start loading");
       setLoading(true);
     };
     const end = () => {
-      console.log("finished");
+      console.log("finished loading");
       setLoading(false);
     };
     Router.events.on("routeChangeStart", start);
@@ -70,6 +69,10 @@ const App = ({ Component, pageProps }) => {
               });
             `,
           }}
+        />
+        <Script 
+          async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
+          crossorigin="anonymous"
         />
         <Layout url={url}>
           <Component {...pageProps} loading={loading}/>
