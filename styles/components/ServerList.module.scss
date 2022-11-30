@@ -184,6 +184,7 @@
 
 .filter_col_ad_container { position: absolute; bottom: 0px; height: 100px; width: 100%; }
     .filter_col_ad { background-color: green; width: 100%; height: 100%; }
+      .adsbygoogle {  width: 100%; height: 100%; }
     .filter_col_ad_blocked { background-color: orange; width: 100%; height: 100%; }
 
 .rotate { animation: rotation 1.5s infinite linear; }
