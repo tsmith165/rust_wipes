@@ -279,10 +279,10 @@ class ServerListClass extends React.Component {
                                 <div className={styles.filter_col_ad_container}>
                                     <div className={styles.filter_col_ad}>
 
-                                        <ins className={styles.adsbygoogle}
+                                        <ins class="adsbygoogle"
                                             style={{ display: "block"}}
                                             data-ad-client="ca-pub-7564404116158956"
-                                            data-ad-slot="3620931295"
+                                            data-ad-slot="7235036389"
                                             data-ad-format="auto"
                                             data-full-width-responsive="true"> 
                                         </ins>
