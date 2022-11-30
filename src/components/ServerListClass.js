@@ -297,7 +297,7 @@ class ServerListClass extends React.Component {
                                     <div className={styles.filter_col_ad_blocked}>
                                         <div className={styles.ad_blocked_container}>
                                             <div className={styles.ad_blocked_message}>
-                                                Please Disable Adblock To Support The Developers
+                                                Please Disable Ad-Block To Support The Developers
                                             </div>
                                             <ThumbUpIcon className={`${styles.thumb_up_icon}`} onClick={(e) => {e.preventDefault(); }}/>
                                         </div>
