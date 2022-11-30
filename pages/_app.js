@@ -74,7 +74,12 @@ const App = ({ Component, pageProps }) => {
           async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
           crossorigin="anonymous"
         />
-
+        <Script id="Adsense-id"
+                data-ad-client="ca-pub-7564404116158956"
+                async strategy="afterInteractive"
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                crossorigin="anonymous" 
+                onError={ (e) => { console.error('Filter col ad failed to load', e) }}/>
         <Layout url={url}>
           <Component {...pageProps} loading={loading}/>
         </Layout>

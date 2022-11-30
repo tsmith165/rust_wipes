@@ -210,12 +210,6 @@ class ServerListClass extends React.Component {
     
         return (
             <div className={styles.page_container}>
-                <Script id="Adsense-id"
-                        data-ad-client="ca-pub-7564404116158956"
-                        async strategy="afterInteractive"
-                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-                        crossorigin="anonymous" 
-                        onError={ (e) => { console.error('Filter col ad failed to load', e) }}/>
                 <div className={styles.server_list_container}>
                     <div className={styles.server_list_filter_column}>
                         <div className={styles.input_container}>
