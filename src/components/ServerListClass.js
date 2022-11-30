@@ -32,7 +32,6 @@ class ServerListClass extends React.Component {
         };
 
         this.handle_resize = this.handleResize.bind(this);
-        this.toggle_running = this.ToggleRunning.bind(this);
     }
     async componentDidMount() {
         console.log(`-------------- Fetching Initial Server List --------------`)
@@ -273,7 +272,7 @@ class ServerListClass extends React.Component {
                             </div>
                             <div 
                                 className={`${styles.refresh_container} ${this.state.running ? (styles.running_background) : ('')}`} 
-                                onClick={(e) => {e.preventDefault(); this.toggle_running }}
+                                onClick={(e) => {e.preventDefault(); this.ToggleRunning(); }}
                             >
                                 <CachedIcon className={`${styles.refresh_icon} ${this.state.refreshing ? (styles.rotate) : ('')}`} />
                             </div>
