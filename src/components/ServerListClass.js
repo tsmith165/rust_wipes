@@ -1,4 +1,5 @@
 import React from 'react';
+import Script from 'next/script';
 
 import Server from '../components/Server';
 
@@ -209,6 +210,12 @@ class ServerListClass extends React.Component {
     
         return (
             <div className={styles.page_container}>
+                <Script id="Adsense-id"
+                        data-ad-client="ca-pub-7564404116158956"
+                        async strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                        crossorigin="anonymous" 
+                        onError={ (e) => { console.error('Filter col ad failed to load', e) }}/>
                 <div className={styles.server_list_container}>
                     <div className={styles.server_list_filter_column}>
                         <div className={styles.input_container}>
@@ -278,6 +285,16 @@ class ServerListClass extends React.Component {
                                 <div className={styles.filter_col_ad_container}>
                                     <div className={styles.filter_col_ad}>
 
+                                        <ins className={styles.adsbygoogle}
+                                            style={{ display: "block"}}
+                                            data-ad-client="ca-pub-7564404116158956"
+                                            data-ad-slot="3620931295"
+                                            data-ad-format="auto"
+                                            data-full-width-responsive="true"> 
+                                        </ins>
+                                        <script> 
+                                            (adsbygoogle = window.adsbygoogle || []).push({}); 
+                                        </script>
                                     </div>
                                     <div className={styles.filter_col_ad_blocked}>
 
