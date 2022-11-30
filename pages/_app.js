@@ -74,6 +74,7 @@ const App = ({ Component, pageProps }) => {
           async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
           crossorigin="anonymous"
         />
+
         <Layout url={url}>
           <Component {...pageProps} loading={loading}/>
         </Layout>
