@@ -1,11 +1,12 @@
 import React from 'react';
-import Script from 'next/script';
+import Image from 'next/image';
 
 import Server from '../components/Server';
 
 import styles from '../../styles/components/ServerList.module.scss';
 import CachedIcon from '@material-ui/icons/Cached';
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 
 import { fetch_battlemetrics_servers } from '../../lib/api_calls';
 
@@ -29,24 +30,19 @@ class ServerListClass extends React.Component {
             current_page: 1,
             window_width: null
         };
-    }
 
-    handleResize() {
-        // Set window width/height to state
-        this.setState({
-            window_width: window.innerWidth
-        });
-      }
-    
+        this.handle_resize = this.handleResize.bind(this);
+        this.toggle_running = this.ToggleRunning.bind(this);
+    }
     async componentDidMount() {
         console.log(`-------------- Fetching Initial Server List --------------`)
         const [new_server_list, next_url, prev_url] = await this.FetchServers()
         // this.SetServerListFetchInterval()  // disabled as we added button to turn on interval
 
         // Add event listener
-        window.addEventListener("resize", this.handleResize);
+        window.addEventListener("resize", this.handle_resize);
 
-        this.handleResize()
+        this.handle_resize()
 
         this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url})
     }
@@ -70,6 +66,14 @@ class ServerListClass extends React.Component {
             await this.UpdateServerList()
         }
     }
+
+    handleResize() {
+        // Set window width/height to state
+        this.setState({
+            window_width: window.innerWidth
+        });
+    }
+    
 
     ResetTimer() {
         clearTimeout(this.state.server_list_timer)
@@ -269,7 +273,7 @@ class ServerListClass extends React.Component {
                             </div>
                             <div 
                                 className={`${styles.refresh_container} ${this.state.running ? (styles.running_background) : ('')}`} 
-                                onClick={(e) => {e.preventDefault(); this.ToggleRunning() }}
+                                onClick={(e) => {e.preventDefault(); this.toggle_running }}
                             >
                                 <CachedIcon className={`${styles.refresh_icon} ${this.state.refreshing ? (styles.rotate) : ('')}`} />
                             </div>
@@ -291,7 +295,12 @@ class ServerListClass extends React.Component {
                                         </script>
                                     </div>
                                     <div className={styles.filter_col_ad_blocked}>
-
+                                        <div className={styles.ad_blocked_container}>
+                                            <div className={styles.ad_blocked_message}>
+                                                Please Disable Adblock To Support The Developers
+                                            </div>
+                                            <ThumbUpIcon className={`${styles.thumb_up_icon}`} onClick={(e) => {e.preventDefault(); }}/>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (

@@ -182,10 +182,13 @@
 .refresh_container { margin: 10px 0px 0px 0px; padding: 2.5px; background-color: $medium !important; border-radius: 5px !important; display: flex; justify-content: center; }
   .refresh_icon { fill: $light !important; width: 26px !important; margin: 0 auto; }
 
-.filter_col_ad_container { position: absolute; bottom: 0px; height: 100px; width: 100%; }
-    .filter_col_ad { background-color: green; width: 100%; height: 100%; }
-      .adsbygoogle {  width: 100%; height: 100%; }
-    .filter_col_ad_blocked { background-color: orange; width: 100%; height: 100%; }
+.filter_col_ad_container { position: absolute; bottom: 0px; height: 400px; width: 100%; }
+    .filter_col_ad { width: 100%; height: 100%; position: absolute; z-index: 2; }
+      .adsbygoogle { width: 100%; height: 100%; }
+    .filter_col_ad_blocked { width: 100%; height: 100%; position: absolute; z-index: 1; padding: 20px; display: flex; justify-content: center; align-items: center; }
+      .ad_blocked_container { background-color: $dark; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .ad_blocked_message { color: $light; font-size: 32px !important; text-align: center; }
+        .thumb_up_icon { color: $light; width: 48px !important; height: 48px !important; position: relative; margin-top: 24px; }
 
 .rotate { animation: rotation 1.5s infinite linear; }
 .running_background { background-color: $primary !important; }
