@@ -29,8 +29,8 @@ const UpcomingServer = ({id, server}) => {
     var d = new Date(server.last_wipe_date);
 
     var hour_str = (d.getHours() < 12) ? `${(d.getHours())}AM` : `${((d.getHours()) % 12)}PM`
-    if (hour_str == '0AM') { hour_str == '12AM' }
-    if (hour_str == '0PM') { hour_str == '12PM' }
+    if (hour_str == '0AM') { hour_str = '12AM' }
+    if (hour_str == '0PM') { hour_str = '12PM' }
     var last_wipe_date_str = `${d.getMonth()}/${d.getDate()} ${hour_str}`
 
     return (
