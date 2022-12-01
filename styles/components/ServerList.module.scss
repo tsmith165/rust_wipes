@@ -43,7 +43,7 @@
         min-width: 110px; 
         max-width: 110px; 
         padding: 5px 5px; 
-        background-color: $primary; 
+        background-color: $secondary; 
         border-radius: 5px 0px 0px 5px;
       }                     
       .input_label { color: $dark; font-size: 16px !important; font-weight: bold !important; }
@@ -126,26 +126,27 @@
   @media (max-width: 765px) {
     .server_list_container { position: relative; display: flex; flex-wrap: wrap; max-height: 100%; height: 100%; width: 100%; }
     .server_list_body_container { height: 100%; flex: 1 1 60%; min-width: 50ch; overflow-y: auto; overflow-x: hidden; padding-bottom: 100px; background-color: $dark; }
-    .server_list_body { width: 100%; height: calc(100% - 50px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;   }
+    .server_list_body { width: 100%; height: calc(100% - 50px - 35px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;   }
   }
   @media (max-width: 525px) {
-    .server_list_body { width: 100%; height: calc(100% - 90px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;   }
+    .server_list_body { width: 100%; height: calc(100% - 90px - 35px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;   }
   }
   @media (max-width: 500px) {
-    .server_list_body { width: 100%; height: calc(100% - 80px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;   }
+    .server_list_body { width: 100%; height: calc(100% - 80px - 35px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;   }
   }
   @media (max-width: 475px) {
-    .server_list_body { width: 100%; height: calc(100% - (70px)) !important; overflow-y: scroll; background-color: $medium; z-index: 2;  }
+    .server_list_body { width: 100%; height: calc(100% - 70px - 35px) !important; overflow-y: scroll; background-color: $medium; z-index: 2;  }
   }
-      .server_list_table { position: relative; width: 100%; height: calc(100%);}
-      .server_list_header { background-color: $primary; color: $dark; font-size: 18px !important; font-weight: bold; }
 
-      @media (min-width: 765px) {
-        .server_header_container{ position: fixed; width: 60%; background-color: $medium; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; z-index: 1; }
-      }
-      @media (max-width: 765px) {
-        .server_header_container { position: fixed; width: 100%; background-color: $medium; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; z-index: 1; }
-      }
+    @media (min-width: 765px) {
+      .server_header_container{ position: relative; width: 60%; height: 35px; background-color: $secondary; color: $dark !important; font-weight: bold; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
+    }
+    @media (max-width: 765px) {
+      .server_header_container { position: relative; width: 100%; height: 35px; background-color: $secondary; color: $dark !important; font-weight: bold; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
+    }
+
+    .server_list_table { position: relative; width: 100%; height: 100%;}
+
       .server_container { background-color: $medium; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
       .server_container:last-of-type { border-bottom: none }
       .server_container:hover { background-color: $dark; }

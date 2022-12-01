@@ -53,9 +53,9 @@
         .server_container:hover { background-color: $dark; }
 
         .server_header_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold; }
+        .server_header_container > div { padding: 5px 10px; overflow: hidden; font-weight: bold !important; }
 
         .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
-        .server_header_container > div { padding: 5px 10px; overflow: hidden; font-weight: bold !important; }
         
           .rank_cell { width: 65px !important; }
           @media (min-width: 765px) {
