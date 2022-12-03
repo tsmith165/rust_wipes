@@ -51,7 +51,12 @@
       .input_textbox, .date_picker { padding-left: 5px; }
 
 /* Server List Body Column (Right/Bottom) */
+@media (min-width: 765px) {
   .server_list_body { max-height: 100%; flex: 1 1 60%; min-width: 50ch; overflow-y: auto; }
+}
+@media (max-width: 765px) {
+  .server_list_body { max-height: calc(100% - 90px); flex: 1 1 60%; min-width: 50ch; overflow-y: auto; }
+}
 
     .hour_container { width: 100%; }
       .hour_header { display: flex; flex-direction: row; background-color: $secondary; color: $dark; padding: 5px; border-bottom: 1px solid $medium; }
