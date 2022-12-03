@@ -139,7 +139,7 @@
   }
 
     @media (min-width: 765px) {
-      .server_header_container{ position: relative; width: 60%; height: 35px; background-color: $secondary; color: $dark !important; font-weight: bold; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
+      .server_header_container{ position: relative; width: 100%; height: 35px; background-color: $secondary; color: $dark !important; font-weight: bold; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
     }
     @media (max-width: 765px) {
       .server_header_container { position: relative; width: 100%; height: 35px; background-color: $secondary; color: $dark !important; font-weight: bold; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
