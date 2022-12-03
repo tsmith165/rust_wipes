@@ -9,16 +9,25 @@
   .server_list_container { position: relative; display: flex; flex-wrap: wrap; height: 100%; width: 100%; overflow-x: hidden; overflow-y: hidden; align-content: flex-start } 
 
   /* Server List Filter Column (Left/Top) */
+  @media (min-width: 765px) {
+    .server_list_filter_column {
+      flex: 1 1 30%;
+      background-color: $dark;
+      height: 100%;
+    } 
+  }
+  @media (max-width: 765px) {
     .server_list_filter_column {
       flex: 1 1 30%;
       background-color: $dark;
       max-height: 100px;
     } 
-      .wipe_day_header {width: 100%; text-align: left; line-height: 30px; font-size: 20px; font-weight: bold; color: $primary; overflow: hidden; white-space: nowrap; }
+  }
+      .wipe_day_header {width: 100%; text-align: left; line-height: 30px; font-size: 20px; font-weight: bold; color: $secondary; overflow: hidden; white-space: nowrap; }
         
       .input_container { display: flex; flex-direction: row; width: 100%; padding: 10px 10px 0px 10px; }
       .input_container:last-of-type { padding-bottom: 10px; }
-        .input_label_container { display: flex; align-items: center; justify-content: center; width: fit-content !important; height: 100%; padding: 5px 5px; background-color: $primary; border-radius: 5px 0px 0px 5px; white-space: nowrap; }                     
+        .input_label_container { display: flex; align-items: center; justify-content: center; width: fit-content !important; height: 100%; padding: 5px 5px; background-color: $secondary; border-radius: 5px 0px 0px 5px; white-space: nowrap; }                     
         .input_label { color: $dark; font-size: 16px !important; font-weight: bold; }
 
       .input_split_container { display: flex; flex-direction: row; width: 50%; height: 30px; }
@@ -26,55 +35,54 @@
       
       /* CSS specific to iOS devices */ 
       @supports (-webkit-touch-callout: none) {
-        .input_textbox { width: 100%; height: 30px; padding: 6px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; }
-        .input_select {  width: 100%; height: 30px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
-        .date_picker {   width: 100%; height: 31px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
+        .input_textbox { width: 100%; height: 30px; padding: 6px 10px; color: $secondary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; }
+        .input_select {  width: 100%; height: 30px; padding: 5px 10px; color: $secondary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
+        .date_picker {   width: 100%; height: 31px; padding: 5px 10px; color: $secondary; background-color: $medium; border-radius: 0px 5px 5px 0px; font-size: 14px; font-weight: bold; border: none; }
       }
       
       /* CSS for other than iOS devices */ 
       @supports not (-webkit-touch-callout: none) {
-        .input_textbox { width: 100%; height: 30px; padding: 6px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
-        .input_select {  width: 100%; height: 30px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
-        .date_picker {   width: 100%; height: 31px; padding: 5px 10px; color: $primary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
+        .input_textbox { width: 100%; height: 30px; padding: 6px 10px; color: $secondary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
+        .input_select {  width: 100%; height: 30px; padding: 5px 10px; color: $secondary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
+        .date_picker {   width: 100%; height: 31px; padding: 5px 10px; color: $secondary; background-color: $medium; border-radius: 0px 5px 5px 0px; border: none; font-size: 14px; font-weight: bold; }
       }
       .input_select > option { font-weight: bold; }
       .input_select { padding-left: 2px; }
       .input_textbox, .date_picker { padding-left: 5px; }
 
 /* Server List Body Column (Right/Bottom) */
-  .server_list_body_container { width: 100%; height: 100%;  background-color: $medium; }
-    .server_list_body { max-height: 100%; flex: 1 1 60%; min-width: 50ch; overflow-y: scroll; }
+  .server_list_body { max-height: 100%; flex: 1 1 60%; min-width: 50ch; overflow-y: auto; }
 
-      .hour_container { width: 100%; }
-        .hour_header { display: flex; flex-direction: row; background-color: $primary; color: $dark; padding: 5px; border-bottom: 1px solid $medium; }
-          .hour_header_title { line-height: 24px; font-size: 20px; font-weight: bold !important; }
+    .hour_container { width: 100%; }
+      .hour_header { display: flex; flex-direction: row; background-color: $secondary; color: $dark; padding: 5px; border-bottom: 1px solid $medium; }
+        .hour_header_title { line-height: 24px; font-size: 20px; font-weight: bold !important; }
 
-        .hour_wipes_container { padding: 0; margin: 0; }
-      
-      .server_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
-      .server_container:last-of-type { border-bottom: none }
-      .server_container:hover { background-color: $dark; }
-
-      .server_header_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold; }
-      .server_header_container > div { padding: 5px 10px; overflow: hidden; font-weight: bold !important; }
-
-      .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
-      
-        .rank_cell { width: 65px !important; }
-        @media (min-width: 765px) {
-          .server_name_cell { width:  calc(65vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
-        }
-        @media (max-width: 765px) {
-          .server_name_cell { width:  calc(100vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
-        }
-        .latest_wipe_cell { width: 100px !important; }
-        .player_count_cell { width: 65px !important;}
-        .timestamp_cell { width: 65px !important; } 
+      .hour_wipes_container { padding: 0; margin: 0; }
     
-        .piece_description_container { height: 25px; line-height: 25px; }
-            .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
-            .piece_sold { position: absolute; bottom: 10px; right: 10px; }
+    .server_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
+    .server_container:last-of-type { border-bottom: none }
+    .server_container:hover { background-color: $dark; }
+
+    .server_header_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold; }
+    .server_header_container > div { padding: 5px 10px; overflow: hidden; font-weight: bold !important; }
+
+    .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
     
+      .rank_cell { width: 65px !important; }
+      @media (min-width: 765px) {
+        .server_name_cell { width:  calc(65vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
+      }
+      @media (max-width: 765px) {
+        .server_name_cell { width:  calc(100vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
+      }
+      .latest_wipe_cell { width: 100px !important; }
+      .player_count_cell { width: 65px !important;}
+      .timestamp_cell { width: 65px !important; } 
+  
+      .piece_description_container { height: 25px; line-height: 25px; }
+          .piece_title { display: inline-block; vertical-align: middle; line-height: normal; color: white; }
+          .piece_sold { position: absolute; bottom: 10px; right: 10px; }
+  
 
 
 .img_hor_vert {

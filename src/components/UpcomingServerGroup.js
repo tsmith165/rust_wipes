@@ -72,7 +72,7 @@ class UpcomingServerGroup extends React.Component {
                         <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} id={`hour-${this.wipe_hour}-arrow`} />
                     </div>
                     <div className={styles.hour_header_title}>
-                        {wipe_hour_string}
+                        {`${wipe_hour_string}`}
                     </div>
                 </div>
                 <div className={`${styles.hour_wipes_container} hidden`} id={`hour-${this.wipe_hour}-wipes`}>
