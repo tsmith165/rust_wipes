@@ -38,13 +38,13 @@ const UpcomingServer = ({id, server}) => {
             <div className={styles.rank_cell}>
                 {`#${server.rank}`}
             </div>
+            <div className={styles.latest_wipe_cell}>
+                {last_wipe_date_str}
+            </div>
             <div className={styles.server_name_cell}>
                 <Link href={`${BM_SERVER_BASE_URL}/${server.id}`} className={styles.server_href}>
                     <a>{server.title}</a>
                 </Link>
-            </div>
-            <div className={styles.latest_wipe_cell}>
-                {last_wipe_date_str}
             </div>
         </div>
     )

@@ -80,11 +80,11 @@ class UpcomingServerGroup extends React.Component {
                         <div className={styles.rank_cell}>
                             {`Rank`}
                         </div>
-                        <div className={styles.server_name_cell}>
-                            {`Server Title`}
-                        </div>
                         <div className={styles.latest_wipe_cell}>
                             {`Last Wipe`}
+                        </div>
+                        <div className={styles.server_name_cell}>
+                            {`Server Title`}
                         </div>
                     </div>
                     {group_jsx_array}
