@@ -70,6 +70,7 @@ const App = ({ Component, pageProps }) => {
             `,
           }}
         />
+        {/*
         <Script 
           async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
           crossorigin="anonymous"
@@ -80,6 +81,7 @@ const App = ({ Component, pageProps }) => {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
           onError={ (e) => { console.error('Filter col ad failed to load', e) }}
         />
+        */}
         <Layout url={url}>
           <Component {...pageProps} loading={loading}/>
         </Layout>
