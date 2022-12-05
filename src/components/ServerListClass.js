@@ -281,7 +281,7 @@ class ServerListClass extends React.Component {
                             (
                                 <div className={styles.filter_col_ad_container}>
                                     <div className={styles.filter_col_ad}>
-
+                                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956" crossOrigin="anonymous"></script>
                                         <ins className="adsbygoogle"
                                             style={{ display: "block"}}
                                             data-ad-client="ca-pub-7564404116158956"

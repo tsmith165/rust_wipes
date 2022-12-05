@@ -60,25 +60,30 @@
 
     .hour_container { width: 100%; }
       .hour_header { display: flex; flex-direction: row; background-color: $secondary; color: $dark; padding: 5px; border-bottom: 1px solid $medium; }
-        .hour_header_title { line-height: 24px; font-size: 20px; font-weight: bold !important; }
+        .hour_header_title { line-height: 24px; font-size: 20px; font-weight: 900 !important; }
+          .hour_header_title_minor { line-height: 24px; font-size: 20px; font-weight: 600 !important; padding-left: 10px; }
+
+        @media (min-width: 765px) {
+          .hour_header:hover { background-color: $dark; color: $secondary; }
+        }
 
       .hour_wipes_container { padding: 0; margin: 0; }
     
-    .server_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; }
+    .server_container { background-color: $medium; color: $secondary; height: 40px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold !important; line-height: 25px; }
     .server_container:last-of-type { border-bottom: none }
     .server_container:hover { background-color: $dark; }
 
-    .server_header_container { background-color: $medium; color: $primary; height: 35px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold; }
-    .server_header_container > div { padding: 5px 10px; overflow: hidden; font-weight: bold !important; }
+    .server_header_container { background-color: $dark; color: $secondary; height: 40px; border-bottom: 1px solid $dark; display: flex; flex-direction: row; font-weight: bold !important; line-height: 25px; }
+    .server_header_container > div { padding: 5px 10px; overflow: hidden;}
 
-    .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; line-height: 25px; font-weight: 500 !important; }
+    .server_container > div { padding: 5px 10px; overflow: hidden; white-space: nowrap; }
     
       .rank_cell { width: 65px !important; }
       @media (min-width: 765px) {
-        .server_name_cell { width:  calc(65vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
+        .server_name_cell { width: calc(65vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
       }
       @media (max-width: 765px) {
-        .server_name_cell { width:  calc(100vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
+        .server_name_cell { width: calc(100vw - 175px) !important; overflow-x: auto !important; overflow-y: hidden; }
       }
       .latest_wipe_cell { width: 100px !important; }
       .player_count_cell { width: 65px !important;}

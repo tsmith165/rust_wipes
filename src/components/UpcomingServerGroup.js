@@ -74,6 +74,9 @@ class UpcomingServerGroup extends React.Component {
                     <div className={styles.hour_header_title}>
                         {`${wipe_hour_string}`}
                     </div>
+                    <div className={styles.hour_header_title_minor}>
+                        {`(${this.wipe_array.length} ${(this.wipe_array.length == 1) ? 'Server' : 'Servers'})`}
+                    </div>
                 </div>
                 <div className={`${styles.hour_wipes_container} hidden`} id={`hour-${this.wipe_hour}-wipes`}>
                     <div className={`${styles.server_header_container}`}>

@@ -23,3 +23,31 @@ model Server {
   force_wipes     String[]
   force_wipe_hour String?
 }
+
+model server_data {
+  id           Int      @id // Battle Metrics ID
+  rank         Int          // Battle Metrics Rank
+  title        String       // Server Title
+  region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
+  attrs        Json?        // Server Attributes JSON - wipe_schedule / game_mode / region
+  wipes        String[]     // Non Force Wipe timestamp array
+  force_wipes  String[]     // Force Wipe timestamp array
+}
+
+model server_parsed {
+  id             Int      @id // Battle Metrics ID
+  rank           Int          // Battle Metrics Rank
+  title          String       // Server Title
+  region         String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
+  wipe_schedule  String?      // Wipe Schedule - Weekly / Bi-Weekly / Monthly
+  game_mode      String?      // PvP/PvE/Arena/Build
+  primary_day    Int?         // Primary Wipe Day Of Week
+  primary_hour   Int?         // Primary Wipe Hour
+  last_primary   String?      // Last Primary Wipe Timestamp
+  secondary_day  Int?         // Secondary Wipe Day Of Week
+  secondary_hour Int?         // Secondary Wipe Hour
+  last_secondary String?      // Last Secondary Wipe Timestamp
+  force_hour     String?      // Force Wipe Hour
+  last_force     String?      // Last Force Wipe Timestamp
+}
+
