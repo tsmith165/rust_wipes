@@ -277,9 +277,11 @@ class ServerListClass extends React.Component {
                                 <CachedIcon className={`${styles.refresh_icon} ${this.state.refreshing ? (styles.rotate) : ('')}`} />
                             </div>
                         </div>
+                        {/* 
                         {this.state.window_width >= 765 ? 
                             (
                                 <div className={styles.filter_col_ad_container}>
+                                    
                                     <div className={styles.filter_col_ad}>
                                         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956" crossOrigin="anonymous"></script>
                                         <ins className="adsbygoogle"
@@ -293,6 +295,7 @@ class ServerListClass extends React.Component {
                                             (adsbygoogle = window.adsbygoogle || []).push({}); 
                                         </script>
                                     </div>
+                                    
                                     <div className={styles.filter_col_ad_blocked}>
                                         <div className={styles.ad_blocked_container}>
                                             <div className={styles.ad_blocked_message}>
@@ -306,6 +309,7 @@ class ServerListClass extends React.Component {
                                 null
                             )
                         }
+                        */}
 
                     </div>
                     {this.state.server_list == null ? (
