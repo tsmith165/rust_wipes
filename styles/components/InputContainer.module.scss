@@ -1,41 +1,18 @@
 @import "../../theme/theme";
 
-.input_container { 
-    display: flex;
-    flex-direction: row;
-    width: 100%; 
-    padding: 10px 10px 0px 10px; 
-  }
-  .input_container:last-of-type { 
-    padding-bottom: 10px;
-  }
-    .input_label_container { 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      min-width: 110px; 
-      max-width: 110px; 
-      padding: 5px 5px; 
-      background-color: $secondary; 
-      border-radius: 5px 0px 0px 5px;
-    }                     
+
+
+  .input_and_button_container { display: flex; flex-direction: row; margin-right: 10px; }
+  .input_and_button_container:last-of-type { padding-bottom: 10px; }
+        
+  .input_container { display: flex; flex-direction: row; width: 100%; padding: 10px 10px 0px 10px; }
+  .input_container:last-of-type { padding-bottom: 10px; }
+    .input_label_container { display: flex; align-items: center; justify-content: center; height: 100%; min-width: 90px; max-width: 90px; padding: 5px 5px; 
+                             background-color: $secondary; border-radius: 5px 0px 0px 5px; white-space: nowrap; }                     
     .input_label { color: $dark; font-size: 16px !important; font-weight: bold !important; }
 
-  .input_split_container {
-    display: flex;
-    flex-direction: row;
-    width: 50%; 
-  }
+  .input_split_container { display: flex; flex-direction: row; width: 50%; height: 30px; }
   .input_split_container:last-of-type { margin-left: 10px; }
-
-  .input_and_button_container {
-    display: flex;
-    flex-direction: row;
-    margin-right: 10px;
-  }
-  .input_and_button_container:last-of-type { 
-    padding-bottom: 10px;
-  }
 
   /* CSS specific to iOS devices */ 
   @supports (-webkit-touch-callout: none) {
@@ -53,6 +30,10 @@
       font-weight: bold; 
     }
   }
+
+  .input_select > option { font-weight: bold; }
+  .input_select { padding-left: 2px; }
+  .input_textbox, .date_picker { padding-left: 5px; }
 
 .button_container { margin: 10px 0px 0px 0px; padding: 2.5px; background-color: $medium !important; border-radius: 5px !important; display: flex; justify-content: center; }
 .button_icon { fill: $light !important; width: 26px !important; margin: 0 auto; }

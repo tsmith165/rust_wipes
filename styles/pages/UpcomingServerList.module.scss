@@ -20,7 +20,7 @@
     .server_list_filter_column {
       flex: 1 1 30%;
       background-color: $dark;
-      max-height: 100px;
+      max-height: fit-content;
     } 
   }
       .wipe_day_header {width: 100%; text-align: left; line-height: 30px; font-size: 20px; font-weight: bold; color: $secondary; overflow: hidden; white-space: nowrap; }

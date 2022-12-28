@@ -46,10 +46,10 @@ export default class RecentWipesSidebar extends React.Component {
             <div className={styles.server_list_filter_column}>
                 <div className={styles.input_container}>
                     {/* Min Player Count Textbox Input */}
-                    <InputContainer type={'input_split'} default={2} name={"Min Players"} update_filter_value={this.props.update_filter_value}/>
+                    <InputContainer type={'input_split'} default={2} name={"Min Players"} full_name={"Minimum Players"} update_filter_value={this.props.update_filter_value}/>
 
                     {/* Max Server Distance  Textbox Input */}
-                    <InputContainer type={'input_split'} default={5000} name={"Max Distance"} update_filter_value={this.props.update_filter_value}/>
+                    <InputContainer type={'input_split'} default={5000} name={"Max Dist"} full_name={"Max Distance"}  update_filter_value={this.props.update_filter_value}/>
                 </div>
 
                 {/* Country Select Input / Refresh Button */}

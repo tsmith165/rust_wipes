@@ -2,6 +2,7 @@ import React from 'react';
 
 import styles from "../../styles/components/InputContainer.module.scss";
 
+import Tooltip from '@mui/material/Tooltip';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -21,6 +22,7 @@ export default class InputContainer extends React.Component {
         this.type = this.props.type
         this.default = this.props.default
         this.name = this.props.name
+        this.full_name = (this.props.full_name !== undefined) ? (this.props.full_name) : (this.name)
         this.id = `${this.props.name.toLowerCase().replace(' ', '_')}`
     }
 
@@ -30,9 +32,11 @@ export default class InputContainer extends React.Component {
         if (this.type == 'input_split') {
             return (
                 <div className={styles.input_split_container}>
-                    <div className={styles.input_label_container}>
-                        <div className={styles.input_label}>{this.name}</div>
-                    </div>
+                    <Tooltip title={this.full_name} placement="top-start">
+                        <div className={styles.input_label_container}>
+                            <div className={styles.input_label}>{this.name}</div>
+                        </div>
+                    </Tooltip>
                     <input 
                         id={this.id}
                         className={styles.input_textbox} 
@@ -51,9 +55,11 @@ export default class InputContainer extends React.Component {
             return (
                 <div className={styles.input_and_button_container}>
                     <div className={styles.input_container}>
-                        <div className={styles.input_label_container}>
-                            <div className={styles.input_label}>{this.name}</div>
-                        </div>
+                        <Tooltip title={this.full_name} placement="top-start">
+                            <div className={styles.input_label_container}>
+                                <div className={styles.input_label}>{this.name}</div>
+                            </div>
+                        </Tooltip>
                         <input 
                             id={this.id}
                             className={styles.input_textbox} 
@@ -78,9 +84,11 @@ export default class InputContainer extends React.Component {
         else if (this.type == 'input_datepicker') {
             return (
                 <div className={styles.input_split_container}>
-                    <div className={styles.input_label_container}>
-                        <div className={styles.input_label}>{this.name}</div>
-                    </div>
+                    <Tooltip title={this.full_name} placement="top-start">
+                        <div className={styles.input_label_container}>
+                            <div className={styles.input_label}>{this.name}</div>
+                        </div>
+                    </Tooltip>
                     <DatePicker
                         id={this.id}
                         className={styles.date_picker}
