@@ -1,11 +1,7 @@
-import styles from '../../styles/components/UpcomingServerList.module.scss'
+import styles from '../../../../styles/pages/UpcomingServerList.module.scss'
 
 import React, { Component } from 'react'
 import Link from 'next/link'
-
-const HOT_WIPE = 5;
-const COOL_WIPE = 15;
-const COLD_WIPE = 60;
 
 const BM_SERVER_BASE_URL = 'https://www.battlemetrics.com/servers/rust'
 
@@ -14,7 +10,7 @@ const monthNames = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-const UpcomingServer = ({id, server}) => {
+const UpcomingServerRow = ({id, server}) => {
 
 // Navbar_Button Props:
 // props.className:       Name of class to apply to the button
@@ -23,8 +19,10 @@ const UpcomingServer = ({id, server}) => {
 // props.description:     Description to show inside description container
 // props.dimensions:      image dimensions: [x, y, width, height]
 
-    // console.log("UpcomingServer (Next Line):")
+    // console.log("UpcomingServerRow (Next Line):")
     // console.log(server)
+
+    //console.log(server.last_wipe_date)
 
     var d = new Date(server.last_wipe_date);
 
@@ -50,4 +48,4 @@ const UpcomingServer = ({id, server}) => {
     )
 }
 
-export default UpcomingServer;
+export default UpcomingServerRow;

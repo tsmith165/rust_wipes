@@ -1,7 +1,7 @@
 import { prisma } from "../../../lib/prisma";
 
 export default async function handler(req, res) {
-    console.log(`Start pull upcoming servers`);
+    console.log(`--------------- Start pull upcoming servers ---------------`);
 
     if(req.method !== 'POST') {
         // REQUEST METHOD NOT POST
@@ -11,81 +11,111 @@ export default async function handler(req, res) {
         const date = new Date(req.body.date)
         const time_zone = parseInt(req.body.time_zone)
         const min_rank = parseInt(req.body.min_rank)
+        const region = req.body.region
+        const resource_rate = req.body.resource_rate
+        const group_limit = req.body.group_limit
+        const game_mode = req.body.game_mode
         
         const weekday = date.getDay()
         const day = date.getDate()
         const force_wipe = (weekday == 4 && day < 7) ? true : false;
 
-        console.log(`Requesting data with params (Next Line):`);
-        console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`);
+        //console.log(`Requesting data with params (Next Line):`);
+        //console.log(`Server Rank: ${min_rank} | Weekday: ${weekday} | Day: ${day} | TZ: ${time_zone} | Force Wipe: ${force_wipe}`);
+        //console.log(`Game Mode: ${game_mode} | Resource Rate: ${resource_rate} | Group Limit: ${group_limit}`);
+        
+        if (force_wipe == true) {
+            var search_params = {
+                region: region, 
+                force_wipe_hour: {
+                    not: {
+                        equals: null
+                    }
+                }, rank: {
+                    lt: (min_rank + 1)
+                }
+            }
+        } else {
+            var search_params = {
+                region: region, 
+                primary_day: parseInt(weekday) + 1, 
+                rank: {
+                    lt: (min_rank + 1)
+                }
+            }
+        }
+
+        if (resource_rate != "any" && resource_rate != null) { search_params.resource_rate = resource_rate }
+        if (group_limit != "any" && group_limit != null)     { search_params.group_limit = group_limit }
+        if (game_mode != "any" && game_mode != null)         { search_params.game_mode = game_mode }
+
+        console.log("Search Params (Next Line):")
+        console.log(search_params)
 
         var force_wipes = null; var primary_wipes = null; var secondary_wipes = null; var final_wipe_array = null;
         if (force_wipe == true) {
-            force_wipes = await prisma.server.findMany({
-                where: {
-                    force_wipe_hour: {
-                        not: {
-                            equals: null
-                        }
-                    }, rank: {
-                        lt: (min_rank + 1)
-                    }
-                },
+            force_wipes = await prisma.server_parsed.findMany({
+                where: search_params,
                 select: {
                     id: true,
                     title: true,
-                    wipes: true,
                     rank: true,
-                    force_wipes: false,
-                    force_wipe_hour: true,
+                    region: false,
+                    wipe_schedule: true,
+                    game_mode: true,
+                    resource_rate: true,
+                    force_hour: true,
+                    last_force: true,
                     primary_day: false,
                     primary_hour: false,
+                    last_primary: false,
                     secondary_day: false,
                     secondary_hour: false,
+                    last_secondary: false
                 },
                 orderBy: [ {rank: 'asc'} ]
             })
             final_wipe_array = force_wipes
         } else {
-            primary_wipes = await prisma.server.findMany({
-                where: {
-                    primary_day: parseInt(weekday) + 1, 
-                    rank: {
-                        lt: (min_rank + 1)
-                    }
-                },
+            primary_wipes = await prisma.server_parsed.findMany({
+                where: search_params,
                 select: {
                     id: true,
                     title: true,
-                    wipes: true,
                     rank: true,
-                    force_wipes: false,
-                    force_wipe_hour: false,
+                    region: false,
+                    wipe_schedule: true,
+                    game_mode: true,
+                    resource_rate: true,
+                    force_hour: false,
+                    last_force: false,
                     primary_day: true,
                     primary_hour: true,
+                    last_primary: true,
                     secondary_day: false,
                     secondary_hour: false,
+                    last_secondary: false
                 },
                 orderBy: [ {rank: 'asc'} ]
             })
-            secondary_wipes = await prisma.server.findMany({
-                where: {
-                    secondary_day: parseInt(weekday) + 1, 
-                    rank: {
-                        lt: (min_rank + 1)
-                    }
-                },
+            secondary_wipes = await prisma.server_parsed.findMany({
+                where: search_params,
                 select: {
                     id: true,
                     title: true,
-                    wipes: true,
                     rank: true,
-                    force_wipes: false,
-                    force_wipe_hour: false,
+                    region: false,
+                    wipe_schedule: true,
+                    game_mode: true,
+                    resource_rate: true,
+                    force_hour: false,
+                    last_force: false,
                     primary_day: false,
                     primary_hour: false,
+                    last_primary: false,
                     secondary_day: true,
                     secondary_hour: true,
+                    last_secondary: true
                 },
                 orderBy: [ {rank: 'asc'} ]
             })
@@ -108,14 +138,14 @@ export default async function handler(req, res) {
 
             if (force_wipe) {
                 const time_zoned_wipe_hour = Math.abs((parseInt(wipe.force_wipe_hour) + time_zone) % 24)
-                var last_wipe_date = get_latest_force_wipe(wipe.wipes);
+                // var last_wipe_date = get_latest_force_wipe(wipe.wipes);
 
                 const wipe_data = {
                     id: wipe.id,
                     rank: wipe.rank,
                     title: wipe.title,
                     wipe_hour: time_zoned_wipe_hour,
-                    last_wipe_date: last_wipe_date
+                    last_wipe_date: wipe.last_force
                 }
                 if (grouped_wipe_dict[time_zoned_wipe_hour] == undefined) { 
                     grouped_wipe_dict[time_zoned_wipe_hour] = [wipe_data]
@@ -125,13 +155,14 @@ export default async function handler(req, res) {
             } else {
                 if (wipe.primary_day == weekday + 1) {
                     const time_zoned_wipe_hour = Math.abs((parseInt(wipe.primary_hour) + time_zone) % 24)
-                    var last_wipe_date = get_latest_weekday_wipe(wipe.wipes, wipe.primary_day);
+                    // var last_wipe_date = get_latest_weekday_wipe(wipe.wipes, wipe.primary_day);
+
                     const wipe_data = {
                         id: wipe.id,
                         rank: wipe.rank,
                         title: wipe.title,
                         wipe_hour: time_zoned_wipe_hour,
-                        last_wipe_date: last_wipe_date
+                        last_wipe_date: wipe.last_primary
                     }
                     if (grouped_wipe_dict[time_zoned_wipe_hour] == undefined) { 
                         grouped_wipe_dict[time_zoned_wipe_hour] = [wipe_data]
@@ -141,13 +172,14 @@ export default async function handler(req, res) {
                 } 
                 else if (wipe.secondary_day == weekday + 1) {
                     const time_zoned_wipe_hour = Math.abs((parseInt(wipe.secondary_hour) + time_zone) % 24)
-                    var last_wipe_date = get_latest_weekday_wipe(wipe.wipes, wipe.secondary_day);
+                    // var last_wipe_date = get_latest_weekday_wipe(wipe.wipes, wipe.secondary_day);
+                    
                     const wipe_data = {
                         id: wipe['id'],
                         rank: wipe['rank'],
                         title: wipe['title'],
                         wipe_hour: time_zoned_wipe_hour,
-                        last_wipe_date: last_wipe_date
+                        last_wipe_date: wipe.last_secondary
                     }
                     if (grouped_wipe_dict[time_zoned_wipe_hour] == undefined) { 
                         grouped_wipe_dict[time_zoned_wipe_hour] = [wipe_data]

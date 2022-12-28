@@ -41,6 +41,8 @@ model server_parsed {
   region         String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
   wipe_schedule  String?      // Wipe Schedule - Weekly / Bi-Weekly / Monthly
   game_mode      String?      // PvP/PvE/Arena/Build
+  resource_rate  String?      // 1x/1.5x/2x/3x/4x/5x/10x/20x/50x/etc
+  group_limit    String?      // solo / duo / trio / quad / no limi
   primary_day    Int?         // Primary Wipe Day Of Week
   primary_hour   Int?         // Primary Wipe Hour
   last_primary   String?      // Last Primary Wipe Timestamp
@@ -51,3 +53,31 @@ model server_parsed {
   last_force     String?      // Last Force Wipe Timestamp
 }
 
+model server_data_test {
+  id           Int      @id // Battle Metrics ID
+  rank         Int          // Battle Metrics Rank
+  title        String       // Server Title
+  region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
+  attrs        Json?        // Server Attributes JSON - wipe_schedule / game_mode / region
+  wipes        String[]     // Non Force Wipe timestamp array
+  force_wipes  String[]     // Force Wipe timestamp array
+}
+
+model server_parsed_test {
+  id             Int      @id // Battle Metrics ID
+  rank           Int          // Battle Metrics Rank
+  title          String       // Server Title
+  region         String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
+  wipe_schedule  String?      // Wipe Schedule - Weekly / Bi-Weekly / Monthly
+  game_mode      String?      // PvP/PvE/Arena/Build
+  resource_rate  String?      // 1x/1.5x/2x/3x/4x/5x/10x/20x/50x/etc
+  group_limit    String?      // solo / duo / trio / quad / no limit
+  primary_day    Int?         // Primary Wipe Day Of Week
+  primary_hour   Int?         // Primary Wipe Hour
+  last_primary   String?      // Last Primary Wipe Timestamp
+  secondary_day  Int?         // Secondary Wipe Day Of Week
+  secondary_hour Int?         // Secondary Wipe Hour
+  last_secondary String?      // Last Secondary Wipe Timestamp
+  force_hour     String?      // Force Wipe Hour
+  last_force     String?      // Last Force Wipe Timestamp
+}

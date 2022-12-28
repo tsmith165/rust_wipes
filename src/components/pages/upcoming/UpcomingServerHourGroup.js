@@ -1,24 +1,17 @@
 import React from 'react';
-import Link from 'next/link';
 
-import styles from '../../styles/components/UpcomingServerList.module.scss';
-import UpcomingServer from '../components/UpcomingServer';
+import styles from '../../../../styles/pages/UpcomingServerList.module.scss'
+import UpcomingServerRow from './UpcomingServerRow';
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
-const HOT_WIPE = 5;
-const COOL_WIPE = 15;
-const COLD_WIPE = 60;
-
-const BM_SERVER_BASE_URL = 'https://www.battlemetrics.com/servers/rust'
-
-class UpcomingServerGroup extends React.Component {
+class UpcomingServerHourGroup extends React.Component {
     constructor(props) {
-      super(props);
-      this.wipe_array = props.wipe_array;
-      this.wipe_hour = props.wipe_hour;
-      this.debug = false;
-
-      this.header_clicked = this.header_clicked.bind(this);
+        super(props);
+        this.wipe_array = props.wipe_array;
+        this.wipe_hour = props.wipe_hour;
+        this.debug = false;
+    
+        this.header_clicked = this.header_clicked.bind(this);
     }
   
     header_clicked(e) {
@@ -57,7 +50,7 @@ class UpcomingServerGroup extends React.Component {
             }
     
             group_jsx_array.push(
-                <UpcomingServer
+                <UpcomingServerRow
                     key={i}
                     id={`server-${i}`}
                     server={server}
@@ -97,4 +90,4 @@ class UpcomingServerGroup extends React.Component {
     }
   }
 
-export default UpcomingServerGroup;
+export default UpcomingServerHourGroup;

@@ -1,4 +1,4 @@
-import styles from '../../styles/components/ServerList.module.scss'
+import styles from '../../../../styles/pages/RecentServerList.module.scss'
 
 import React, { Component } from 'react'
 import Link from 'next/link'
@@ -7,7 +7,7 @@ const HOT_WIPE = 5;
 const COOL_WIPE = 15;
 const COLD_WIPE = 60;
 
-const Server = ({id, className, url, rank, players, max_players, wipe_date}) => {
+const RecentServerRow = ({id, className, url, rank, players, max_players, wipe_date}) => {
 
 // Navbar_Button Props:
 // props.className:       Name of class to apply to the button
@@ -67,4 +67,4 @@ const Server = ({id, className, url, rank, players, max_players, wipe_date}) => 
     )
 }
 
-export default Server;
+export default RecentServerRow;
