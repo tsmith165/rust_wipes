@@ -31,6 +31,10 @@ export default async function handler(req, res) {
                     not: {
                         equals: null
                     }
+                }, wipe_schedule: {
+                    not: {
+                        equals: 'MONTHLY'
+                    }
                 }, rank: {
                     lt: (min_rank + 1)
                 }

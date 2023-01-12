@@ -11,7 +11,7 @@ const PageLayout = ({page_title="Rust Wipes", page="recent", children}) => {
         <div className={styles.container}>
             <Head>
                 <title>{page_title}</title>
-                <meta name="description" content="Rust Wipes" />
+                <meta name="description" content="Keep track of both Recent Rust Wipes as well as Upcoming Rust Wipes!" />
                 <link rel="icon" href="/rust_hazmat_icon.png" />
             </Head>
             
