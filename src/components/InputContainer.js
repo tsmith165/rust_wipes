@@ -10,6 +10,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 
 // INPUT TYPES
 const INPUT_TYPE_MASTER = {
+    'input': {name: "Input"},
     'input_split': {name: "Input Split"},
     'input_and_refresh': {name: "Input and Button"},
     'input_datepicker': {name: "Input Datepicker"},
@@ -28,8 +29,29 @@ export default class InputContainer extends React.Component {
 
     render() {
         console.log(`Generating input container of type: ${INPUT_TYPE_MASTER[this.type].name}`)
-
-        if (this.type == 'input_split') {
+        if (this.type == 'input') {
+            return (
+                <div className={styles.input_container}>
+                    <Tooltip title={this.full_name} placement="top-start">
+                        <div className={styles.input_label_container}>
+                            <div className={styles.input_label}>{this.name}</div>
+                        </div>
+                    </Tooltip>
+                    <input 
+                        id={this.id}
+                        className={styles.input_textbox} 
+                        defaultValue={this.default} 
+                        onChange={(e) => {
+                            e.preventDefault();
+                            const changed_value = document.getElementById(this.id).value; 
+                            console.log(`NEW VALUE FOR ${this.id}: ${changed_value}`); 
+                            this.props.update_filter_value(this.id, changed_value)
+                        }
+                    }/>
+                </div>
+            )
+        }
+        else if (this.type == 'input_split') {
             return (
                 <div className={styles.input_split_container}>
                     <Tooltip title={this.full_name} placement="top-start">

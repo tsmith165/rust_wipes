@@ -3,11 +3,13 @@ import styles from '../../../../styles/pages/RecentServerList.module.scss'
 import React, { Component } from 'react'
 import Link from 'next/link'
 
+import FileCopy from '@material-ui/icons/FileCopy';  
+
 const HOT_WIPE = 5;
 const COOL_WIPE = 15;
 const COLD_WIPE = 60;
 
-const RecentServerRow = ({id, className, url, rank, players, max_players, wipe_date}) => {
+const RecentServerRow = ({id, ip, className, url, rank, players, max_players, wipe_date}) => {
 
 // Navbar_Button Props:
 // props.className:       Name of class to apply to the button
@@ -62,6 +64,9 @@ const RecentServerRow = ({id, className, url, rank, players, max_players, wipe_d
             </div>
             <div className={styles.timestamp_cell}>
                 {final_diff_string}
+            </div>
+            <div className={styles.copy_cell_button} onClick={() => {navigator.clipboard.writeText(`client.connect ${ip}`)}}>
+                <FileCopy className={styles.copy_icon} />
             </div>
         </div>
     )

@@ -12,11 +12,13 @@ const RecentWipesTable = ({state}) => {
         var server_list_length = state.server_list.length;
 
         if (state.debug) console.log(`SERVER LIST LENGTH: ${server_list_length}`)
+        console.log(state.server_list)
 
         for (var i = 0; i < server_list_length; i++) {
             var current_server_json = state.server_list[i];
 
             var id          = current_server_json['id'];
+            var ip          = current_server_json['attributes']['ip'];
             var name        = current_server_json['attributes']['name'];
             var rank        = current_server_json['attributes']['rank'];
             var players     = current_server_json['attributes']['players'];
@@ -33,6 +35,7 @@ const RecentWipesTable = ({state}) => {
             servers_jsx_array.push(
                 <RecentServerRow
                     key={i}
+                    ip={ip}
                     id={`server-${i}`}
                     className={name}
                     url={`https://www.battlemetrics.com/servers/rust/${id}`}
@@ -64,6 +67,9 @@ const RecentWipesTable = ({state}) => {
                     </div>
                     <div className={`${styles.timestamp_cell} ${styles.server_list_header}`}>
                         {'Wiped'}
+                    </div>
+                    <div className={`${styles.copy_cell} ${styles.server_list_header}`}>
+                        {'Copy'}
                     </div>
                 </div>
                 <div className={styles.server_list_body}>
