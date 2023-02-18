@@ -33,12 +33,12 @@ const RecentServerRow = ({id, ip, className, url, rank, players, max_players, wi
 
     const hours_since_wipe = (diff / 60).toFixed(2);
 
-    final_diff_string += `${hours_since_wipe} hrs`
+    final_diff_string += (hours_since_wipe > 1) ? ( `${hours_since_wipe} hrs` ) : ( ((hours_since_wipe * 60) > 1) ? `${parseInt(hours_since_wipe * 60)} mins` : `${(hours_since_wipe * 60).toFixed(2)} mins` )
 
     /*
     if (diff < 60) final_diff_string = `${diff} minutes `;
     else {
-        minutes = diff % 60;
+        minutes = diff % 60; 
         if (diff >= 1440) days = parseInt((diff - minutes) / 1440);
         if (diff >= 60) hours = (diff - (days * 1440) - minutes) / 60;
 
