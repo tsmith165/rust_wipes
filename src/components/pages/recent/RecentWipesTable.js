@@ -19,6 +19,7 @@ const RecentWipesTable = ({state}) => {
 
             var id          = current_server_json['id'];
             var ip          = current_server_json['attributes']['ip'];
+            var port        = current_server_json['attributes']['port'];
             var name        = current_server_json['attributes']['name'];
             var rank        = current_server_json['attributes']['rank'];
             var players     = current_server_json['attributes']['players'];
@@ -35,7 +36,7 @@ const RecentWipesTable = ({state}) => {
             servers_jsx_array.push(
                 <RecentServerRow
                     key={i}
-                    ip={ip}
+                    ip={`${ip}:${port}`}
                     id={`server-${i}`}
                     className={name}
                     url={`https://www.battlemetrics.com/servers/rust/${id}`}
