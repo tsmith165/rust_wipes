@@ -127,7 +127,7 @@
   transform: scale(-1);
 }
 .two_row_input_and_refresh_container { display: flex; flex-direction: row; }
-  .two_row_input_container { }
+  .two_row_input_container { width: 100%; }
 
 .button_container { margin: 10px 10px 0px 0px; padding: 2.5px; width: 70px; height: 70px; background-color: $medium !important; border-radius: 5px !important; display: flex; justify-content: center; align-items: center; }
 .button_icon { fill: $light !important; width: 40px !important; height: 40px !important; }

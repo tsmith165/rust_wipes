@@ -77,19 +77,6 @@ class RecentWipesPage extends React.Component {
         }
     }
 
-    async switch_page(forward) {
-        const [new_server_list, next_url, prev_url] = await this.fetch_servers(false, forward)
-        console.log(`New Server List (Next Line): `)
-        console.log(new_server_list);
-
-        if (forward == true && next_url != 'none') {
-            this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_page: this.state.current_page + 1})
-        }
-        else if (forward == false && prev_url != 'none') {
-            this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_page: this.state.current_page - 1})
-        }
-    }
-
     async run_refresh_timer(post_refresh_state, wait_time) {
         console.log(`Refreshing for set ${wait_time / 1000}s before updating data to state`)
         const refresh_timer = setTimeout(() => {
@@ -97,6 +84,19 @@ class RecentWipesPage extends React.Component {
             clearTimeout(refresh_timer)
         }, wait_time);
     }
+
+    async update_server_list() {
+        console.log(`-------------- Updating Server List --------------`)
+        const [new_server_list, next_url, prev_url] = await this.fetch_servers()
+        console.log(`New Server List (Next Line): `)
+        console.log(new_server_list);
+
+        const post_refresh_state = {server_list: new_server_list, next_url: next_url, prev_url: prev_url, refreshing: false}
+        this.run_refresh_timer(post_refresh_state, 1500)
+
+        clearTimeout(this.state.server_list_timer)
+        this.set_server_list_fetch_timeout()
+    } 
 
     async toggle_auto_refresh() {
         console.log(`Toggling auto-refresh state - current: ${this.state.running}`);
@@ -113,19 +113,6 @@ class RecentWipesPage extends React.Component {
         }
     }
 
-    async update_server_list() {
-        console.log(`-------------- Updating Server List --------------`)
-        const [new_server_list, next_url, prev_url] = await this.fetch_servers()
-        console.log(`New Server List (Next Line): `)
-        console.log(new_server_list);
-
-        const post_refresh_state = {server_list: new_server_list, next_url: next_url, prev_url: prev_url, refreshing: false}
-        this.run_refresh_timer(post_refresh_state, 1500)
-
-        clearTimeout(this.state.server_list_timer)
-        this.set_server_list_fetch_timeout()
-    } 
-
     async fetch_servers(use_default=true, forward=true) {
         const [new_server_list, next_url, prev_url] = await fetch_battlemetrics_servers(
             this.state.country, 
@@ -138,6 +125,19 @@ class RecentWipesPage extends React.Component {
             forward
         )
         return [new_server_list, next_url, prev_url]
+    }
+
+    async switch_page(forward) {
+        const [new_server_list, next_url, prev_url] = await this.fetch_servers(false, forward)
+        console.log(`New Server List (Next Line): `)
+        console.log(new_server_list);
+
+        if (forward == true && next_url != 'none') {
+            this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_page: this.state.current_page + 1})
+        }
+        else if (forward == false && prev_url != 'none') {
+            this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_page: this.state.current_page - 1})
+        }
     }
 
     render() {
