@@ -71,7 +71,7 @@ class RecentWipesPage extends React.Component {
         console.log(`Server List Update Timer Running: ${this.state.running}`)
         if (this.state.running) {
             var server_list_timer = setTimeout(async () => {
-                this.setState({server_list_timer: server_list_timer, refreshing: true})
+                this.setState({...this.state, server_list_timer: server_list_timer, refreshing: true})
                 await this.update_server_list()
             }, 5 * 1000)
         }
@@ -91,7 +91,7 @@ class RecentWipesPage extends React.Component {
         console.log(`New Server List (Next Line): `)
         console.log(new_server_list);
 
-        const post_refresh_state = {server_list: new_server_list, next_url: next_url, prev_url: prev_url, refreshing: false}
+        const post_refresh_state = {...this.state, server_list: new_server_list, next_url: next_url, prev_url: prev_url, refreshing: false}
         this.run_refresh_timer(post_refresh_state, 1500)
 
         clearTimeout(this.state.server_list_timer)
@@ -107,7 +107,7 @@ class RecentWipesPage extends React.Component {
         // If currently NOT running
         } else {
             console.log("Toggling ON auto-refresh")
-            this.setState({refreshing: true, running: true})
+            this.setState({...this.state, refreshing: true, running: true})
 
             await this.update_server_list()
         }
