@@ -4,7 +4,7 @@ import RecentServerRow from './RecentServerRow';
 
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
-const RecentWipesTable = ({state}) => {
+const RecentWipesTable = ({state, update_filter_value, switch_page}) => {
 
     {/* Create Server List */}
     var servers_jsx_array = [];
@@ -82,9 +82,9 @@ const RecentWipesTable = ({state}) => {
                 <div className={styles.server_list_page_filter_container}>
                     <div className={styles.page_selector_container}>
                         <div className={styles.page_selector}>
-                            <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); this.switch_page(false)}}/>
+                            <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon} ${styles.img_hor_vert}`} onClick={(e) => {e.preventDefault(); switch_page(false)}}/>
                             {state.current_page}
-                            <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); this.switch_page(true)}}/>
+                            <ArrowForwardIosRoundedIcon className={`${styles.page_arrow_icon}`} onClick={(e) => {e.preventDefault(); switch_page(true)}}/>
                         </div>
                     </div>
                     <div className={styles.page_selector_container}>
@@ -97,7 +97,7 @@ const RecentWipesTable = ({state}) => {
                                     e.preventDefault();
                                     const num_servers = document.getElementById('num_servers').value; 
                                     console.log(`NEW NUM SERVERS: ${num_servers}`); 
-                                    this.setState({num_servers: num_servers})
+                                    update_filter_value("num_servers", num_servers)
                                 }}
                             >
                                 <option value="5">5</option>
