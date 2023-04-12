@@ -1,0 +1,128 @@
+@import "../../theme/theme";
+
+.scraper-stats-page {
+    background-color: $medium;
+    padding: 20px;
+    min-height: calc(100vh - 100px);
+  
+    h1 {
+        font-family: $aleg_300;
+        font-size: 2rem;
+        color: $light;
+        text-align: center;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+  
+    table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        max-width: 900px;
+        background-color: $primary;
+        border-radius: 5px;
+  
+        th {
+            background-color: $dark;
+            color: $light;
+            font-family: $lato_300;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+    
+            &:first-child {
+                border-top-left-radius: 5px;
+                width: 230px;
+            }
+    
+            &:last-child {
+                border-top-right-radius: 5px;
+            }
+            &:nth-child(2) {
+                min-width: 180px;
+            }
+            
+        }
+    
+        td {
+            font-family: $lato_300;
+            font-size: 1.2rem;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid $rust_red_2;
+            font-weight: bold;
+    
+            &:first-child {
+                font-weight: bold;
+            }
+    
+            &:last-child {
+                border-bottom: none;
+            }
+            text-align: center;
+        }
+    
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+    
+        tbody tr:hover {
+            background-color: $rust_red_3;
+            color: $light;
+    
+            td {
+                border-bottom-color: $light;
+            }
+        }
+    }
+  
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: $dark;
+    
+        button {
+            color: $light;
+            background-color: transparent;
+            border: 1px solid $light;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-family: $lato_300;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+    
+            &:hover {
+                background-color: $rust_red_3;
+                color: $light;
+                border-color: $rust_red_3;
+            }
+    
+            &:disabled {
+                background-color: $secondary;
+                border-color: $secondary;
+                cursor: not-allowed;
+            }
+    
+            &:focus {
+                outline: none;
+                box-shadow: none;
+            }
+        }
+    
+        span {
+            font-family: $lato_300;
+            font-size: 1.2rem;
+            color: $light;
+            margin: 0 10px;
+        }
+    }
+}

@@ -81,3 +81,12 @@ model server_parsed_test {
   force_hour     String?      // Force Wipe Hour
   last_force     String?      // Last Force Wipe Timestamp
 }
+
+model scraper_stats {
+  id               Int      @id @default(autoincrement())
+  date             DateTime @default(now())
+  scraper_duration Int?
+  servers_parsed   Int?
+  servers_skipped  Int?
+  servers_posted   Int?
+}
