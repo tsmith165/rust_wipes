@@ -92,6 +92,8 @@ class RecentWipesPage extends React.Component {
         
         if (server_list_updated) {
             console.log("Server lists are the same, not updating state")
+            this.run_refresh_timer(this.state, 1500)
+            
             clearTimeout(this.state.server_list_timer)
             this.set_server_list_fetch_timeout()
             return

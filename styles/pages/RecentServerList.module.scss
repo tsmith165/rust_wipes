@@ -76,8 +76,11 @@
 
       .copy_cell { min-width: 50px !important; max-width: 50px; display: flex; justify-content: center; align-items: center; }
         .copy_icon { margin: 0 auto; }
-      .copy_cell_button { min-width: 50px !important; max-width: 50px; display: flex; justify-content: center; align-items: center;  }
-      .copy_cell_button:hover { min-width: 50px !important; max-width: 50px; color: $copy }
+
+        .copy_cell_button { min-width: 50px !important; max-width: 50px; display: flex; justify-content: center; align-items: center;  }
+        .copy_cell_button:hover { min-width: 50px !important; max-width: 50px; color: $copy }
+          .green_flash { fill: $success_2; }
+
       .rank_cell { min-width: 65px !important; max-width: 65px; margin: 0 auto; display: flex; justify-content: center; align-items: center; }
       @media (min-width: 765px) {
         .server_name_cell { min-width: calc(100% - 280px) !important; max-width: calc(100% - 280px) !important; overflow-x: hidden !important; }
@@ -150,3 +153,4 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+

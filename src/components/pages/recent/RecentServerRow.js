@@ -1,6 +1,6 @@
 import styles from '../../../../styles/pages/RecentServerList.module.scss'
 
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import Link from 'next/link'
 
 import FileCopy from '@material-ui/icons/FileCopy';  
@@ -11,18 +11,12 @@ const COLD_WIPE = 60;
 
 const RecentServerRow = ({id, ip, className, url, rank, players, max_players, wipe_date}) => {
 
-// Navbar_Button Props:
-// props.className:       Name of class to apply to the button
-// props.image_path:      Path to image of piece
-// props.title:           Title to show inside description container
-// props.description:     Description to show inside description container
-// props.dimensions:      image dimensions: [x, y, width, height]
+    const [isCopied, setIsCopied] = useState(false);
 
     var today = new Date();
     var wipe_date_obj = new Date(wipe_date);
 
     var diff = parseInt((today - wipe_date_obj) / 1000 / 60);
-    //console.log(`Today: ${today} | WIPE: ${wipe_date_obj} | DIFF: ${diff}`);
     
     var final_diff_string = "";
     var heat_class = null;
@@ -35,19 +29,13 @@ const RecentServerRow = ({id, ip, className, url, rank, players, max_players, wi
 
     final_diff_string += (hours_since_wipe > 1) ? ( `${hours_since_wipe} hrs` ) : ( ((hours_since_wipe * 60) > 1) ? `${parseInt(hours_since_wipe * 60)} mins` : `${parseInt(hours_since_wipe * 60 * 60)} secs` )
 
-    /*
-    if (diff < 60) final_diff_string = `${diff} minutes `;
-    else {
-        minutes = diff % 60; 
-        if (diff >= 1440) days = parseInt((diff - minutes) / 1440);
-        if (diff >= 60) hours = (diff - (days * 1440) - minutes) / 60;
-
-        if (days > 0) final_diff_string += `${days} days `
-        if (hours > 0) final_diff_string += `${hours} hrs `
-        if (minutes > 0) final_diff_string += `${minutes} mins `
+    const handleCopyClick = () => {
+        navigator.clipboard.writeText(`client.connect ${ip}`);
+        setIsCopied(true);
+        setTimeout(() => {
+            setIsCopied(false);
+        }, 500);
     }
-    final_diff_string += 'ago'
-    */
 
     return (
         <div className={`${styles.server_container} ${heat_class} ${styles.className}`}>
@@ -65,7 +53,7 @@ const RecentServerRow = ({id, ip, className, url, rank, players, max_players, wi
             <div className={styles.timestamp_cell}>
                 {final_diff_string}
             </div>
-            <div className={styles.copy_cell_button} onClick={() => {navigator.clipboard.writeText(`client.connect ${ip}`)}}>
+            <div className={`${styles.copy_cell_button} ${isCopied ? styles.green_flash : ""}`} onClick={handleCopyClick}>
                 <FileCopy className={styles.copy_icon} />
             </div>
         </div>
