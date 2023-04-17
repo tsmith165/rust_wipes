@@ -1,4 +1,5 @@
 import React from 'react';
+import { Howl } from 'howler';
 
 import styles from '../../../../styles/pages/RecentServerList.module.scss';
 
@@ -38,6 +39,10 @@ class RecentWipesPage extends React.Component {
         this.update_server_list = this.update_server_list.bind(this);
         this.update_filter_value = this.update_filter_value.bind(this);
         this.toggle_auto_refresh = this.toggle_auto_refresh.bind(this);
+
+        this.sound = new Howl({
+            src: ['/maximize_007.mp3'],
+        });
     }
 
     async componentDidMount() {
@@ -93,6 +98,8 @@ class RecentWipesPage extends React.Component {
         }
         
         console.log(`Server List Updated.`)
+        this.sound.play();
+
         console.log(`New Server List (Next Line): `)
         console.log(new_server_list);
 
