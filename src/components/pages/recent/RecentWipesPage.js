@@ -72,11 +72,34 @@ class RecentWipesPage extends React.Component {
     }
 
     async update_server_list() {
-        console.log(`-------------- Updating Server List --------------`)
+        console.log(`------------------------ Updating Server List ------------------------`)
         const [new_server_list, next_url, prev_url, current_test_id] = await this.fetch_servers()
+
+        var server_list_updated = true;
+
+        for (var x = 0; x < new_server_list.length; x++) {
+            if (new_server_list[x]['id'] != this.state.server_list[x]['id']) {
+                console.log(`New Server List ID: ${new_server_list[x]['id']} | Old Server List ID: ${this.state.server_list[x]['id']}`)
+                server_list_updated = false;
+            }
+        }
+        console.log(`Server List Updated: ${server_list_updated}`)
+        
+        if (server_list_updated) {
+            console.log("Server lists are the same, not updating state")
+            clearTimeout(this.state.server_list_timer)
+            this.set_server_list_fetch_timeout()
+            return
+        }
+        
+        console.log(`Server List Updated.`)
         console.log(`New Server List (Next Line): `)
         console.log(new_server_list);
 
+        console.log(`Last Server List (Next Line): `)
+        console.log(this.state.server_list);
+
+        // Create state to show post refresh timer
         const post_refresh_state = {...this.state, server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_test_id: current_test_id, refreshing: false}
         this.run_refresh_timer(post_refresh_state, 1500)
 
