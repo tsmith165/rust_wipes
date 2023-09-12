@@ -3,7 +3,7 @@ import { Howl } from 'howler';
 
 import styles from '../../../../styles/pages/RecentServerList.module.scss';
 
-import { fetch_battlemetrics_servers } from '../../../../lib/api_calls';
+import { fetch_battlemetrics_servers, generate_test_battlemetrics_data } from '../../../../lib/api_calls';
 import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
 
@@ -31,7 +31,8 @@ class RecentWipesPage extends React.Component {
             current_page: 1,
             window_width: null,
             render_ads: false,
-            current_test_id: 0
+            current_test_id: 0,
+            useMockData: false
         };
 
         this.handle_window_resize = this.handle_window_resize.bind(this);
@@ -50,12 +51,22 @@ class RecentWipesPage extends React.Component {
         const [new_server_list, next_url, prev_url, current_test_id] = await this.fetch_servers()
         // this.set_server_list_fetch_timeout()  // disabled as we added button to turn on interval
 
-        // Add event listener
+        // Add event listeners
         window.addEventListener("resize", this.handle_window_resize);
+        window.toggleMockData = this.toggleMockData.bind(this);
 
         this.handle_window_resize()
 
         this.setState({server_list: new_server_list, next_url: next_url, prev_url: prev_url, current_test_id: current_test_id})
+    }
+
+    componentWillUnmount() {
+        delete window.toggleMockData;
+    }
+
+    toggleMockData() {
+        this.setState(prevState => ({ useMockData: !prevState.useMockData }));
+        console.log(`Using mock data: ${this.state.useMockData}`);
     }
       
     set_server_list_fetch_timeout() {
@@ -132,10 +143,8 @@ class RecentWipesPage extends React.Component {
     }
 
     async fetch_servers(use_default=true, forward=true) {
-        if (USE_TEST_BM_DATA == true) {
-
-
-            return [new_server_list, next_url, prev_url, this.state.current_test_id + getChance(10)]
+        if (this.state.useMockData) {
+            return generate_test_battlemetrics_data();
         }
 
         const [new_server_list, next_url, prev_url] = await fetch_battlemetrics_servers(

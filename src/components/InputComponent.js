@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from "../../styles/components/InputContainer.module.scss";
+import styles from "../../styles/components/InputComponent.module.scss";
 
 import Tooltip from '@mui/material/Tooltip';
 import DatePicker from "react-datepicker";
@@ -17,7 +17,7 @@ const INPUT_TYPE_MASTER = {
     'input_select': {name: "Input Select"},
 }
 
-export default class InputContainer extends React.Component {
+export default class InputComponent extends React.Component {
     constructor(props) {
         super(props);
         this.type = this.props.type

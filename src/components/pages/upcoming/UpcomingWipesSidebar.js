@@ -1,7 +1,7 @@
 import React from 'react';
 
 import styles from '../../../../styles/pages/UpcomingServerList.module.scss'
-import InputContainer from '../../InputContainer';
+import InputComponent from '../../InputComponent';
   
 class UpcomingWipesSidebar extends React.Component {
     constructor(props) {
@@ -18,16 +18,16 @@ class UpcomingWipesSidebar extends React.Component {
                 {/* Filter Row 1 */}
                 <div className={styles.input_container}>
                     {/* Date */}
-                    <InputContainer type={'input_datepicker'} state={this.props.state} name={"Date"} update_filter_value={this.update_filter_value}/>
+                    <InputComponent type={'input_datepicker'} state={this.props.state} name={"Date"} update_filter_value={this.update_filter_value}/>
 
                     {/* Min Rank */}
-                    <InputContainer type={'input_split'} default={5000} name={"Min Rank"} update_filter_value={this.update_filter_value}/>
+                    <InputComponent type={'input_split'} default={5000} name={"Min Rank"} update_filter_value={this.update_filter_value}/>
                 </div>
 
                 {/* Filter Row 2 */}
                 <div className={styles.input_container}>
                     {/* Time Zone */}
-                    <InputContainer type={'input_select'} default={this.props.state.date} name={"Time"} update_filter_value={this.update_filter_value} select_options={[
+                    <InputComponent type={'input_select'} default={this.props.state.date} name={"Time"} update_filter_value={this.update_filter_value} select_options={[
                         [-10, 'Hawaii (UTC-10:00)'],
                         [-9, 'Alaska (UTC-09:00)'],
                         [-7, 'Pacific (UTC-07:00)'],
@@ -53,7 +53,7 @@ class UpcomingWipesSidebar extends React.Component {
 
 
                     {/* Region */}
-                    <InputContainer type={'input_select'} default={this.props.state.region} name={"Region"} update_filter_value={this.update_filter_value} select_options={[
+                    <InputComponent type={'input_select'} default={this.props.state.region} name={"Region"} update_filter_value={this.update_filter_value} select_options={[
                         ['US', 'US']
                     ]}/>
                 </div>
@@ -61,7 +61,7 @@ class UpcomingWipesSidebar extends React.Component {
                 {/* Filter Row 3 */}
                 <div className={styles.input_container}>
                     {/* Resource Rate */}
-                    <InputContainer type={'input_select'} default={this.props.state.resource_rate} name={"Rate"} update_filter_value={this.update_filter_value} select_options={[
+                    <InputComponent type={'input_select'} default={this.props.state.resource_rate} name={"Rate"} update_filter_value={this.update_filter_value} select_options={[
                         ['any', 'Any Resource Rate'],
                         ['1x', '1x'],
                         ['1.5x', '1.5x'],
@@ -74,7 +74,7 @@ class UpcomingWipesSidebar extends React.Component {
                     ]}/>
 
                     {/* Group Limit */}
-                    <InputContainer type={'input_select'} default={this.props.state.group_limit} name={"Groups"} update_filter_value={this.update_filter_value} select_options={[
+                    <InputComponent type={'input_select'} default={this.props.state.group_limit} name={"Groups"} update_filter_value={this.update_filter_value} select_options={[
                         ['any', 'Any Group Limit'],
                         ['solo', 'Solo'],
                         ['duo', 'Duo'],
@@ -87,7 +87,7 @@ class UpcomingWipesSidebar extends React.Component {
                 {/* Filter Row 4 */}
                 <div className={styles.input_container}>
                     {/* Game Mode */}
-                    <InputContainer type={'input_select'} default={this.props.state.game_mode} name={"Mode"} update_filter_value={this.update_filter_value} select_options={[
+                    <InputComponent type={'input_select'} default={this.props.state.game_mode} name={"Mode"} update_filter_value={this.update_filter_value} select_options={[
                         ['any', 'Any Game Mode'],
                         ['pvp', 'PvP'],
                         ['pve', 'PvE'],

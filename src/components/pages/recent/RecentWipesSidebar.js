@@ -2,7 +2,7 @@ import React from 'react';
 
 import styles from '../../../../styles/pages/RecentServerList.module.scss'
 
-import InputContainer from '../../InputContainer';
+import InputComponent from '../../InputComponent';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import CachedIcon from '@material-ui/icons/Cached';
 
@@ -49,14 +49,14 @@ export default class RecentWipesSidebar extends React.Component {
                     <div className={styles.two_row_input_container}>
                         <div className={styles.input_container}>
                             {/* Min Player Count Textbox Input */}
-                            <InputContainer type={'input_split'} default={2} name={"Min Players"} full_name={"Minimum Players"} update_filter_value={this.props.update_filter_value}/>
+                            <InputComponent type={'input_split'} default={2} name={"Min Players"} full_name={"Minimum Players"} update_filter_value={this.props.update_filter_value}/>
 
                             {/* Max Server Distance  Textbox Input */}
-                            <InputContainer type={'input_split'} default={5000} name={"Max Dist"} full_name={"Max Distance"}  update_filter_value={this.props.update_filter_value}/>
+                            <InputComponent type={'input_split'} default={5000} name={"Max Dist"} full_name={"Max Distance"}  update_filter_value={this.props.update_filter_value}/>
                         </div>
 
                         {/* Country Select Input / Refresh Button */}
-                        <InputContainer type={'input'} default={'US'} name={"Country"} update_filter_value={this.props.update_filter_value} />
+                        <InputComponent type={'input'} default={'US'} name={"Country"} update_filter_value={this.props.update_filter_value} />
                     </div>
                     <div 
                         className={`${styles.button_container} ${this.props.state.running ? (styles.running_background) : ('')}`} 
