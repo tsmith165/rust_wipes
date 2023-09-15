@@ -15,12 +15,12 @@ model Server {
   id              Int      @id
   rank            Int      
   title           String
-  wipes           String[]
+  wipes           Json?
   primary_day     Int?
   primary_hour    Int?
   secondary_day   Int?
   secondary_hour  Int?
-  force_wipes     String[]
+  force_wipes     Json?
   force_wipe_hour String?
 }
 
@@ -30,8 +30,8 @@ model server_data {
   title        String       // Server Title
   region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
   attrs        Json?        // Server Attributes JSON - wipe_schedule / game_mode / region
-  wipes        String[]     // Non Force Wipe timestamp array
-  force_wipes  String[]     // Force Wipe timestamp array
+  wipes        Json?        // Non Force Wipe timestamp array
+  force_wipes  Json?        // Force Wipe timestamp array
 }
 
 model server_parsed {
@@ -59,8 +59,8 @@ model server_data_test {
   title        String       // Server Title
   region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
   attrs        Json?        // Server Attributes JSON - wipe_schedule / game_mode / region
-  wipes        String[]     // Non Force Wipe timestamp array
-  force_wipes  String[]     // Force Wipe timestamp array
+  wipes        Json?        // Non Force Wipe timestamp array
+  force_wipes  Json?        // Force Wipe timestamp array
 }
 
 model server_parsed_test {
