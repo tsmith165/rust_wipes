@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Recent Wipes',
-  description: 'Keep track of both Recent Rust Wipes as well as Upcoming Rust Wipes!',
+  title: 'Rust Wipes - Recent Wipes',
+  description: 'Keep track of the servers that just wiped so you can find a fresh server to play on!\n  We offer free auto-refresh, sound notifications, and filtering!',
   icons: {
       icon: '/rust_hazmat_icon.png',
   },

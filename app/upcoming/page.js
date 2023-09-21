@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Upcoming Wipes',
-  description: 'Keep track of both Recent Rust Wipes as well as Upcoming Rust Wipes!',
+  title: 'Rust Wipes - Upcoming Wipes',
+  description: 'See what wipes are coming up soon so you can plan your day!',
   icons: {
       icon: '/rust_hazmat_icon.png',
   },
