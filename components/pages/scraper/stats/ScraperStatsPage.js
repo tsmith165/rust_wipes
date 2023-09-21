@@ -16,7 +16,7 @@ class ScraperStatsPage extends Component {
 
   fetchStats = async () => {
     const { currentPage } = this.state;
-    const res = await fetch(`/api/scraper?page=${currentPage}`);
+    const res = await fetch(`/api/scraper/stats?page=${currentPage}`);
     const { stats, totalPages } = await res.json();
     this.setState({ stats, totalPages });
   };
