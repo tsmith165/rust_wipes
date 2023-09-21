@@ -9,10 +9,10 @@ export const metadata = {
 import PageLayout from '../components/layout/PageLayout'
 import RecentWipesPage from '../components/pages/recent/RecentWipesPage';
 
-export default async function Page({server_list, next_url, prev_url}) {
+export default async function Page() {
   return (
     <PageLayout page_title={"Recent Wipes"} page={"recent"}>
-      <RecentWipesPage next_url={next_url} prev_url={prev_url}/>
+      <RecentWipesPage/>
     </PageLayout>
   )
 }

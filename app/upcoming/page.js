@@ -19,7 +19,7 @@ const DAY_OF_WEEK_DICT = {
   6: 'Saturday',
 }
 
-export default async function Page({server_list}) {
+export default async function Page() {
   return (
     <PageLayout page_title={"Upcoming Wipes"} page={"upcoming"}>
       <UpcomingWipesPage/>
