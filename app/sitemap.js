@@ -1,19 +1,19 @@
 export default function sitemap() {
   return [
     {
-      url: 'https://rustwipes.com',
+      url: 'https://www.rustwipes.net',
       lastModified: new Date(),
       changeFrequency: 'always',
       priority: 1,
     },
     {
-      url: 'https://rustwipes.com/upcoming',
+      url: 'https://www.rustwipes.net/upcoming',
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 1,
     },
     {
-      url: 'https://acme.com/scraper',
+      url: 'https://www.rustwipes.net/scraper/stats',
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.5,
