@@ -6,8 +6,8 @@ export const metadata = {
   },
 }
 
-import PageLayout from '../../components/layout/PageLayout';
-import ScraperStatsPage from '../../components/pages/scraper/stats/ScraperStatsPage';
+import PageLayout from '../../../components/layout/PageLayout';
+import ScraperStatsPage from '../../../components/pages/scraper/stats/ScraperStatsPage';
 
 export default async function Page() {
   return (
