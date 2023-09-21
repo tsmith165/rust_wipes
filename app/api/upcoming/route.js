@@ -1,7 +1,6 @@
 import { prisma } from "../../../lib/prisma";
-import { NextResponse } from 'next/server'
 
-export async function POST(req) {
+export async function POST(req, res) {
     console.log(`----- Start pull upcoming servers -----`);
     console.log(`req.method: ${req.method}`);
 
@@ -201,7 +200,7 @@ export async function POST(req) {
 
     // console.log(`Upcoming Server Output (Next Line):`);
     // console.log(grouped_wipe_dict)
-    return NextResponse.json(grouped_wipe_dict)
+    return res.status(200).json(grouped_wipe_dict);
 }
 
 function get_latest_force_wipe(wipe_date_array) {
