@@ -4,7 +4,7 @@
     padding: 0 !important; 
     overflow: hidden; 
     background-color: $dark;  
-}
+
     .navbar_container { 
         width: 100% !important;
         overflow: hidden;
@@ -12,12 +12,12 @@
         flex-direction: row;
         flex-wrap: wrap;
         margin-left: 5px;
-    }
+
         .navbar_logo_container {
             position: relative;
             height: 100px !important;
             width: 544px !important;
-        }
+
             .navbar_logo {
                 position: absolute;
                 bottom: 0;
@@ -25,12 +25,15 @@
                 width: 544px; 
                 max-width: calc(100vw - 10px) !important;
                 height: fit-content !important;
-            }
+
                 .navbar_logo_img { 
                     width: 544px !important; 
                     height: 100px !important;  
                     max-width: calc(100vw - 10px) !important;
                 }
+            }
+        }
+
 
         .tab_menu {
             width: fit-content;
@@ -38,30 +41,8 @@
             display: flex;
             flex-direction: row;
             align-items: flex-end;
-        }
-    
+
             .tab_button {
-                line-height: 45px;
-                height: 45px;
-                margin-bottom: 5px;
-                padding: 0px 10px;
-                font-size: 24px;
-                font-weight: bold;
-                color: $tertiary !important;
-                background-color: $primary !important;
-                border-bottom-left-radius: 5px;
-                border-bottom-right-radius: 5px;
-                border-right: 2px solid $tertiary;
-                border-bottom: 2px solid $tertiary;
-            }
-            .tab_button:first-of-type { border-left: 2px solid $tertiary }
-
-            @media (min-width: 765px) {
-                .tab_button:hover { background-color: $tertiary !important; color: $light !important; border-right: 2px solid $primary; border-bottom: 2px solid $primary; }
-                .tab_button:hover:first-of-type { border-left: 2px solid $primary }
-            }
-
-            .tab_active {
                 line-height: 45px;
                 height: 45px;
                 margin-bottom: 5px;
@@ -74,7 +55,42 @@
                 border-bottom-right-radius: 5px;
                 border-right: 2px solid $primary;
                 border-bottom: 2px solid $primary;
+                text-decoration: none;
+
+                &:hover { 
+                    background-color: $primary !important; 
+                    color: $tertiary !important; 
+                    border-right: 2px solid $tertiary;
+                        border-bottom: 2px solid $tertiary; 
+                }
             }
-            .tab_active:first-of-type { border-left: 2px solid $primary }
+
+            .tab_active {
+                line-height: 45px;
+                height: 45px;
+                margin-bottom: 5px;
+                padding: 0px 10px;
+                font-size: 24px;
+                font-weight: bold;
+                color: $tertiary !important;
+                background-color: $primary !important;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-right: 2px solid $tertiary;
+                border-bottom: 2px solid $tertiary;
+
+                &:hover { 
+                    background-color: $primary !important; 
+                    color: $tertiary !important; 
+                    border-right: 2px solid $tertiary;
+                }
+            }
+        }
+    }
+}
+
+        
+    
+
 
 

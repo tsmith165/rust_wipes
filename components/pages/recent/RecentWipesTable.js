@@ -7,53 +7,50 @@ import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounde
 const RecentWipesTable = ({state, update_filter_value, switch_page}) => {
     console.log('Creating Recent Wipes Table...')
 
-    {/* Create Server List */}
     var servers_jsx_array = [];
     if (state.server_list == undefined) {
-        console.error('NO SERVERS FOUND.  Returning empty table...')
-        return (
-            <div className={styles.server_list_body_container}></div>
-        )
-    } else {
-        var server_list_length = state.server_list.length;
+        console.log('NO SERVERS FOUND.  Returning empty table...')
+        return ( <div className={styles.server_list_body_container}></div> )
+    } 
 
-        if (state.debug) console.log(`SERVER LIST LENGTH: ${server_list_length}`)
-        console.log(state.server_list)
+    var server_list_length = state.server_list.length;
 
-        for (var i = 0; i < server_list_length; i++) {
-            var current_server_json = state.server_list[i];
+    if (state.debug) console.log(`SERVER LIST LENGTH: ${server_list_length}`)
+    console.log(state.server_list)
 
-            var id          = current_server_json['id'];
-            var ip          = current_server_json['attributes']['ip'];
-            var port        = current_server_json['attributes']['port'];
-            var name        = current_server_json['attributes']['name'];
-            var rank        = current_server_json['attributes']['rank'];
-            var players     = current_server_json['attributes']['players'];
-            var max_players = current_server_json['attributes']['maxPlayers'];
-            var wipe_date   = current_server_json['attributes']['details']['rust_last_wipe'];
+    for (var i = 0; i < server_list_length; i++) {
+        var current_server_json = state.server_list[i];
 
-            if (state.debug) {
-                console.log(`Server ID: ${id} | Name: ${name} | Rank: ${rank}`)
-                console.log(`Wipe Date: ${wipe_date}`)
-                console.log(`Players: ${players} | Max Players: ${max_players}`)
-                console.log('--------------------------------------------------------------------');
-            }
-            
-            console.log(`Pushing ID: {id}`)
-            servers_jsx_array.push(
-                <RecentServerRow
-                    key={i}
-                    ip={`${ip}:${port}`}
-                    id={`server-${i}`}
-                    className={name}
-                    url={`https://www.battlemetrics.com/servers/rust/${id}`}
-                    rank={rank}
-                    players={players}
-                    max_players={max_players}
-                    wipe_date={wipe_date}
-                />
-            );
+        var id          = current_server_json['id'];
+        var ip          = current_server_json['attributes']['ip'];
+        var port        = current_server_json['attributes']['port'];
+        var name        = current_server_json['attributes']['name'];
+        var rank        = current_server_json['attributes']['rank'];
+        var players     = current_server_json['attributes']['players'];
+        var max_players = current_server_json['attributes']['maxPlayers'];
+        var wipe_date   = current_server_json['attributes']['details']['rust_last_wipe'];
+
+        if (state.debug) {
+            console.log(`Server ID: ${id} | Name: ${name} | Rank: ${rank}`)
+            console.log(`Wipe Date: ${wipe_date}`)
+            console.log(`Players: ${players} | Max Players: ${max_players}`)
+            console.log('--------------------------------------------------------------------');
         }
+        
+        console.log(`Pushing ID: {id}`)
+        servers_jsx_array.push(
+            <RecentServerRow
+                key={i}
+                ip={`${ip}:${port}`}
+                id={`server-${i}`}
+                className={name}
+                url={`https://www.battlemetrics.com/servers/rust/${id}`}
+                rank={rank}
+                players={players}
+                max_players={max_players}
+                wipe_date={wipe_date}
+            />
+        );
     }
 
     console.log('Returning Recent Wipes Table...')

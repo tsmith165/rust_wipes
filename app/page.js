@@ -1,18 +1,18 @@
 export const metadata = {
-  title: 'Rust Wipes - Recent Wipes',
-  description: 'Keep track of the servers that just wiped so you can find a fresh server to play on!\n  We offer free auto-refresh, sound notifications, and filtering!',
+  title: 'Rust Wipes - Homepage',
+  description: 'Rust Wipes helps gamers find servers based on their wipe schedules. Discover recent wipes, upcoming wipes, and scraper statistics.',
   icons: {
       icon: '/rust_hazmat_icon.png',
   },
 }
 
-import PageLayout from '../components/layout/PageLayout'
-import RecentWipesPage from '../components/pages/recent/RecentWipesPage';
+import PageLayout from '@/components/layout/PageLayout'
+import HomePage from '@/components/pages/homepage/HomePage';
 
 export default async function Page() {
   return (
-    <PageLayout page_title={"Recent Wipes"} page={"recent"}>
-      <RecentWipesPage/>
+    <PageLayout page_title={"Home Page"} page={"home"}>
+      <HomePage/>
     </PageLayout>
   )
 }

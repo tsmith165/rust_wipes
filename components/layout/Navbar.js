@@ -1,74 +1,54 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import Image from 'next/image'
-import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import styles from '../../styles/layout/Navbar.module.scss';
+import { menu_list } from '../../lib/menu_list';
+import { usePathname } from 'next/navigation';
 
-import styles from "../../styles/layout/Navbar.module.scss";
+const Navbar = () => {
+    const router_pathname = usePathname();
 
-import { menu_list } from "../../lib/menu_list";
+    const generate_navbar = (menu_list) => {
+        // console.log(("-".repeat(15)) + " Generating Navbar " + ("-".repeat(15)));
+        // console.log(`Current URL: ${router_pathname}`);
 
-class Navbar extends React.Component {
-    constructor(props) {
-      super(props);
-    }
+        return menu_list.map((item, i) => {
+            let menu_item_string = item[1];
+            let url_endpoint = item[3];
 
-    generate_navbar(menu_list) {
-        this.curr_pathname = this.props.url
-        console.log(("-".repeat(15)) + " Generating Navbar " + ("-".repeat(15)))
-        console.log(`Current URL: ${this.curr_pathname}`)
-    
-        var menu_items = [];
-        for (var i=0; i < menu_list.length; i++) {
-    
-            let class_name = menu_list[i][0];
-            let menu_item_string = menu_list[i][1];
-            let url_endpoint = menu_list[i][3];
-    
-            console.log(`Creating Menu Item for URL endpoint: ${url_endpoint} | Active Endpoint: ${this.curr_pathname}`);
-    
-            const tab_class = (this.curr_pathname == url_endpoint) ? styles.tab_active : styles.tab_button
-            
-            const menu_item = (
-                <Link href={url_endpoint} passHref={true} key={i}> 
-                    <div className={`${tab_class}`}>
+            const tab_class = (router_pathname === url_endpoint) ? styles.tab_active : styles.tab_button;
+
+            return (
+                <Link key={i} href={url_endpoint} passHref={true}>
+                    <div className={tab_class}>
                         {menu_item_string}
                     </div>
                 </Link>
-            )
-            menu_items.push(menu_item);
-        }
-        return menu_items
-    }
+            );
+        });
+    };
 
-    render() {
-        const tab_menu = this.generate_navbar(menu_list)
+    const tab_menu = generate_navbar(menu_list);
 
-        console.log('returning navbar')
-        return (
-            <nav className={styles.navbar}>
-                <div className={styles.navbar_container}>
-                    <div className={styles.navbar_logo_container}>
-                        <Link href="/" passHref={true} styles={{}}>
-                            <div className={styles.navbar_logo}>
-                                <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={false} width={544} height={100}/>
-                            </div>
-                        </Link>
-                    </div>
-                    <div className={styles.tab_menu}>
-                        {tab_menu}
-                    </div>
-                    {/*
-                    <div className={styles.page_menu_full_container}>
-                        <div className={styles.menu_button_container} >
-                            <MenuRoundedIcon className={styles.hamburger_button} />
+    // console.log('returning navbar');
+
+    return (
+        <nav className={styles.navbar}>
+            <div className={styles.navbar_container}>
+                <div className={styles.navbar_logo_container}>
+                    <Link href="/" passHref={true}>
+                        <div className={styles.navbar_logo}>
+                            <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={false} width={544} height={100} />
                         </div>
-                    </div>
-                    */}
+                    </Link>
                 </div>
-            </nav>
-        )
-    }
+                <div className={styles.tab_menu}>
+                    {tab_menu}
+                </div>
+            </div>
+        </nav>
+    );
 }
 
 export default Navbar;

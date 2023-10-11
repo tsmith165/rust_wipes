@@ -6,8 +6,8 @@ export const metadata = {
   },
 }
 
-import PageLayout from '../../components/layout/PageLayout'
-import UpcomingWipesPage from '../../components/pages/upcoming/UpcomingWipesPage';
+import PageLayout from '@/components/layout/PageLayout'
+import UpcomingWipesPage from '@/components/pages/upcoming/UpcomingWipesPage';
 
 const DAY_OF_WEEK_DICT = {
   0: 'Sunday',

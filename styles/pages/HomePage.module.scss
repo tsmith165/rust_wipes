@@ -1,0 +1,131 @@
+@import "../../theme/theme";
+
+.page_container {
+    padding: 20px;
+    background-color: $medium;
+    height: auto;
+    display: block;
+
+    .link_and_seo_container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; // center the link_container vertically
+        align-items: center;     // center the link_container horizontally
+        overflow-y: scroll;
+        max-height: 100%;
+        max-height: calc(100vh - 190px);
+
+        @media (max-width: 881px) {
+            min-height: calc(100vh - 190px);
+        }
+
+        .link_container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center; // center the cards horizontally
+            gap: 20px;               // space between each card
+            width: 100%;
+            max-width: 1200px;       // max width to contain all cards side by side
+        }
+        
+        .card {
+            flex: 1;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
+            min-width: 300px;          // specify a fixed width for the card
+            max-width: 300px;
+            height: 200px;         // height shorter than width, giving a rectangle appearance
+            background-color: $dark;
+            color: $light;
+        
+            &:hover {
+                background-color: $dark;
+                color: $light;
+                transform: scale(1.05);
+        
+                .card_header {
+                    background-color: $secondary;
+                }
+            }
+        
+            .card_header {
+                background-color: $tertiary;
+                text-align: center;
+                font-weight: bold !important;
+                padding: 10px;
+                border-radius: 4px 4px 0 0;
+                font-size: 16px;
+                font-family: $lato_300 !important;
+            }
+        
+            .card_body {
+                width: 100%;
+                height: 150px;
+                padding: 10px !important;
+                background-size: cover;
+                background-position: center;
+                transition: transform 20s;
+        
+                &:hover {
+                    transform: scale(1.1);
+                }
+        
+                .card_img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+        }
+        
+        .seo_block {
+            margin-bottom: 20px; // spacing from the link_container
+            width: 100%;
+            max-width: 1200px; // aligning the width with link_container's max-width
+            background-color: $dark;
+            padding: 20px;
+            border-radius: 4px;
+        
+            h2 {
+                margin-top: 0;
+                color: $primary;
+                font-size: 24px;
+            }
+        
+            p {
+                color: $light;
+                font-size: 16px;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+.overlay {
+    position: fixed;
+    top: 100;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: black;
+    z-index: 9999;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+    display: none; // This ensures it's hidden by default
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.hidden {
+    display: none;
+}

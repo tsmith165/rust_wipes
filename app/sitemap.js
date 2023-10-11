@@ -7,6 +7,12 @@ export default function sitemap() {
       priority: 1,
     },
     {
+      url: 'https://www.rustwipes.net/recent',
+      lastModified: new Date(),
+      changeFrequency: 'always',
+      priority: 1,
+    },
+    {
       url: 'https://www.rustwipes.net/upcoming',
       lastModified: new Date(),
       changeFrequency: 'hourly',
