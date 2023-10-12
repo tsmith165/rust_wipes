@@ -15,8 +15,8 @@ export async function POST(req, res) {
 
         const totalPages = Math.ceil(totalStatsCount / itemsPerPage);
 
-        return res.status(200).json({ stats, totalPages });
+        return Response.json({ stats, totalPages }, { status: 200 });
     } catch (error) {
-        return res.status(500).json({ error: 'An error occurred.' });
+        return Response.json({ error: 'An error occurred.' }, { status: 500 });
     }
 }

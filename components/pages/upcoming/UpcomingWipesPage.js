@@ -4,10 +4,10 @@ import React from 'react';
 
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 
-import styles from '../../../styles/pages/UpcomingServerList.module.scss'
+import styles from '@/styles/pages/UpcomingServerList.module.scss'
 import UpcomingServerHourGroup from './UpcomingServerHourGroup'
 
-import { fetch_upcoming_servers_for_week_day } from '../../../lib/api_calls'
+import { fetch_upcoming_servers_for_week_day } from '@/lib/api_calls'
 
 const DAY_OF_WEEK_DICT = {
     0: 'Sunday',
@@ -83,7 +83,7 @@ class UpcomingWipesPage extends React.Component {
     }
 
     render() {
-        console.log(("-".repeat(15)) + " Rendering Upcoming Wipes Page " + ("-".repeat(15)))
+        console.log(("-".repeat(3)) + " Rendering Upcoming Wipes Page " + ("-".repeat(3)))
 
         if (this.state.server_list != undefined) {
             var servers_jsx_array = [];

@@ -26,10 +26,10 @@
                 max-width: calc(100vw - 10px) !important;
                 height: fit-content !important;
 
-                .navbar_logo_img { 
-                    width: 544px !important; 
-                    height: 100px !important;  
-                    max-width: calc(100vw - 10px) !important;
+                .navbar_logo_img {
+                    object-fit: cover; 
+                    width: 100%; 
+                    height: auto; 
                 }
             }
         }
@@ -88,9 +88,3 @@
         }
     }
 }
-
-        
-    
-
-
-

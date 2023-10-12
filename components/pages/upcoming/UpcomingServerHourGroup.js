@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from '../../../styles/pages/UpcomingServerList.module.scss'
+import styles from '@/styles/pages/UpcomingServerList.module.scss'
 import UpcomingServerRow from './UpcomingServerRow';
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 

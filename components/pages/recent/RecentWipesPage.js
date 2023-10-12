@@ -184,7 +184,7 @@ class RecentWipesPage extends React.Component {
     }
 
     render() {
-        console.log(("-".repeat(15)) + " Rendering Recent Wipes Page " + ("-".repeat(15)))
+        console.log(("-".repeat(3)) + " Rendering Recent Wipes Page " + ("-".repeat(3)))
         return (
             <div className={styles.page_container}>
                 <div className={styles.server_list_container}>

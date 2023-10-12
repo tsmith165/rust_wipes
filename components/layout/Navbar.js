@@ -10,9 +10,6 @@ const Navbar = () => {
     const router_pathname = usePathname();
 
     const generate_navbar = (menu_list) => {
-        // console.log(("-".repeat(15)) + " Generating Navbar " + ("-".repeat(15)));
-        // console.log(`Current URL: ${router_pathname}`);
-
         return menu_list.map((item, i) => {
             let menu_item_string = item[1];
             let url_endpoint = item[3];
@@ -30,16 +27,13 @@ const Navbar = () => {
     };
 
     const tab_menu = generate_navbar(menu_list);
-
-    // console.log('returning navbar');
-
     return (
         <nav className={styles.navbar}>
             <div className={styles.navbar_container}>
                 <div className={styles.navbar_logo_container}>
                     <Link href="/" passHref={true}>
                         <div className={styles.navbar_logo}>
-                            <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={false} width={544} height={100} />
+                            <Image className={styles.navbar_logo_img} src='/rust_wipes_hazmat_logo.png' alt='Rust Logo' priority={true} width={544} height={100} />
                         </div>
                     </Link>
                 </div>

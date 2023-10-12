@@ -200,7 +200,7 @@ export async function POST(req, res) {
 
     // console.log(`Upcoming Server Output (Next Line):`);
     // console.log(grouped_wipe_dict)
-    return res.status(200).json(grouped_wipe_dict);
+    return Response.json(grouped_wipe_dict, { status: 200 });
 }
 
 function get_latest_force_wipe(wipe_date_array) {

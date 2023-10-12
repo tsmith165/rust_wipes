@@ -1,4 +1,4 @@
-import styles from '../../../styles/pages/UpcomingServerList.module.scss'
+import styles from '@/styles/pages/UpcomingServerList.module.scss'
 
 import React, { Component } from 'react'
 import Link from 'next/link'

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from '../../../styles/pages/UpcomingServerList.module.scss'
+import styles from '@/styles/pages/UpcomingServerList.module.scss'
 import InputComponent from '../../InputComponent';
   
 class UpcomingWipesSidebar extends React.Component {

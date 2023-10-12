@@ -51,3 +51,28 @@ a:visited:hover {
 .hidden {
   display: none;
 }
+
+::-webkit-scrollbar {
+  width: 8px;  // Thin scrollbar
+  color: $dark;
+}
+
+::-webkit-scrollbar-track {
+  background-color: $dark; 
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $secondary;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: $primary;
+  }
+}
+
+// For Firefox
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $dark transparent;
+  color: $secondary;
+}

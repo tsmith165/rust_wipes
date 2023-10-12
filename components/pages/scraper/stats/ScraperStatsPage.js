@@ -36,7 +36,7 @@ class ScraperStatsPage extends Component {
   };
 
   render() {
-    console.log(("-".repeat(15)) + " Rendering Scrapper Stats Page " + ("-".repeat(15)))
+    console.log(("-".repeat(3)) + " Rendering Scrapper Stats Page " + ("-".repeat(3)))
 
     const { stats, currentPage, totalPages } = this.state;
 

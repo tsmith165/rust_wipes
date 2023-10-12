@@ -28,7 +28,8 @@ export default class InputComponent extends React.Component {
     }
 
     render() {
-        console.log(`Generating input container of type: ${INPUT_TYPE_MASTER[this.type].name}`)
+        // console.log(`Generating input container of type: ${INPUT_TYPE_MASTER[this.type].name}`)
+        
         if (this.type == 'input') {
             return (
                 <div className={styles.input_container}>
