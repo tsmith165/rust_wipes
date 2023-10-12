@@ -21,14 +21,16 @@ const RecentWipesTable = ({state, update_filter_value, switch_page}) => {
     for (var i = 0; i < server_list_length; i++) {
         var current_server_json = state.server_list[i];
 
+        var offline = current_server_json.offline || false; 
+
         var id          = current_server_json['id'];
         var ip          = current_server_json['attributes']['ip'];
         var port        = current_server_json['attributes']['port'];
-        var name        = current_server_json['attributes']['name'];
-        var rank        = current_server_json['attributes']['rank'];
+        var name        = current_server_json['title'];
+        var rank        = current_server_json['rank'];
         var players     = current_server_json['attributes']['players'];
         var max_players = current_server_json['attributes']['maxPlayers'];
-        var wipe_date   = current_server_json['attributes']['details']['rust_last_wipe'];
+        var wipe_date   = current_server_json['last_wipe'];
 
         if (state.debug) {
             console.log(`Server ID: ${id} | Name: ${name} | Rank: ${rank}`)
@@ -42,6 +44,7 @@ const RecentWipesTable = ({state, update_filter_value, switch_page}) => {
             <RecentServerRow
                 key={i}
                 ip={`${ip}:${port}`}
+                offline={offline}
                 id={`server-${i}`}
                 className={name}
                 url={`https://www.battlemetrics.com/servers/rust/${id}`}

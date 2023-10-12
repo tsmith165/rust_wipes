@@ -154,3 +154,6 @@
   100% { transform: rotate(360deg); }
 }
 
+.offline_style {
+  background-color: rgba(255, 0, 0, 0.1); // Gives a red tint to indicate offline status
+}

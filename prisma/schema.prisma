@@ -51,6 +51,7 @@ model server_parsed {
   last_secondary String?      // Last Secondary Wipe Timestamp
   force_hour     String?      // Force Wipe Hour
   last_force     String?      // Last Force Wipe Timestamp
+  last_wipe      String?      // Last wipe timestamp
 }
 
 model server_data_test {
