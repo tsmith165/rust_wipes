@@ -63,7 +63,7 @@ const ScraperStatsPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {state.stats &&
+                        {!!state.stats &&
                             state.stats.map((stat) => (
                                 <tr key={stat.id}>
                                     <td>{new Date(stat.date).toLocaleString()}</td>
