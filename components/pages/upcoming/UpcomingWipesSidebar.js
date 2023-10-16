@@ -60,7 +60,7 @@ const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
     ];
 
     return (
-        <div className="p-4 bg-dark min-h-full max-h-screen">
+        <div className="p-4 bg-dark md-nav:min-h-full">
             {/* Filter Row 1 */}
             <div className="flex flex-row pb-4">
                 <InputComponent
@@ -70,7 +70,7 @@ const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
                     update_filter_value={update_filter_value}
                 />
                 <InputComponent
-                    type="input_split"
+                    type="input"
                     default={5000}
                     name="Min Rank"
                     update_filter_value={update_filter_value}

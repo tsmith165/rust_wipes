@@ -93,11 +93,13 @@ const UpcomingWipesPage = () => {
 
     return (
         <div className="h-full w-full overflow-hidden bg-gray-500 ">
-            <div className="relative flex flex-wrap h-full w-full overflow-hidden align-top">
+            <div className="relative flex flex-col md-nav:flex-row h-full w-full overflow-hidden align-top">
                 <UpcomingWipesSidebar update_filter_value={update_filter_value} state={state} />
                 <div className="overflow-y-auto h-full flex-1 min-w-[50ch] md:max-h-[calc(100%-90px)]">
                     {serverList === null ? (
                         <div className="border-t-4 border-b-4 border-primary rounded-full w-20 h-20 m-auto animate-spin" />
+                    ) : serversJsxArray?.length < 1 ? (
+                        <div>Under construction...</div>
                     ) : (
                         serversJsxArray
                     )}

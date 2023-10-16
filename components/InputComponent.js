@@ -105,10 +105,10 @@ const InputComponent = ({
 
         case 'input_datepicker':
             return (
-                <div className="flex w-full pt-2.5 px-2.5">
+                <div className="flex flex-row w-full pt-2.5 px-2.5">
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5  bg-secondary rounded-l-md whitespace-nowrap">
+                        <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md whitespace-nowrap">
                             <div className="text-dark font-bold text-lg">{name}</div>
                         </div>
                     </Tooltip>
