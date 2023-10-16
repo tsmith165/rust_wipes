@@ -14,6 +14,7 @@ const ScraperStatsPage = () => {
     });
 
     const fetchStats = async () => {
+        console.log('Fetching stats for page: ', state.currentPage);
         const data = await fetch_scraper_stats_data(state.currentPage);
         const { stats, totalPages } = data;
         console.log('Stats: ', stats);
@@ -62,18 +63,19 @@ const ScraperStatsPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {state.stats.map((stat) => (
-                            <tr key={stat.id}>
-                                <td>{new Date(stat.date).toLocaleString()}</td>
-                                <td>
-                                    {Math.floor(stat.scraper_duration / 60)}min{' '}
-                                    {stat.scraper_duration % 60}s
-                                </td>
-                                <td>{stat.servers_parsed}</td>
-                                <td>{stat.servers_skipped}</td>
-                                <td>{stat.servers_posted}</td>
-                            </tr>
-                        ))}
+                        {state.stats &&
+                            state.stats.map((stat) => (
+                                <tr key={stat.id}>
+                                    <td>{new Date(stat.date).toLocaleString()}</td>
+                                    <td>
+                                        {Math.floor(stat.scraper_duration / 60)}min{' '}
+                                        {stat.scraper_duration % 60}s
+                                    </td>
+                                    <td>{stat.servers_parsed}</td>
+                                    <td>{stat.servers_skipped}</td>
+                                    <td>{stat.servers_posted}</td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-center mt-8 p-4 rounded bg-dark">
