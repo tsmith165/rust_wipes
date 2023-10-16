@@ -15,10 +15,10 @@ const ServerHeader = ({ name, ip, port, players, maxPlayers }) => {
     };
 
     return (
-        <div className="flex flex-col md-nav:flex-row justify-between font-bold bg-medium hover:bg-light rounded-t-lg p-5">
+        <div className="flex flex-col xl:flex-row justify-between font-bold bg-medium hover:bg-light rounded-t-lg p-5">
             <h2 className="w-auto text-2xl font-bold truncate">{name}</h2>
             <div
-                className="min-w-[124px] flex md-nav:flex-col relative rounded-lg hover:bg-red-800 space-x-3 md-nav:space-x-0"
+                className="min-w-[124px] flex xl:flex-col relative rounded-lg hover:bg-red-800 space-x-3 xl:space-x-0"
                 onClick={copyToClipboard}
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
