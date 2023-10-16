@@ -12,10 +12,6 @@ a {
   text-decoration: none;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
@@ -25,3 +21,5 @@ a {
     background: black;
   }
 }
+
+.input_container { display: flex; flex-direction: row; width: 100%; padding: 10px 10px 0px 10px; }

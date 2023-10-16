@@ -1,51 +1,29 @@
-import styles from '@/styles/pages/UpcomingServerList.module.scss'
+import React from 'react';
+import Link from 'next/link';
 
-import React, { Component } from 'react'
-import Link from 'next/link'
+const BM_SERVER_BASE_URL = 'https://www.battlemetrics.com/servers/rust';
 
-const BM_SERVER_BASE_URL = 'https://www.battlemetrics.com/servers/rust'
-
-const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-];
-
-const UpcomingServerRow = ({id, server}) => {
-
-// Navbar_Button Props:
-// props.className:       Name of class to apply to the button
-// props.image_path:      Path to image of piece
-// props.title:           Title to show inside description container
-// props.description:     Description to show inside description container
-// props.dimensions:      image dimensions: [x, y, width, height]
-
-    // console.log("UpcomingServerRow (Next Line):")
-    // console.log(server)
-
-    //console.log(server.last_wipe_date)
-
+const UpcomingServerRow = ({ id, server }) => {
     var d = new Date(server.last_wipe_date);
 
-    var hour_str = (d.getHours() < 12) ? `${(d.getHours())}AM` : `${((d.getHours()) % 12)}PM`
-    if (hour_str == '0AM') { hour_str = '12AM' }
-    if (hour_str == '0PM') { hour_str = '12PM' }
-    var last_wipe_date_str = `${d.getMonth()}/${d.getDate()} ${hour_str}`
+    var hour_str = d.getHours() < 12 ? `${d.getHours()}AM` : `${d.getHours() % 12}PM`;
+    hour_str = hour_str == '0AM' ? '12AM' : hour_str == '0PM' ? '12PM' : hour_str;
+
+    var last_wipe_date_str = `${d.getMonth()}/${d.getDate()} ${hour_str}`;
 
     return (
-        <div className={`${styles.server_container}`}>
-            <div className={styles.rank_cell}>
-                {`#${server.rank}`}
-            </div>
-            <div className={styles.latest_wipe_cell}>
+        <div className="bg-medium text-secondary h-10 border-b border-dark flex flex-row font-bold leading-6">
+            <div className="px-2.5 overflow-hidden whitespace-nowrap w-16">{`#${server.rank}`}</div>
+            <div className="px-2.5 overflow-hidden whitespace-nowrap w-24">
                 {last_wipe_date_str}
             </div>
-            <div className={styles.server_name_cell}>
-                <Link href={`${BM_SERVER_BASE_URL}/${server.id}`} className={styles.server_href}>
+            <div className="px-2.5 overflow-x-auto overflow-y-hidden flex-grow lg:w-[calc(65vw-175px)] sm:w-[calc(100vw-175px)]">
+                <Link href={`${BM_SERVER_BASE_URL}/${server.id}`} className="text-current">
                     {server.title}
                 </Link>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default UpcomingServerRow;

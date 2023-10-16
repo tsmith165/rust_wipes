@@ -6,8 +6,7 @@ export const metadata = {
   },
 }
 
-import PageLayout from '@/components/layout/PageLayout'
-import RecentWipesPage from '@/components/pages/recent/RecentWipesPage';
+import PageLayout from '@/components/layout/PageLayout';
 import RecentConfirmedWipesPage from '@/components/pages/recent/RecentConfirmedWipesPage';
 
 export default async function Page() {

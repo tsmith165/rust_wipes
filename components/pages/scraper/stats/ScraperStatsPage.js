@@ -1,95 +1,101 @@
-'use client'
+'use client';
 
-import { Component } from "react";
-import styles from "../../../../styles/pages/ScraperStats.module.scss";
+import React, { useState, useEffect } from 'react';
+import { useAnalytics } from '@/lib/helpers/useAnalytics';
+import { fetch_scraper_stats_data } from '@/lib/api_calls';
 
-class ScraperStatsPage extends Component {
-  state = {
-    stats: [],
-    currentPage: 1,
-    totalPages: 1,
-  };
+const ScraperStatsPage = () => {
+    useAnalytics();
 
-  componentDidMount = async () => {
-    await this.fetchStats();
-  };
+    const [state, setState] = useState({
+        stats: [],
+        currentPage: 1,
+        totalPages: 1,
+    });
 
-  fetchStats = async () => {
-    const { currentPage } = this.state;
-    const res = await fetch(`/api/scraper/stats?page=${currentPage}`);
-    const { stats, totalPages } = await res.json();
-    this.setState({ stats, totalPages });
-  };
+    const fetchStats = async () => {
+        const data = await fetch_scraper_stats_data(state.currentPage);
+        const { stats, totalPages } = data;
+        console.log('Stats: ', stats);
+        console.log('Total Pages: ', totalPages);
+        setState((prevState) => ({ ...prevState, stats: stats, totalPages }));
+    };
 
-  handlePrevPage = () => {
-    this.setState(
-      (prevState) => ({ currentPage: prevState.currentPage - 1 }),
-      this.fetchStats
-    );
-  };
+    useEffect(() => {
+        fetchStats();
+    }, [state.currentPage]);
 
-  handleNextPage = () => {
-    this.setState(
-      (prevState) => ({ currentPage: prevState.currentPage + 1 }),
-      this.fetchStats
-    );
-  };
+    const handlePrevPage = () => {
+        setState((prevState) => ({ ...prevState, currentPage: prevState.currentPage - 1 }));
+    };
 
-  render() {
-    console.log(("-".repeat(3)) + " Rendering Scrapper Stats Page " + ("-".repeat(3)))
+    const handleNextPage = () => {
+        setState((prevState) => ({ ...prevState, currentPage: prevState.currentPage + 1 }));
+    };
 
-    const { stats, currentPage, totalPages } = this.state;
+    console.log('-'.repeat(3) + ' Rendering Scrapper Stats Page ' + '-'.repeat(3));
 
     return (
-      <div className={styles["scraper-stats-page"]}>
-        <h1>Scraper Stats</h1>
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Duration</th>
-                <th>Servers Parsed</th>
-                <th>Servers Skipped</th>
-                <th>Servers Posted</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.map((stat) => (
-                <tr key={stat.id}>
-                  <td>{new Date(stat.date).toLocaleString()}</td>
-                  <td>
-                    {Math.floor(stat.scraper_duration / 60)}min{" "}
-                    {stat.scraper_duration % 60}s
-                  </td>
-                  <td>{stat.servers_parsed}</td>
-                  <td>{stat.servers_skipped}</td>
-                  <td>{stat.servers_posted}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className={styles["pagination"]}>
-            <button
-              onClick={this.handlePrevPage}
-              disabled={currentPage <= 1}
-            >
-              Prev
-            </button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={this.handleNextPage}
-              disabled={currentPage >= totalPages}
-            >
-              Next
-            </button>
-          </div>
+        <div className="h-full w-full bg-medium p-5 min-h-screen">
+            <h1 className="font-alegreya text-light text-2xl text-center mb-8 uppercase tracking-wider">
+                Scraper Stats
+            </h1>
+            <div className="table-container">
+                <table className="mx-auto border-collapse w-full max-w-2xl bg-primary rounded">
+                    <thead>
+                        <tr>
+                            <th className="bg-dark text-light font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider border-l-2 border-t-2 border-r-2 rounded-tl">
+                                Date
+                            </th>
+                            <th className="bg-dark text-light font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider">
+                                Duration
+                            </th>
+                            <th className="bg-dark text-light font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider">
+                                Servers Parsed
+                            </th>
+                            <th className="bg-dark text-light font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider">
+                                Servers Skipped
+                            </th>
+                            <th className="bg-dark text-light font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider border-t-2 border-r-2 rounded-tr">
+                                Servers Posted
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {state.stats.map((stat) => (
+                            <tr key={stat.id}>
+                                <td>{new Date(stat.date).toLocaleString()}</td>
+                                <td>
+                                    {Math.floor(stat.scraper_duration / 60)}min{' '}
+                                    {stat.scraper_duration % 60}s
+                                </td>
+                                <td>{stat.servers_parsed}</td>
+                                <td>{stat.servers_skipped}</td>
+                                <td>{stat.servers_posted}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <div className="flex justify-center mt-8 p-4 rounded bg-dark">
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={state.currentPage <= 1}
+                        className="text-light bg-transparent border border-light rounded px-5 py-2 font-lato text-base transition-colors duration-300 mx-2 hover:bg-rustRed3 hover:border-rustRed3 disabled:bg-secondary disabled:border-secondary disabled:cursor-not-allowed focus:outline-none focus:shadow-none">
+                        Prev
+                    </button>
+                    <span className="font-lato text-lg text-light mx-4">
+                        Page {state.currentPage} of {state.totalPages}
+                    </span>
+                    <button
+                        onClick={handleNextPage}
+                        disabled={state.currentPage >= state.totalPages}
+                        className="text-light bg-transparent border border-light rounded px-5 py-2 font-lato text-base transition-colors duration-300 mx-2 hover:bg-rustRed3 hover:border-rustRed3 disabled:bg-secondary disabled:border-secondary disabled:cursor-not-allowed focus:outline-none focus:shadow-none">
+                        Next
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
     );
-  }
-}
+};
 
 export default ScraperStatsPage;

@@ -1,13 +1,10 @@
-'use client'
+'use client';
 
-import React from 'react';
-
+import React, { useEffect, useState } from 'react';
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
-
-import styles from '@/styles/pages/UpcomingServerList.module.scss'
-import UpcomingServerHourGroup from './UpcomingServerHourGroup'
-
-import { fetch_upcoming_servers_for_week_day } from '@/lib/api_calls'
+import UpcomingServerHourGroup from './UpcomingServerHourGroup';
+import { fetch_upcoming_servers_for_week_day } from '@/lib/api_calls';
+import { useAnalytics } from '@/lib/helpers/useAnalytics';
 
 const DAY_OF_WEEK_DICT = {
     0: 'Sunday',
@@ -17,102 +14,97 @@ const DAY_OF_WEEK_DICT = {
     4: 'Thursday',
     5: 'Friday',
     6: 'Saturday',
-}
-const DEFAULT_TIME_ZONE = -7 // PST (UTC - 7)
-  
-class UpcomingWipesPage extends React.Component {
-    constructor(props) {
-        super(props);
-        
-        const cur_date = new Date()
-        const cur_day = cur_date.getDate()
-        const current_weekday = cur_date.getDay()
-        const force_wipe = (current_weekday == 4 && cur_day < 7) ? true : false;
-        const wipe_day_header_str = (force_wipe == true) ? 
-            `Thursday Force Wipes` :
-            `${DAY_OF_WEEK_DICT[current_weekday]} Wipes`;
+};
 
-        this.state = {
-            debug: false,
-            server_list: null,
-            min_rank: 5000,
-            date: cur_date,
-            wipe_day_header_str: wipe_day_header_str,
-            time_zone: DEFAULT_TIME_ZONE,
-            region: 'US',
-            game_mode: 'any',
-            resource_rate: 'any',
-            group_limit: 'any',
-        };
+const DEFAULT_TIME_ZONE = -7;
 
-        this.update_filter_value = this.update_filter_value.bind(this);
-    }
+const UpcomingWipesPage = () => {
+    useAnalytics();
 
-    async componentDidMount() {
-        console.log('Upcoming Wipes Component Mounted Successfully. Fetching Servers...')
-        await this.fetch_servers()
-    }
+    const [state, setState] = useState({
+        serverList: null,
+        minRank: 5000,
+        date: new Date(),
+        wipeDayHeaderStr: '',
+        timeZone: DEFAULT_TIME_ZONE,
+        region: 'US',
+        gameMode: 'any',
+        resourceRate: 'any',
+        groupLimit: 'any',
+    });
 
-    async update_filter_value(filter, new_value) {
-        console.log(`Setting state on filter: ${filter} | Value: ${new_value}`)
+    const effect_dependencies = [
+        state.date,
+        state.timeZone,
+        state.minRank,
+        state.region,
+        state.resourceRate,
+        state.groupLimit,
+        state.gameMode,
+    ];
 
-        if      (filter == 'date')     { this.setState({date: new_value},          async () => {await this.fetch_servers()}) }
-        else if (filter == 'min_rank') { this.setState({min_rank: new_value},      async () => {await this.fetch_servers()}) }
-        else if (filter == 'time')     { this.setState({time_zone: new_value},     async () => {await this.fetch_servers()}) }
-        else if (filter == 'rate')     { this.setState({resource_rate: new_value}, async () => {await this.fetch_servers()}) }
-        else if (filter == 'groups')   { this.setState({group_limit: new_value},   async () => {await this.fetch_servers()}) }
-        else if (filter == 'mode')     { this.setState({game_mode: new_value},     async () => {await this.fetch_servers()}) }
-        else if (filter == 'region')   { this.setState({region: new_value},        async () => {await this.fetch_servers()}) }
-    }
+    useEffect(() => {
+        fetch_servers();
+    }, effect_dependencies);
 
-    async fetch_servers() {
-        const date = this.state.date
-        const cur_day = date.getDate()
-        const current_weekday = date.getDay()
-        const force_wipe = (current_weekday == 4 && cur_day < 7) ? true : false;
+    const fetch_servers = async () => {
+        const { date, timeZone, minRank, region, resourceRate, groupLimit, gameMode } = state;
+        const curDay = date.getDate();
+        const currentWeekday = date.getDay();
+        const forceWipe = currentWeekday === 4 && curDay < 7;
+        const wipeDayHeaderStr = forceWipe
+            ? 'Force Wipes'
+            : `${DAY_OF_WEEK_DICT[currentWeekday]} Wipes`;
 
-        const wipe_day_header_str = (force_wipe == true) ? `Force Wipes` : `${DAY_OF_WEEK_DICT[current_weekday]} Wipes`;
+        const serverList = await fetch_upcoming_servers_for_week_day(
+            date,
+            timeZone,
+            minRank,
+            region,
+            resourceRate,
+            groupLimit,
+            gameMode
+        );
 
-        console.log(`Min Rank: ${this.state.min_rank} | Date: ${this.state.date} | Force Wipe: ${this.state.force_wipe} | Wipe Day Header Str: ${this.state.wipe_day_header_str}`)
+        setState((prevState) => ({
+            ...prevState,
+            serverList,
+            wipeDayHeaderStr,
+        }));
+    };
 
-        const server_list = await fetch_upcoming_servers_for_week_day(date, this.state.time_zone, this.state.min_rank, this.state.region, this.state.resource_rate, this.state.group_limit, this.state.game_mode)
-        console.log(`Fetched Server List (Next Line):`)
-        console.log(server_list)
+    const update_filter_value = (filter, newValue) => {
+        setState((prevState) => ({
+            ...prevState,
+            [filter]: newValue,
+        }));
+    };
 
-        this.setState({server_list: server_list, date: date, wipe_day_header_str: wipe_day_header_str, min_rank: this.state.min_rank})
-    }
+    const { serverList } = state;
+    const serversJsxArray = serverList
+        ? Object.keys(serverList).map((wipeHour) => (
+              <UpcomingServerHourGroup
+                  key={wipeHour}
+                  wipeArray={serverList[wipeHour]}
+                  wipeHour={wipeHour}
+              />
+          ))
+        : [];
 
-    render() {
-        console.log(("-".repeat(3)) + " Rendering Upcoming Wipes Page " + ("-".repeat(3)))
-
-        if (this.state.server_list != undefined) {
-            var servers_jsx_array = [];
-            
-            for (var wipe_hour in this.state.server_list) {
-                const wipe_array = this.state.server_list[wipe_hour]
-
-                servers_jsx_array.push(
-                    <UpcomingServerHourGroup key={wipe_hour} wipe_array={wipe_array} wipe_hour={wipe_hour} />
-                )
-            }
-        }
-    
-        return (
-            <div className={styles.page_container}>
-                <div className={styles.server_list_container}>
-                    <UpcomingWipesSidebar state={this.state} update_filter_value={this.update_filter_value}/>
-
-                    <div className={styles.server_list_body}>
-                        {this.state.server_list == null ? (
-                            <div className={styles.loader}/>
-                        ) : (
-                            [servers_jsx_array]
-                        )}
-                    </div>
+    return (
+        <div className="h-full w-full overflow-hidden bg-gray-500 ">
+            <div className="relative flex flex-wrap h-full w-full overflow-hidden align-top">
+                <UpcomingWipesSidebar update_filter_value={update_filter_value} state={state} />
+                <div className="overflow-y-auto h-full flex-1 min-w-[50ch] md:max-h-[calc(100%-90px)]">
+                    {serverList === null ? (
+                        <div className="border-t-4 border-b-4 border-primary rounded-full w-20 h-20 m-auto animate-spin" />
+                    ) : (
+                        serversJsxArray
+                    )}
                 </div>
             </div>
-        )
-    }
-}
+        </div>
+    );
+};
 
 export default UpcomingWipesPage;
