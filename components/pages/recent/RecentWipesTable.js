@@ -73,7 +73,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
                     switch_page(false);
                 }}
             />
-            <span className="font-bold text-xl">{state.current_page}</span>
+            <span className="font-bold text-lg">{state.current_page}</span>
             <ArrowForwardIosRoundedIcon
                 className="cursor-pointer hover:fill-secondary"
                 onClick={(e) => {
@@ -87,7 +87,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     const num_servers_select = (
         <select
             id="num_servers"
-            className="py-1 px-2 border border-dark rounded-md"
+            className="py-2.5 px-2 border rounded-md bg-tertiary border-none"
             defaultValue={25}
             onChange={(e) => {
                 e.preventDefault();
@@ -120,7 +120,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     );
 
     const server_list_table_menu = (
-        <div className="flex justify-between items-center p-2 bg-light">
+        <div className="flex justify-between items-center pr-2 pl-2 py-2 md:pl-0 bg-dark">
             {pagination_container /* Pagination */}
             {num_servers_select /* Number of servers selector */}
         </div>

@@ -36,7 +36,7 @@ const RecentConfirmedWipesPage = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const result = await fetch_servers();
+            const result = await fetch_servers(1);
             console.log('Fetch servers result: ', result);
             const [new_server_list, next_url, prev_url, current_test_id] = result;
             setState((prevState) => ({
@@ -85,7 +85,7 @@ const RecentConfirmedWipesPage = () => {
 
     const update_server_list = async (running = false) => {
         console.log(`------------------------ Updating Server List ------------------------`);
-        const result = await fetch_servers();
+        const result = await fetch_servers(state.current_page);
         console.log('Fetch servers result: ', result);
         const [new_server_list, next_url, prev_url, current_test_id] = result;
 
@@ -145,22 +145,40 @@ const RecentConfirmedWipesPage = () => {
         }
     };
 
-    const fetch_servers = async () => {
-        // 1. Fetch the most recent 25 servers from your DB
-        const response = await fetch_recent_wipes_from_db();
-        const ourDBServers = response.recentServers;
-        // console.log('Our DB 25 Servers:', ourDBServers)
+    const fetch_servers = async (page = 1) => {
+        // Determine which pages to fetch from BattleMetrics
+        let bmPage1 = Math.floor((page - 1) / 2) + 1; // Calculate the first BM page based on our current page
+        let bmPage2 = bmPage1 + 1; // The next BM page is just the current one plus one
 
-        // 2. Fetch the most recent 50 servers from the BM DB
-        const [bmDBServers, next_url, prev_url] = await fetch_battlemetrics_servers(
+        // Fetch data from your own database
+        const response = await fetch_recent_wipes_from_db(page, 25);
+        const ourDBServers = response.recentServers;
+
+        // Fetch the first set of data from BattleMetrics
+        const [bmDBServersPage1, ,] = await fetch_battlemetrics_servers(
             state.country,
             state.max_distance,
             state.min_players,
-            50, // We want 50 servers from BM DB
-            state.next_url,
-            state.prev_url,
-            true
+            50, // We want 50 servers per BM page
+            '', // Provide parameters for pagination
+            '',
+            true,
+            bmPage1 // The page we calculated earlier
         );
+
+        // Fetch the second set of data from BattleMetrics
+        const [bmDBServersPage2, next_url, prev_url] = await fetch_battlemetrics_servers(
+            state.country,
+            state.max_distance,
+            state.min_players,
+            50, // We want 50 servers per BM page
+            '', // Provide parameters for pagination
+            '',
+            true,
+            bmPage2 // The page we calculated earlier
+        );
+
+        const bmDBServers = [...bmDBServersPage1, ...bmDBServersPage2];
 
         // console.log('BattleMetrics DB 50 Servers:', bmDBServers)
 
@@ -202,11 +220,11 @@ const RecentConfirmedWipesPage = () => {
     };
 
     const switch_page = async (forward) => {
-        const result = await fetch_servers();
-        console.log('Fetch servers result: ', result);
-        const [new_server_list, next_url, prev_url, current_test_id] = result;
-
         var switch_to_page = forward == true ? state.current_page + 1 : state.current_page - 1;
+        const result = await fetch_servers(switch_to_page);
+        console.log('Fetch servers result: ', result);
+
+        const [new_server_list, next_url, prev_url, current_test_id] = result;
 
         setState((prevState) => ({
             ...prevState,
