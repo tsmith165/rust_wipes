@@ -18,6 +18,9 @@ module.exports = {
                 'hot-wipe': '#dc2626', // red-600
                 'cool-wipe': '#f97316', // orange-500
                 'cold-wipe': '#fde047', // yellow-500
+
+                link: '#57aaf3', // unvisited link color,
+                visited: '#be23ae', // visited link color
             },
             screens: {
                 'md-nav': '833px',

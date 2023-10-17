@@ -1,5 +1,3 @@
-import styles from '../../../styles/pages/RecentServerList.module.scss';
-
 import RecentServerRow from './RecentServerRow';
 
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
@@ -10,7 +8,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     var servers_jsx_array = [];
     if (state.server_list == undefined) {
         console.log('NO SERVERS FOUND.  Returning empty table...');
-        return <div className={styles.server_list_body_container}></div>;
+        return <div className="w-full h-full"></div>;
     }
 
     var server_list_length = state.server_list.length;

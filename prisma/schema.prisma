@@ -91,3 +91,10 @@ model scraper_stats {
   servers_skipped  Int?
   servers_posted   Int?
 }
+
+model server_network {
+  id           Int      @id // Network ID
+  bm_ids       String       // Rank Dictionary
+  name         String       // Server Title
+  region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
+}

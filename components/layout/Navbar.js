@@ -31,12 +31,12 @@ const Navbar = () => {
 
     const tab_menu = generate_navbar(menu_list);
     return (
-        <nav className="bg-dark p-0 h-[150px] md-nav:h-[100px]">
-            <div className="flex flex-wrap">
+        <nav className="bg-dark p-0 min-h-[150px] md-nav:min-h-[100px]">
+            <div className="flex flex-col md-nav:flex-row">
                 <Link href="/" passHref>
-                    <div className="relative h-full w-max">
+                    <div className="flex flex-col jusitfy-between min-h-[100px] w-full">
                         <Image
-                            className="object-cover w-full h-auto"
+                            className="mt-auto"
                             src="/rust_wipes_hazmat_logo_no_bg.png"
                             alt="Rust Logo"
                             priority={true}
@@ -45,7 +45,7 @@ const Navbar = () => {
                         />
                     </div>
                 </Link>
-                <div className="flex flew-row">{tab_menu}</div>
+                <div className="flex flew-row bg-medium md-nav:bg-dark">{tab_menu}</div>
             </div>
         </nav>
     );

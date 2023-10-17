@@ -1,18 +1,11 @@
 import React from 'react';
-import styles from '../styles/components/Loading.module.scss'
-  
-class Loading extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
-    render() {
-        return (
-            <div className={styles.page_container}>
-                <div className={styles.loader}/>
-            </div>
-        )
-    }
-}
+const Loading = () => {
+    return (
+        <div className="flex items-center justify-center w-full h-screen bg-medium">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>{' '}
+        </div>
+    );
+};
 
 export default Loading;
