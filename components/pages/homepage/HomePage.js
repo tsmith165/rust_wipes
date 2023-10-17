@@ -33,9 +33,9 @@ const HomePage = () => {
     ];
 
     return (
-        <div className="h-full w-full bg-medium block">
-            <div className="flex flex-col items-center justify-start overflow-y-auto max-h-fullspace-y-5 py-5">
-                <div className="w-full max-w-6xl rounded-lg pb-5">
+        <div className="h-full w-full bg-medium block overflow-y-auto ">
+            <div className="flex flex-col items-center justify-startmax-h-fullspace-y-5 py-5">
+                <div className="w-full max-w-6xl rounded-lg pb-5 px-5">
                     <h2 className="text-2xl mt-0 text-dark bg-tertiary p-5 rounded-t-lg">
                         Discover the Latest Server Wipes with rustwipes.net!
                     </h2>

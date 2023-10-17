@@ -75,7 +75,7 @@ const RecentServerRow = ({
                 <div className="w-24 p-1.5 text-center overflow-hidden whitespace-nowrap">
                     {!players ? 'Offline' : `${players} / ${max_players}`}
                 </div>
-                <div className="w-16 p-1.5 text-center overflow-hidden whitespace-nowrap">
+                <div className="w-20 p-1.5 text-center overflow-hidden whitespace-nowrap">
                     {final_date}
                 </div>
                 <div

@@ -4,9 +4,10 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CachedIcon from '@material-ui/icons/Cached';
 
+import { twMerge as tw } from 'tailwind-merge';
+
 const INPUT_TYPE_MASTER = {
     input: { name: 'Input' },
-    input_split: { name: 'Input Split' },
     input_and_refresh: { name: 'Input and Button' },
     input_datepicker: { name: 'Input Datepicker' },
     input_select: { name: 'Input Select' },
@@ -39,7 +40,7 @@ const InputComponent = ({
     switch (type) {
         case 'input':
             return (
-                <div className="flex w-full pt-2.5 px-2.5">
+                <div className={'flex w-full'}>
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
                         <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md whitespace-nowrap">
@@ -54,29 +55,9 @@ const InputComponent = ({
                     />
                 </div>
             );
-
-        case 'input_split':
-            return (
-                <div className="flex w-1/2 pt-2.5 px-2.5">
-                    <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md">
-                            <div className="text-dark font-bold text-lg whitespace-nowrap">
-                                {name}
-                            </div>
-                        </div>
-                    </Tooltip>
-                    <input
-                        id={id}
-                        className="w-full p-1.5 text-secondary bg-medium rounded-r-md font-bold text-sm border-none"
-                        value={value}
-                        onChange={handleChange}
-                    />
-                </div>
-            );
-
         case 'input_and_refresh':
             return (
-                <div className="flex flex-row w-full pt-2.5 px-2.5">
+                <div className="flex flex-row w-full ">
                     <Tooltip title={full_name} placement="top-start">
                         <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md">
                             <div className="text-dark font-bold text-lg whitespace-nowrap">
@@ -105,7 +86,7 @@ const InputComponent = ({
 
         case 'input_datepicker':
             return (
-                <div className="flex flex-row w-full pt-2.5 px-2.5">
+                <div className="flex flex-row w-full">
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
                         <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md whitespace-nowrap">
@@ -124,7 +105,7 @@ const InputComponent = ({
 
         case 'input_select':
             return (
-                <div className="flex w-full pt-2.5 px-2.5">
+                <div className="flex w-full">
                     {/* Adjust tailwind classes as per design requirements */}
                     <div className="flex items-center justify-center p-1.5  bg-secondary rounded-l-md whitespace-nowrap">
                         <div className="text-dark font-bold text-lg">{name}</div>

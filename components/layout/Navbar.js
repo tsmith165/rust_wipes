@@ -17,13 +17,16 @@ const Navbar = () => {
 
             const isActive = url_endpoint === router_pathname;
 
-            const tab_class = isActive
-                ? 'inline-block py-3 px-4 font-bold text-primary bg-tertiary rounded-b-lg border-r-2 border-b-2 border-primary hover:bg-secondary hover:text-light'
-                : 'inline-block py-3 px-4 font-bold text-light bg-secondary rounded-b-lg border-r-2 border-b-2 border-tertiary hover:bg-tertiary hover:text-primary hover:border-primary';
-
             return (
                 <Link key={i} href={url_endpoint} passHref>
-                    <div className={tab_class}>{menu_item_string}</div>
+                    <div
+                        className={
+                            isActive
+                                ? 'inline-block py-3 px-4 font-bold text-primary bg-tertiary rounded-b-lg border-r-2 border-b-2 border-primary'
+                                : 'inline-block py-3 px-4 font-bold text-light bg-secondary rounded-b-lg border-r-2 border-b-2 border-primary hover:bg-tertiary hover:text-primary hover:border-primary'
+                        }>
+                        {menu_item_string}
+                    </div>
                 </Link>
             );
         });
@@ -45,7 +48,7 @@ const Navbar = () => {
                         />
                     </div>
                 </Link>
-                <div className="flex flew-row bg-medium md-nav:bg-dark">{tab_menu}</div>
+                <div className="flex flew-row bg-dark">{tab_menu}</div>
             </div>
         </nav>
     );

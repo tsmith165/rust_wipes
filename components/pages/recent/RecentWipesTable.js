@@ -102,11 +102,11 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     );
 
     const server_list_table_header = (
-        <div className="flex text-light bg-tertiary">
+        <div className="flex text-secondary  font-bold bg-light pr-2">
             <div className="w-16 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
-            <div className="w-16 p-1.5 text-center">Wiped</div>
+            <div className="w-20 p-1.5 text-center">Wiped</div>
             <div className="w-12 p-1.5 text-center">Copy</div>
         </div>
     );

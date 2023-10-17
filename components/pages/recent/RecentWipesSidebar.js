@@ -45,23 +45,25 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
     return (
         <div className="bg-dark max-h-full" style={{ flex: '1 1 40%', minHeight: '20px' }}>
             <div className="flex flex-col">
-                <div className="flex flex-wrap w-full">
+                <div className="py-1.5" />
+                <div className="flex flex-row w-full px-3 space-x-3">
                     <InputComponent
-                        type={'input_split'}
+                        type={'input'}
                         default={2}
                         name={'Min Players'}
                         full_name={'Minimum Players'}
                         update_filter_value={update_filter_value}
                     />
                     <InputComponent
-                        type={'input_split'}
+                        type={'input'}
                         default={5000}
                         name={'Max Dist'}
                         full_name={'Max Distance'}
                         update_filter_value={update_filter_value}
                     />
                 </div>
-                <div className="flex flex-row pb-2.5">
+                <div className="py-1.5" />
+                <div className="flex flex-row px-3 space-x-3">
                     <InputComponent
                         type={'input'}
                         default={'US'}
@@ -69,7 +71,7 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
                         update_filter_value={update_filter_value}
                     />
                     <div
-                        className={`mt-2.5 mr-2.5 p-2.5 rounded-md ${
+                        className={`h-10 w-10 p-2 rounded-md ${
                             state.refreshing ? 'bg-primary' : 'bg-medium'
                         }`}
                         onClick={(e) => {
@@ -79,6 +81,7 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
                         <CachedIcon className={`${state.refreshing ? 'animate-spin' : ''}`} />
                     </div>
                 </div>
+                <div className="py-1.5" />
             </div>
 
             {filter_column_ad_container}
