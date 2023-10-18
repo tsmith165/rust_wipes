@@ -7,13 +7,14 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#dc2626', // red-600
-                secondary: '#991b1b', // red-800
-                tertiary: '#7f1d1d', // red-900
+                light: '#dc2626', // red-600
+                primary: '#991b1b', // red-800
+                secondary: '#7f1d1d', // red-900
 
-                light: '#a8a29e', // stone-400
-                medium: '#3f3f46', // stone-700
-                dark: '#1c1917', // stone-900
+                white: '#ffffff', // white
+                grey: '#a8a29e', // stone-400
+                dark: '#3f3f46', // stone-700
+                black: '#1c1917', // stone-900
 
                 'hot-wipe': '#dc2626', // red-600
                 'cool-wipe': '#f97316', // orange-500

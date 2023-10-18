@@ -13,8 +13,15 @@ import {
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         const formatDate = (timestamp) => {
-            const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
-            return new Date(timestamp).toLocaleDateString(undefined, dateOptions);
+            const dateOptions = {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+            };
+            return new Date(timestamp).toLocaleDateString(
+                undefined,
+                dateOptions,
+            );
         };
         const formatTime = (timestamp) => {
             return new Date(timestamp).toLocaleTimeString(undefined, {
@@ -64,18 +71,23 @@ const PlayerCountPanel = ({ player_count_data }) => {
         })) || [];
 
     const formatDate = (timestamp) => {
-        const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+        const dateOptions = {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+        };
         return new Date(timestamp).toLocaleDateString(undefined, dateOptions);
     };
 
     const xAxisInterval = Math.floor(formatted_data.length / 3) - 1;
 
     return (
-        <div className="w-full h-full bg-medium rounded-lg p-2.5 overflow-hidden">
+        <div className="w-full h-full bg-dark rounded-lg p-2.5 overflow-hidden">
             <ResponsiveContainer className="w-full h-full">
                 <LineChart
                     data={formatted_data}
-                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                         dataKey="timestamp"
@@ -85,7 +97,12 @@ const PlayerCountPanel = ({ player_count_data }) => {
                     <YAxis />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend />
-                    <Line type="monotone" dataKey="max" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    <Line
+                        type="monotone"
+                        dataKey="max"
+                        stroke="#8884d8"
+                        activeDot={{ r: 8 }}
+                    />
                     <Line type="monotone" dataKey="value" stroke="#82ca9d" />
                     <Line type="monotone" dataKey="min" stroke="#ff7300" />
                 </LineChart>

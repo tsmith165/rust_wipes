@@ -22,9 +22,10 @@ const Navbar = () => {
                     <div
                         className={
                             isActive
-                                ? 'inline-block py-3 px-4 font-bold text-primary bg-tertiary rounded-b-lg border-r-2 border-b-2 border-primary'
-                                : 'inline-block py-3 px-4 font-bold text-light bg-secondary rounded-b-lg border-r-2 border-b-2 border-primary hover:bg-tertiary hover:text-primary hover:border-primary'
-                        }>
+                                ? 'inline-block py-3 px-4 font-bold text-light bg-secondary rounded-b-lg border-r-2 border-b-2 border-primary'
+                                : 'inline-block py-3 px-4 font-bold text-grey bg-primary rounded-b-lg border-r-2 border-b-2 border-light hover:bg-secondary hover:text-light hover:border-primary'
+                        }
+                    >
                         {menu_item_string}
                     </div>
                 </Link>
@@ -34,7 +35,7 @@ const Navbar = () => {
 
     const tab_menu = generate_navbar(menu_list);
     return (
-        <nav className="bg-dark p-0 min-h-[150px] md-nav:min-h-[100px]">
+        <nav className="bg-black p-0 min-h-[150px] md-nav:min-h-[100px]">
             <div className="flex flex-col md-nav:flex-row">
                 <Link href="/" passHref>
                     <div className="flex flex-col jusitfy-between min-h-[100px] w-full">
@@ -48,7 +49,7 @@ const Navbar = () => {
                         />
                     </div>
                 </Link>
-                <div className="flex flew-row bg-dark">{tab_menu}</div>
+                <div className="flex flew-row bg-black">{tab_menu}</div>
             </div>
         </nav>
     );

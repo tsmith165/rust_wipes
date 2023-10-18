@@ -36,7 +36,7 @@ const RecentServerRow = ({
         if (diff < HOT_WIPE) heat_class = 'text-hot-wipe';
         else if (diff < COOL_WIPE) heat_class = 'text-cool-wipe';
         else if (diff < COLD_WIPE) heat_class = 'text-cold-wipe';
-        else heat_class = 'text-light';
+        else heat_class = 'text-grey';
 
         let mins = Math.floor(diff / 60);
 
@@ -62,10 +62,11 @@ const RecentServerRow = ({
     return (
         <Link href={`/server/${bm_id}`}>
             <div
-                className={`bg-medium h-9 border-b border-dark flex items-center ${heat_class} ${
-                    offline ? 'bg-tertiary opacity-80' : ''
+                className={`bg-dark h-9 border-b border-black flex items-center ${heat_class} ${
+                    offline ? 'bg-secondary opacity-80' : ''
                 }
-                hover:bg-primary hover:text-white`}>
+                hover:bg-light hover:text-white`}
+            >
                 <div className="w-16 p-1.5 text-center overflow-hidden whitespace-nowrap">
                     #{rank}
                 </div>
@@ -82,7 +83,8 @@ const RecentServerRow = ({
                     className={`w-12 p-1.5 flex justify-center items-center ${
                         isCopied ? 'text-success-2' : ''
                     }`}
-                    onClick={handleCopyClick}>
+                    onClick={handleCopyClick}
+                >
                     <FileCopy />
                 </div>
             </div>

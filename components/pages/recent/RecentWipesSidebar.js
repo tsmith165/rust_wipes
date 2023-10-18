@@ -4,7 +4,11 @@ import InputComponent from '@/components/InputComponent';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import CachedIcon from '@material-ui/icons/Cached';
 
-const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh }) => {
+const RecentWipesSidebar = ({
+    state,
+    update_filter_value,
+    toggle_auto_refresh,
+}) => {
     // Create Ad Block
     let filter_column_ad_container = null;
     if (state.render_ads) {
@@ -14,15 +18,19 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
                     <script
                         async
                         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
-                        crossOrigin="anonymous"></script>
+                        crossOrigin="anonymous"
+                    ></script>
                     <ins
                         className="adsbygoogle"
                         style={{ display: 'block' }}
                         data-ad-client="ca-pub-7564404116158956"
                         data-ad-slot="7235036389"
                         data-ad-format="auto"
-                        data-full-width-responsive="true"></ins>
-                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                        data-full-width-responsive="true"
+                    ></ins>
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
                 </div>
 
                 <div className={styles.filter_col_ad_blocked}>
@@ -43,10 +51,13 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
     }
 
     return (
-        <div className="bg-dark max-h-full" style={{ flex: '1 1 40%', minHeight: '20px' }}>
+        <div
+            className="bg-black max-h-full"
+            style={{ flex: '1 1 40%', minHeight: '20px' }}
+        >
             <div className="flex flex-col">
                 <div className="py-1.5" />
-                <div className="flex flex-row w-full px-3 space-x-3">
+                <div className="w-full px-3 space-x-3 flex flex-row ">
                     <InputComponent
                         type={'input'}
                         default={2}
@@ -72,13 +83,18 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
                     />
                     <div
                         className={`h-10 w-10 p-2 rounded-md ${
-                            state.refreshing ? 'bg-primary' : 'bg-medium'
+                            state.refreshing ? 'bg-light' : 'bg-dark'
                         }`}
                         onClick={(e) => {
                             e.preventDefault();
                             toggle_auto_refresh();
-                        }}>
-                        <CachedIcon className={`${state.refreshing ? 'animate-spin' : ''}`} />
+                        }}
+                    >
+                        <CachedIcon
+                            className={`${
+                                state.refreshing ? 'animate-spin' : ''
+                            }`}
+                        />
                     </div>
                 </div>
                 <div className="py-1.5" />

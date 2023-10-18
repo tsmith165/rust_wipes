@@ -43,13 +43,15 @@ const InputComponent = ({
                 <div className={'flex w-full'}>
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md whitespace-nowrap">
-                            <div className="text-dark font-bold text-lg">{name}</div>
+                        <div className="flex items-center justify-center p-1.5 bg-primary rounded-l-md whitespace-nowrap">
+                            <div className="text-black font-bold text-lg">
+                                {name}
+                            </div>
                         </div>
                     </Tooltip>
                     <input
                         id={id}
-                        className="w-full text-secondary bg-medium rounded-r-md font-bold text-sm border-none p-1.5"
+                        className="w-full text-primary bg-dark rounded-r-md font-bold text-sm border-none p-1.5"
                         value={value}
                         onChange={handleChange}
                     />
@@ -59,27 +61,32 @@ const InputComponent = ({
             return (
                 <div className="flex flex-row w-full ">
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md">
-                            <div className="text-dark font-bold text-lg whitespace-nowrap">
+                        <div className="flex items-center justify-center p-1.5 bg-primary rounded-l-md">
+                            <div className="text-black font-bold text-lg whitespace-nowrap">
                                 {name}
                             </div>
                         </div>
                     </Tooltip>
                     <input
                         id={id}
-                        className="px-1.5 text-secondary bg-medium rounded-r-md font-bold text-sm border-none"
+                        className="px-1.5 text-primary bg-dark rounded-r-md font-bold text-sm border-none"
                         value={value}
                         onChange={handleChange}
                     />
                     <div
                         className={`p-1.5 rounded-md cursor-pointer ${
-                            state.running ? 'bg-green-500' : 'bg-medium'
+                            state.running ? 'bg-green-500' : 'bg-dark'
                         } `}
                         onClick={(e) => {
                             e.preventDefault();
                             button_function();
-                        }}>
-                        <CachedIcon className={`${state.refreshing ? 'animate-spin' : ''} `} />
+                        }}
+                    >
+                        <CachedIcon
+                            className={`${
+                                state.refreshing ? 'animate-spin' : ''
+                            } `}
+                        />
                     </div>
                 </div>
             );
@@ -89,13 +96,15 @@ const InputComponent = ({
                 <div className="flex flex-row w-full">
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-secondary rounded-l-md whitespace-nowrap">
-                            <div className="text-dark font-bold text-lg">{name}</div>
+                        <div className="flex items-center justify-center p-1.5 bg-primary rounded-l-md whitespace-nowrap">
+                            <div className="text-black font-bold text-lg">
+                                {name}
+                            </div>
                         </div>
                     </Tooltip>
                     <DatePicker
                         id={id}
-                        className="p-2.5 text-secondary bg-medium rounded-r-md font-bold text-sm border-none"
+                        className="p-2.5 text-primary bg-dark rounded-r-md font-bold text-sm border-none"
                         selected={value}
                         onChange={handleDateChange}
                         autoComplete="off"
@@ -107,19 +116,24 @@ const InputComponent = ({
             return (
                 <div className="flex w-full">
                     {/* Adjust tailwind classes as per design requirements */}
-                    <div className="flex items-center justify-center p-1.5  bg-secondary rounded-l-md whitespace-nowrap">
-                        <div className="text-dark font-bold text-lg">{name}</div>
+                    <div className="flex items-center justify-center p-1.5  bg-primary rounded-l-md whitespace-nowrap">
+                        <div className="text-black font-bold text-lg">
+                            {name}
+                        </div>
                     </div>
                     <select
                         id={id}
-                        className="w-full p-1.5  text-secondary bg-medium rounded-r-md font-bold text-sm border-none"
+                        className="w-full p-1.5 text-primary bg-dark rounded-r-md font-bold text-sm border-none"
                         value={value}
-                        onChange={handleChange}>
-                        {select_options.map(([option_value, option_string], i) => (
-                            <option value={option_value} key={i}>
-                                {option_string}
-                            </option>
-                        ))}
+                        onChange={handleChange}
+                    >
+                        {select_options.map(
+                            ([option_value, option_string], i) => (
+                                <option value={option_value} key={i}>
+                                    {option_string}
+                                </option>
+                            ),
+                        )}
                     </select>
                 </div>
             );

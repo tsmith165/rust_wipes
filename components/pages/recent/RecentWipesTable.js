@@ -34,7 +34,9 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
             console.log(`Server ID: ${id} | Name: ${name} | Rank: ${rank}`);
             console.log(`Wipe Date: ${wipe_date}`);
             console.log(`Players: ${players} | Max Players: ${max_players}`);
-            console.log('--------------------------------------------------------------------');
+            console.log(
+                '--------------------------------------------------------------------',
+            );
         }
 
         console.log(`Pushing ID: {id}`);
@@ -50,22 +52,22 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
                 players={players}
                 max_players={max_players}
                 wipe_date={wipe_date}
-            />
+            />,
         );
     }
 
     if (state.server_list == null) {
         return (
-            <div className="relative bg-medium">
+            <div className="relative bg-dark">
                 {/* Loader can be implemented with Tailwind CSS or any other library */}
             </div>
         );
     }
 
     const pagination_container = (
-        <div className="flex items-center space-x-2 bg-tertiary p-2 rounded-lg">
+        <div className="flex items-center space-x-2 bg-secondary p-2 rounded-lg">
             <ArrowForwardIosRoundedIcon
-                className="cursor-pointer rotate-180 hover:fill-secondary"
+                className="cursor-pointer rotate-180 hover:fill-primary"
                 onClick={(e) => {
                     e.preventDefault();
                     switch_page(false);
@@ -73,7 +75,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
             />
             <span className="font-bold text-lg">{state.current_page}</span>
             <ArrowForwardIosRoundedIcon
-                className="cursor-pointer hover:fill-secondary"
+                className="cursor-pointer hover:fill-primary"
                 onClick={(e) => {
                     e.preventDefault();
                     switch_page(true);
@@ -85,14 +87,16 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     const num_servers_select = (
         <select
             id="num_servers"
-            className="py-2.5 px-2 border rounded-md bg-tertiary border-none"
+            className="py-2.5 px-2 border rounded-md bg-secondary border-none"
             defaultValue={25}
             onChange={(e) => {
                 e.preventDefault();
-                const num_servers = document.getElementById('num_servers').value;
+                const num_servers =
+                    document.getElementById('num_servers').value;
                 console.log(`NEW NUM SERVERS: ${num_servers}`);
                 update_filter_value('num_servers', num_servers);
-            }}>
+            }}
+        >
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="25">25</option>
@@ -102,7 +106,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     );
 
     const server_list_table_header = (
-        <div className="flex text-secondary  font-bold bg-light pr-2">
+        <div className="flex text-primary font-bold bg-grey pr-2">
             <div className="w-16 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
@@ -113,12 +117,12 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
 
     const server_list_table_row_container = (
         <div className="overflow-y-auto">
-            <div className="bg-medium flex-1">{servers_jsx_array}</div>
+            <div className="bg-dark flex-1">{servers_jsx_array}</div>
         </div>
     );
 
     const server_list_table_menu = (
-        <div className="flex justify-between items-center pr-2 pl-2 py-2 md:pl-0 bg-dark">
+        <div className="flex justify-between items-center pr-2 pl-2 py-2 md:pl-0 bg-black">
             {pagination_container /* Pagination */}
             {num_servers_select /* Number of servers selector */}
         </div>
@@ -127,8 +131,9 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
     console.log('Returning Recent Wipes Table...');
     return (
         <div
-            className="bg-medium max-h-full min-w-full md:min-w-[461px]"
-            style={{ flex: '1 1 60%' }}>
+            className="bg-dark max-h-full min-w-full md:min-w-[461px]"
+            style={{ flex: '1 1 60%' }}
+        >
             <div className="h-[calc(100%-116px)] md:h-full w-full flex flex-col overflow-y-hidden">
                 {server_list_table_header /* Server List Table Header */}
                 {server_list_table_row_container /* Server List Table */}

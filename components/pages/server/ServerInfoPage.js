@@ -35,22 +35,33 @@ const ServerInfoPage = () => {
     }, [server_id]);
 
     if (state.error)
-        return <p className="text-xl text-red-500">Error loading data. Please try again later.</p>;
+        return (
+            <p className="text-xl text-red-500">
+                Error loading data. Please try again later.
+            </p>
+        );
     if (!state.data) return <p className="text-xl text-gray-500">Loading...</p>;
 
-    const { database_data, bm_api_server_data, bm_api_player_count_data } = state.data;
+    const { database_data, bm_api_server_data, bm_api_player_count_data } =
+        state.data;
     const { attributes } = bm_api_server_data;
     const { details, players, maxPlayers, name, ip, port } = attributes;
     const { rust_maps, rust_description } = details;
     const { thumbnailUrl } = rust_maps;
 
     const server_header_container = (
-        <ServerHeader name={name} ip={ip} port={port} players={players} maxPlayers={maxPlayers} />
+        <ServerHeader
+            name={name}
+            ip={ip}
+            port={port}
+            players={players}
+            maxPlayers={maxPlayers}
+        />
     );
 
     const server_description_container = (
         <div className="flex-grow mb-6 rounded-b-lg overflow-y-auto max-h-72 md-nav:max-h-none">
-            <pre className="text-lg whitespace-pre-wrap hover:bg-light p-2.5">
+            <pre className="text-lg whitespace-pre-wrap hover:bg-grey p-2.5">
                 {rust_description}
             </pre>
         </div>
@@ -59,21 +70,28 @@ const ServerInfoPage = () => {
     const server_info_panel_container = (
         <div className="mt-auto flex flex-col md-nav:flex-row md-nav:max-h-[20%] pb-5">
             <div className="pb-5 md-nav:pb-0 md-nav:w-1/2 md-nav:pr-5 md-nav:min-h-full">
-                <ServerInfoPanel bm_api_attributes={attributes} database_data={database_data} />
+                <ServerInfoPanel
+                    bm_api_attributes={attributes}
+                    database_data={database_data}
+                />
             </div>
 
             <div className="md-nav:w-1/2 min-h-48 md-nav:min-h-full">
-                <PlayerCountPanel player_count_data={bm_api_player_count_data} />
+                <PlayerCountPanel
+                    player_count_data={bm_api_player_count_data}
+                />
             </div>
         </div>
     );
 
     return (
-        <div className="h-full w-full bg-dark px-5 pt-5 text-secondary overflow-y-auto">
+        <div className="h-full w-full bg-black px-5 pt-5 text-primary overflow-y-auto">
             <div className="flex flex-col md-nav:flex-row max-w-7xl mx-auto h-full w-full">
                 <div className="w-full md-nav:max-h-full md-nav:w-3/5">
                     <div className="flex flex-col min-w-fill max-h-full overflow-y-auto">
-                        {server_header_container /* Server Title / Player Count / IP */}
+                        {
+                            server_header_container /* Server Title / Player Count / IP */
+                        }
 
                         {server_description_container /* Server Description */}
 
@@ -94,7 +112,9 @@ const ServerInfoPage = () => {
                         <MapInfoPanel mapData={rust_maps} />
 
                         {/* AD */}
-                        <div className="h-10 text-center p-2.5 bg-medium rounded-md">AD</div>
+                        <div className="h-10 text-center p-2.5 bg-dark rounded-md">
+                            AD
+                        </div>
                     </div>
                 </div>
             </div>

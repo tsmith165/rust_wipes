@@ -5,7 +5,14 @@ import InputComponent from '../../InputComponent';
 
 const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
     // Extract properties from state for easier access
-    const { date, region, resource_rate, group_limit, game_mode, wipe_day_header_str } = state;
+    const {
+        date,
+        region,
+        resource_rate,
+        group_limit,
+        game_mode,
+        wipe_day_header_str,
+    } = state;
 
     // Define select options
     const timeSelectOptions = [
@@ -60,7 +67,7 @@ const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
     ];
 
     return (
-        <div className="p-4 bg-dark md-nav:min-h-full">
+        <div className="p-4 bg-black md-nav:min-h-full">
             {/* Filter Row 1 */}
             <div className="flex flex-row pb-4">
                 <InputComponent
@@ -122,7 +129,7 @@ const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
                     update_filter_value={update_filter_value}
                     select_options={modeSelectOptions}
                 />
-                <div className="flex-grow text-left text-2xl font-bold text-secondary">
+                <div className="flex-grow text-left text-2xl font-bold text-primary">
                     {wipe_day_header_str}
                 </div>
             </div>
