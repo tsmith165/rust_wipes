@@ -188,7 +188,7 @@ const RecentConfirmedWipesPage = () => {
             await fetch_battlemetrics_servers(
                 state.country,
                 state.max_distance,
-                state.min_players,
+                0,
                 50, // We want 50 servers per BM page
                 '', // Provide parameters for pagination
                 '',
@@ -298,8 +298,8 @@ const RecentConfirmedWipesPage = () => {
     };
 
     return (
-        <div className="h-full w-full bg-dark overflow-hidden">
-            <div className="relative flex flex-wrap h-full w-full">
+        <div className="h-full w-full overflow-hidden bg-dark">
+            <div className="relative flex h-full w-full flex-wrap">
                 <RecentWipesSidebar
                     state={state}
                     toggle_auto_refresh={toggle_auto_refresh}
