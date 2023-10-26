@@ -175,7 +175,7 @@ const RecentConfirmedWipesPage = () => {
         const [bmDBServersPage1, ,] = await fetch_battlemetrics_servers(
             state.country,
             state.max_distance,
-            state.min_players,
+            0,
             50, // We want 50 servers per BM page
             '', // Provide parameters for pagination
             '',
