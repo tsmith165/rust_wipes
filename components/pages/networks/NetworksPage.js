@@ -42,7 +42,7 @@ const NetworksPage = () => {
                 <Link href={`/server/${server.id}`}>
                     <div
                         key={server.id}
-                        className={`text-grey px-2.5 py-1 truncate hover:bg-light hover:text-black ${
+                        className={`truncate px-2.5 py-1 text-grey hover:bg-light hover:text-black ${
                             isLastServer ? 'rounded-b-lg' : ''
                         }`}
                         title={server.title}
@@ -56,10 +56,12 @@ const NetworksPage = () => {
         network_card_list_jsx.push(
             <div
                 key={network.id}
-                className="flex-shrink-0 w-72 max-h-full h-max overflow-y-auto p-2"
+                className="h-max max-h-full w-fit max-w-md flex-shrink-0 overflow-y-auto p-2"
             >
-                <div className="flex flex-col h-full bg-black rounded-lg">
-                    <h3 className="text-light p-4">{network.name}</h3>
+                <div className="flex h-full flex-col rounded-lg bg-black">
+                    <h3 className="p-4 font-bold text-primary">
+                        {network.name}
+                    </h3>
                     <div className="flex-1 bg-secondary last:rounded-b-lg">
                         {network_server_list_jsx}
                     </div>
@@ -69,7 +71,7 @@ const NetworksPage = () => {
     }
 
     return (
-        <div className="flex flew-row h-full w-full overflow-x-auto bg-dark">
+        <div className="flew-row flex h-full w-full overflow-x-auto bg-dark">
             {network_card_list_jsx}
         </div>
     );
