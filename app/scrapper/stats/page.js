@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 import PageLayout from '@/components/layout/PageLayout';
-import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPage';
+import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScraperStatsPage';
 
 export default async function Page() {
     return (
