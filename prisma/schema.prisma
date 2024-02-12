@@ -1,92 +1,31 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-}
-
-model Server {
-  id              Int      @id
-  rank            Int      
-  title           String
-  wipes           Json?
-  primary_day     Int?
-  primary_hour    Int?
-  secondary_day   Int?
-  secondary_hour  Int?
-  force_wipes     Json?
-  force_wipe_hour String?
-}
-
-model server_data {
-  id           Int      @id // Battle Metrics ID
-  rank         Int          // Battle Metrics Rank
-  title        String       // Server Title
-  region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
-  attrs        Json?        // Server Attributes JSON - wipe_schedule / game_mode / region
-  wipes        Json?        // Non Force Wipe timestamp array
-  force_wipes  Json?        // Force Wipe timestamp array
 }
 
 model server_parsed {
-  id             Int      @id // Battle Metrics ID
-  rank           Int          // Battle Metrics Rank
-  title          String       // Server Title
-  region         String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
-  wipe_schedule  String?      // Wipe Schedule - Weekly / Bi-Weekly / Monthly
-  game_mode      String?      // PvP/PvE/Arena/Build
-  resource_rate  String?      // 1x/1.5x/2x/3x/4x/5x/10x/20x/50x/etc
-  group_limit    String?      // solo / duo / trio / quad / no limi
-  primary_day    Int?         // Primary Wipe Day Of Week
-  primary_hour   Int?         // Primary Wipe Hour
-  last_primary   String?      // Last Primary Wipe Timestamp
-  secondary_day  Int?         // Secondary Wipe Day Of Week
-  secondary_hour Int?         // Secondary Wipe Hour
-  last_secondary String?      // Last Secondary Wipe Timestamp
-  force_hour     String?      // Force Wipe Hour
-  last_force     String?      // Last Force Wipe Timestamp
-  last_wipe      String?      // Last wipe timestamp
+  id              Int      @id // Battle Metrics ID
+  rank            Int          // Battle Metrics Rank
+  title           String       // Server Title
+  region          String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
+  wipe_schedule   String?      // Wipe Schedule - Weekly / Bi-Weekly / Monthly (HAVENT YET IMPLEMENTED SCRAPING THIS DATA)
+  game_mode       String?      // PvP/PvE/Arena/Build
+  resource_rate   String?      // 1x/1.5x/2x/3x/4x/5x/10x/20x/50x/etc
+  group_limit     String?      // solo / duo / trio / quad / no limit
+  last_wipe       String?      // Last Wipe Timestamp
+  next_wipe       String?      // Next Wipe Timestamp
+  next_wipe_full  String?      // Next Full Wipe Timestamp
+  next_wipe_is_bp String?      // Next Wipe is Blueprint Wipe
 }
 
-model server_data_test {
-  id           Int      @id // Battle Metrics ID
-  rank         Int          // Battle Metrics Rank
-  title        String       // Server Title
-  region       String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
-  attrs        Json?        // Server Attributes JSON - wipe_schedule / game_mode / region
-  wipes        Json?        // Non Force Wipe timestamp array
-  force_wipes  Json?        // Force Wipe timestamp array
-}
-
-model server_parsed_test {
-  id             Int      @id // Battle Metrics ID
-  rank           Int          // Battle Metrics Rank
-  title          String       // Server Title
-  region         String       // Server Region - NA / SA / EU / OCE / ASIA / AFRICA
-  wipe_schedule  String?      // Wipe Schedule - Weekly / Bi-Weekly / Monthly
-  game_mode      String?      // PvP/PvE/Arena/Build
-  resource_rate  String?      // 1x/1.5x/2x/3x/4x/5x/10x/20x/50x/etc
-  group_limit    String?      // solo / duo / trio / quad / no limit
-  primary_day    Int?         // Primary Wipe Day Of Week
-  primary_hour   Int?         // Primary Wipe Hour
-  last_primary   String?      // Last Primary Wipe Timestamp
-  secondary_day  Int?         // Secondary Wipe Day Of Week
-  secondary_hour Int?         // Secondary Wipe Hour
-  last_secondary String?      // Last Secondary Wipe Timestamp
-  force_hour     String?      // Force Wipe Hour
-  last_force     String?      // Last Force Wipe Timestamp
-}
-
-model scraper_stats {
+model scrapper_stats {
   id               Int      @id @default(autoincrement())
   date             DateTime @default(now())
-  scraper_duration Int?
+  scrapper_duration Int?
   servers_parsed   Int?
   servers_skipped  Int?
   servers_posted   Int?

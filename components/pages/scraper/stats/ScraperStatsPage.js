@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAnalytics } from '@/lib/helpers/useAnalytics';
-import { fetch_scraper_stats_data } from '@/lib/api_calls';
+import { fetch_scrapper_stats_data } from '@/lib/api_calls';
 
-const ScraperStatsPage = () => {
+const ScrapperStatsPage = () => {
     useAnalytics();
 
     const [state, setState] = useState({
@@ -15,7 +15,7 @@ const ScraperStatsPage = () => {
 
     const fetchStats = async () => {
         console.log('Fetching stats for page: ', state.currentPage);
-        const data = await fetch_scraper_stats_data(state.currentPage);
+        const data = await fetch_scrapper_stats_data(state.currentPage);
         const { stats, totalPages } = data;
         console.log('Stats: ', stats);
         console.log('Total Pages: ', totalPages);
@@ -40,32 +40,28 @@ const ScraperStatsPage = () => {
         }));
     };
 
-    console.log(
-        '-'.repeat(3) + ' Rendering Scrapper Stats Page ' + '-'.repeat(3),
-    );
+    console.log('-'.repeat(3) + ' Rendering Scrapper Stats Page ' + '-'.repeat(3));
 
     return (
-        <div className="h-full w-full bg-dark p-5 min-h-screen">
-            <h1 className="font-alegreya text-grey text-2xl text-center mb-8 uppercase tracking-wider">
-                Scraper Stats
-            </h1>
+        <div className="h-full min-h-screen w-full bg-dark p-5">
+            <h1 className="font-alegreya mb-8 text-center text-2xl uppercase tracking-wider text-grey">Scrapper Stats</h1>
             <div className="table-container">
-                <table className="mx-auto border-collapse w-full max-w-2xl bg-light rounded">
+                <table className="mx-auto w-full max-w-2xl border-collapse rounded bg-light">
                     <thead>
                         <tr>
-                            <th className="bg-black text-grey font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider border-l-2 border-t-2 border-r-2 rounded-tl">
+                            <th className="font-lato rounded-tl border-l-2 border-r-2 border-t-2 bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Date
                             </th>
-                            <th className="bg-black text-grey font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider">
+                            <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Duration
                             </th>
-                            <th className="bg-black text-grey font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider">
+                            <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Servers Parsed
                             </th>
-                            <th className="bg-black text-grey font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider">
+                            <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Servers Skipped
                             </th>
-                            <th className="bg-black text-grey font-lato text-lg font-bold py-2 px-4 text-center uppercase tracking-wider border-t-2 border-r-2 rounded-tr">
+                            <th className="font-lato rounded-tr border-r-2 border-t-2 bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Servers Posted
                             </th>
                         </tr>
@@ -74,12 +70,10 @@ const ScraperStatsPage = () => {
                         {!!state.stats &&
                             state.stats.map((stat) => (
                                 <tr key={stat.id}>
+                                    <td>{new Date(stat.date).toLocaleString()}</td>
                                     <td>
-                                        {new Date(stat.date).toLocaleString()}
-                                    </td>
-                                    <td>
-                                        {Math.floor(stat.scraper_duration / 60)}
-                                        min {stat.scraper_duration % 60}s
+                                        {Math.floor(stat.scrapper_duration / 60)}
+                                        min {stat.scrapper_duration % 60}s
                                     </td>
                                     <td>{stat.servers_parsed}</td>
                                     <td>{stat.servers_skipped}</td>
@@ -88,21 +82,21 @@ const ScraperStatsPage = () => {
                             ))}
                     </tbody>
                 </table>
-                <div className="flex justify-center mt-8 p-4 rounded bg-black">
+                <div className="mt-8 flex justify-center rounded bg-black p-4">
                     <button
                         onClick={handlePrevPage}
                         disabled={state.currentPage <= 1}
-                        className="text-grey bg-transparent border border-grey rounded px-5 py-2 font-lato text-base transition-colors duration-300 mx-2 hover:bg-rustRed3 hover:border-rustRed3 disabled:bg-primary disabled:border-primary disabled:cursor-not-allowed focus:outline-none focus:shadow-none"
+                        className="font-lato hover:bg-rustRed3 hover:border-rustRed3 mx-2 rounded border border-grey bg-transparent px-5 py-2 text-base text-grey transition-colors duration-300 focus:shadow-none focus:outline-none disabled:cursor-not-allowed disabled:border-primary disabled:bg-primary"
                     >
                         Prev
                     </button>
-                    <span className="font-lato text-lg text-grey mx-4">
+                    <span className="font-lato mx-4 text-lg text-grey">
                         Page {state.currentPage} of {state.totalPages}
                     </span>
                     <button
                         onClick={handleNextPage}
                         disabled={state.currentPage >= state.totalPages}
-                        className="text-grey bg-transparent border border-grey rounded px-5 py-2 font-lato text-base transition-colors duration-300 mx-2 hover:bg-rustRed3 hover:border-rustRed3 disabled:bg-primary disabled:border-primary disabled:cursor-not-allowed focus:outline-none focus:shadow-none"
+                        className="font-lato hover:bg-rustRed3 hover:border-rustRed3 mx-2 rounded border border-grey bg-transparent px-5 py-2 text-base text-grey transition-colors duration-300 focus:shadow-none focus:outline-none disabled:cursor-not-allowed disabled:border-primary disabled:bg-primary"
                     >
                         Next
                     </button>
@@ -112,4 +106,4 @@ const ScraperStatsPage = () => {
     );
 };
 
-export default ScraperStatsPage;
+export default ScrapperStatsPage;

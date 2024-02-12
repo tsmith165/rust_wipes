@@ -25,7 +25,7 @@ export default function sitemap() {
             priority: 1,
         },
         {
-            url: 'https://www.rustwipes.net/scraper/stats',
+            url: 'https://www.rustwipes.net/scrapper/stats',
             lastModified: new Date(),
             changeFrequency: 'hourly',
             priority: 0.5,
