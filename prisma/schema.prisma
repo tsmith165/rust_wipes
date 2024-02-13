@@ -1,10 +1,12 @@
+// /rust_wipes/prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = env("PS_DATABASE_URL")
 }
 
 model server_parsed {
@@ -23,12 +25,12 @@ model server_parsed {
 }
 
 model scrapper_stats {
-  id               Int      @id @default(autoincrement())
-  date             DateTime @default(now())
+  id                Int      @id @default(autoincrement())
+  date              DateTime @default(now())
   scrapper_duration Int?
-  servers_parsed   Int?
-  servers_skipped  Int?
-  servers_posted   Int?
+  servers_parsed    Int?
+  servers_skipped   Int?
+  servers_posted    Int?
 }
 
 model server_network {
