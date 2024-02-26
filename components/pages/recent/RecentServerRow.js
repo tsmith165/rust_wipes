@@ -7,8 +7,9 @@ const HOT_WIPE = 5;
 const COOL_WIPE = 15;
 const COLD_WIPE = 60;
 
+// eslint-disable-next-line no-unused-vars
 export default function RecentServerRow({ id, ip, className, url, rank, players, max_players, wipe_date, offline }) {
-    console.log(`Creating Recent Server Row ${id}...`);
+    //console.log(`Creating Recent Server Row ${id}...`);
     const [isCopied, setIsCopied] = useState(false);
 
     const bm_id = url.split('/').pop();

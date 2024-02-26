@@ -5,14 +5,14 @@ import InputComponent from '@/components/InputComponent';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import CachedIcon from '@material-ui/icons/Cached';
 
-const RENDER_ADS = true;
+const RENDER_ADS = false;
 
 const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh }) => {
     let filter_column_ad_container = null;
     if (RENDER_ADS) {
         filter_column_ad_container = (
             <div className={'h-full w-full'}>
-                <div className={'bg-grey p-2.5'}>
+                <div className={'p-2.5'}>
                     <script
                         async
                         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"

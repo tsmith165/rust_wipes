@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-const HomePage = () => {
+export default function HomePage() {
     const linkData = [
         {
             href: '/upcoming',
@@ -21,14 +21,14 @@ const HomePage = () => {
         },
         {
             href: '/scrapper/stats',
-            label: 'scrapper Stats',
+            label: 'Scrapper Stats',
             img: '/rust_scrapper_stats.jpg',
         },
     ];
 
     return (
-        <div className="block h-full w-full overflow-y-auto bg-dark ">
-            <div className="justify-startmax-h-fullspace-y-5 flex flex-col items-center py-5">
+        <div className="block h-full w-full overflow-y-auto bg-dark">
+            <div className="flex max-h-full flex-col items-center justify-start space-y-5 py-5">
                 <div className="w-full max-w-6xl rounded-lg px-5 pb-5">
                     <h2 className="mt-0 rounded-t-lg bg-secondary p-5 text-2xl text-black">
                         Discover the Latest Server Wipes with rustwipes.net!
@@ -44,28 +44,23 @@ const HomePage = () => {
 
                 <div className="flex w-full max-w-6xl flex-wrap items-center justify-center gap-5">
                     {linkData.map((link, index) => (
-                        <div
-                            key={index}
-                            className="h-[200px] min-w-[300px] max-w-[300px] flex-1 transform cursor-pointer rounded bg-black text-grey transition-transform hover:scale-105"
-                        >
-                            <Link href={link.href}>
-                                <div className="rounded-t bg-secondary py-2.5 text-center font-bold text-grey">{link.label}</div>
-                                <div className="h-[150px] w-full bg-cover bg-center p-2.5 transition-transform hover:scale-110">
+                        <Link key={index} href={link.href}>
+                            <div className="group h-[200px] min-w-[300px] max-w-[300px] transform cursor-pointer flex-col rounded bg-black text-grey transition-transform hover:scale-105 md:flex-1">
+                                <div className="!h-[50px] rounded-t bg-secondary py-2.5 text-center font-bold text-grey">{link.label}</div>
+                                <div className="relative !h-[150px] w-full overflow-hidden rounded-b">
                                     <Image
-                                        className="h-full w-full object-cover"
                                         src={link.img}
                                         alt={link.label}
                                         layout="fill"
                                         objectFit="cover"
+                                        className="transition-transform group-hover:scale-110"
                                     />
                                 </div>
-                            </Link>
-                        </div>
+                            </div>
+                        </Link>
                     ))}
                 </div>
             </div>
         </div>
     );
-};
-
-export default HomePage;
+}
