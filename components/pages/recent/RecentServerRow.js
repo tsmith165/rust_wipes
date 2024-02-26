@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
-import FileCopy from '@material-ui/icons/FileCopy';
+
+import CopyToClipboardButton from './CopyToClipboardButton';
 
 const HOT_WIPE = 5;
 const COOL_WIPE = 15;
@@ -10,7 +11,6 @@ const COLD_WIPE = 60;
 // eslint-disable-next-line no-unused-vars
 export default function RecentServerRow({ id, ip, className, url, rank, players, max_players, wipe_date, offline }) {
     //console.log(`Creating Recent Server Row ${id}...`);
-    const [isCopied, setIsCopied] = useState(false);
 
     const bm_id = url.split('/').pop();
 
@@ -44,14 +44,6 @@ export default function RecentServerRow({ id, ip, className, url, rank, players,
         }
     }
 
-    const handleCopyClick = () => {
-        navigator.clipboard.writeText(`client.connect ${ip}`);
-        setIsCopied(true);
-        setTimeout(() => {
-            setIsCopied(false);
-        }, 500);
-    };
-
     return (
         <Link href={`/server/${bm_id}`}>
             <div
@@ -66,12 +58,7 @@ export default function RecentServerRow({ id, ip, className, url, rank, players,
                     {!players ? 'Offline' : `${players} / ${max_players}`}
                 </div>
                 <div className="w-20 overflow-hidden whitespace-nowrap p-1.5 text-center">{final_date}</div>
-                <div
-                    className={`flex w-12 items-center justify-center p-1.5 ${isCopied ? 'text-success-2' : ''}`}
-                    onClick={handleCopyClick}
-                >
-                    <FileCopy />
-                </div>
+                <CopyToClipboardButton textToCopy={`client.connect ${ip}`} />
             </div>
         </Link>
     );

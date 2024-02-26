@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import UpcomingServerRow from './UpcomingServerRow';
-import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
+import { IoIosArrowForward } from 'react-icons/io';
 
 export default function UpcomingServerHourGroup({ wipe_array, wipe_hour }) {
     const [isWipeContainerHidden, setIsWipeContainerHidden] = useState(true);
@@ -20,7 +20,7 @@ export default function UpcomingServerHourGroup({ wipe_array, wipe_hour }) {
         <div className="cursor-pointer border-b border-grey p-4" onClick={headerClicked}>
             <div className="flex items-center">
                 <div className="mr-2 transform transition-transform duration-500">
-                    <ArrowForwardIosRoundedIcon className={`${isWipeContainerHidden ? '' : 'rotate-90'}`} />
+                    <IoIosArrowForward className={`${isWipeContainerHidden ? '' : 'rotate-90'}`} />
                 </div>
                 <div className="mr-2 text-lg font-bold">{hour_str}</div>
                 <div className="text-grey">{`(${wipe_array.length} ${wipe_array.length === 1 ? 'Server' : 'Servers'})`}</div>

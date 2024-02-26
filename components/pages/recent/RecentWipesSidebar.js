@@ -1,83 +1,64 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import InputComponent from '@/components/InputComponent';
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import CachedIcon from '@material-ui/icons/Cached';
+import InputComponent from '../../InputComponent';
+import { FaRegThumbsUp } from 'react-icons/fa';
+import { HiRefresh } from 'react-icons/hi';
 
 const RENDER_ADS = false;
 
-const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh }) => {
-    let filter_column_ad_container = null;
+const RecentWipesSidebar = ({ searchParams }) => {
+    let filterColumnAdContainer = null;
     if (RENDER_ADS) {
-        filter_column_ad_container = (
+        filterColumnAdContainer = (
             <div className={'h-full w-full'}>
-                <div className={'p-2.5'}>
-                    <script
-                        async
-                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
-                        crossOrigin="anonymous"
-                    ></script>
-                    <ins
-                        className="adsbygoogle"
-                        style={{ display: 'block' }}
-                        data-ad-client="ca-pub-7564404116158956"
-                        data-ad-slot="7235036389"
-                        data-ad-format="auto"
-                        data-full-width-responsive="true"
-                    ></ins>
-                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                </div>
-
-                <div className={'flex h-full w-full space-x-2 bg-grey p-2.5'}>
+                <div className={'p-2.5'}>{/* Ad script and elements */}</div>
+                <div className={'flex h-full w-full space-x-2 bg-dark p-2.5'}>
                     <div className={'styles.ad_blocked_message'}>Please Disable Ad-Block To Support The Developers</div>
-                    <ThumbUpIcon
-                        className={'h-10 w-10 rounded-md bg-light p-2'}
-                        onClick={(e) => {
-                            e.preventDefault();
-                        }}
-                    />
+                    <FaRegThumbsUp className={'h-10 w-10 rounded-md bg-light p-2'} />
                 </div>
             </div>
         );
     }
+
+    // Note: The form submission approach for updating filters is a simplification.
+    // You might need a different approach based on your application's architecture.
     return (
         <div className="max-h-full bg-black" style={{ flex: '1 1 40%', minHeight: '20px' }}>
-            <div className="flex flex-col">
-                <div className="py-1.5" />
-                <div className="flex w-full flex-row space-x-3 px-3 ">
-                    <InputComponent
-                        type={'input'}
-                        default={2}
-                        name={'Min Players'}
-                        full_name={'Minimum Players'}
-                        update_filter_value={update_filter_value}
-                    />
-                    <InputComponent
-                        type={'input'}
-                        default={5000}
-                        name={'Max Dist'}
-                        full_name={'Max Distance'}
-                        update_filter_value={update_filter_value}
-                    />
-                </div>
-                <div className="py-1.5" />
-                <div className="flex flex-row space-x-3 px-3">
-                    <InputComponent type={'input'} default={'US'} name={'Country'} update_filter_value={update_filter_value} />
-                    <div
-                        className={`h-10 w-10 rounded-md p-2 ${state.refreshing ? 'bg-light' : 'bg-dark'}`}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            toggle_auto_refresh();
-                        }}
-                    >
-                        <CachedIcon className={`${state.refreshing ? 'animate-spin' : ''}`} />
+            <form
+                method="GET"
+                action={`/recent?page=${parseInt(searchParams.page)}&minPlayers=${parseInt(searchParams.minPlayers)}&maxDist=${parseInt(searchParams.maxDist)}&country=${searchParams.country}`}
+            >
+                <div className="flex flex-col">
+                    <div className="py-1.5" />
+                    <div className="flex w-full flex-row space-x-3 px-3 ">
+                        <InputComponent
+                            type={'input'}
+                            defaultValue={2}
+                            param_name={'minPlayers'}
+                            param_full_name={'Minimum Players'}
+                            searchParams={searchParams}
+                        />
+                        <InputComponent
+                            type={'input'}
+                            defaultValue={5000}
+                            param_name={'maxDist'}
+                            param_full_name={'Max Distance'}
+                            searchParams={searchParams}
+                        />
                     </div>
+                    <div className="py-1.5" />
+                    <div className="flex flex-row space-x-3 px-3">
+                        <InputComponent type={'input'} defaultValue={'US'} param_name={'country'} searchParams={searchParams} />
+                        <button type="submit" className={`h-10 w-10 rounded-md bg-dark p-2 hover:bg-primary`}>
+                            <HiRefresh className={`hover:animate-spin`} />
+                        </button>
+                    </div>
+                    <div className="py-1.5" />
                 </div>
-                <div className="py-1.5" />
-            </div>
+            </form>
 
-            {filter_column_ad_container}
+            {filterColumnAdContainer}
         </div>
     );
 };
@@ -85,7 +66,5 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
 export default RecentWipesSidebar;
 
 RecentWipesSidebar.propTypes = {
-    state: PropTypes.object,
-    update_filter_value: PropTypes.func,
-    toggle_auto_refresh: PropTypes.func,
+    searchParams: PropTypes.object,
 };

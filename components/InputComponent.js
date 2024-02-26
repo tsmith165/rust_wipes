@@ -3,31 +3,22 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import Tooltip from '@mui/material/Tooltip';
+import { Tooltip } from 'react-tooltip';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import CachedIcon from '@material-ui/icons/Cached';
-
-/*
-const INPUT_TYPE_MASTER = {
-    input: { name: 'Input' },
-    input_and_refresh: { name: 'Input and Button' },
-    input_datepicker: { name: 'Input Datepicker' },
-    input_select: { name: 'Input Select' },
-};
-*/
+import { HiRefresh } from 'react-icons/hi';
 
 export default function InputComponent({
     type,
     defaultValue,
-    name,
-    full_name = name,
+    param_name,
+    param_full_name,
     select_options = [],
     button_function,
-    update_filter_value,
+    searchParams,
 }) {
     const [value, setValue] = useState(defaultValue);
-    const id = name.toLowerCase().replace(' ', '_');
+    const id = param_name.toLowerCase().replace(' ', '_');
 
     const running = true;
     const refreshing = false;
@@ -35,42 +26,41 @@ export default function InputComponent({
     const handleChange = (e) => {
         const newValue = e.target.value;
         setValue(newValue);
-        update_filter_value(id, newValue);
+        change_route_on_value_change(param_name, newValue);
     };
 
     const handleDateChange = (date) => {
         setValue(date);
-        update_filter_value(id, date);
+        change_route_on_value_change(param_name, date);
     };
 
-    switch (type) {
-        case 'input':
-            return (
-                <div className={'flex w-full'}>
-                    {/* Adjust tailwind classes as per design requirements */}
-                    <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1.5">
-                            <div className="text-lg font-bold text-black">{name}</div>
-                        </div>
-                    </Tooltip>
+    const change_route_on_value_change = (param_name, value) => {
+        window.location.href = `/recent?page=${searchParams.page}&${param_name}=${value}`;
+    };
+
+    return (
+        <div className={'flex w-full'}>
+            {/* Tooltip trigger */}
+            <div data-tip data-for={id} className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1.5">
+                <div className="text-lg font-bold text-black">{param_name}</div>
+            </div>
+            {/* Actual tooltip */}
+            <Tooltip id={`${id}`} place="top" effect="solid">
+                {`${param_full_name}`}
+            </Tooltip>
+
+            {type === 'input' && (
+                <input
+                    id={id}
+                    className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
+                    value={value}
+                    onChange={handleChange}
+                />
+            )}
+            {type === 'input_and_refresh' && (
+                <>
                     <input
-                        id={id}
-                        className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
-                        value={value}
-                        onChange={handleChange}
-                    />
-                </div>
-            );
-        case 'input_and_refresh':
-            return (
-                <div className="flex w-full flex-row ">
-                    <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center rounded-l-md bg-primary p-1.5">
-                            <div className="whitespace-nowrap text-lg font-bold text-black">{name}</div>
-                        </div>
-                    </Tooltip>
-                    <input
-                        id={id}
+                        id={`${id}-input`}
                         className="rounded-r-md border-none bg-dark px-1.5 text-sm font-bold text-primary"
                         value={value}
                         onChange={handleChange}
@@ -82,20 +72,12 @@ export default function InputComponent({
                             button_function();
                         }}
                     >
-                        <CachedIcon className={`${refreshing ? 'animate-spin' : ''} `} />
+                        <HiRefresh className={`${refreshing ? 'animate-spin' : ''} `} />
                     </div>
-                </div>
-            );
-
-        case 'input_datepicker':
-            return (
+                </>
+            )}
+            {type === 'input_datepicker' && (
                 <div className="flex w-full flex-row">
-                    {/* Adjust tailwind classes as per design requirements */}
-                    <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1.5">
-                            <div className="text-lg font-bold text-black">{name}</div>
-                        </div>
-                    </Tooltip>
                     <DatePicker
                         id={id}
                         className="rounded-r-md border-none bg-dark p-2.5 text-sm font-bold text-primary"
@@ -104,15 +86,9 @@ export default function InputComponent({
                         autoComplete="off"
                     />
                 </div>
-            );
-
-        case 'input_select':
-            return (
+            )}
+            {type === 'input_select' && (
                 <div className="flex w-full">
-                    {/* Adjust tailwind classes as per design requirements */}
-                    <div className="flex items-center justify-center whitespace-nowrap  rounded-l-md bg-primary p-1.5">
-                        <div className="text-lg font-bold text-black">{name}</div>
-                    </div>
                     <select
                         id={id}
                         className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
@@ -126,20 +102,17 @@ export default function InputComponent({
                         ))}
                     </select>
                 </div>
-            );
-
-        default:
-            throw new Error(`Unsupported type: ${type}`);
-    }
+            )}
+        </div>
+    );
 }
 
-// prop-types
 InputComponent.propTypes = {
     type: PropTypes.string.isRequired,
-    defaultValue: PropTypes.string.isRequired || PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    full_name: PropTypes.string,
+    defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    param_name: PropTypes.string.isRequired,
+    param_full_name: PropTypes.string,
     select_options: PropTypes.array,
     button_function: PropTypes.func,
-    update_filter_value: PropTypes.func,
+    searchParams: PropTypes.object,
 };

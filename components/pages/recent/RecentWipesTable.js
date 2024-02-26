@@ -1,27 +1,31 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import RecentServerRow from './RecentServerRow';
+import Link from 'next/link';
 
-import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
+import RecentServerRow from './RecentServerRow';
+import NumServersSelect from './NumServersSelect';
+
+import { IoIosArrowForward } from 'react-icons/io';
 
 const DEBUG = false;
 
-const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
+const RecentWipesTable = ({ searchParams, server_list }) => {
     console.log('Creating Recent Wipes Table...');
+    console.log('Recent Wipes Table Search Params: ', searchParams);
 
     var servers_jsx_array = [];
-    if (state.server_list == undefined) {
+    if (server_list == undefined) {
         console.log('NO SERVERS FOUND.  Returning empty table...');
         return <div className="max-h-full min-w-full bg-dark md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
     }
 
-    var server_list_length = state.server_list.length;
+    var server_list_length = server_list.length;
 
     if (DEBUG) console.log(`SERVER LIST LENGTH: ${server_list_length}`);
-    console.log(state.server_list);
+    console.log(server_list);
 
     for (var i = 0; i < server_list_length; i++) {
-        var current_server_json = state.server_list[i];
+        var current_server_json = server_list[i];
 
         var offline = current_server_json.offline || false;
 
@@ -41,7 +45,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
             console.log('--------------------------------------------------------------------');
         }
 
-        console.log(`Pushing ID: {id}`);
+        console.log(`Pushing ID: ${id}`);
         servers_jsx_array.push(
             <RecentServerRow
                 key={i}
@@ -58,7 +62,7 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
         );
     }
 
-    if (state.server_list == null || state.server_list.length == 0) {
+    if (server_list == null || server_list.length == 0) {
         return (
             <div className="max-h-full min-w-full bg-dark md:min-w-[461px]" style={{ flex: '1 1 60%' }}>
                 {/* Loader can be implemented with Tailwind CSS or any other library */}
@@ -68,43 +72,17 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
 
     const pagination_container = (
         <div className="flex items-center space-x-2 rounded-lg bg-secondary p-2">
-            <ArrowForwardIosRoundedIcon
-                className="rotate-180 cursor-pointer hover:fill-primary"
-                onClick={(e) => {
-                    e.preventDefault();
-                    switch_page(false);
-                }}
-            />
-            <span className="text-lg font-bold">{state.current_page}</span>
-            <ArrowForwardIosRoundedIcon
-                className="cursor-pointer hover:fill-primary"
-                onClick={(e) => {
-                    e.preventDefault();
-                    switch_page(true);
-                }}
-            />
+            <Link href={`/recent?page=${parseInt(searchParams.page) - 1}`}>
+                <IoIosArrowForward className="rotate-180 cursor-pointer fill-grey hover:fill-light" />
+            </Link>
+            <span className="text-lg font-bold">{searchParams.page}</span>
+            <Link href={`/recent?page=${parseInt(searchParams.page) + 1}`}>
+                <IoIosArrowForward className="cursor-pointer fill-grey hover:fill-light" />
+            </Link>
         </div>
     );
 
-    const num_servers_select = (
-        <select
-            id="num_servers"
-            className="rounded-md border border-none bg-secondary px-2 py-2.5"
-            defaultValue={25}
-            onChange={(e) => {
-                e.preventDefault();
-                const num_servers = document.getElementById('num_servers').value;
-                console.log(`NEW NUM SERVERS: ${num_servers}`);
-                update_filter_value('num_servers', num_servers);
-            }}
-        >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-    );
+    const num_servers_select = <NumServersSelect defaultValue={25} searchParams={searchParams} />;
 
     const server_list_table_header = (
         <div className="flex bg-grey pr-2 font-bold text-primary">
@@ -144,7 +122,6 @@ const RecentWipesTable = ({ state, update_filter_value, switch_page }) => {
 export default RecentWipesTable;
 
 RecentWipesTable.propTypes = {
-    state: PropTypes.object,
-    update_filter_value: PropTypes.func,
-    switch_page: PropTypes.func,
+    searchParams: PropTypes.object,
+    server_list: PropTypes.array,
 };
