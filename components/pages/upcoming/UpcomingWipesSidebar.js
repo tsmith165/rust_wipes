@@ -1,19 +1,7 @@
-'use client';
-
 import React from 'react';
 import InputComponent from '../../InputComponent';
 
-const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
-    // Extract properties from state for easier access
-    const {
-        date,
-        region,
-        resource_rate,
-        group_limit,
-        game_mode,
-        wipe_day_header_str,
-    } = state;
-
+const UpcomingWipesSidebar = () => {
     // Define select options
     const timeSelectOptions = [
         [-10, 'Hawaii (UTC-10:00)'],
@@ -67,73 +55,39 @@ const UpcomingWipesSidebar = ({ state, update_filter_value }) => {
     ];
 
     return (
-        <div className="p-4 bg-black md-nav:min-h-full">
+        <form action="/upcoming" method="GET" className="bg-black p-4 md-nav:min-h-full">
             {/* Filter Row 1 */}
             <div className="flex flex-row pb-4">
-                <InputComponent
-                    type="input_datepicker"
-                    state={state}
-                    name="Date"
-                    update_filter_value={update_filter_value}
-                />
-                <InputComponent
-                    type="input"
-                    default={5000}
-                    name="Min Rank"
-                    update_filter_value={update_filter_value}
-                />
+                <InputComponent type="input_datepicker" name="Date" />
+                <InputComponent type="input" default={5000} name="Min Rank" />
             </div>
 
             {/* Filter Row 2 */}
             <div className="flex flex-row pb-4">
+                <InputComponent type="input_select" default={timeSelectOptions[2][0]} name="Time" select_options={timeSelectOptions} />
                 <InputComponent
                     type="input_select"
-                    default={date}
-                    name="Time"
-                    update_filter_value={update_filter_value}
-                    select_options={timeSelectOptions}
-                />
-                <InputComponent
-                    type="input_select"
-                    default={region}
+                    default={regionSelectOptions[0][0]}
                     name="Region"
-                    update_filter_value={update_filter_value}
                     select_options={regionSelectOptions}
                 />
             </div>
 
             {/* Filter Row 3 */}
             <div className="flex flex-row pb-4">
-                <InputComponent
-                    type="input_select"
-                    default={resource_rate}
-                    name="Rate"
-                    update_filter_value={update_filter_value}
-                    select_options={rateSelectOptions}
-                />
-                <InputComponent
-                    type="input_select"
-                    default={group_limit}
-                    name="Groups"
-                    update_filter_value={update_filter_value}
-                    select_options={groupSelectOptions}
-                />
+                <InputComponent type="input_select" default={rateSelectOptions[0][0]} name="Rate" select_options={rateSelectOptions} />
+                <InputComponent type="input_select" default={groupSelectOptions[0][0]} name="Groups" select_options={groupSelectOptions} />
             </div>
 
             {/* Filter Row 4 */}
             <div className="flex">
-                <InputComponent
-                    type="input_select"
-                    default={game_mode}
-                    name="Mode"
-                    update_filter_value={update_filter_value}
-                    select_options={modeSelectOptions}
-                />
-                <div className="flex-grow text-left text-2xl font-bold text-primary">
-                    {wipe_day_header_str}
-                </div>
+                <InputComponent type="input_select" default={modeSelectOptions[0][0]} name="Mode" select_options={modeSelectOptions} />
+                {/* <div className="flex-grow text-left text-2xl font-bold text-primary">{wipe_day_header_str}</div> */}
             </div>
-        </div>
+            <button type="submit" className="mt-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
+                Update Filters
+            </button>
+        </form>
     );
 };
 

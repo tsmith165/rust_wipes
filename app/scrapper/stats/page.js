@@ -1,5 +1,5 @@
 export const metadata = {
-    title: 'Scrapper Stats',
+    title: 'scrapper Stats',
     description: 'Display stats on run time and servers parsed by the scrapper.',
     icons: {
         icon: '/rust_hazmat_icon.png',
@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 import PageLayout from '@/components/layout/PageLayout';
-import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScraperStatsPage';
+import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPage';
 
 export default async function Page() {
     return (

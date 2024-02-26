@@ -1,30 +1,6 @@
-'use client';
-import React, { useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-import { useAnalytics } from '@/lib/helpers/useAnalytics';
+import Link from 'next/link';
 
 const HomePage = () => {
-    useAnalytics();
-
-    const overlayRef = useRef(null);
-    const router = useRouter();
-    const [redirectTo, setRedirectTo] = useState(null);
-
-    const handle_link_clicked = (href, event) => {
-        event.preventDefault();
-        setRedirectTo(href);
-    };
-
-    useEffect(() => {
-        if (redirectTo) {
-            overlayRef.current.style.display = 'block';
-            setTimeout(() => {
-                router.push(redirectTo);
-            }, 1000);
-        }
-    }, [redirectTo]);
-
     const linkData = [
         {
             href: '/upcoming',
@@ -43,7 +19,7 @@ const HomePage = () => {
         },
         {
             href: '/scrapper/stats',
-            label: 'Scrapper Stats',
+            label: 'scrapper Stats',
             img: '/rust_scrapper_stats.jpg',
         },
     ];
@@ -69,17 +45,17 @@ const HomePage = () => {
                         <div
                             key={index}
                             className="h-[200px] min-w-[300px] max-w-[300px] flex-1 transform cursor-pointer rounded bg-black text-grey transition-transform hover:scale-105"
-                            onClick={(e) => handle_link_clicked(link.href, e)}
                         >
-                            <div className="rounded-t bg-secondary py-2.5 text-center font-bold text-grey">{link.label}</div>
-                            <div className="h-[150px] w-full bg-cover bg-center p-2.5 transition-transform hover:scale-110">
-                                <img className="h-full w-full object-cover" src={link.img} alt={link.label} />
-                            </div>
+                            <Link href={link.href}>
+                                <div className="rounded-t bg-secondary py-2.5 text-center font-bold text-grey">{link.label}</div>
+                                <div className="h-[150px] w-full bg-cover bg-center p-2.5 transition-transform hover:scale-110">
+                                    <img className="h-full w-full object-cover" src={link.img} alt={link.label} />
+                                </div>
+                            </Link>
                         </div>
                     ))}
                 </div>
             </div>
-            <div className="fixed bottom-0 left-0 right-0 top-[100px] z-50 hidden animate-fadeIn bg-black opacity-0" ref={overlayRef}></div>
         </div>
     );
 };

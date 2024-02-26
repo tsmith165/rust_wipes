@@ -1,10 +1,10 @@
+'use client';
+
 import React, { useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CachedIcon from '@material-ui/icons/Cached';
-
-import { twMerge as tw } from 'tailwind-merge';
 
 const INPUT_TYPE_MASTER = {
     input: { name: 'Input' },
@@ -21,10 +21,12 @@ const InputComponent = ({
     select_options = [],
     button_function,
     update_filter_value,
-    state,
 }) => {
     const [value, setValue] = useState(defaultValue);
     const id = name.toLowerCase().replace(' ', '_');
+
+    const running = true;
+    const refreshing = false;
 
     const handleChange = (e) => {
         const newValue = e.target.value;
@@ -43,15 +45,13 @@ const InputComponent = ({
                 <div className={'flex w-full'}>
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-primary rounded-l-md whitespace-nowrap">
-                            <div className="text-black font-bold text-lg">
-                                {name}
-                            </div>
+                        <div className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1.5">
+                            <div className="text-lg font-bold text-black">{name}</div>
                         </div>
                     </Tooltip>
                     <input
                         id={id}
-                        className="w-full text-primary bg-dark rounded-r-md font-bold text-sm border-none p-1.5"
+                        className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
                         value={value}
                         onChange={handleChange}
                     />
@@ -59,52 +59,42 @@ const InputComponent = ({
             );
         case 'input_and_refresh':
             return (
-                <div className="flex flex-row w-full ">
+                <div className="flex w-full flex-row ">
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-primary rounded-l-md">
-                            <div className="text-black font-bold text-lg whitespace-nowrap">
-                                {name}
-                            </div>
+                        <div className="flex items-center justify-center rounded-l-md bg-primary p-1.5">
+                            <div className="whitespace-nowrap text-lg font-bold text-black">{name}</div>
                         </div>
                     </Tooltip>
                     <input
                         id={id}
-                        className="px-1.5 text-primary bg-dark rounded-r-md font-bold text-sm border-none"
+                        className="rounded-r-md border-none bg-dark px-1.5 text-sm font-bold text-primary"
                         value={value}
                         onChange={handleChange}
                     />
                     <div
-                        className={`p-1.5 rounded-md cursor-pointer ${
-                            state.running ? 'bg-green-500' : 'bg-dark'
-                        } `}
+                        className={`cursor-pointer rounded-md p-1.5 ${running ? 'bg-green-500' : 'bg-dark'} `}
                         onClick={(e) => {
                             e.preventDefault();
                             button_function();
                         }}
                     >
-                        <CachedIcon
-                            className={`${
-                                state.refreshing ? 'animate-spin' : ''
-                            } `}
-                        />
+                        <CachedIcon className={`${refreshing ? 'animate-spin' : ''} `} />
                     </div>
                 </div>
             );
 
         case 'input_datepicker':
             return (
-                <div className="flex flex-row w-full">
+                <div className="flex w-full flex-row">
                     {/* Adjust tailwind classes as per design requirements */}
                     <Tooltip title={full_name} placement="top-start">
-                        <div className="flex items-center justify-center p-1.5 bg-primary rounded-l-md whitespace-nowrap">
-                            <div className="text-black font-bold text-lg">
-                                {name}
-                            </div>
+                        <div className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1.5">
+                            <div className="text-lg font-bold text-black">{name}</div>
                         </div>
                     </Tooltip>
                     <DatePicker
                         id={id}
-                        className="p-2.5 text-primary bg-dark rounded-r-md font-bold text-sm border-none"
+                        className="rounded-r-md border-none bg-dark p-2.5 text-sm font-bold text-primary"
                         selected={value}
                         onChange={handleDateChange}
                         autoComplete="off"
@@ -116,24 +106,20 @@ const InputComponent = ({
             return (
                 <div className="flex w-full">
                     {/* Adjust tailwind classes as per design requirements */}
-                    <div className="flex items-center justify-center p-1.5  bg-primary rounded-l-md whitespace-nowrap">
-                        <div className="text-black font-bold text-lg">
-                            {name}
-                        </div>
+                    <div className="flex items-center justify-center whitespace-nowrap  rounded-l-md bg-primary p-1.5">
+                        <div className="text-lg font-bold text-black">{name}</div>
                     </div>
                     <select
                         id={id}
-                        className="w-full p-1.5 text-primary bg-dark rounded-r-md font-bold text-sm border-none"
+                        className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
                         value={value}
                         onChange={handleChange}
                     >
-                        {select_options.map(
-                            ([option_value, option_string], i) => (
-                                <option value={option_value} key={i}>
-                                    {option_string}
-                                </option>
-                            ),
-                        )}
+                        {select_options.map(([option_value, option_string], i) => (
+                            <option value={option_value} key={i}>
+                                {option_string}
+                            </option>
+                        ))}
                     </select>
                 </div>
             );
