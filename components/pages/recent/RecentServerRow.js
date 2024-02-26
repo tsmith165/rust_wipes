@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import Link from 'next/link';
 import FileCopy from '@material-ui/icons/FileCopy';
 
@@ -6,17 +7,8 @@ const HOT_WIPE = 5;
 const COOL_WIPE = 15;
 const COLD_WIPE = 60;
 
-const RecentServerRow = ({
-    id,
-    ip,
-    className,
-    url,
-    rank,
-    players,
-    max_players,
-    wipe_date,
-    offline,
-}) => {
+export default function RecentServerRow({ id, ip, className, url, rank, players, max_players, wipe_date, offline }) {
+    console.log(`Creating Recent Server Row ${id}...`);
     const [isCopied, setIsCopied] = useState(false);
 
     const bm_id = url.split('/').pop();
@@ -62,27 +54,19 @@ const RecentServerRow = ({
     return (
         <Link href={`/server/${bm_id}`}>
             <div
-                className={`bg-dark h-9 border-b border-black flex items-center ${heat_class} ${
-                    offline ? 'bg-secondary opacity-80' : ''
-                }
+                className={`flex h-9 items-center border-b border-black bg-dark ${heat_class} ${offline ? 'bg-secondary opacity-80' : ''}
                 hover:bg-light hover:text-white`}
             >
-                <div className="w-16 p-1.5 text-center overflow-hidden whitespace-nowrap">
-                    #{rank}
-                </div>
-                <div className="flex-1 p-1.5 text-left overflow-hidden whitespace-nowrap">
+                <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank}</div>
+                <div className="flex-1 overflow-hidden whitespace-nowrap p-1.5 text-left">
                     <b className="cursor-pointer">{className}</b>
                 </div>
-                <div className="w-24 p-1.5 text-center overflow-hidden whitespace-nowrap">
+                <div className="w-24 overflow-hidden whitespace-nowrap p-1.5 text-center">
                     {!players ? 'Offline' : `${players} / ${max_players}`}
                 </div>
-                <div className="w-20 p-1.5 text-center overflow-hidden whitespace-nowrap">
-                    {final_date}
-                </div>
+                <div className="w-20 overflow-hidden whitespace-nowrap p-1.5 text-center">{final_date}</div>
                 <div
-                    className={`w-12 p-1.5 flex justify-center items-center ${
-                        isCopied ? 'text-success-2' : ''
-                    }`}
+                    className={`flex w-12 items-center justify-center p-1.5 ${isCopied ? 'text-success-2' : ''}`}
                     onClick={handleCopyClick}
                 >
                     <FileCopy />
@@ -90,6 +74,16 @@ const RecentServerRow = ({
             </div>
         </Link>
     );
-};
+}
 
-export default RecentServerRow;
+RecentServerRow.propTypes = {
+    id: PropTypes.number.isRequired,
+    ip: PropTypes.string.isRequired,
+    className: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    rank: PropTypes.number.isRequired,
+    players: PropTypes.number,
+    max_players: PropTypes.number,
+    wipe_date: PropTypes.string,
+    offline: PropTypes.bool,
+};

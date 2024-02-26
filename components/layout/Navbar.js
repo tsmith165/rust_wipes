@@ -1,12 +1,13 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 import { menu_list } from '@/lib/menu_list';
 
-const Navbar = () => {
+export default function Navbar() {
     const router_pathname = usePathname();
     console.log('NAVBAR ROUTER PATHNAME', router_pathname);
 
@@ -22,8 +23,8 @@ const Navbar = () => {
                     <div
                         className={
                             isActive
-                                ? 'inline-block py-3 px-4 font-bold text-light bg-secondary rounded-b-lg border-r-2 border-b-2 border-primary'
-                                : 'inline-block py-3 px-4 font-bold text-grey bg-primary rounded-b-lg border-r-2 border-b-2 border-light hover:bg-secondary hover:text-light hover:border-primary'
+                                ? 'inline-block rounded-b-lg border-b-2 border-r-2 border-primary bg-secondary px-4 py-3 font-bold text-light'
+                                : 'inline-block rounded-b-lg border-b-2 border-r-2 border-light bg-primary px-4 py-3 font-bold text-grey hover:border-primary hover:bg-secondary hover:text-light'
                         }
                     >
                         {menu_item_string}
@@ -35,10 +36,10 @@ const Navbar = () => {
 
     const tab_menu = generate_navbar(menu_list);
     return (
-        <nav className="bg-black p-0 min-h-[150px] md-nav:min-h-[100px]">
+        <nav className="min-h-[150px] bg-black p-0 md-nav:min-h-[100px]">
             <div className="flex flex-col md-nav:flex-row">
                 <Link href="/" passHref>
-                    <div className="flex flex-col jusitfy-between min-h-[100px] w-full">
+                    <div className="jusitfy-between flex min-h-[100px] w-full flex-col">
                         <Image
                             className="mt-auto"
                             src="/rust_wipes_hazmat_logo_no_bg.png"
@@ -49,10 +50,8 @@ const Navbar = () => {
                         />
                     </div>
                 </Link>
-                <div className="flex flew-row bg-black">{tab_menu}</div>
+                <div className="flew-row flex bg-black">{tab_menu}</div>
             </div>
         </nav>
     );
-};
-
-export default Navbar;
+}

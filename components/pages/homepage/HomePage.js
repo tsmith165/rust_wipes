@@ -1,4 +1,6 @@
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const HomePage = () => {
     const linkData = [
@@ -49,7 +51,13 @@ const HomePage = () => {
                             <Link href={link.href}>
                                 <div className="rounded-t bg-secondary py-2.5 text-center font-bold text-grey">{link.label}</div>
                                 <div className="h-[150px] w-full bg-cover bg-center p-2.5 transition-transform hover:scale-110">
-                                    <img className="h-full w-full object-cover" src={link.img} alt={link.label} />
+                                    <Image
+                                        className="h-full w-full object-cover"
+                                        src={link.img}
+                                        alt={link.label}
+                                        layout="fill"
+                                        objectFit="cover"
+                                    />
                                 </div>
                             </Link>
                         </div>

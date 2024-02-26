@@ -4,17 +4,17 @@ export const metadata = {
     icons: {
         icon: '/rust_hazmat_icon.png',
     },
-  }
-  
-  import PageLayout from '@/components/layout/PageLayout';
-  import ServerInfoPage from '@/components/pages/server/ServerInfoPage';
-  
-  export default function ServerPage() {
-  
+};
+
+import React from 'react';
+
+import PageLayout from '@/components/layout/PageLayout';
+import ServerInfoPage from '@/components/pages/server/ServerInfoPage';
+
+export default function ServerPage() {
     return (
-      <PageLayout page_title={"Server Details"} page={"server"}>
-        <ServerInfoPage />
-      </PageLayout>
-    )
-  }
-  
+        <PageLayout page_title={'Server Details'} page={'server'}>
+            <ServerInfoPage />
+        </PageLayout>
+    );
+}

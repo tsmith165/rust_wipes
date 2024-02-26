@@ -1,27 +1,31 @@
 'use client';
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+
 import Tooltip from '@mui/material/Tooltip';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CachedIcon from '@material-ui/icons/Cached';
 
+/*
 const INPUT_TYPE_MASTER = {
     input: { name: 'Input' },
     input_and_refresh: { name: 'Input and Button' },
     input_datepicker: { name: 'Input Datepicker' },
     input_select: { name: 'Input Select' },
 };
+*/
 
-const InputComponent = ({
+export default function InputComponent({
     type,
-    default: defaultValue,
+    defaultValue,
     name,
     full_name = name,
     select_options = [],
     button_function,
     update_filter_value,
-}) => {
+}) {
     const [value, setValue] = useState(defaultValue);
     const id = name.toLowerCase().replace(' ', '_');
 
@@ -127,6 +131,15 @@ const InputComponent = ({
         default:
             throw new Error(`Unsupported type: ${type}`);
     }
-};
+}
 
-export default InputComponent;
+// prop-types
+InputComponent.propTypes = {
+    type: PropTypes.string.isRequired,
+    defaultValue: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    full_name: PropTypes.string,
+    select_options: PropTypes.array,
+    button_function: PropTypes.func,
+    update_filter_value: PropTypes.func,
+};

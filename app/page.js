@@ -7,6 +7,8 @@ export const metadata = {
     },
 };
 
+import React from 'react';
+
 import PageLayout from '@/components/layout/PageLayout';
 import HomePage from '@/components/pages/homepage/HomePage';
 

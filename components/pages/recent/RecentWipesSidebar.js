@@ -1,20 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import InputComponent from '@/components/InputComponent';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import CachedIcon from '@material-ui/icons/Cached';
 
-const RecentWipesSidebar = ({
-    state,
-    update_filter_value,
-    toggle_auto_refresh,
-}) => {
-    // Create Ad Block
+const RENDER_ADS = true;
+
+const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh }) => {
     let filter_column_ad_container = null;
-    if (state.render_ads) {
+    if (RENDER_ADS) {
         filter_column_ad_container = (
-            <div className={styles.filter_col_ad_container}>
-                <div className={styles.filter_col_ad}>
+            <div className={'h-full w-full'}>
+                <div className={'bg-grey p-2.5'}>
                     <script
                         async
                         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7564404116158956"
@@ -28,36 +26,26 @@ const RecentWipesSidebar = ({
                         data-ad-format="auto"
                         data-full-width-responsive="true"
                     ></ins>
-                    <script>
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                    </script>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
 
-                <div className={styles.filter_col_ad_blocked}>
-                    <div className={styles.ad_blocked_container}>
-                        <div className={styles.ad_blocked_message}>
-                            Please Disable Ad-Block To Support The Developers
-                        </div>
-                        <ThumbUpIcon
-                            className={`${styles.thumb_up_icon}`}
-                            onClick={(e) => {
-                                e.preventDefault();
-                            }}
-                        />
-                    </div>
+                <div className={'flex h-full w-full bg-grey p-2.5'}>
+                    <div className={'styles.ad_blocked_message'}>Please Disable Ad-Block To Support The Developers</div>
+                    <ThumbUpIcon
+                        className={'h-10 w-10 rounded-md bg-light p-2'}
+                        onClick={(e) => {
+                            e.preventDefault();
+                        }}
+                    />
                 </div>
             </div>
         );
     }
-
     return (
-        <div
-            className="bg-black max-h-full"
-            style={{ flex: '1 1 40%', minHeight: '20px' }}
-        >
+        <div className="max-h-full bg-black" style={{ flex: '1 1 40%', minHeight: '20px' }}>
             <div className="flex flex-col">
                 <div className="py-1.5" />
-                <div className="w-full px-3 space-x-3 flex flex-row ">
+                <div className="flex w-full flex-row space-x-3 px-3 ">
                     <InputComponent
                         type={'input'}
                         default={2}
@@ -74,27 +62,16 @@ const RecentWipesSidebar = ({
                     />
                 </div>
                 <div className="py-1.5" />
-                <div className="flex flex-row px-3 space-x-3">
-                    <InputComponent
-                        type={'input'}
-                        default={'US'}
-                        name={'Country'}
-                        update_filter_value={update_filter_value}
-                    />
+                <div className="flex flex-row space-x-3 px-3">
+                    <InputComponent type={'input'} default={'US'} name={'Country'} update_filter_value={update_filter_value} />
                     <div
-                        className={`h-10 w-10 p-2 rounded-md ${
-                            state.refreshing ? 'bg-light' : 'bg-dark'
-                        }`}
+                        className={`h-10 w-10 rounded-md p-2 ${state.refreshing ? 'bg-light' : 'bg-dark'}`}
                         onClick={(e) => {
                             e.preventDefault();
                             toggle_auto_refresh();
                         }}
                     >
-                        <CachedIcon
-                            className={`${
-                                state.refreshing ? 'animate-spin' : ''
-                            }`}
-                        />
+                        <CachedIcon className={`${state.refreshing ? 'animate-spin' : ''}`} />
                     </div>
                 </div>
                 <div className="py-1.5" />
@@ -106,3 +83,9 @@ const RecentWipesSidebar = ({
 };
 
 export default RecentWipesSidebar;
+
+RecentWipesSidebar.propTypes = {
+    state: PropTypes.object,
+    update_filter_value: PropTypes.func,
+    toggle_auto_refresh: PropTypes.func,
+};

@@ -1,6 +1,8 @@
 import Navbar from './Navbar';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-const PageLayout = ({ children }) => {
+export default function PageLayout({ children }) {
     return (
         <div className="p-0">
             <main className="min-h-full bg-grey">
@@ -9,6 +11,8 @@ const PageLayout = ({ children }) => {
             </main>
         </div>
     );
-};
+}
 
-export default PageLayout;
+PageLayout.propTypes = {
+    children: PropTypes.node.isRequired,
+};
