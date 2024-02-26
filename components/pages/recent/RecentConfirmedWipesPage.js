@@ -2,7 +2,6 @@
 import React from 'react';
 import axios from 'axios';
 import { prisma } from '../../../lib/prisma'; // Adjust based on your actual path
-import queryString from 'query-string'; // Ensure you have 'query-string' installed for constructing query strings
 
 // Assuming these components are properly adapted for server components if necessary
 import RecentWipesSidebar from './RecentWipesSidebar';
@@ -12,21 +11,20 @@ import RecentWipesTable from './RecentWipesTable';
 async function fetchBattleMetricsServers(searchParams) {
     const country = searchParams.country || 'US';
     const maxDistance = searchParams.maxDistance || 5000;
-    const minPlayers = searchParams.minPlayers || 2;
+    const minPlayers = 0;
     const numServers = searchParams.numServers || 50;
     const page = searchParams.page || 1;
 
-    const queryParams = {
-        'filter[game]': 'rust',
-        'filter[status]': 'online',
-        'filter[countries][]': country,
-        'filter[maxDistance]': maxDistance,
-        'filter[players][min]': minPlayers,
-        'page[size]': numServers,
-        'page[number]': page,
-    };
+    // manually create the query string
+    var query_params_string = `filter[game]=rust&filter[status]=online&sort=-details.rust_last_wipe&filter[search]=*`;
+    query_params_string += `&filter[countries][]=${country}`;
+    query_params_string += `&filter[maxDistance]=${maxDistance}`;
+    query_params_string += `&filter[players][min]=${minPlayers}`;
+    query_params_string += `&page[size]=${numServers}`;
+    query_params_string += `&page[offset]=${page}`;
 
-    const url = `https://api.battlemetrics.com/servers?${queryString.stringify(queryParams)}`;
+    const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
+    console.log('Querying BattleMetrics with URL: ' + url);
 
     try {
         const response = await axios.get(url);
@@ -62,6 +60,8 @@ async function fetchRecentWipesFromDB(searchParams) {
 
 // Server component
 export default async function RecentConfirmedWipesPage({ searchParams }) {
+    console.log('RecentConfirmedWipesPage Search Params: ', searchParams);
+
     // Directly fetch data within the server component
     const our_db_recent_wipes = await fetchRecentWipesFromDB(searchParams);
     const bm_api_recent_wipes = await fetchBattleMetricsServers(searchParams);

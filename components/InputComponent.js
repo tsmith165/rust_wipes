@@ -42,18 +42,19 @@ export default function InputComponent({
         <div className={'flex w-full'}>
             {/* Tooltip trigger */}
             <div data-tip data-for={id} className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1.5">
-                <div className="text-lg font-bold text-black">{param_name}</div>
+                <div className="text-lg font-bold text-black">{param_full_name}</div>
             </div>
             {/* Actual tooltip */}
-            <Tooltip id={`${id}`} place="top" effect="solid">
+            <Tooltip id={id} place="top" effect="solid">
                 {`${param_full_name}`}
             </Tooltip>
 
             {type === 'input' && (
                 <input
                     id={id}
+                    name={param_name}
                     className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
-                    value={value}
+                    value={value || defaultValue}
                     onChange={handleChange}
                 />
             )}
@@ -61,8 +62,9 @@ export default function InputComponent({
                 <>
                     <input
                         id={`${id}-input`}
+                        name={param_name}
                         className="rounded-r-md border-none bg-dark px-1.5 text-sm font-bold text-primary"
-                        value={value}
+                        value={value || defaultValue}
                         onChange={handleChange}
                     />
                     <div
@@ -80,6 +82,7 @@ export default function InputComponent({
                 <div className="flex w-full flex-row">
                     <DatePicker
                         id={id}
+                        name={param_name}
                         className="rounded-r-md border-none bg-dark p-2.5 text-sm font-bold text-primary"
                         selected={value}
                         onChange={handleDateChange}
@@ -90,7 +93,8 @@ export default function InputComponent({
             {type === 'input_select' && (
                 <div className="flex w-full">
                     <select
-                        id={id}
+                        id={id || defaultValue}
+                        name={param_name}
                         className="w-full rounded-r-md border-none bg-dark p-1.5 text-sm font-bold text-primary"
                         value={value}
                         onChange={handleChange}

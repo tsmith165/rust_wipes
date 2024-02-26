@@ -12,11 +12,8 @@ import PropTypes from 'prop-types';
 import PageLayout from '@/components/layout/PageLayout';
 import RecentConfirmedWipesPage from '@/components/pages/recent/RecentConfirmedWipesPage';
 
-// Adjusted to directly use props for searchParams
-export default function Page(props) {
-    // Extracting searchParams from props
-    const { searchParams } = props;
-
+// eslint-disable-next-line no-unused-vars
+export default function Page({ params, searchParams }) {
     return (
         <PageLayout page_title="Recent Wipes" page="recent">
             <RecentConfirmedWipesPage searchParams={searchParams} />
@@ -25,5 +22,6 @@ export default function Page(props) {
 }
 
 Page.propTypes = {
+    params: PropTypes.object,
     searchParams: PropTypes.object,
 };

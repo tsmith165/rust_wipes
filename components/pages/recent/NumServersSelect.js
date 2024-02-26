@@ -8,6 +8,7 @@ export default function NumServersSelect({ defaultValue, searchParams }) {
     return (
         <select
             id="num_servers"
+            name="numServers"
             className="rounded-md border border-none bg-secondary px-2 py-2.5"
             defaultValue={defaultValue}
             onChange={(e) => onChange(e, searchParams)}
@@ -22,8 +23,12 @@ export default function NumServersSelect({ defaultValue, searchParams }) {
 }
 
 const onChange = (e, searchParams) => {
-    const num_servers = e.target.value;
-    window.location.href = `/recent?page=${searchParams.page}&num_servers=${num_servers}`;
+    const numServers = parseInt(e.target.value) || 25;
+    const page = parseInt(searchParams.page) || 1;
+    const minPlayers = parseInt(searchParams.minPlayers) || 2;
+    const maxDist = parseInt(searchParams.maxDist) || 5000;
+    const country = searchParams.country || 'NA';
+    window.location.href = `/recent?page=${page}&numServers=${numServers}&minPlayers=${minPlayers}&maxDist=${maxDist}&country=${country}`;
 };
 
 NumServersSelect.propTypes = {

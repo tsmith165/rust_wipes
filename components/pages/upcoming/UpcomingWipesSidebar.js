@@ -74,7 +74,8 @@ const UpcomingWipesSidebar = () => {
                 <InputComponent
                     type="input_select"
                     defaultValue={regionSelectOptions[0][0]}
-                    param_name="Region"
+                    param_name="region"
+                    param_full_name="Region"
                     select_options={regionSelectOptions}
                 />
             </div>

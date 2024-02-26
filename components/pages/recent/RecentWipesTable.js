@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Link from 'next/link';
+import queryString from 'query-string';
 
 import RecentServerRow from './RecentServerRow';
 import NumServersSelect from './NumServersSelect';
@@ -13,6 +13,28 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     console.log('Creating Recent Wipes Table...');
     console.log('Recent Wipes Table Search Params: ', searchParams);
 
+    const page = parseInt(searchParams.page) || 1;
+    const numServers = parseInt(searchParams.numServers) || 25;
+    const minPlayers = parseInt(searchParams.minPlayers) || 2;
+    const maxDist = parseInt(searchParams.maxDist) || 5000;
+    const country = searchParams.country || 'NA';
+
+    // Construct the base URL
+    const base_url = '/recent';
+
+    // Construct the query string from the current search parameters
+    // This includes parameters not directly changed by the form
+    const current_query_string = queryString.stringify({
+        page, // Assuming you want to keep the current page in the URL
+        numServers,
+        minPlayers,
+        maxDist,
+        country,
+    });
+
+    const form_action_url = `${base_url}?${current_query_string}`;
+    console.log('Using following form_action_url for updating query string: ' + form_action_url);
+
     var servers_jsx_array = [];
     if (server_list == undefined) {
         console.log('NO SERVERS FOUND.  Returning empty table...');
@@ -22,7 +44,6 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     var server_list_length = server_list.length;
 
     if (DEBUG) console.log(`SERVER LIST LENGTH: ${server_list_length}`);
-    console.log(server_list);
 
     for (var i = 0; i < server_list_length; i++) {
         var current_server_json = server_list[i];
@@ -45,7 +66,6 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
             console.log('--------------------------------------------------------------------');
         }
 
-        console.log(`Pushing ID: ${id}`);
         servers_jsx_array.push(
             <RecentServerRow
                 key={i}
@@ -70,19 +90,36 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
         );
     }
 
+    const decrementPage = page > 1 ? page - 1 : 1;
+    const incrementPage = page + 1;
+
     const pagination_container = (
         <div className="flex items-center space-x-2 rounded-lg bg-secondary p-2">
-            <Link href={`/recent?page=${parseInt(searchParams.page) - 1}`}>
-                <IoIosArrowForward className="rotate-180 cursor-pointer fill-grey hover:fill-light" />
-            </Link>
-            <span className="text-lg font-bold">{searchParams.page}</span>
-            <Link href={`/recent?page=${parseInt(searchParams.page) + 1}`}>
-                <IoIosArrowForward className="cursor-pointer fill-grey hover:fill-light" />
-            </Link>
+            <form method="GET" action="/recent">
+                <input type="hidden" name="page" value={decrementPage} />
+                <input type="hidden" name="numServers" value={numServers} />
+                <input type="hidden" name="minPlayers" value={minPlayers} />
+                <input type="hidden" name="maxDist" value={maxDist} />
+                <input type="hidden" name="country" value={country} />
+                <button type="submit" className="p-2">
+                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-grey hover:fill-light" />
+                </button>
+            </form>
+            <span className="text-lg font-bold">{page}</span>
+            <form method="GET" action="/recent">
+                <input type="hidden" name="page" value={incrementPage} />
+                <input type="hidden" name="numServers" value={numServers} />
+                <input type="hidden" name="minPlayers" value={minPlayers} />
+                <input type="hidden" name="maxDist" value={maxDist} />
+                <input type="hidden" name="country" value={country} />
+                <button type="submit" className="p-2">
+                    <IoIosArrowForward className="cursor-pointer fill-grey hover:fill-light" />
+                </button>
+            </form>
         </div>
     );
 
-    const num_servers_select = <NumServersSelect defaultValue={25} searchParams={searchParams} />;
+    const num_servers_select = <NumServersSelect defaultValue={numServers} searchParams={searchParams} />;
 
     const server_list_table_header = (
         <div className="flex bg-grey pr-2 font-bold text-primary">
@@ -95,15 +132,16 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     );
 
     const server_list_table_row_container = (
-        <div className="overflow-y-auto">
+        <div className="grow overflow-y-auto">
             <div className="flex-1 bg-dark">{servers_jsx_array}</div>
         </div>
     );
 
     const server_list_table_menu = (
-        <div className="flex items-center justify-between bg-black py-2 pl-2 pr-2 md:pl-0">
+        <div className="flex w-full items-center justify-between bg-black py-2 pl-2 md:pl-0">
             {pagination_container /* Pagination */}
-            {num_servers_select /* Number of servers selector */}
+            <div className="flex-grow"></div>
+            {num_servers_select /* Number of servers selector */}=
         </div>
     );
 

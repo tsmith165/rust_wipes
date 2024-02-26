@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import queryString from 'query-string';
 
 import InputComponent from '../../InputComponent';
 import { FaRegThumbsUp } from 'react-icons/fa';
@@ -21,27 +22,46 @@ const RecentWipesSidebar = ({ searchParams }) => {
         );
     }
 
-    // Note: The form submission approach for updating filters is a simplification.
-    // You might need a different approach based on your application's architecture.
+    console.log('Recent Wipes Sidebar Search Params: ', searchParams);
+
+    const page = parseInt(searchParams.page) || 1;
+    const numServers = parseInt(searchParams.numServers) || 25;
+    const minPlayers = parseInt(searchParams.minPlayers) || 2;
+    const maxDist = parseInt(searchParams.maxDist) || 5000;
+    const country = searchParams.country || 'NA';
+
+    // Construct the base URL
+    const base_url = '/recent';
+
+    // Construct the query string from the current search parameters
+    // This includes parameters not directly changed by the form
+    const current_query_string = queryString.stringify({
+        page, // Assuming you want to keep the current page in the URL
+        numServers,
+        minPlayers,
+        maxDist,
+        country,
+    });
+
+    const form_action_url = `${base_url}?${current_query_string}`;
+    console.log('Using following form_action_url for updating query string: ' + form_action_url);
+
     return (
         <div className="max-h-full bg-black" style={{ flex: '1 1 40%', minHeight: '20px' }}>
-            <form
-                method="GET"
-                action={`/recent?page=${parseInt(searchParams.page)}&minPlayers=${parseInt(searchParams.minPlayers)}&maxDist=${parseInt(searchParams.maxDist)}&country=${searchParams.country}`}
-            >
+            <form method="GET" action={form_action_url}>
                 <div className="flex flex-col">
                     <div className="py-1.5" />
                     <div className="flex w-full flex-row space-x-3 px-3 ">
                         <InputComponent
                             type={'input'}
-                            defaultValue={2}
+                            defaultValue={minPlayers}
                             param_name={'minPlayers'}
                             param_full_name={'Minimum Players'}
                             searchParams={searchParams}
                         />
                         <InputComponent
                             type={'input'}
-                            defaultValue={5000}
+                            defaultValue={maxDist}
                             param_name={'maxDist'}
                             param_full_name={'Max Distance'}
                             searchParams={searchParams}
@@ -49,12 +69,20 @@ const RecentWipesSidebar = ({ searchParams }) => {
                     </div>
                     <div className="py-1.5" />
                     <div className="flex flex-row space-x-3 px-3">
-                        <InputComponent type={'input'} defaultValue={'US'} param_name={'country'} searchParams={searchParams} />
-                        <button type="submit" className={`h-10 w-10 rounded-md bg-dark p-2 hover:bg-primary`}>
+                        <InputComponent
+                            type={'input'}
+                            defaultValue={country}
+                            param_name={'country'}
+                            param_full_name={'Country'}
+                            searchParams={searchParams}
+                        />
+                        <button type="submit" className={`h-10 w-10 rounded-md bg-dark p-2.5 hover:bg-primary`}>
                             <HiRefresh className={`hover:animate-spin`} />
                         </button>
                     </div>
                     <div className="py-1.5" />
+                    <input type="hidden" name="page" value={page} />
+                    <input type="hidden" name="numServers" value={numServers} />
                 </div>
             </form>
 
