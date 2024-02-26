@@ -1,9 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import Link from 'next/link';
 
 const BM_SERVER_BASE_URL = 'https://www.battlemetrics.com/servers/rust';
 
-const UpcomingServerRow = ({ id, server }) => {
+// eslint-disable-next-line no-unused-vars
+export default function UpcomingServerRow({ id, server }) {
     // Format the server's last wipe date and other properties for display
     var d = new Date(server.last_wipe_date);
 
@@ -23,6 +26,9 @@ const UpcomingServerRow = ({ id, server }) => {
             </div>
         </div>
     );
-};
+}
 
-export default UpcomingServerRow;
+UpcomingServerRow.propTypes = {
+    id: PropTypes.string.isRequired,
+    server: PropTypes.object.isRequired,
+};

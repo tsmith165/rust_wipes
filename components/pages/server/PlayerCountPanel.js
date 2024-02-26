@@ -1,16 +1,8 @@
 import React from 'react';
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-} from 'recharts';
+import PropTypes from 'prop-types';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const CustomTooltip = ({ active, payload, label }) => {
+export default function CustomTooltip({ active, payload, label }) {
     if (active && payload && payload.length) {
         const formatDate = (timestamp) => {
             const dateOptions = {
@@ -18,10 +10,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                 month: 'short',
                 day: 'numeric',
             };
-            return new Date(timestamp).toLocaleDateString(
-                undefined,
-                dateOptions,
-            );
+            return new Date(timestamp).toLocaleDateString(undefined, dateOptions);
         };
         const formatTime = (timestamp) => {
             return new Date(timestamp).toLocaleTimeString(undefined, {
@@ -31,7 +20,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         };
 
         return (
-            <div className="custom-tooltip bg-white p-3 border rounded-md shadow-md">
+            <div className="custom-tooltip rounded-md border bg-white p-3 shadow-md">
                 <p className="label">{formatDate(label)}</p>
                 <p className="intro">{formatTime(label)}</p>
                 <p className="desc">
@@ -57,6 +46,12 @@ const CustomTooltip = ({ active, payload, label }) => {
     }
 
     return null;
+}
+
+CustomTooltip.propTypes = {
+    active: PropTypes.bool,
+    payload: PropTypes.array,
+    label: PropTypes.string,
 };
 
 const PlayerCountPanel = ({ player_count_data }) => {
@@ -82,27 +77,15 @@ const PlayerCountPanel = ({ player_count_data }) => {
     const xAxisInterval = Math.floor(formatted_data.length / 3) - 1;
 
     return (
-        <div className="w-full h-full bg-dark rounded-lg p-2.5 overflow-hidden">
-            <ResponsiveContainer className="w-full h-full">
-                <LineChart
-                    data={formatted_data}
-                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
-                >
+        <div className="h-full w-full overflow-hidden rounded-lg bg-dark p-2.5">
+            <ResponsiveContainer className="h-full w-full">
+                <LineChart data={formatted_data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="timestamp"
-                        tickFormatter={(timestamp) => formatDate(timestamp)}
-                        interval={xAxisInterval}
-                    />
+                    <XAxis dataKey="timestamp" tickFormatter={(timestamp) => formatDate(timestamp)} interval={xAxisInterval} />
                     <YAxis />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend />
-                    <Line
-                        type="monotone"
-                        dataKey="max"
-                        stroke="#8884d8"
-                        activeDot={{ r: 8 }}
-                    />
+                    <Line type="monotone" dataKey="max" stroke="#8884d8" activeDot={{ r: 8 }} />
                     <Line type="monotone" dataKey="value" stroke="#82ca9d" />
                     <Line type="monotone" dataKey="min" stroke="#ff7300" />
                 </LineChart>
@@ -111,4 +94,6 @@ const PlayerCountPanel = ({ player_count_data }) => {
     );
 };
 
-export default PlayerCountPanel;
+PlayerCountPanel.propTypes = {
+    player_count_data: PropTypes.object,
+};

@@ -136,7 +136,7 @@ export default function InputComponent({
 // prop-types
 InputComponent.propTypes = {
     type: PropTypes.string.isRequired,
-    defaultValue: PropTypes.string.isRequired,
+    defaultValue: PropTypes.string.isRequired || PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     full_name: PropTypes.string,
     select_options: PropTypes.array,

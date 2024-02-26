@@ -1,6 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const MapInfoPanel = ({ mapData }) => {
+export default function MapInfoPanel({ mapData }) {
     if (!mapData) return <p>Error loading map data.</p>;
 
     const { seed, size, url } = mapData;
@@ -10,29 +11,22 @@ const MapInfoPanel = ({ mapData }) => {
         { title: 'Size', value: size },
         {
             title: 'More Map Info',
-            value: (
-                <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >{`RustMaps.com/${seed}_${size}`}</a>
-            ),
+            value: <a href={url} target="_blank" rel="noopener noreferrer">{`RustMaps.com/${seed}_${size}`}</a>,
         },
     ];
 
     return (
-        <div className="bg-dark hover:bg-grey rounded-lg p-2.5">
+        <div className="rounded-lg bg-dark p-2.5 hover:bg-grey">
             <h3 className="text-xl font-bold">Map Info</h3>
             {map_info_data.map(({ title, value }) => (
-                <p
-                    className="text-md hover:font-bold hover:text-lg hover:text-light"
-                    key={title}
-                >
+                <p className="text-md hover:text-lg hover:font-bold hover:text-light" key={title}>
                     {title}: {value}
                 </p>
             ))}
         </div>
     );
-};
+}
 
-export default MapInfoPanel;
+MapInfoPanel.propTypes = {
+    mapData: PropTypes.object.isRequired,
+};

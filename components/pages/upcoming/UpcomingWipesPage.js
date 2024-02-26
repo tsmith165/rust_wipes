@@ -1,14 +1,15 @@
 import { prisma } from '@/lib/prisma';
 
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import PropTypes from 'prop-types';
+
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 
-const UpcomingWipesPage = ({ filters }) => {
+export default function UpcomingWipesPage({ filters }) {
     async function fetchFilteredServers(date) {
         // Convert filters to a suitable format for your Prisma query
-        const date_filter = filters.date ? new Date(filters.date) : undefined;
+        //const date_filter = filters.date ? new Date(filters.date) : undefined;
         const region_filter = filters.region ? filters.region : undefined;
         const resource_rate_filter = filters.resource_rate ? filters.resource_rate : undefined;
         const group_limit_filter = filters.group_limit ? filters.group_limit : undefined;
@@ -46,12 +47,14 @@ const UpcomingWipesPage = ({ filters }) => {
                     ) : serverList?.length < 1 ? (
                         <div>Under construction...</div>
                     ) : (
-                        serverList
+                        serversJsxArray
                     )}
                 </div>
             </div>
         </div>
     );
-};
+}
 
-export default UpcomingWipesPage;
+UpcomingWipesPage.propTypes = {
+    filters: PropTypes.object.isRequired,
+};

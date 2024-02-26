@@ -9,7 +9,7 @@ import PlayerCountPanel from './PlayerCountPanel';
 import ServerHeader from './ServerHeader';
 import { useAnalytics } from '@/lib/helpers/useAnalytics';
 
-const ServerInfoPage = () => {
+export default function ServerInfoPage() {
     useAnalytics();
 
     const [state, setState] = useState({
@@ -34,64 +34,41 @@ const ServerInfoPage = () => {
         }
     }, [server_id]);
 
-    if (state.error)
-        return (
-            <p className="text-xl text-red-500">
-                Error loading data. Please try again later.
-            </p>
-        );
+    if (state.error) return <p className="text-xl text-red-500">Error loading data. Please try again later.</p>;
     if (!state.data) return <p className="text-xl text-gray-500">Loading...</p>;
 
-    const { database_data, bm_api_server_data, bm_api_player_count_data } =
-        state.data;
+    const { database_data, bm_api_server_data, bm_api_player_count_data } = state.data;
     const { attributes } = bm_api_server_data;
     const { details, players, maxPlayers, name, ip, port } = attributes;
     const { rust_maps, rust_description } = details;
     const { thumbnailUrl } = rust_maps;
 
-    const server_header_container = (
-        <ServerHeader
-            name={name}
-            ip={ip}
-            port={port}
-            players={players}
-            maxPlayers={maxPlayers}
-        />
-    );
+    const server_header_container = <ServerHeader name={name} ip={ip} port={port} players={players} maxPlayers={maxPlayers} />;
 
     const server_description_container = (
-        <div className="flex-grow mb-6 rounded-b-lg overflow-y-auto max-h-72 md-nav:max-h-none">
-            <pre className="text-lg whitespace-pre-wrap hover:bg-grey p-2.5">
-                {rust_description}
-            </pre>
+        <div className="mb-6 max-h-72 flex-grow overflow-y-auto rounded-b-lg md-nav:max-h-none">
+            <pre className="whitespace-pre-wrap p-2.5 text-lg hover:bg-grey">{rust_description}</pre>
         </div>
     );
 
     const server_info_panel_container = (
-        <div className="mt-auto flex flex-col md-nav:flex-row md-nav:max-h-[20%] pb-5">
-            <div className="pb-5 md-nav:pb-0 md-nav:w-1/2 md-nav:pr-5 md-nav:min-h-full">
-                <ServerInfoPanel
-                    bm_api_attributes={attributes}
-                    database_data={database_data}
-                />
+        <div className="mt-auto flex flex-col pb-5 md-nav:max-h-[20%] md-nav:flex-row">
+            <div className="pb-5 md-nav:min-h-full md-nav:w-1/2 md-nav:pb-0 md-nav:pr-5">
+                <ServerInfoPanel bm_api_attributes={attributes} database_data={database_data} />
             </div>
 
-            <div className="md-nav:w-1/2 min-h-48 md-nav:min-h-full">
-                <PlayerCountPanel
-                    player_count_data={bm_api_player_count_data}
-                />
+            <div className="min-h-48 md-nav:min-h-full md-nav:w-1/2">
+                <PlayerCountPanel player_count_data={bm_api_player_count_data} />
             </div>
         </div>
     );
 
     return (
-        <div className="h-full w-full bg-black px-5 pt-5 text-primary overflow-y-auto">
-            <div className="flex flex-col md-nav:flex-row max-w-7xl mx-auto h-full w-full">
+        <div className="h-full w-full overflow-y-auto bg-black px-5 pt-5 text-primary">
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-col md-nav:flex-row">
                 <div className="w-full md-nav:max-h-full md-nav:w-3/5">
-                    <div className="flex flex-col min-w-fill max-h-full overflow-y-auto">
-                        {
-                            server_header_container /* Server Title / Player Count / IP */
-                        }
+                    <div className="min-w-fill flex max-h-full flex-col overflow-y-auto">
+                        {server_header_container /* Server Title / Player Count / IP */}
 
                         {server_description_container /* Server Description */}
 
@@ -99,27 +76,19 @@ const ServerInfoPage = () => {
                     </div>
                 </div>
 
-                <div className="w-full md-nav:max-h-full md-nav:w-2/5 pb-5 md-nav:pt-0 md-nav:pl-5 md-nav:pb-0 ">
-                    <div className="flex flex-col w-full space-y-2.5">
+                <div className="w-full pb-5 md-nav:max-h-full md-nav:w-2/5 md-nav:pb-0 md-nav:pl-5 md-nav:pt-0 ">
+                    <div className="flex w-full flex-col space-y-2.5">
                         {/* Rust Maps Image*/}
-                        <img
-                            className="w-full rounded-lg"
-                            src={thumbnailUrl}
-                            alt={`Thumbnail of ${name}`}
-                        />
+                        <img className="w-full rounded-lg" src={thumbnailUrl} alt={`Thumbnail of ${name}`} />
 
                         {/* Map Info */}
                         <MapInfoPanel mapData={rust_maps} />
 
                         {/* AD */}
-                        <div className="h-10 text-center p-2.5 bg-dark rounded-md">
-                            AD
-                        </div>
+                        <div className="h-10 rounded-md bg-dark p-2.5 text-center">AD</div>
                     </div>
                 </div>
             </div>
         </div>
     );
-};
-
-export default ServerInfoPage;
+}

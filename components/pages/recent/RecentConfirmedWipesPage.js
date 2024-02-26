@@ -30,6 +30,8 @@ const RecentConfirmedWipesPage = () => {
     });
 
     const fetch_servers = async (page = 1) => {
+        setState((prevState) => ({ ...prevState, refreshing: true }));
+
         // Determine which pages to fetch from BattleMetrics
         let bmPage1 = Math.floor((page - 1) / 2) + 1; // Calculate the first BM page based on our current page
         let bmPage2 = bmPage1 + 1; // The next BM page is just the current one plus one
@@ -67,7 +69,7 @@ const RecentConfirmedWipesPage = () => {
         // console.log('BattleMetrics DB 50 Servers:', bmDBServers)
 
         // 3. Merge data from BM DB with our DB's 25 servers
-        const updatedOurDBServers = ourDBServers.map((ourDBServer) => {
+        const new_server_list = ourDBServers.map((ourDBServer) => {
             const foundServer = bmDBServers.find((bmDBServer) => parseInt(bmDBServer.id) === parseInt(ourDBServer.id));
             // console.log('Our DB Server ID:', ourDBServer.id)
             // console.log('Found Server ID:', foundServer ? foundServer.id : 'none')
@@ -96,26 +98,22 @@ const RecentConfirmedWipesPage = () => {
             }
         });
 
-        console.log('Merged 25 Servers:', updatedOurDBServers);
+        console.log('Merged 25 Servers:', new_server_list);
 
-        return [updatedOurDBServers, next_url, prev_url, 0];
+        setState((prevState) => ({
+            ...prevState,
+            server_list: new_server_list,
+            next_url: next_url,
+            prev_url: prev_url,
+            current_test_id: 0,
+            current_page: state.current_page,
+            refreshing: false,
+        }));
     };
 
     useEffect(() => {
         async function fetch_refresh_data() {
-            setState((prevState) => ({ ...prevState, refreshing: true }));
-            const result = await fetch_servers(state.current_page);
-            const [new_server_list, next_url, prev_url, current_test_id] = result;
-
-            setState((prevState) => ({
-                ...prevState,
-                server_list: new_server_list,
-                next_url: next_url,
-                prev_url: prev_url,
-                current_test_id: current_test_id,
-                current_page: state.current_page,
-                refreshing: false,
-            }));
+            await fetch_servers(state.current_page);
 
             const interval = setInterval(fetch_servers, 5000);
 

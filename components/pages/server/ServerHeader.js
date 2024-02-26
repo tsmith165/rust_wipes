@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
-const ServerHeader = ({ name, ip, port, players, maxPlayers }) => {
+export default function ServerHeader({ name, ip, port, players, maxPlayers }) {
     const [copySuccess, setCopySuccess] = useState(false);
     const [hover, setHover] = useState(false);
 
@@ -15,37 +16,39 @@ const ServerHeader = ({ name, ip, port, players, maxPlayers }) => {
     };
 
     return (
-        <div className="flex flex-col xl:flex-row justify-between font-bold bg-dark hover:bg-grey rounded-t-lg p-5">
-            <h2 className="w-auto text-2xl font-bold truncate">{name}</h2>
+        <div className="flex flex-col justify-between rounded-t-lg bg-dark p-5 font-bold hover:bg-grey xl:flex-row">
+            <h2 className="w-auto truncate text-2xl font-bold">{name}</h2>
             <div
-                className="min-w-[124px] flex xl:flex-col relative rounded-lg hover:bg-primary space-x-3 xl:space-x-0"
+                className="relative flex min-w-[124px] space-x-3 rounded-lg hover:bg-primary xl:flex-col xl:space-x-0"
                 onClick={copyToClipboard}
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
                 style={{ cursor: 'pointer' }}
             >
-                <div className="text-light hover:text-lg hover:font-bold">
-                    IP: {ip}
-                </div>
-                <div className="text-light hover:text-lg hover:font-bold m-0">
-                    Port: {port}
-                </div>
-                <div className="text-light hover:text-lg hover:font-bold m-0">
+                <div className="text-light hover:text-lg hover:font-bold">IP: {ip}</div>
+                <div className="m-0 text-light hover:text-lg hover:font-bold">Port: {port}</div>
+                <div className="m-0 text-light hover:text-lg hover:font-bold">
                     Players: {players}/{maxPlayers}
                 </div>
                 {copySuccess && (
-                    <div className="absolute bottom-0 left-0 mb-[-40px] ml-2 bg-green-400 text-black px-3 py-1 rounded z-10">
+                    <div className="absolute bottom-0 left-0 z-10 mb-[-40px] ml-2 rounded bg-green-400 px-3 py-1 text-black">
                         Copy Success!
                     </div>
                 )}
                 {hover && !copySuccess && (
-                    <div className="absolute bottom-0 left-0 mb-[-40px] ml-2 bg-grey text-white px-3 py-1 rounded z-10">
+                    <div className="absolute bottom-0 left-0 z-10 mb-[-40px] ml-2 rounded bg-grey px-3 py-1 text-white">
                         Click to copy server IP
                     </div>
                 )}
             </div>
         </div>
     );
-};
+}
 
-export default ServerHeader;
+ServerHeader.propTypes = {
+    name: PropTypes.string.isRequired,
+    ip: PropTypes.string.isRequired,
+    port: PropTypes.number.isRequired,
+    players: PropTypes.number.isRequired,
+    maxPlayers: PropTypes.number.isRequired,
+};

@@ -1,13 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const region_dict = {
     NA: 'North America',
     EU: 'Europe',
 };
 
-const ServerInfoPanel = ({ bm_api_attributes, database_data }) => {
-    if (!bm_api_attributes || !database_data)
-        return <p>Error loading server data.</p>;
+export default function ServerInfoPanel({ bm_api_attributes, database_data }) {
+    if (!bm_api_attributes || !database_data) return <p>Error loading server data.</p>;
 
     console.log('BM API Attributes: ', bm_api_attributes);
     console.log('Database Data: ', database_data);
@@ -36,9 +36,7 @@ const ServerInfoPanel = ({ bm_api_attributes, database_data }) => {
     const now = new Date();
     const seconds_since_last_wipe = Math.floor((now - last_wipe_date) / 1000);
 
-    console.log(
-        `Last Wipe Date: ${last_wipe_date} | Seconds Since Last Wipe: ${seconds_since_last_wipe}`,
-    );
+    console.log(`Last Wipe Date: ${last_wipe_date} | Seconds Since Last Wipe: ${seconds_since_last_wipe}`);
 
     const server_info_data = [
         { title: 'Server Rank', value: rank },
@@ -53,18 +51,18 @@ const ServerInfoPanel = ({ bm_api_attributes, database_data }) => {
     ];
 
     return (
-        <div className="bg-dark hover:bg-grey rounded-lg p-2.5">
-            <h3 className="text-lg font-bold mb-2 ">Server Info</h3>
+        <div className="rounded-lg bg-dark p-2.5 hover:bg-grey">
+            <h3 className="mb-2 text-lg font-bold ">Server Info</h3>
             {server_info_data.map(({ title, value }) => (
-                <p
-                    className="hover:font-bold hover:text-md hover:text-lg hover:text-light"
-                    key={title}
-                >
+                <p className="hover:text-md hover:text-lg hover:font-bold hover:text-light" key={title}>
                     {title}: {value}
                 </p>
             ))}
         </div>
     );
-};
+}
 
-export default ServerInfoPanel;
+ServerInfoPanel.propTypes = {
+    bm_api_attributes: PropTypes.object.isRequired,
+    database_data: PropTypes.object.isRequired,
+};

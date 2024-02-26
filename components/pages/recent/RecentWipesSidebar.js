@@ -29,7 +29,7 @@ const RecentWipesSidebar = ({ state, update_filter_value, toggle_auto_refresh })
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
 
-                <div className={'flex h-full w-full bg-grey p-2.5'}>
+                <div className={'flex h-full w-full space-x-2 bg-grey p-2.5'}>
                     <div className={'styles.ad_blocked_message'}>Please Disable Ad-Block To Support The Developers</div>
                     <ThumbUpIcon
                         className={'h-10 w-10 rounded-md bg-light p-2'}

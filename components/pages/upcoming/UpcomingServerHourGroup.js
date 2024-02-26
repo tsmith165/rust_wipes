@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+
 import UpcomingServerRow from './UpcomingServerRow';
 import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
-const UpcomingServerHourGroup = ({ wipe_array, wipe_hour }) => {
+export default function UpcomingServerHourGroup({ wipe_array, wipe_hour }) {
     const [isWipeContainerHidden, setIsWipeContainerHidden] = useState(true);
 
     const headerClicked = () => {
@@ -35,6 +37,9 @@ const UpcomingServerHourGroup = ({ wipe_array, wipe_hour }) => {
             </div>
         </div>
     );
-};
+}
 
-export default UpcomingServerHourGroup;
+UpcomingServerHourGroup.propTypes = {
+    wipe_array: PropTypes.array.isRequired,
+    wipe_hour: PropTypes.number.isRequired,
+};
