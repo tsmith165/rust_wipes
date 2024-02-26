@@ -6,6 +6,8 @@ export const metadata = {
     },
 };
 
+import React from 'react';
+
 import PageLayout from '@/components/layout/PageLayout';
 import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPage';
 

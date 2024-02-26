@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 
 import '@/styles/globals.css';
 import 'tailwindcss/tailwind.css';
 
 import AppLayout from '@/components/layout/AppLayout';
 
-export default function RootLayout({ children, params }) {
+function RootLayout({ children }) {
     console.log(`Loading Root Layout...`);
 
     return (
@@ -14,3 +15,10 @@ export default function RootLayout({ children, params }) {
         </>
     );
 }
+
+// Define PropTypes for RootLayout
+RootLayout.propTypes = {
+    children: PropTypes.node.isRequired,
+};
+
+export default RootLayout;
