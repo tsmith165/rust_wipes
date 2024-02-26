@@ -11,26 +11,11 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPage from '@/components/pages/upcoming/UpcomingWipesPage';
 
-// This fetch function runs on the server and has access to the request object
-export async function fetch({ request }) {
-    // Get the URL from the request
-    const url = new URL(request.url);
-
-    // Extract search parameters from the URL
-    const searchParams = Object.fromEntries(url.searchParams);
-
-    // Pass the search parameters as props to your server component
-    return {
-        props: {
-            filters: searchParams,
-        },
-    };
-}
-
-export default async function Page({ filters }) {
+// eslint-disable-next-line no-unused-vars
+export default async function Page({ params, searchParams }) {
     return (
         <PageLayout page_title={'Upcoming Wipes'} page={'upcoming'}>
-            <UpcomingWipesPage filters={filters} />
+            <UpcomingWipesPage searchParams={searchParams} />
         </PageLayout>
     );
 }
