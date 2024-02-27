@@ -8,14 +8,14 @@ import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
 
 // Helper function to fetch data from BattleMetrics
-async function fetchBattleMetricsServers(country = 'US', maxDistance = 5000, minPlayers = 0, numServers = 50, page = 1) {
+async function fetchBattleMetricsServers(country = 'US', maxDistance = 5000, minPlayers = 0, numServers = 50, starting_index = 0) {
     // manually create the query string
     var query_params_string = `filter[game]=rust&filter[status]=online&sort=-details.rust_last_wipe&filter[search]=*`;
     query_params_string += `&filter[countries][]=${country}`;
     query_params_string += `&filter[maxDistance]=${maxDistance}`;
     query_params_string += `&filter[players][min]=${minPlayers}`;
     query_params_string += `&page[size]=${numServers}`;
-    query_params_string += `&page[offset]=${page}`;
+    query_params_string += `&page[offset]=${starting_index}`;
 
     const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
     console.log('Querying BattleMetrics with URL: ' + url);
@@ -31,7 +31,7 @@ async function fetchBattleMetricsServers(country = 'US', maxDistance = 5000, min
 
 async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
     // Ensure `page` and `itemsPerPage` are integers
-    page = parseInt(page, 10) || 1;
+    page = parseInt(page) || 1;
     const itemsPerPage = parseInt(numServers, 10) || 25;
 
     // Calculate `skip` ensuring it's an integer
@@ -74,8 +74,10 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
     const our_db_recent_wipes = await fetchRecentWipesFromDB(country, minPlayers, numServers, page);
     console.log('Our DB Recent Wipes: ', our_db_recent_wipes);
 
-    const bm_api_recent_wipes = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, page);
-    const bm_api_recent_wipes_next = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, page + 1);
+    const bm_api_recent_wipes = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, (parseInt(page) - 1) * numServers);
+    const bm_api_recent_wipes_next = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, parseInt(page) * numServers);
+
+    // combine bm api data
     const all_bm_api_recent_wipes = bm_api_recent_wipes.concat(bm_api_recent_wipes_next);
 
     // 3. Merge data from BM DB with our DB's 25 servers
@@ -109,6 +111,8 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
             };
         }
     });
+
+    console.log('Using new_server_list:', new_server_list);
 
     return (
         <div className="h-full w-full overflow-hidden bg-dark">
