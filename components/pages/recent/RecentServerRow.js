@@ -58,7 +58,9 @@ export default function RecentServerRow({ id, ip, className, url, rank, players,
                     {!players ? 'Offline' : `${players} / ${max_players}`}
                 </div>
                 <div className="w-20 overflow-hidden whitespace-nowrap p-1.5 text-center">{final_date}</div>
-                <CopyToClipboardButton textToCopy={`client.connect ${ip}`} />
+                <div className="flex w-12 justify-center overflow-hidden whitespace-nowrap p-1.5">
+                    <CopyToClipboardButton textToCopy={`client.connect ${ip}`} />
+                </div>
             </div>
         </Link>
     );
