@@ -41,7 +41,7 @@ export default function Navbar() {
                 <Link href="/" passHref>
                     <div className="jusitfy-between flex min-h-[100px] w-full flex-col">
                         <Image
-                            className="mt-auto"
+                            className="mt-auto h-fit"
                             src="/rust_wipes_hazmat_logo_no_bg.png"
                             alt="Rust Logo"
                             priority={true}

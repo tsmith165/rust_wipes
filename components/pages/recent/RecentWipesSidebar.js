@@ -56,14 +56,14 @@ const RecentWipesSidebar = ({ searchParams }) => {
                             type={'input'}
                             defaultValue={minPlayers}
                             param_name={'minPlayers'}
-                            param_full_name={'Minimum Players'}
+                            param_full_name={'Min Players'}
                             searchParams={searchParams}
                         />
                         <InputComponent
                             type={'input'}
                             defaultValue={maxDist}
                             param_name={'maxDist'}
-                            param_full_name={'Max Distance'}
+                            param_full_name={'Max Dist'}
                             searchParams={searchParams}
                         />
                     </div>

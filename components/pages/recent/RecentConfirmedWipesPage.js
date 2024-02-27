@@ -116,9 +116,10 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
 
     return (
         <div className="h-full w-full overflow-hidden bg-dark">
-            <div className="relative flex h-full w-full flex-wrap">
+            <div className="flex h-full w-full flex-wrap">
                 {/* Pass searchParams down to child components */}
                 <RecentWipesSidebar searchParams={searchParams} />
+
                 <RecentWipesTable searchParams={searchParams} server_list={new_server_list} />
             </div>
         </div>
