@@ -15,7 +15,7 @@ import NetworksPage from '@/components/pages/networks/NetworksPage';
 
 export default function Networks() {
     return (
-        <PageLayout page_title={'Server Networks'} page={'networks'}>
+        <PageLayout page={'networks'}>
             <NetworksPage />
         </PageLayout>
     );

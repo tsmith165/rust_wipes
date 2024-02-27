@@ -2,11 +2,11 @@ import Navbar from './Navbar';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function PageLayout({ children }) {
+export default function PageLayout({ children, page }) {
     return (
         <div className="p-0">
             <main className="min-h-full bg-grey">
-                <Navbar />
+                <Navbar page={page || ''} />
                 <div className="relative h-[calc(100vh-99px)] w-full md-nav:h-[calc(100vh-100px)]">{children}</div>
             </main>
         </div>
@@ -15,4 +15,5 @@ export default function PageLayout({ children }) {
 
 PageLayout.propTypes = {
     children: PropTypes.node.isRequired,
+    page: PropTypes.string,
 };

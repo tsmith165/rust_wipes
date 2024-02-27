@@ -3,23 +3,24 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 
 import { menu_list } from '@/lib/menu_list';
 
-export default function Navbar() {
-    const router_pathname = usePathname();
-    console.log('NAVBAR ROUTER PATHNAME', router_pathname);
-
+export default function Navbar(page) {
+    page = page.page;
+    console.log('page: ', page);
+    console.log('menu list: ', menu_list);
     const generate_navbar = (menu_list) => {
         return menu_list.map((item, i) => {
+            let menu_item_class_string = item[0];
             let menu_item_string = item[1];
-            let url_endpoint = item[3];
+            let tab_url_endpoint = item[3];
 
-            const isActive = url_endpoint === router_pathname;
+            console.log(`page: ${page}, tab_url_endpoint: ${tab_url_endpoint}`);
+            const isActive = menu_item_class_string === page;
 
             return (
-                <Link key={i} href={url_endpoint} passHref>
+                <Link key={i} href={tab_url_endpoint} passHref>
                     <div
                         className={
                             isActive

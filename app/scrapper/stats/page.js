@@ -13,7 +13,7 @@ import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPa
 
 export default async function Page() {
     return (
-        <PageLayout page_title={'Scrapper Stats'} page={'scrapper'}>
+        <PageLayout page={'scrapper'}>
             <ScrapperStatsPage />
         </PageLayout>
     );

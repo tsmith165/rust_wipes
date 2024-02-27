@@ -14,7 +14,7 @@ import HomePage from '@/components/pages/homepage/HomePage';
 
 export default async function Page() {
     return (
-        <PageLayout page_title={'Home Page'} page={'home'}>
+        <PageLayout page={'home'}>
             <HomePage />
         </PageLayout>
     );

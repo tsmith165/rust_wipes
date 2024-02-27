@@ -72,7 +72,7 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
 
     // Directly fetch data within the server component
     const our_db_recent_wipes = await fetchRecentWipesFromDB(country, minPlayers, numServers, page);
-    console.log('Our DB Recent Wipes: ', our_db_recent_wipes);
+    // console.log('Our DB Recent Wipes: ', our_db_recent_wipes);
 
     const bm_api_recent_wipes = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, (parseInt(page) - 1) * numServers);
     const bm_api_recent_wipes_next = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, parseInt(page) * numServers);
@@ -111,8 +111,6 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
             };
         }
     });
-
-    console.log('Using new_server_list:', new_server_list);
 
     return (
         <div className="h-full w-full overflow-hidden bg-dark">

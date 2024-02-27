@@ -15,7 +15,7 @@ import RecentConfirmedWipesPage from '@/components/pages/recent/RecentConfirmedW
 // eslint-disable-next-line no-unused-vars
 export default function Page({ params, searchParams }) {
     return (
-        <PageLayout page_title="Recent Wipes" page="recent">
+        <PageLayout page="recent">
             <RecentConfirmedWipesPage searchParams={searchParams} />
         </PageLayout>
     );

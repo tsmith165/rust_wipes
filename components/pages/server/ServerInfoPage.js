@@ -38,7 +38,8 @@ export default async function ServerInfoPage({ params }) {
     console.log('Rust Description: ', rust_description);
 
     // Process the description to remove '\t'
-    const rust_description_final = rust_description.replace(/\t/g, '');
+    const rust_description_final = rust_description.replace(/\\t/g, '');
+    console.log('rust_description_final: ', rust_description_final);
 
     return (
         <div className="h-full w-full overflow-y-auto bg-dark bg-gradient-to-b from-grey to-primary px-5 pt-5 text-primary">

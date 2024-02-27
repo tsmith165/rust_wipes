@@ -15,7 +15,7 @@ import ServerInfoPage from '@/components/pages/server/ServerInfoPage';
 // eslint-disable-next-line no-unused-vars
 export default function ServerPage({ params, searchParams }) {
     return (
-        <PageLayout page_title={'Server Details'} page={'server'}>
+        <PageLayout page={'server'} params={params} searchParams={searchParams}>
             <ServerInfoPage params={params} />
         </PageLayout>
     );

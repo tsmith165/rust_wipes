@@ -14,7 +14,7 @@ import UpcomingWipesPage from '@/components/pages/upcoming/UpcomingWipesPage';
 // eslint-disable-next-line no-unused-vars
 export default async function Page({ params, searchParams }) {
     return (
-        <PageLayout page_title={'Upcoming Wipes'} page={'upcoming'}>
+        <PageLayout page={'upcoming'}>
             <UpcomingWipesPage searchParams={searchParams} />
         </PageLayout>
     );
