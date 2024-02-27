@@ -8,13 +8,7 @@ import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
 
 // Helper function to fetch data from BattleMetrics
-async function fetchBattleMetricsServers(searchParams) {
-    const country = searchParams.country || 'US';
-    const maxDistance = searchParams.maxDistance || 5000;
-    const minPlayers = 0;
-    const numServers = searchParams.numServers || 50;
-    const page = searchParams.page || 1;
-
+async function fetchBattleMetricsServers(country = 'US', maxDistance = 5000, minPlayers = 0, numServers = 50, page = 1) {
     // manually create the query string
     var query_params_string = `filter[game]=rust&filter[status]=online&sort=-details.rust_last_wipe&filter[search]=*`;
     query_params_string += `&filter[countries][]=${country}`;
@@ -35,21 +29,29 @@ async function fetchBattleMetricsServers(searchParams) {
     }
 }
 
-async function fetchRecentWipesFromDB(searchParams) {
+async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
     // Ensure `page` and `itemsPerPage` are integers
-    const page = parseInt(searchParams.page, 10) || 1;
-    const itemsPerPage = parseInt(searchParams.numServers, 10) || 25;
+    page = parseInt(page, 10) || 1;
+    const itemsPerPage = parseInt(numServers, 10) || 25;
 
     // Calculate `skip` ensuring it's an integer
     const skip = (page - 1) * itemsPerPage;
 
+    console.log(`Fetching recent wipes with region: ${country} | min players: ${minPlayers}`);
+
     try {
         const recentWipes = await prisma.server_parsed.findMany({
-            skip: skip,
-            take: itemsPerPage,
+            where: {
+                region: country,
+                players: {
+                    gte: parseInt(minPlayers),
+                },
+            },
             orderBy: {
                 last_wipe: 'desc',
             },
+            skip: skip,
+            take: itemsPerPage,
         });
         return recentWipes;
     } catch (error) {
@@ -62,13 +64,23 @@ async function fetchRecentWipesFromDB(searchParams) {
 export default async function RecentConfirmedWipesPage({ searchParams }) {
     console.log('RecentConfirmedWipesPage Search Params: ', searchParams);
 
+    const country = searchParams.country || 'US';
+    const maxDistance = searchParams.maxDistance || 5000;
+    const minPlayers = 0;
+    const numServers = searchParams.numServers || 50;
+    const page = searchParams.page || 1;
+
     // Directly fetch data within the server component
-    const our_db_recent_wipes = await fetchRecentWipesFromDB(searchParams);
-    const bm_api_recent_wipes = await fetchBattleMetricsServers(searchParams);
+    const our_db_recent_wipes = await fetchRecentWipesFromDB(country, minPlayers, numServers, page);
+    console.log('Our DB Recent Wipes: ', our_db_recent_wipes);
+
+    const bm_api_recent_wipes = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, page);
+    const bm_api_recent_wipes_next = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, page + 1);
+    const all_bm_api_recent_wipes = bm_api_recent_wipes.concat(bm_api_recent_wipes_next);
 
     // 3. Merge data from BM DB with our DB's 25 servers
     const new_server_list = our_db_recent_wipes.map((our_db_recent_wipe_data) => {
-        const matched_server_data = bm_api_recent_wipes.find(
+        const matched_server_data = all_bm_api_recent_wipes.find(
             (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === parseInt(our_db_recent_wipe_data.id),
         );
         // console.log('Our DB Server ID:', ourDBServer.id)
