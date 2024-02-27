@@ -57,13 +57,19 @@ const UpcomingWipesSidebar = () => {
     return (
         <form action="/upcoming" method="GET" className="bg-black p-4 md-nav:min-h-full">
             {/* Filter Row 1 */}
-            <div className="flex flex-row pb-4">
-                <InputComponent type="input_datepicker" param_name="date" param_full_name="Date" />
+            <div className="flex flex-row space-x-4 pb-4">
+                <InputComponent
+                    type="input_datepicker"
+                    defaultValue={new Date()}
+                    param_name="date"
+                    param_full_name="Date"
+                    className="mr-0 w-full"
+                />
                 <InputComponent type="input" defaultValue={5000} param_name="minRank" param_full_name="Min Rank" />
             </div>
 
             {/* Filter Row 2 */}
-            <div className="flex flex-row pb-4">
+            <div className="flex flex-row space-x-4 pb-4">
                 <InputComponent
                     type="input_select"
                     defaultValue={timeSelectOptions[2][0]}
@@ -81,7 +87,7 @@ const UpcomingWipesSidebar = () => {
             </div>
 
             {/* Filter Row 3 */}
-            <div className="flex flex-row pb-4">
+            <div className="flex flex-row space-x-4 pb-4">
                 <InputComponent
                     type="input_select"
                     defaultValue={rateSelectOptions[0][0]}

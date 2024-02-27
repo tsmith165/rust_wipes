@@ -59,3 +59,9 @@ a:visited:hover {
     scrollbar-width: thin;
     scrollbar-color: theme('colors.dark') transparent;
 }
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container,
+.react-datepicker-wrapper .react-datepicker__input-container input {
+    width: 100%;
+}

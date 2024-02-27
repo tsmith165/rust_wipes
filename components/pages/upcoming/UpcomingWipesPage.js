@@ -8,20 +8,23 @@ import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 
 export default async function UpcomingWipesPage(searchParams) {
     async function fetchFilteredServers(date) {
-        // Convert searchParams to a suitable format for your Prisma query
-        //const date_filter = searchParams.date ? new Date(searchParams.date) : undefined;
         const region_filter = searchParams.region || 'US';
         const resource_rate_filter = searchParams.resource_rate || '1x';
         const group_limit_filter = searchParams.group_limit || 'solo';
         const game_mode_filter = searchParams.game_mode || 'pvp';
 
-        // next wipe within the next day
+        // const current_hour = current_date.getHours();
+        const current_dow = date.getDay();
+        const current_week = Math.floor(date.getDate() / 7);
+
+        console.log(
+            `Filtering servers for date ${date}: ${region_filter}, ${resource_rate_filter}, ${group_limit_filter}, ${game_mode_filter}`,
+        );
 
         const servers = await prisma.server_parsed.findMany({
             where: {
-                next_wipe: {
-                    lte: new Date(date.setDate(date.getDate() + 1)).toISOString(),
-                },
+                next_wipe_week: current_week,
+                next_wipe_dow: current_dow,
                 region: region_filter,
                 resource_rate: resource_rate_filter,
                 group_limit: group_limit_filter,

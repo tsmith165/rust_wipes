@@ -79,16 +79,15 @@ export default function InputComponent({
                 </>
             )}
             {type === 'input_datepicker' && (
-                <div className="flex w-full flex-row">
-                    <DatePicker
-                        id={id}
-                        name={param_name}
-                        className="rounded-r-md border-none bg-dark p-2.5 text-sm font-bold text-primary"
-                        selected={value}
-                        onChange={handleDateChange}
-                        autoComplete="off"
-                    />
-                </div>
+                <DatePicker
+                    id={id}
+                    name={param_name}
+                    className="w-full rounded-r-md border-none bg-dark p-2.5 text-sm font-bold text-primary"
+                    selected={value}
+                    onChange={handleDateChange}
+                    autoComplete="off"
+                    style={{ width: '100% !important' }}
+                />
             )}
             {type === 'input_select' && (
                 <div className="flex w-full">
@@ -113,7 +112,7 @@ export default function InputComponent({
 
 InputComponent.propTypes = {
     type: PropTypes.string.isRequired,
-    defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]).isRequired,
     param_name: PropTypes.string.isRequired,
     param_full_name: PropTypes.string,
     select_options: PropTypes.array,
