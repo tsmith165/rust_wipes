@@ -27,16 +27,18 @@ export default async function NetworksPage() {
 
     console.log('Rendering network cards...');
     return (
-        <div className="flex h-full w-full flex-col overflow-x-auto bg-dark md:flex-row">
+        <div className="flex h-full w-full flex-col overflow-x-auto bg-grey md:flex-row">
             {networks.map((network) => (
                 <div key={network.id} className="h-max max-h-full w-full flex-shrink-0 overflow-y-auto p-2 md:w-fit md:max-w-md">
                     <div className="flex h-full flex-col rounded-lg bg-black">
                         <h3 className="p-4 font-bold text-primary">{network.name}</h3>
-                        <div className="flex-1 bg-secondary last:rounded-b-lg">
+                        <div className="flex-1 bg-dark last:rounded-b-lg">
                             {network.servers.map((server) => (
-                                <div key={server.id} className="truncate px-2.5 py-1 text-grey hover:bg-light hover:text-black">
-                                    <Link href={`/server/${server.id}`}>{server.title}</Link>
-                                </div>
+                                <Link key={server.id} href={`/server/${server.id}`}>
+                                    <div className="truncate px-2.5 py-1 hover:bg-primary hover:font-bold hover:text-grey">
+                                        {server.title}
+                                    </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
