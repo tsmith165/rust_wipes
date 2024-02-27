@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -26,7 +28,7 @@ export default function ServerInfoPanel({ bm_api_attributes, database_data, ip, 
     console.log('Database Data: ', database_data);
 
     const { details, rank } = bm_api_attributes;
-    const { rust_last_wipe } = details;
+    const { rust_last_wipe } = details || {};
     const { resource_rate, group_limit, region } = database_data;
 
     // Validate and log the date string
