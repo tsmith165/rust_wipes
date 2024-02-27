@@ -148,7 +148,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     console.log('Returning Recent Wipes Table...');
     return (
         <div className="max-h-full min-w-full bg-dark md:min-w-[461px]" style={{ flex: '1 1 60%' }}>
-            <div className="flex h-[calc(100%-116px)] w-full flex-col overflow-y-hidden md:h-full">
+            <div className="flex h-[calc(100%-74px)] w-full flex-col overflow-y-hidden md:h-full">
                 {server_list_table_header /* Server List Table Header */}
                 {server_list_table_row_container /* Server List Table */}
                 {server_list_table_menu /* Server List Table Menu */}

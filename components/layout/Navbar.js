@@ -23,8 +23,8 @@ export default function Navbar() {
                     <div
                         className={
                             isActive
-                                ? 'inline-block rounded-b-lg border-b-2 border-r-2 border-primary bg-secondary px-4 py-3 font-bold text-light'
-                                : 'inline-block rounded-b-lg border-b-2 border-r-2 border-light bg-primary px-4 py-3 font-bold text-grey hover:border-primary hover:bg-secondary hover:text-light'
+                                ? 'inline-block rounded-b-lg border-b-2 border-t-0 border-primary bg-secondary px-4 py-1 font-bold text-light md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:border-b-0 md-nav:border-t-2 md-nav:py-3'
+                                : 'inline-block rounded-b-lg border-b-2 border-t-0 border-light bg-primary px-4 py-1 font-bold text-grey hover:border-primary hover:bg-secondary hover:text-light md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:border-b-0 md-nav:border-t-2 md-nav:py-3'
                         }
                     >
                         {menu_item_string}
@@ -36,21 +36,25 @@ export default function Navbar() {
 
     const tab_menu = generate_navbar(menu_list);
     return (
-        <nav className="min-h-[150px] bg-black p-0 md-nav:min-h-[100px]">
-            <div className="flex flex-col md-nav:flex-row">
-                <Link href="/" passHref>
-                    <div className="jusitfy-between flex min-h-[100px] w-full flex-col">
-                        <Image
-                            className="mt-auto h-fit"
-                            src="/rust_wipes_hazmat_logo_no_bg.png"
-                            alt="Rust Logo"
-                            priority={true}
-                            width={544}
-                            height={100}
-                        />
-                    </div>
-                </Link>
-                <div className="flew-row flex bg-black">{tab_menu}</div>
+        <nav className="bg-black p-0">
+            <div className="flex flex-col-reverse items-center md-nav:flex-row md-nav:items-end">
+                <div className="h-full w-full md-nav:w-[40%]">
+                    <Link href="/" passHref>
+                        <div className="flex justify-center md-nav:justify-start">
+                            <div className="relative inline-block h-[65px] w-[353px] md-nav:flex md-nav:h-[100px] md-nav:w-[544px] md-nav:items-end">
+                                <Image
+                                    src="/rust_wipes_hazmat_logo_no_bg.png"
+                                    alt="Rust Logo"
+                                    priority={true}
+                                    width={544} // Specify the width directly
+                                    height={100} // And the height
+                                    objectFit="contain" // This keeps the aspect ratio and makes the image scale within the given width and height
+                                />
+                            </div>
+                        </div>
+                    </Link>
+                </div>
+                <div className="flex h-full w-full justify-center md-nav:w-[60%] md-nav:justify-start">{tab_menu}</div>
             </div>
         </nav>
     );

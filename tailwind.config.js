@@ -1,9 +1,5 @@
 module.exports = {
-    content: [
-        './app/**/*.{js,ts,jsx,tsx}',
-        './pages/**/*.{js,ts,jsx,tsx}',
-        './components/**/*.{js,ts,jsx,tsx}',
-    ],
+    content: ['./app/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
             colors: {
@@ -24,7 +20,7 @@ module.exports = {
                 visited: '#be23ae', // visited link color
             },
             screens: {
-                'md-nav': '833px',
+                'md-nav': '841px',
             },
             keyframes: {
                 fadeIn: {

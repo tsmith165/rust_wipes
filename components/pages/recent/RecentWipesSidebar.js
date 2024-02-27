@@ -76,7 +76,7 @@ const RecentWipesSidebar = ({ searchParams }) => {
                             param_full_name={'Country'}
                             searchParams={searchParams}
                         />
-                        <button type="submit" className={`h-10 w-10 rounded-md bg-dark p-2.5 hover:bg-primary`}>
+                        <button type="submit" className={`h-8 w-8 rounded-md bg-dark p-1.5 hover:bg-primary`}>
                             <HiRefresh className={`hover:animate-spin`} />
                         </button>
                     </div>
