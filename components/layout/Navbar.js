@@ -37,11 +37,11 @@ export default function Navbar() {
     const tab_menu = generate_navbar(menu_list);
     return (
         <nav className="bg-black p-0">
-            <div className="flex flex-col-reverse items-center md-nav:flex-row md-nav:items-end">
-                <div className="h-full w-full md-nav:w-[40%]">
+            <div className="flex flex-col-reverse items-center p-0 md-nav:flex-row md-nav:items-end">
+                <div className="flex h-full w-full justify-center md-nav:w-[35%] md-nav:justify-end">
                     <Link href="/" passHref>
                         <div className="flex justify-center md-nav:justify-start">
-                            <div className="relative inline-block h-[65px] w-[353px] md-nav:flex md-nav:h-[100px] md-nav:w-[544px] md-nav:items-end">
+                            <div className="relative inline-block h-[65px] w-[353px] md-nav:flex md-nav:h-[100px] md-nav:w-auto md-nav:items-end">
                                 <Image
                                     src="/rust_wipes_hazmat_logo_no_bg.png"
                                     alt="Rust Logo"

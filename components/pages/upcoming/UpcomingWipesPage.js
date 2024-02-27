@@ -45,10 +45,10 @@ export default async function UpcomingWipesPage(searchParams) {
 
     console.log('Server List: ', serverList);
     return (
-        <div className="h-full w-full overflow-hidden bg-grey ">
-            <div className="relative flex h-full w-full flex-col overflow-hidden align-top md-nav:flex-row">
+        <div className="h-full w-full overflow-hidden">
+            <div className="flex h-full w-full flex-wrap">
                 <UpcomingWipesSidebar />
-                <div className="h-full min-w-[50ch] flex-1 overflow-y-auto md:max-h-[calc(100%-90px)]">
+                <div className="h-full min-w-full flex-grow bg-grey md:min-w-[461px]" style={{ flex: '1 1 65%' }}>
                     {serverList === null || serverList === undefined ? (
                         <div className="m-auto h-20 w-20 animate-spin rounded-full border-b-4 border-t-4 border-light" />
                     ) : serverList?.length < 1 ? (

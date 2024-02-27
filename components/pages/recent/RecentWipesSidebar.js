@@ -47,7 +47,7 @@ const RecentWipesSidebar = ({ searchParams }) => {
     console.log('Using following form_action_url for updating query string: ' + form_action_url);
 
     return (
-        <div className="max-h-full bg-black" style={{ flex: '1 1 40%', minHeight: '20px' }}>
+        <div className="max-h-full bg-black" style={{ flex: '1 1 35%', minHeight: '20px' }}>
             <form method="GET" action={form_action_url}>
                 <div className="flex flex-col">
                     <div className="py-1.5" />

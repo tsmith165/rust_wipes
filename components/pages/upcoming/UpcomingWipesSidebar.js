@@ -55,9 +55,9 @@ const UpcomingWipesSidebar = () => {
     ];
 
     return (
-        <form action="/upcoming" method="GET" className="bg-black p-4 md-nav:min-h-full">
+        <form action="/upcoming" method="GET" className="h-fit bg-black p-2.5 md-nav:h-full" style={{ flex: '1 1 35%', minHeight: '20px' }}>
             {/* Filter Row 1 */}
-            <div className="flex flex-row space-x-4 pb-4">
+            <div className="flex flex-row space-x-2.5 pb-2.5">
                 <InputComponent
                     type="input_datepicker"
                     defaultValue={new Date()}
@@ -69,7 +69,7 @@ const UpcomingWipesSidebar = () => {
             </div>
 
             {/* Filter Row 2 */}
-            <div className="flex flex-row space-x-4 pb-4">
+            <div className="flex flex-row space-x-2.5 pb-2.5">
                 <InputComponent
                     type="input_select"
                     defaultValue={timeSelectOptions[2][0]}
@@ -87,7 +87,7 @@ const UpcomingWipesSidebar = () => {
             </div>
 
             {/* Filter Row 3 */}
-            <div className="flex flex-row space-x-4 pb-4">
+            <div className="flex flex-row space-x-2.5 pb-2.5">
                 <InputComponent
                     type="input_select"
                     defaultValue={rateSelectOptions[0][0]}
@@ -115,7 +115,7 @@ const UpcomingWipesSidebar = () => {
                 />
                 {/* <div className="flex-grow text-left text-2xl font-bold text-primary">{wipe_day_header_str}</div> */}
             </div>
-            <button type="submit" className="mt-4 rounded bg-primary px-4 py-2 font-bold text-white hover:bg-light">
+            <button type="submit" className="mt-2.5 rounded bg-primary px-2.5 py-2 font-bold text-white hover:bg-light">
                 Update Filters
             </button>
         </form>
