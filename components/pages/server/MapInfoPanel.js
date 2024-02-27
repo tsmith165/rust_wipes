@@ -16,13 +16,18 @@ export default function MapInfoPanel({ mapData }) {
     ];
 
     return (
-        <div className="rounded-lg bg-dark p-2.5 hover:bg-grey">
-            <h3 className="text-xl font-bold">Map Info</h3>
-            {map_info_data.map(({ title, value }) => (
-                <p className="text-md hover:text-lg hover:font-bold hover:text-light" key={title}>
-                    {title}: {value}
-                </p>
-            ))}
+        <div className="rounded-lg bg-grey hover:bg-grey">
+            <div className="rounded-t-lg bg-dark p-2.5">
+                <h3 className="text-xl font-bold ">Map Info</h3>
+            </div>
+            <div className="p-2.5">
+                {map_info_data.map(({ title, value }) => (
+                    <div className="m-0 flex flex-row space-x-1.5 p-0" key={title}>
+                        <b className="text-primary">{`${title}: `}</b>
+                        <p className="text-dark hover:font-bold hover:text-light">{value}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
