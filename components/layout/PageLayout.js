@@ -10,7 +10,7 @@ export default function PageLayout({ children, page }) {
         <div className="p-0">
             <main className="min-h-full bg-grey">
                 <Navbar page={page || ''} />
-                <div className="relative h-[calc(100vh-99px)] w-full md-nav:h-[calc(100vh-100px)]">{children}</div>
+                <div className="relative h-[calc(100vh-97px)] w-full md-nav:h-[calc(100vh-100px)]">{children}</div>
             </main>
         </div>
     );
