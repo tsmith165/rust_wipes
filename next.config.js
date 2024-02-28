@@ -8,6 +8,10 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'content.rustmaps.com',
             },
+            {
+                protocol: 'https',
+                hostname: 'files.rustmaps.com',
+            },
         ],
     },
 };

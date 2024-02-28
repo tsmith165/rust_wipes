@@ -11,10 +11,11 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPage';
 
-export default async function Page() {
+// eslint-disable-next-line no-unused-vars
+export default async function Page({ params, searchParams }) {
     return (
         <PageLayout page={'scrapper'}>
-            <ScrapperStatsPage />
+            <ScrapperStatsPage searchParams={searchParams} />
         </PageLayout>
     );
 }

@@ -32,12 +32,10 @@ export default async function NetworksPage() {
                 <div key={network.id} className="h-max max-h-full w-full flex-shrink-0 overflow-y-auto p-2 md:w-fit md:max-w-md">
                     <div className="flex h-full flex-col rounded-lg bg-black">
                         <h3 className="p-4 font-bold text-primary">{network.name}</h3>
-                        <div className="flex-1 bg-primary bg-gradient-to-t from-primary to-black last:rounded-b-lg">
+                        <div className="flex-1  bg-gradient-to-t from-secondary to-black last:rounded-b-lg">
                             {network.servers.map((server) => (
                                 <Link key={server.id} href={`/server/${server.id}`}>
-                                    <div className="truncate px-2.5 py-1 hover:bg-primary hover:font-bold hover:text-grey">
-                                        {server.title}
-                                    </div>
+                                    <div className="truncate px-2.5 py-1 text-grey hover:font-bold">{server.title}</div>
                                 </Link>
                             ))}
                         </div>

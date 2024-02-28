@@ -10,7 +10,7 @@ export default function HomePage() {
             img: '/rust_upcoming_wipe.jpg',
         },
         {
-            href: '/recent',
+            href: '/recent?page=1&numServers=25&minPlayers=2&maxDist=5000&country=US',
             label: 'Recent Wipes',
             img: '/rust_recent_wipe.jpg',
         },
@@ -20,7 +20,7 @@ export default function HomePage() {
             img: '/rust_server_networks.jpg',
         },
         {
-            href: '/scrapper/stats',
+            href: '/scrapper/stats/?page=1',
             label: 'Scrapper Stats',
             img: '/rust_scrapper_stats.jpg',
         },

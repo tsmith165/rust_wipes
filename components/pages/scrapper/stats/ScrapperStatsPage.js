@@ -1,55 +1,37 @@
-'use client';
+import React from 'react';
+import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
 
-import React, { useState, useEffect } from 'react';
-import { useAnalytics } from '@/lib/helpers/useAnalytics';
-import { fetch_scrapper_stats_data } from '@/lib/api_calls';
+// This function simulates fetching data from your database or API
+async function fetchScrapperStatsData(currentPage = 1, itemsPerPage = 5) {
+    console.log('Fetching scrapper stats data for page: ' + currentPage);
 
-const ScrapperStatsPage = () => {
-    useAnalytics();
-
-    const [state, setState] = useState({
-        stats: [],
-        currentPage: 1,
-        totalPages: 1,
+    const skip = (currentPage - 1) * itemsPerPage;
+    const stats = await prisma.scrapper_stats.findMany({
+        orderBy: { date: 'desc' },
+        skip,
+        take: itemsPerPage,
     });
+    const totalStatsCount = await prisma.scrapper_stats.count();
+    const totalPages = Math.ceil(totalStatsCount / itemsPerPage);
 
-    const fetchStats = async () => {
-        console.log('Fetching stats for page: ', state.currentPage);
-        const data = await fetch_scrapper_stats_data(state.currentPage);
-        const { stats, totalPages } = data;
-        console.log('Stats: ', stats);
-        console.log('Total Pages: ', totalPages);
-        setState((prevState) => ({ ...prevState, stats: stats, totalPages }));
-    };
+    return { stats, totalPages };
+}
 
-    useEffect(() => {
-        fetchStats();
-    }, [state.currentPage]);
+export default async function ScrapperStatsPage({ searchParams }) {
+    const currentPage = parseInt(searchParams.page) || 1;
 
-    const handlePrevPage = () => {
-        setState((prevState) => ({
-            ...prevState,
-            currentPage: prevState.currentPage - 1,
-        }));
-    };
-
-    const handleNextPage = () => {
-        setState((prevState) => ({
-            ...prevState,
-            currentPage: prevState.currentPage + 1,
-        }));
-    };
-
-    console.log('-'.repeat(3) + ' Rendering Scrapper Stats Page ' + '-'.repeat(3));
+    // eslint-disable-next-line no-unused-vars
+    const { stats, totalPages } = await fetchScrapperStatsData(currentPage);
 
     return (
-        <div className="h-full min-h-screen w-full bg-dark p-5">
-            <h1 className="font-alegreya mb-8 text-center text-2xl uppercase tracking-wider text-grey">Scrapper Stats</h1>
+        <div className="h-full min-h-screen w-full bg-gradient-to-b from-dark to-black p-5">
+            <h1 className="font-alegreya mb-4 text-center text-2xl font-bold uppercase tracking-wider text-grey">Scrapper Stats</h1>
             <div className="table-container">
                 <table className="mx-auto w-full max-w-2xl border-collapse rounded bg-light">
                     <thead>
                         <tr>
-                            <th className="font-lato rounded-tl border-l-2 border-r-2 border-t-2 bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato rounded-tl bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Date
                             </th>
                             <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
@@ -61,49 +43,50 @@ const ScrapperStatsPage = () => {
                             <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Servers Skipped
                             </th>
-                            <th className="font-lato rounded-tr border-r-2 border-t-2 bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato rounded-tr bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
                                 Servers Posted
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {!!state.stats &&
-                            state.stats.map((stat) => (
-                                <tr key={stat.id}>
-                                    <td>{new Date(stat.date).toLocaleString()}</td>
-                                    <td>
-                                        {Math.floor(stat.scrapper_duration / 60)}
-                                        min {stat.scrapper_duration % 60}s
-                                    </td>
-                                    <td>{stat.servers_parsed}</td>
-                                    <td>{stat.servers_skipped}</td>
-                                    <td>{stat.servers_posted}</td>
-                                </tr>
-                            ))}
+                        {stats.map((stat) => (
+                            <tr key={stat.id} className="text-center">
+                                <td className="p-1">{new Date(stat.date).toLocaleString()}</td>
+                                <td className="p-1">
+                                    {Math.floor(stat.scrapper_duration / 60)}
+                                    min {stat.scrapper_duration % 60}s
+                                </td>
+                                <td className="p-1">{stat.servers_parsed}</td>
+                                <td className="p-1">{stat.servers_skipped}</td>
+                                <td className="p-1">{stat.servers_posted}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
-                <div className="mt-8 flex justify-center rounded bg-black p-4">
-                    <button
-                        onClick={handlePrevPage}
-                        disabled={state.currentPage <= 1}
-                        className="font-lato hover:bg-rustRed3 hover:border-rustRed3 mx-2 rounded border border-grey bg-transparent px-5 py-2 text-base text-grey transition-colors duration-300 focus:shadow-none focus:outline-none disabled:cursor-not-allowed disabled:border-primary disabled:bg-primary"
-                    >
-                        Prev
-                    </button>
-                    <span className="font-lato mx-4 text-lg text-grey">
-                        Page {state.currentPage} of {state.totalPages}
-                    </span>
-                    <button
-                        onClick={handleNextPage}
-                        disabled={state.currentPage >= state.totalPages}
-                        className="font-lato hover:bg-rustRed3 hover:border-rustRed3 mx-2 rounded border border-grey bg-transparent px-5 py-2 text-base text-grey transition-colors duration-300 focus:shadow-none focus:outline-none disabled:cursor-not-allowed disabled:border-primary disabled:bg-primary"
-                    >
-                        Next
-                    </button>
+                <div className="mt-4 flex w-full items-center justify-center">
+                    <div className="mt-4 flex w-fit flex-row items-center justify-center rounded-lg bg-black p-4">
+                        <Link href={`/scrapper/stats?page=${currentPage - 1}`}>
+                            <button
+                                disabled={currentPage <= 1}
+                                className="font-lato mx-2 rounded border border-dark bg-primary px-5 py-2 text-base text-grey hover:bg-light disabled:cursor-not-allowed disabled:border-primary disabled:bg-dark"
+                            >
+                                Prev
+                            </button>
+                        </Link>
+                        <span className="font-lato mx-4 text-lg text-grey">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <Link href={`/scrapper/stats?page=${currentPage + 1}`}>
+                            <button
+                                disabled={currentPage >= totalPages}
+                                className="font-lato mx-2 rounded border border-dark bg-primary px-5 py-2 text-base text-grey hover:bg-light disabled:cursor-not-allowed disabled:border-primary disabled:bg-dark"
+                            >
+                                Next
+                            </button>
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
     );
-};
-
-export default ScrapperStatsPage;
+}
