@@ -24,8 +24,8 @@ export default function Navbar(page) {
                     <div
                         className={
                             isActive
-                                ? 'inline-block rounded-b-lg border-b-2 border-t-0 border-primary bg-secondary px-4 py-1 font-bold text-light md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:border-b-0 md-nav:border-t-2 md-nav:py-3'
-                                : 'inline-block rounded-b-lg border-b-2 border-t-0 border-light bg-primary px-4 py-1 font-bold text-grey hover:border-primary hover:bg-secondary hover:text-light md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:border-b-0 md-nav:border-t-2 md-nav:py-3'
+                                ? 'inline-block rounded-b-lg bg-gradient-to-t from-secondary to-primary px-4 py-1 font-bold text-grey md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:py-3'
+                                : 'inline-block rounded-b-lg bg-gradient-to-t from-light to-secondary px-4 py-1 font-bold text-black hover:from-secondary hover:to-primary hover:text-grey md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:py-3'
                         }
                     >
                         {menu_item_string}
