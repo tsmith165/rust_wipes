@@ -1,3 +1,7 @@
+export const metadata = {
+    metadataBase: new URL('https://rustwipes.net'),
+};
+
 import React from 'react';
 import PropTypes from 'prop-types'; // Import PropTypes
 

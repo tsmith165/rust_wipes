@@ -11,7 +11,7 @@ const DEBUG = false;
 
 const RecentWipesTable = ({ searchParams, server_list }) => {
     console.log('Creating Recent Wipes Table...');
-    console.log('Recent Wipes Table Search Params: ', searchParams);
+    // console.log('Recent Wipes Table Search Params: ', searchParams);
 
     const page = parseInt(searchParams.page) || 1;
     const numServers = parseInt(searchParams.numServers) || 25;

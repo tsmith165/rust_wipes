@@ -1,9 +1,13 @@
 export const metadata = {
+    metadataBase: new URL('https://rustwipes.net'),
     title: 'Rust Wipes - Recent Wipes',
     description:
         'Keep track of the servers that just wiped so you can find a fresh server to play on! We offer free auto-refresh, sound notifications, and filtering!',
     icons: {
         icon: '/rust_hazmat_icon.png',
+    },
+    openGraph: {
+        images: '/opengraph-image.png',
     },
 };
 

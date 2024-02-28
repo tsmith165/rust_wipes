@@ -62,7 +62,7 @@ async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
 
 // Server component
 export default async function RecentConfirmedWipesPage({ searchParams }) {
-    console.log('RecentConfirmedWipesPage Search Params: ', searchParams);
+    // console.log('RecentConfirmedWipesPage Search Params: ', searchParams);
 
     const country = searchParams.country || 'US';
     const maxDistance = searchParams.maxDistance || 5000;

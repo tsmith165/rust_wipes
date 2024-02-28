@@ -66,9 +66,6 @@ export async function POST(req) {
         search_params.game_mode = game_mode;
     }
 
-    console.log('Search Params (Next Line):');
-    console.log(search_params);
-
     var force_wipes = null;
     var primary_wipes = null;
     var secondary_wipes = null;

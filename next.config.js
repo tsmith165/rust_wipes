@@ -3,7 +3,12 @@ const nextConfig = {
     reactStrictMode: false,
     swcMinify: true,
     images: {
-        domains: ['content.rustmaps.com'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'content.rustmaps.com',
+            },
+        ],
     },
 };
 

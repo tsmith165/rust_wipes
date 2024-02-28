@@ -22,7 +22,7 @@ const RecentWipesSidebar = ({ searchParams }) => {
         );
     }
 
-    console.log('Recent Wipes Sidebar Search Params: ', searchParams);
+    // console.log('Recent Wipes Sidebar Search Params: ', searchParams);
 
     const page = parseInt(searchParams.page) || 1;
     const numServers = parseInt(searchParams.numServers) || 25;

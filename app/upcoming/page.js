@@ -4,6 +4,9 @@ export const metadata = {
     icons: {
         icon: '/rust_hazmat_icon.png',
     },
+    openGraph: {
+        images: '/opengraoh-image.png',
+    },
 };
 
 import React from 'react';

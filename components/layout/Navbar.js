@@ -8,8 +8,9 @@ import { menu_list } from '@/lib/menu_list';
 
 export default function Navbar(page) {
     page = page.page;
-    console.log('page: ', page);
-    console.log('menu list: ', menu_list);
+    // console.log('page: ', page);
+    // console.log('menu list: ', menu_list);
+
     const generate_navbar = (menu_list) => {
         return menu_list.map((item, i) => {
             let menu_item_class_string = item[0];
