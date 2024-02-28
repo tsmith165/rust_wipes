@@ -94,26 +94,26 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     const incrementPage = page + 1;
 
     const pagination_container = (
-        <div className="flex items-center space-x-2 rounded-lg bg-secondary p-2">
-            <form method="GET" action="/recent">
+        <div className="flex items-center space-x-2 rounded-lg bg-secondary p-1">
+            <form method="GET" action="/recent" className="flex items-center">
                 <input type="hidden" name="page" value={decrementPage} />
                 <input type="hidden" name="numServers" value={numServers} />
                 <input type="hidden" name="minPlayers" value={minPlayers} />
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
-                <button type="submit" className="p-2">
-                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-grey hover:fill-light" />
+                <button type="submit" className="flex items-center justify-center px-0 py-1">
+                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-black text-2xl hover:fill-light" />
                 </button>
             </form>
-            <span className="text-lg font-bold">{page}</span>
-            <form method="GET" action="/recent">
+            <span className="flex items-center justify-center text-lg font-bold">{page}</span>
+            <form method="GET" action="/recent" className="flex items-center">
                 <input type="hidden" name="page" value={incrementPage} />
                 <input type="hidden" name="numServers" value={numServers} />
                 <input type="hidden" name="minPlayers" value={minPlayers} />
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
-                <button type="submit" className="p-2">
-                    <IoIosArrowForward className="cursor-pointer fill-grey hover:fill-light" />
+                <button type="submit" className="flex items-center justify-center px-0 py-1">
+                    <IoIosArrowForward className="cursor-pointer fill-black text-2xl hover:fill-light" />
                 </button>
             </form>
         </div>
