@@ -9,11 +9,11 @@ a {
 
 ::-webkit-scrollbar {
     width: 8px; /* Thin scrollbar */
-    color: theme('colors.dark');
+    color: theme('colors.primary');
 }
 
 ::-webkit-scrollbar-track {
-    background-color: theme('colors.dark');
+    background-color: theme('colors.grey');
 }
 
 ::-webkit-scrollbar-thumb {
@@ -21,14 +21,14 @@ a {
     border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb :hover {
-    background-color: theme('colors.primary');
+::-webkit-scrollbar-thumb:hover {
+    background-color: theme('colors.light');
 }
 
 /* For Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: theme('colors.dark') transparent;
+    scrollbar-color: theme('colors.primary') transparent;
 }
 
 .react-datepicker-wrapper,
