@@ -16,11 +16,8 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }) {
     let hour_str = wipe_hour < 12 ? `${wipe_hour}AM` : `${wipe_hour - 12}PM`;
     hour_str = hour_str == '0AM' ? '12AM' : hour_str == '0PM' ? '12PM' : hour_str;
 
-    console.log(`Creating Server Hour Group for hour ${hour_str} with servers (Next Line):`);
-    //console.log(wipe_dict);
+    console.log(`Creating Server Hour Group for hour ${hour_str}`);
 
-    console.log('Wipe array type: ' + typeof wipe_dict);
-    console.log('Wipe array length: ' + Object.keys(wipe_dict).length);
     return (
         <div className="cursor-pointer border-b border-grey p-4" onClick={headerClicked}>
             <div className="flex items-center">
@@ -36,8 +33,8 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }) {
                     <div>{`Last Wipe`}</div>
                     <div>{`Server Title`}</div>
                 </div>
-                {Object.entries(wipe_dict).map((key, server) => (
-                    <UpcomingServerRow key={key} id={`server-${key}`} server={server} />
+                {wipe_dict.map((server, index) => (
+                    <UpcomingServerRow key={index} id={`server-${server.id}`} server={server} />
                 ))}
             </div>
         </div>
