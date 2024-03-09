@@ -2,7 +2,7 @@ import React from 'react';
 
 import { scrapper_stats } from '@/db/schema';
 import { db } from '@/db/drizzle';
-import { desc, fields } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import { count } from 'drizzle-orm/sql';
 import Link from 'next/link';
 
