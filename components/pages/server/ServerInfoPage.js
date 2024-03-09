@@ -1,7 +1,8 @@
 import React from 'react';
 import axios from 'axios';
-
-import { prisma } from '@/lib/prisma';
+import { db } from '@/db/drizzle';
+import { parsed_server } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import MapInfoPanel from './MapInfoPanel';
 import ServerInfoPanel from './ServerInfoPanel';
 import ServerDescriptionPanel from './ServerDescriptionPanel';
@@ -10,12 +11,14 @@ import ServerHeader from './ServerHeader';
 export default async function ServerInfoPage({ params }) {
     const server_id = params.server_id || '1';
 
-    // Directly fetch server data using Prisma
-    const database_data = await prisma.parsed_server.findUnique({
-        where: { id: parseInt(server_id) },
-    });
+    // Directly fetch server data using Drizzle
+    const database_data = await db
+        .select()
+        .from(parsed_server)
+        .where(eq(parsed_server.id, parseInt(server_id)))
+        .limit(1);
 
-    if (!database_data) {
+    if (database_data.length === 0) {
         return <p className="text-xl text-red-500">Server not found.</p>;
     }
 
