@@ -1,4 +1,4 @@
-import { int, mysqlTable, varchar, datetime, boolean, text } from 'drizzle-orm/mysql-core';
+import { int, mysqlTable, varchar, datetime, text } from 'drizzle-orm/mysql-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 export const parsed_server = mysqlTable('parsed_server', {

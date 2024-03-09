@@ -1,6 +1,6 @@
 import React from 'react';
-import { db } from '@/drizzle/db';
-import { scrapper_stats } from '@/drizzle/schema';
+import { db } from '@/db/drizzle';
+import { scrapper_stats } from '@/db/schema';
 import { desc } from 'drizzle-orm';
 import Link from 'next/link';
 
