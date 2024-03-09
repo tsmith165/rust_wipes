@@ -1,26 +1,25 @@
-// Import necessary libraries and dependencies
+// /components/pages/networks/NetworksPage.js
 import React from 'react';
-import { prisma } from '@/lib/prisma'; // Adjust the import path as necessary
+import { db } from '@/db/drizzle';
+import { server_network, parsed_server } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 
-// Define the page component
 export default async function NetworksPage() {
     console.log('Fetching server networks data...');
-    const networks = await prisma.server_network.findMany({
-        where: { region: 'US' },
-    });
-
-    // Initialize the servers array for each network
-    networks.forEach((network) => (network.servers = []));
+    const networks = await db.select().from(server_network).where(eq(server_network.region, 'US'));
 
     console.log('Fetching server data for each network...');
     for (const network of networks) {
-        for (var bm_id of network.bm_ids.split(', ')) {
-            const server = await prisma.parsed_server.findFirst({
-                where: { id: parseInt(bm_id) },
-            });
-            if (server) {
-                network.servers.push(server);
+        network.servers = [];
+        for (const bm_id of network.bm_ids.split(', ')) {
+            const server = await db
+                .select()
+                .from(parsed_server)
+                .where(eq(parsed_server.id, parseInt(bm_id)))
+                .limit(1);
+            if (server.length > 0) {
+                network.servers.push(server[0]);
             }
         }
     }
@@ -32,7 +31,7 @@ export default async function NetworksPage() {
                 <div key={network.id} className="h-max max-h-full w-full flex-shrink-0 overflow-y-auto p-2 md:w-fit md:max-w-md">
                     <div className="flex h-full flex-col rounded-lg bg-black">
                         <h3 className="p-4 font-bold text-primary">{network.name}</h3>
-                        <div className="flex-1  bg-gradient-to-t from-secondary to-black last:rounded-b-lg">
+                        <div className="flex-1 bg-gradient-to-t from-secondary to-black last:rounded-b-lg">
                             {network.servers.map((server) => (
                                 <Link key={server.id} href={`/server/${server.id}`}>
                                     <div className="truncate px-2.5 py-1 text-grey hover:font-bold">{server.title}</div>

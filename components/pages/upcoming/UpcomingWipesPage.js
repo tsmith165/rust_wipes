@@ -1,4 +1,6 @@
-import { prisma } from '@/lib/prisma';
+import { db } from '@/db/drizzle';
+import { parsed_server } from '@/db/schema';
+import { eq, lt, and } from 'drizzle-orm';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -23,28 +25,19 @@ export default async function UpcomingWipesPage(searchParams) {
             `Filtering servers for DOW: ${passed_dow} / Week: ${passed_week} - ${region_filter}, ${resource_rate_filter}, ${group_limit_filter}, ${game_mode_filter}`,
         );
 
-        var prisma_params = {
-            region: region_filter,
-            next_wipe_week: parseInt(passed_week),
-            next_wipe_dow: parseInt(passed_dow),
-            rank: {
-                lt: min_rank_filter + 1,
-            },
-        };
+        const drizzle_params = and(
+            eq(parsed_server.region, region_filter),
+            eq(parsed_server.next_wipe_week, parseInt(passed_week)),
+            eq(parsed_server.next_wipe_dow, parseInt(passed_dow)),
+            lt(parsed_server.rank, min_rank_filter + 1),
+            resource_rate_filter != 'any' && resource_rate_filter != null
+                ? eq(parsed_server.resource_rate, resource_rate_filter)
+                : eq(1, 1),
+            group_limit_filter != 'any' && group_limit_filter != null ? eq(parsed_server.group_limit, group_limit_filter) : eq(1, 1),
+            game_mode_filter != 'any' && game_mode_filter != null ? eq(parsed_server.game_mode, game_mode_filter) : eq(1, 1),
+        );
 
-        if (resource_rate_filter != 'any' && resource_rate_filter != null) {
-            prisma_params.resource_rate = resource_rate_filter;
-        }
-        if (group_limit_filter != 'any' && group_limit_filter != null) {
-            prisma_params.group_limit = group_limit_filter;
-        }
-        if (game_mode_filter != 'any' && game_mode_filter != null) {
-            prisma_params.game_mode = game_mode_filter;
-        }
-
-        const servers = await prisma.parsed_server.findMany({
-            where: prisma_params,
-        });
+        const servers = await db.select().from(parsed_server).where(drizzle_params);
 
         var grouped_wipe_dict = {};
         servers.forEach((wipe) => {

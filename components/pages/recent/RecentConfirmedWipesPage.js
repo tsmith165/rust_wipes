@@ -1,7 +1,9 @@
 // Import necessary libraries and dependencies
 import React from 'react';
 import axios from 'axios';
-import { prisma } from '../../../lib/prisma'; // Adjust based on your actual path
+import { db } from '@/db/drizzle';
+import { parsed_server } from '@/db/schema';
+import { eq, gte, desc } from 'drizzle-orm';
 
 // Assuming these components are properly adapted for server components if necessary
 import RecentWipesSidebar from './RecentWipesSidebar';
@@ -40,19 +42,14 @@ async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
     console.log(`Fetching recent wipes with region: ${country} | min players: ${minPlayers}`);
 
     try {
-        const recentWipes = await prisma.parsed_server.findMany({
-            where: {
-                region: country,
-                players: {
-                    gte: parseInt(minPlayers),
-                },
-            },
-            orderBy: {
-                last_wipe: 'desc',
-            },
-            skip: skip,
-            take: itemsPerPage,
-        });
+        const recentWipes = await db
+            .select()
+            .from(parsed_server)
+            .where(eq(parsed_server.region, country), gte(parsed_server.players, parseInt(minPlayers)))
+            .orderBy(desc(parsed_server.last_wipe))
+            .offset(skip)
+            .limit(itemsPerPage);
+
         return recentWipes;
     } catch (error) {
         console.error('Error fetching recent wipes from DB:', error);

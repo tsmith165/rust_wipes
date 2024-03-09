@@ -1,5 +1,7 @@
 import React from 'react';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/drizzle/db';
+import { scrapper_stats } from '@/drizzle/schema';
+import { desc } from 'drizzle-orm';
 import Link from 'next/link';
 
 // This function simulates fetching data from your database or API
@@ -7,13 +9,11 @@ async function fetchScrapperStatsData(currentPage = 1, itemsPerPage = 5) {
     console.log('Fetching scrapper stats data for page: ' + currentPage);
 
     const skip = (currentPage - 1) * itemsPerPage;
-    const stats = await prisma.scrapper_stats.findMany({
-        orderBy: { date: 'desc' },
-        skip,
-        take: itemsPerPage,
-    });
-    const totalStatsCount = await prisma.scrapper_stats.count();
-    const totalPages = Math.ceil(totalStatsCount / itemsPerPage);
+    const [stats, totalStatsCount] = await Promise.all([
+        db.select().from(scrapper_stats).orderBy(desc(scrapper_stats.date)).offset(skip).limit(itemsPerPage),
+        db.select({ count: db.fn.count() }).from(scrapper_stats),
+    ]);
+    const totalPages = Math.ceil(totalStatsCount[0].count / itemsPerPage);
 
     return { stats, totalPages };
 }
