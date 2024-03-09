@@ -10,15 +10,13 @@ export async function GET(req) {
         const page = req.nextUrl.searchParams.get('page') || 1;
         const items_per_page = req.nextUrl.searchParams.get('items_per_page') || 25;
 
-        console.log(
-            `Fetching recent servers for page ${page} with ${items_per_page} items per page`
-        );
+        console.log(`Fetching recent servers for page ${page} with ${items_per_page} items per page`);
 
         // calculate offset based on page number
         const offset = (page - 1) * items_per_page;
 
         // Adjust the database query to use the limit and offset
-        const recentServers = await prisma.server_parsed.findMany({
+        const recentServers = await prisma.parsed_server.findMany({
             orderBy: {
                 last_wipe: 'desc',
             },
@@ -27,7 +25,7 @@ export async function GET(req) {
         });
 
         // Optionally, also return the total count of servers to help with frontend pagination UI
-        const totalServers = await prisma.server_parsed.count();
+        const totalServers = await prisma.parsed_server.count();
 
         return Response.json({ recentServers, totalServers });
     } catch (e) {

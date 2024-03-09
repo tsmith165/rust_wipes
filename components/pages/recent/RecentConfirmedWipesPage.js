@@ -40,7 +40,7 @@ async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
     console.log(`Fetching recent wipes with region: ${country} | min players: ${minPlayers}`);
 
     try {
-        const recentWipes = await prisma.server_parsed.findMany({
+        const recentWipes = await prisma.parsed_server.findMany({
             where: {
                 region: country,
                 players: {

@@ -15,7 +15,7 @@ export async function GET(req) {
         const detailedNetworks = await Promise.all(
             networks.map(async (network) => {
                 const bm_ids_array = network.bm_ids.split(',').map((item) => item.trim());
-                const servers = await prisma.server_parsed.findMany({
+                const servers = await prisma.parsed_server.findMany({
                     where: {
                         id: {
                             in: bm_ids_array.map(Number),
@@ -28,7 +28,7 @@ export async function GET(req) {
                     ...network,
                     servers,
                 };
-            })
+            }),
         );
 
         return Response.json({ networks: detailedNetworks }, { status: 200 });

@@ -71,7 +71,7 @@ export async function POST(req) {
     var secondary_wipes = null;
     var final_wipe_array = null;
     if (force_wipe == true) {
-        force_wipes = await prisma.server_parsed.findMany({
+        force_wipes = await prisma.parsed_server.findMany({
             where: search_params,
             select: {
                 id: true,
@@ -94,7 +94,7 @@ export async function POST(req) {
         });
         final_wipe_array = force_wipes;
     } else {
-        primary_wipes = await prisma.server_parsed.findMany({
+        primary_wipes = await prisma.parsed_server.findMany({
             where: search_params,
             select: {
                 id: true,
@@ -115,7 +115,7 @@ export async function POST(req) {
             },
             orderBy: [{ rank: 'asc' }],
         });
-        secondary_wipes = await prisma.server_parsed.findMany({
+        secondary_wipes = await prisma.parsed_server.findMany({
             where: search_params,
             select: {
                 id: true,

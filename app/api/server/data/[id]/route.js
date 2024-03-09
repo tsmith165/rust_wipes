@@ -8,7 +8,7 @@ export async function GET(req) {
         console.log(`/api/server/data - serverId: ${server_id}`);
 
         // Fetch data from Prisma
-        const database_data = await prisma.server_parsed.findUnique({
+        const database_data = await prisma.parsed_server.findUnique({
             where: { id: Number(server_id) },
         });
 
