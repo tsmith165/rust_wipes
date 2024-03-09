@@ -1,19 +1,21 @@
 import React from 'react';
-import { db } from '@/db/drizzle';
+
 import { scrapper_stats } from '@/db/schema';
-import { desc } from 'drizzle-orm';
+import { db } from '@/db/drizzle';
+import { desc, fields } from 'drizzle-orm';
+import { count } from 'drizzle-orm/sql';
 import Link from 'next/link';
 
-// This function simulates fetching data from your database or API
 async function fetchScrapperStatsData(currentPage = 1, itemsPerPage = 5) {
-    console.log('Fetching scrapper stats data for page: ' + currentPage);
-
     const skip = (currentPage - 1) * itemsPerPage;
-    const [stats, totalStatsCount] = await Promise.all([
-        db.select().from(scrapper_stats).orderBy(desc(scrapper_stats.date)).offset(skip).limit(itemsPerPage),
-        db.select({ count: db.fn.count() }).from(scrapper_stats),
-    ]);
+    console.log(`Fetching scrapper stats data for page ${currentPage} and skipping ${skip}`);
+    const stats = await db.select().from(scrapper_stats).orderBy(desc(scrapper_stats.date)).offset(skip).limit(itemsPerPage);
+
+    console.log(`Fetching total stats count...`);
+    const totalStatsCount = await db.select({ count: count() }).from(scrapper_stats);
+    console.log(`Total stats count:`, totalStatsCount);
     const totalPages = Math.ceil(totalStatsCount[0].count / itemsPerPage);
+    console.log(`Total pages: ${totalPages}`);
 
     return { stats, totalPages };
 }
