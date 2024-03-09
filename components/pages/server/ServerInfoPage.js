@@ -11,7 +11,7 @@ export default async function ServerInfoPage({ params }) {
     const server_id = params.server_id || '1';
 
     // Directly fetch server data using Prisma
-    const database_data = await prisma.server_parsed.findUnique({
+    const database_data = await prisma.parsed_server.findUnique({
         where: { id: parseInt(server_id) },
     });
 

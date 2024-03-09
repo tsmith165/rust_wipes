@@ -7,7 +7,7 @@ export default function HomePage() {
         {
             href: '/upcoming',
             label: 'Upcoming Wipes',
-            img: '/rust_upcoming_wipe.jpg',
+            img: '/rust_upcoming_wipe-small.jpg',
         },
         {
             href: '/recent?page=1&numServers=25&minPlayers=2&maxDist=5000&country=US',

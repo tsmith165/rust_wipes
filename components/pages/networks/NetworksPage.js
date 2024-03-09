@@ -16,7 +16,7 @@ export default async function NetworksPage() {
     console.log('Fetching server data for each network...');
     for (const network of networks) {
         for (var bm_id of network.bm_ids.split(', ')) {
-            const server = await prisma.server_parsed.findFirst({
+            const server = await prisma.parsed_server.findFirst({
                 where: { id: parseInt(bm_id) },
             });
             if (server) {

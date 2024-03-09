@@ -42,7 +42,7 @@ export default async function UpcomingWipesPage(searchParams) {
             prisma_params.game_mode = game_mode_filter;
         }
 
-        const servers = await prisma.server_parsed.findMany({
+        const servers = await prisma.parsed_server.findMany({
             where: prisma_params,
         });
 
