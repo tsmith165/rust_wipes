@@ -1,5 +1,5 @@
 import { db } from '@/db/drizzle';
-import { parsed_server } from '@/db/schema';
+import { rw_parsed_server } from '@/db/schema';
 import { eq, lt, and } from 'drizzle-orm';
 
 import React from 'react';
@@ -26,18 +26,18 @@ export default async function UpcomingWipesPage(searchParams) {
         );
 
         const drizzle_params = and(
-            eq(parsed_server.region, region_filter),
-            eq(parsed_server.next_wipe_week, parseInt(passed_week)),
-            eq(parsed_server.next_wipe_dow, parseInt(passed_dow)),
-            lt(parsed_server.rank, min_rank_filter + 1),
+            eq(rw_parsed_server.region, region_filter),
+            eq(rw_parsed_server.next_wipe_week, parseInt(passed_week)),
+            eq(rw_parsed_server.next_wipe_dow, parseInt(passed_dow)),
+            lt(rw_parsed_server.rank, min_rank_filter + 1),
             resource_rate_filter != 'any' && resource_rate_filter != null
-                ? eq(parsed_server.resource_rate, resource_rate_filter)
+                ? eq(rw_parsed_server.resource_rate, resource_rate_filter)
                 : eq(1, 1),
-            group_limit_filter != 'any' && group_limit_filter != null ? eq(parsed_server.group_limit, group_limit_filter) : eq(1, 1),
-            game_mode_filter != 'any' && game_mode_filter != null ? eq(parsed_server.game_mode, game_mode_filter) : eq(1, 1),
+            group_limit_filter != 'any' && group_limit_filter != null ? eq(rw_parsed_server.group_limit, group_limit_filter) : eq(1, 1),
+            game_mode_filter != 'any' && game_mode_filter != null ? eq(rw_parsed_server.game_mode, game_mode_filter) : eq(1, 1),
         );
 
-        const servers = await db.select().from(parsed_server).where(drizzle_params);
+        const servers = await db.select().from(rw_parsed_server).where(drizzle_params);
 
         var grouped_wipe_dict = {};
         servers.forEach((wipe) => {

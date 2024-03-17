@@ -1,13 +1,13 @@
 // /components/pages/networks/NetworksPage.js
 import React from 'react';
 import { db } from '@/db/drizzle';
-import { server_network, parsed_server } from '@/db/schema';
+import { rw_server_network, rw_parsed_server } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 
 export default async function NetworksPage() {
     console.log('Fetching server networks data...');
-    const networks = await db.select().from(server_network).where(eq(server_network.region, 'US'));
+    const networks = await db.select().from(rw_server_network).where(eq(rw_server_network.region, 'US'));
 
     console.log('Fetching server data for each network...');
     for (const network of networks) {
@@ -15,8 +15,8 @@ export default async function NetworksPage() {
         for (const bm_id of network.bm_ids.split(', ')) {
             const server = await db
                 .select()
-                .from(parsed_server)
-                .where(eq(parsed_server.id, parseInt(bm_id)))
+                .from(rw_parsed_server)
+                .where(eq(rw_parsed_server.id, parseInt(bm_id)))
                 .limit(1);
             if (server.length > 0) {
                 network.servers.push(server[0]);

@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { db } from '@/db/drizzle';
-import { parsed_server } from '@/db/schema';
+import { rw_parsed_server } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import MapInfoPanel from './MapInfoPanel';
 import ServerInfoPanel from './ServerInfoPanel';
@@ -14,8 +14,8 @@ export default async function ServerInfoPage({ params }) {
     // Directly fetch server data using Drizzle
     const database_data = await db
         .select()
-        .from(parsed_server)
-        .where(eq(parsed_server.id, parseInt(server_id)))
+        .from(rw_parsed_server)
+        .where(eq(rw_parsed_server.id, parseInt(server_id)))
         .limit(1);
 
     if (database_data.length === 0) {

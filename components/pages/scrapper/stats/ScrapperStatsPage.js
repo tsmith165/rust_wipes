@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { scrapper_stats } from '@/db/schema';
+import { rw_scrapper_stats } from '@/db/schema';
 import { db } from '@/db/drizzle';
 import { desc } from 'drizzle-orm';
 import { count } from 'drizzle-orm/sql';
@@ -9,10 +9,10 @@ import Link from 'next/link';
 async function fetchScrapperStatsData(currentPage = 1, itemsPerPage = 5) {
     const skip = (currentPage - 1) * itemsPerPage;
     console.log(`Fetching scrapper stats data for page ${currentPage} and skipping ${skip}`);
-    const stats = await db.select().from(scrapper_stats).orderBy(desc(scrapper_stats.date)).offset(skip).limit(itemsPerPage);
+    const stats = await db.select().from(rw_scrapper_stats).orderBy(desc(rw_scrapper_stats.date)).offset(skip).limit(itemsPerPage);
 
     console.log(`Fetching total stats count...`);
-    const totalStatsCount = await db.select({ count: count() }).from(scrapper_stats);
+    const totalStatsCount = await db.select({ count: count() }).from(rw_scrapper_stats);
     console.log(`Total stats count:`, totalStatsCount);
     const totalPages = Math.ceil(totalStatsCount[0].count / itemsPerPage);
     console.log(`Total pages: ${totalPages}`);

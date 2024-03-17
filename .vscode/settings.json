@@ -1,5 +1,5 @@
 {
-    "window.title": "NEXT - RUST WIPES / LIST",
+    "window.title": "RUST WIPES",
     "terminal.integrated.env.windows": {
         "node_options": "--max_old_space_size=4096"
     }
