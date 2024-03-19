@@ -127,7 +127,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
             <div className="w-20 p-1.5 text-center">Wiped</div>
-            <div className="w-12 p-1.5 text-center">Copy</div>
+            <div className={`${numServers > 10 ? 'mr-2' : ''} w-12 p-1.5 text-center`}>Copy</div>
         </div>
     );
 

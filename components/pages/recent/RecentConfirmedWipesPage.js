@@ -9,22 +9,13 @@ import { eq, gte, desc } from 'drizzle-orm';
 import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
 
-// Helper function to fetch data from BattleMetrics
-async function fetchBattleMetricsServers(country = 'US', maxDistance = 5000, minPlayers = 0, numServers = 50, starting_index = 0) {
-    // manually create the query string
-    var query_params_string = `filter[game]=rust&filter[status]=online&sort=-details.rust_last_wipe&filter[search]=*`;
-    query_params_string += `&filter[countries][]=${country}`;
-    query_params_string += `&filter[maxDistance]=${maxDistance}`;
-    query_params_string += `&filter[players][min]=${minPlayers}`;
-    query_params_string += `&page[size]=${numServers}`;
-    query_params_string += `&page[offset]=${starting_index}`;
-
+// Fetch data from BattleMetrics
+async function fetchBattleMetricsServers(serverIds, pageSize) {
+    const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(',')}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
     const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
-    console.log('Querying BattleMetrics with URL: ' + url);
-
     try {
         const response = await axios.get(url);
-        return response.data.data; // Adjust according to the API response structure
+        return response.data.data;
     } catch (error) {
         console.error('Error fetching data from BattleMetrics:', error);
         return [];
@@ -32,15 +23,11 @@ async function fetchBattleMetricsServers(country = 'US', maxDistance = 5000, min
 }
 
 async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
-    // Ensure `page` and `itemsPerPage` are integers
     page = parseInt(page) || 1;
     const itemsPerPage = parseInt(numServers, 10) || 25;
-
-    // Calculate `skip` ensuring it's an integer
     const skip = (page - 1) * itemsPerPage;
 
     console.log(`Fetching recent wipes with region: ${country} | min players: ${minPlayers}`);
-
     try {
         const recentWipes = await db
             .select()
@@ -59,37 +46,31 @@ async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
 
 // Server component
 export default async function RecentConfirmedWipesPage({ searchParams }) {
-    // console.log('RecentConfirmedWipesPage Search Params: ', searchParams);
-
     const country = searchParams.country || 'US';
-    const maxDistance = searchParams.maxDistance || 5000;
     const minPlayers = 0;
-    const numServers = searchParams.numServers || 50;
+    const numServers = searchParams.numServers || 25;
     const page = searchParams.page || 1;
 
     // Directly fetch data within the server component
     const our_db_recent_wipes = await fetchRecentWipesFromDB(country, minPlayers, numServers, page);
-    // console.log('Our DB Recent Wipes: ', our_db_recent_wipes);
 
-    const bm_api_recent_wipes = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, (parseInt(page) - 1) * numServers);
-    const bm_api_recent_wipes_next = await fetchBattleMetricsServers(country, maxDistance, minPlayers, 50, parseInt(page) * numServers);
+    // Extract the server IDs from our DB results
+    const serverIds = our_db_recent_wipes.map((server) => server.id);
 
-    // combine bm api data
-    const all_bm_api_recent_wipes = bm_api_recent_wipes.concat(bm_api_recent_wipes_next);
+    // Fetch the corresponding data from BattleMetrics API using the server IDs
+    console.log('Fetching server data from BattleMetrics API: ', serverIds.join(','));
+    const bm_api_recent_wipes = await fetchBattleMetricsServers(serverIds, numServers);
 
-    // 3. Merge data from BM DB with our DB's 25 servers
+    // Merge data from BM API with our DB's data
     const new_server_list = our_db_recent_wipes.map((our_db_recent_wipe_data) => {
-        const matched_server_data = all_bm_api_recent_wipes.find(
+        const matched_server_data = bm_api_recent_wipes.find(
             (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === parseInt(our_db_recent_wipe_data.id),
         );
-        // console.log('Our DB Server ID:', ourDBServer.id)
-        // console.log('Found Server ID:', foundServer ? foundServer.id : 'none')
-        // console.log('Found Server:', foundServer)
 
         if (matched_server_data) {
             return {
                 ...our_db_recent_wipe_data,
-                attributes: { ...matched_server_data.attributes }, // add the 'attributes' key dictionary from the BM data
+                attributes: { ...matched_server_data.attributes },
                 offline: false,
             };
         } else {
@@ -114,7 +95,6 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
             <div className="flex h-full w-full flex-wrap">
                 {/* Pass searchParams down to child components */}
                 <RecentWipesSidebar searchParams={searchParams} />
-
                 <RecentWipesTable searchParams={searchParams} server_list={new_server_list} />
             </div>
         </div>
