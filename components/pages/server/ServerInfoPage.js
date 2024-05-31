@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
@@ -71,3 +72,7 @@ export default async function ServerInfoPage({ params }) {
         </div>
     );
 }
+
+ServerInfoPage.propTypes = {
+    params: PropTypes.object.isRequired,
+};

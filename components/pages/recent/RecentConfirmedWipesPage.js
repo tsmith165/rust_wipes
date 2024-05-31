@@ -1,5 +1,6 @@
 // Import necessary libraries and dependencies
 import React from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
@@ -100,3 +101,7 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
         </div>
     );
 }
+
+RecentConfirmedWipesPage.propTypes = {
+    searchParams: PropTypes.object.isRequired,
+};

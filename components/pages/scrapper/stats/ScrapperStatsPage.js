@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import { rw_scrapper_stats } from '@/db/schema';
 import { db } from '@/db/db';
 import { desc } from 'drizzle-orm';
@@ -92,3 +92,7 @@ export default async function ScrapperStatsPage({ searchParams }) {
         </div>
     );
 }
+
+ScrapperStatsPage.propTypes = {
+    searchParams: PropTypes.object.isRequired,
+};

@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import PageLayout from '@/components/layout/PageLayout';
 import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPage';
 
@@ -19,3 +19,8 @@ export default async function Page({ params, searchParams }) {
         </PageLayout>
     );
 }
+
+Page.propTypes = {
+    params: PropTypes.object,
+    searchParams: PropTypes.object,
+};
