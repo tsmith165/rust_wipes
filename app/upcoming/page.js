@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPage from '@/components/pages/upcoming/UpcomingWipesPage';
 
@@ -22,3 +22,8 @@ export default async function Page({ params, searchParams }) {
         </PageLayout>
     );
 }
+
+Page.propTypes = {
+    params: PropTypes.object,
+    searchParams: PropTypes.object,
+};
