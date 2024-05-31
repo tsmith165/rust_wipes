@@ -1,11 +1,13 @@
-// drizzle.config.ts
-import type { Config } from 'drizzle-kit';
+import '@/lib/config';
+import { defineConfig } from 'drizzle-kit';
 
-export default {
-    schema: './db/*',
-    out: './drizzle',
-    driver: 'mysql2',
+export default defineConfig({
+    schema: './db/schema.ts',
+    driver: 'pg',
     dbCredentials: {
-        uri: (process.env.DATABASE_URL as string) || '',
+        connectionString: process.env.NEON_DATABASE_URL!,
     },
-} satisfies Config;
+    out: './drizzle',
+    verbose: true,
+    strict: true,
+});

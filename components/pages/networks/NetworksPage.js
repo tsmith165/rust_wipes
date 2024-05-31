@@ -1,6 +1,6 @@
 // /components/pages/networks/NetworksPage.js
 import React from 'react';
-import { db } from '@/db/drizzle';
+import { db } from '@/db/db';
 import { rw_server_network, rw_parsed_server } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';

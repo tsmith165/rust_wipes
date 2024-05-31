@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { rw_scrapper_stats } from '@/db/schema';
-import { db } from '@/db/drizzle';
+import { db } from '@/db/db';
 import { desc } from 'drizzle-orm';
 import { count } from 'drizzle-orm/sql';
 import Link from 'next/link';

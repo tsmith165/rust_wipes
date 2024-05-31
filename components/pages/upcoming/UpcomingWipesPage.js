@@ -1,4 +1,4 @@
-import { db } from '@/db/drizzle';
+import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
 import { eq, lt, and } from 'drizzle-orm';
 
