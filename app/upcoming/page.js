@@ -12,7 +12,7 @@ export const metadata = {
 import React from 'react';
 import PropTypes from 'prop-types';
 import PageLayout from '@/components/layout/PageLayout';
-import UpcomingWipesPage from '@/components/pages/upcoming/UpcomingWipesPage';
+import UpcomingWipesPage from '@/app/upcoming/UpcomingWipesPage';
 
 // eslint-disable-next-line no-unused-vars
 export default async function Page({ params, searchParams }) {

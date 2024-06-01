@@ -14,7 +14,7 @@ export const metadata = {
 import React from 'react';
 import PropTypes from 'prop-types';
 import PageLayout from '@/components/layout/PageLayout';
-import RecentConfirmedWipesPage from '@/components/pages/recent/RecentConfirmedWipesPage';
+import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
 
 // eslint-disable-next-line no-unused-vars
 export default function Page({ params, searchParams }) {

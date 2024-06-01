@@ -9,7 +9,7 @@ export const metadata = {
 import React from 'react';
 import PropTypes from 'prop-types';
 import PageLayout from '@/components/layout/PageLayout';
-import ScrapperStatsPage from '@/components/pages/scrapper/stats/ScrapperStatsPage';
+import ScrapperStatsPage from '@/app/scrapper/stats/ScrapperStatsPage';
 
 // eslint-disable-next-line no-unused-vars
 export default async function Page({ params, searchParams }) {
