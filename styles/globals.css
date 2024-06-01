@@ -13,16 +13,16 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-    background-color: theme('colors.grey');
+    background-color: theme('colors.secondary_light');
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: theme('colors.secondary');
+    background-color: theme('colors.primary');
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: theme('colors.light');
+    background-color: theme('colors.primary_light');
 }
 
 /* For Firefox */
