@@ -2,9 +2,6 @@ import Navbar from './Navbar';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// eslint-disable-next-line no-unused-vars
-import { SpeedInsights } from '@vercel/speed-insights/next';
-
 export default function PageLayout({ children, page }) {
     return (
         <div className="p-0">
