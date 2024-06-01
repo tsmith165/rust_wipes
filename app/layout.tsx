@@ -1,6 +1,6 @@
 import React from 'react';
 import 'tailwindcss/tailwind.css';
-import '@/styles/globals/globals.scss';
+import '@/styles/globals/globals.css';
 
 interface RootLayoutProps {
     children: React.ReactNode;

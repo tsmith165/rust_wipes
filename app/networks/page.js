@@ -11,7 +11,7 @@ export const metadata = {
 import React from 'react';
 
 import PageLayout from '@/components/layout/PageLayout';
-import NetworksPage from '@/components/pages/networks/NetworksPage';
+import NetworksPage from '@/app/networks/NetworksPage';
 
 export default function Networks() {
     return (
