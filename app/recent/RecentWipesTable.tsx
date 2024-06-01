@@ -88,8 +88,9 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
                 className={name || ''}
                 url={`https://www.battlemetrics.com/servers/rust/${id}`}
                 rank={rank || 0}
-                players={players || ''}
-                wipe_date={players || ''}
+                players={players || 0}
+                maxPlayers={maxPlayers || 0}
+                wipe_date={wipe_date || ''}
             />,
         );
     }
