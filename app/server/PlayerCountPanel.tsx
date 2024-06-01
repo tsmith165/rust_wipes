@@ -1,18 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export default function CustomTooltip({ active, payload, label }) {
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: any;
+    label?: string;
+}
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     if (active && payload && payload.length) {
-        const formatDate = (timestamp) => {
-            const dateOptions = {
+        const formatDate = (timestamp: number) => {
+            const dateOptions: Intl.DateTimeFormatOptions = {
                 weekday: 'short',
                 month: 'short',
                 day: 'numeric',
             };
             return new Date(timestamp).toLocaleDateString(undefined, dateOptions);
         };
-        const formatTime = (timestamp) => {
+        const formatTime = (timestamp: number) => {
             return new Date(timestamp).toLocaleTimeString(undefined, {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -21,8 +26,8 @@ export default function CustomTooltip({ active, payload, label }) {
 
         return (
             <div className="custom-tooltip rounded-md border bg-white p-3 shadow-md">
-                <p className="label">{formatDate(label)}</p>
-                <p className="intro">{formatTime(label)}</p>
+                <p className="label">{formatDate(label as unknown as number)}</p>
+                <p className="intro">{formatTime(label as unknown as number)}</p>
                 <p className="desc">
                     <span className="dot" style={{ color: '#8884d8' }}>
                         &#x25CF;{' '}
@@ -48,25 +53,23 @@ export default function CustomTooltip({ active, payload, label }) {
     return null;
 }
 
-CustomTooltip.propTypes = {
-    active: PropTypes.bool,
-    payload: PropTypes.array,
-    label: PropTypes.string,
-};
+interface PlayerCountPanelProps {
+    player_count_data: any;
+}
 
-const PlayerCountPanel = ({ player_count_data }) => {
+const PlayerCountPanel: React.FC<PlayerCountPanelProps> = ({ player_count_data }) => {
     console.log('player_count_data: ', player_count_data);
 
     const formatted_data =
-        player_count_data?.data?.map((item) => ({
+        player_count_data?.data?.map((item: any) => ({
             timestamp: item.attributes?.timestamp,
             max: item.attributes?.max,
             value: item.attributes?.value,
             min: item.attributes?.min,
         })) || [];
 
-    const formatDate = (timestamp) => {
-        const dateOptions = {
+    const formatDate = (timestamp: number) => {
+        const dateOptions: Intl.DateTimeFormatOptions = {
             weekday: 'short',
             month: 'short',
             day: 'numeric',
@@ -94,6 +97,4 @@ const PlayerCountPanel = ({ player_count_data }) => {
     );
 };
 
-PlayerCountPanel.propTypes = {
-    player_count_data: PropTypes.object,
-};
+export default PlayerCountPanel;

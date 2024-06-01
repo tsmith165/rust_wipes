@@ -1,5 +1,6 @@
+// File 2: /app/server/ServerInfoPage.tsx
+
 import React from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
@@ -9,8 +10,30 @@ import ServerInfoPanel from './ServerInfoPanel';
 import ServerDescriptionPanel from './ServerDescriptionPanel';
 import ServerHeader from './ServerHeader';
 
-export default async function ServerInfoPage({ params }) {
-    const server_id = params.server_id || '1';
+interface ServerInfoPageProps {
+    params?: {
+        server_id?: string;
+    };
+}
+
+interface BattleMetricsServerData {
+    data: {
+        attributes: {
+            players: number;
+            maxPlayers: number;
+            name: string;
+            ip: string;
+            port: number;
+            details?: {
+                rust_maps: any;
+                rust_description: string;
+            };
+        };
+    };
+}
+
+export default async function ServerInfoPage({ params }: ServerInfoPageProps) {
+    const server_id = params?.server_id || '1';
 
     // Directly fetch server data using Drizzle
     const database_data = await db
@@ -27,7 +50,7 @@ export default async function ServerInfoPage({ params }) {
 
     // Fetch BattleMetrics API data
     const bmApiUrl = `https://api.battlemetrics.com/servers/${server_id}`;
-    const bm_api_server_data_response = await axios.get(bmApiUrl);
+    const bm_api_server_data_response = await axios.get<BattleMetricsServerData>(bmApiUrl);
     const bm_api_server_data = bm_api_server_data_response.data.data;
 
     console.log('DB Data: ', database_data);
@@ -41,11 +64,11 @@ export default async function ServerInfoPage({ params }) {
     console.log('Rust Description: ', rust_description);
 
     // Process the description to remove '\t'
-    const rust_description_final = rust_description.replace(/\\t/g, '');
+    const rust_description_final = rust_description?.replace(/\\t/g, '') || '';
     console.log('rust_description_final: ', rust_description_final);
 
     return (
-        <div className="from-secondary_light h-full w-full overflow-y-auto bg-secondary bg-gradient-to-b to-primary px-5 pt-5 text-primary">
+        <div className="h-full w-full overflow-y-auto bg-secondary bg-gradient-to-b from-secondary_light to-primary px-5 pt-5 text-primary">
             <div className="mx-auto flex h-full w-full max-w-7xl flex-col space-y-2.5 md-nav:flex-row md-nav:space-y-0">
                 <div className="w-full md-nav:max-h-full md-nav:w-3/5">
                     <div className="min-w-fill flex max-h-full flex-col overflow-y-auto">
@@ -72,7 +95,3 @@ export default async function ServerInfoPage({ params }) {
         </div>
     );
 }
-
-ServerInfoPage.propTypes = {
-    params: PropTypes.object.isRequired,
-};
