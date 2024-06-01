@@ -1,4 +1,9 @@
-export const metadata = {
+import { Metadata } from 'next';
+import React from 'react';
+import PageLayout from '@/components/layout/PageLayout';
+import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
+
+export const metadata: Metadata = {
     metadataBase: new URL('https://rustwipes.net'),
     title: 'Rust Wipes - Recent Wipes',
     description:
@@ -11,21 +16,17 @@ export const metadata = {
     },
 };
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import PageLayout from '@/components/layout/PageLayout';
-import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
+interface PageProps {
+    params?: object;
+    searchParams?: {
+        [key: string]: string | string[] | undefined;
+    };
+}
 
-// eslint-disable-next-line no-unused-vars
-export default function Page({ params, searchParams }) {
+export default function Page({ params, searchParams }: PageProps) {
     return (
         <PageLayout page="recent">
             <RecentConfirmedWipesPage searchParams={searchParams} />
         </PageLayout>
     );
 }
-
-Page.propTypes = {
-    params: PropTypes.object,
-    searchParams: PropTypes.object,
-};

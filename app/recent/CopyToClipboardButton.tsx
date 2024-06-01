@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { MdFileCopy } from 'react-icons/md';
 
-export default function CopyToClipboardButton({ textToCopy }) {
+interface CopyToClipboardButtonProps {
+    textToCopy: string;
+}
+
+const CopyToClipboardButton: React.FC<CopyToClipboardButtonProps> = ({ textToCopy }) => {
     const [isCopied, setIsCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -20,8 +23,6 @@ export default function CopyToClipboardButton({ textToCopy }) {
             <MdFileCopy />
         </div>
     );
-}
-
-CopyToClipboardButton.propTypes = {
-    textToCopy: PropTypes.string.isRequired,
 };
+
+export default CopyToClipboardButton;

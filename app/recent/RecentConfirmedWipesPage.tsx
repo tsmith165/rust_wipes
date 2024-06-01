@@ -1,18 +1,30 @@
-// Import necessary libraries and dependencies
 import React from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
-import { eq, gte, desc } from 'drizzle-orm';
-
-// Assuming these components are properly adapted for server components if necessary
+import { eq, gte, desc, and } from 'drizzle-orm';
 import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
 
-// Fetch data from BattleMetrics
-async function fetchBattleMetricsServers(serverIds, pageSize) {
-    const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(',')}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
+interface BattleMetricsServer {
+    id: string;
+    attributes: {
+        ip: string | null;
+        port: number | null;
+        name: string | null;
+        rank: number | null;
+        details: {
+            rust_last_wipe: string | null;
+        };
+        players: number | null;
+        maxPlayers: number | null;
+    };
+}
+
+async function fetchBattleMetricsServers(serverIds: number[], pageSize: number): Promise<BattleMetricsServer[]> {
+    const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(
+        ',',
+    )}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
     const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
     try {
         const response = await axios.get(url);
@@ -23,9 +35,9 @@ async function fetchBattleMetricsServers(serverIds, pageSize) {
     }
 }
 
-async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
-    page = parseInt(page) || 1;
-    const itemsPerPage = parseInt(numServers, 10) || 25;
+async function fetchRecentWipesFromDB(country: string, minPlayers: number, numServers: number, page: number) {
+    page = parseInt(page.toString()) || 1;
+    const itemsPerPage = parseInt(numServers.toString(), 10) || 25;
     const skip = (page - 1) * itemsPerPage;
 
     console.log(`Fetching recent wipes with region: ${country} | min players: ${minPlayers}`);
@@ -33,7 +45,7 @@ async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
         const recentWipes = await db
             .select()
             .from(rw_parsed_server)
-            .where(eq(rw_parsed_server.region, country), gte(rw_parsed_server.players, parseInt(minPlayers)))
+            .where(and(eq(rw_parsed_server.region, country), gte(rw_parsed_server.players, minPlayers)))
             .orderBy(desc(rw_parsed_server.last_wipe))
             .offset(skip)
             .limit(itemsPerPage);
@@ -41,49 +53,56 @@ async function fetchRecentWipesFromDB(country, minPlayers, numServers, page) {
         return recentWipes;
     } catch (error) {
         console.error('Error fetching recent wipes from DB:', error);
-        throw error; // Rethrow or handle as needed
+        throw error;
     }
 }
 
-// Server component
-export default async function RecentConfirmedWipesPage({ searchParams }) {
-    const country = searchParams.country || 'US';
-    const minPlayers = 0;
-    const numServers = searchParams.numServers || 25;
-    const page = searchParams.page || 1;
+interface RecentConfirmedWipesPageProps {
+    searchParams?: {
+        [key: string]: string | string[] | undefined;
+    };
+}
 
-    // Directly fetch data within the server component
+export default async function RecentConfirmedWipesPage({ searchParams }: RecentConfirmedWipesPageProps) {
+    const country = (searchParams?.country as string) || 'US';
+    const minPlayers = 0;
+    const numServers = parseInt((searchParams?.numServers as string) || '25');
+    const page = parseInt((searchParams?.page as string) || '1');
+
     const our_db_recent_wipes = await fetchRecentWipesFromDB(country, minPlayers, numServers, page);
 
-    // Extract the server IDs from our DB results
     const serverIds = our_db_recent_wipes.map((server) => server.id);
 
-    // Fetch the corresponding data from BattleMetrics API using the server IDs
     console.log('Fetching server data from BattleMetrics API: ', serverIds.join(','));
     const bm_api_recent_wipes = await fetchBattleMetricsServers(serverIds, numServers);
 
-    // Merge data from BM API with our DB's data
     const new_server_list = our_db_recent_wipes.map((our_db_recent_wipe_data) => {
         const matched_server_data = bm_api_recent_wipes.find(
-            (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === parseInt(our_db_recent_wipe_data.id),
+            (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === our_db_recent_wipe_data.id,
         );
 
         if (matched_server_data) {
             return {
                 ...our_db_recent_wipe_data,
-                attributes: { ...matched_server_data.attributes },
+                attributes: {
+                    ...matched_server_data.attributes,
+                    players: matched_server_data.attributes.players || null,
+                    maxPlayers: matched_server_data.attributes.maxPlayers || null,
+                },
                 offline: false,
             };
         } else {
             return {
                 ...our_db_recent_wipe_data,
                 attributes: {
-                    ip: null,
+                    ip: our_db_recent_wipe_data.ip,
                     port: null,
-                    name: null,
-                    rank: null,
+                    name: our_db_recent_wipe_data.title,
+                    rank: our_db_recent_wipe_data.rank,
+                    players: our_db_recent_wipe_data.players,
+                    maxPlayers: null,
                     details: {
-                        rust_last_wipe: null,
+                        rust_last_wipe: our_db_recent_wipe_data.last_wipe,
                     },
                 },
                 offline: true,
@@ -94,14 +113,9 @@ export default async function RecentConfirmedWipesPage({ searchParams }) {
     return (
         <div className="h-full w-full overflow-hidden bg-secondary">
             <div className="flex h-full w-full flex-wrap">
-                {/* Pass searchParams down to child components */}
                 <RecentWipesSidebar searchParams={searchParams} />
                 <RecentWipesTable searchParams={searchParams} server_list={new_server_list} />
             </div>
         </div>
     );
 }
-
-RecentConfirmedWipesPage.propTypes = {
-    searchParams: PropTypes.object.isRequired,
-};

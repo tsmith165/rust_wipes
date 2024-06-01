@@ -1,24 +1,32 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Link from 'next/link';
-
 import CopyToClipboardButton from './CopyToClipboardButton';
 
 const HOT_WIPE = 5;
 const COOL_WIPE = 15;
 const COLD_WIPE = 60;
 
-// eslint-disable-next-line no-unused-vars
-export default function RecentServerRow({ id, ip, className, url, rank, players, max_players, wipe_date, offline }) {
-    //console.log(`Creating Recent Server Row ${id}...`);
+interface RecentServerRowProps {
+    id: number;
+    ip: string | null;
+    className: string | null;
+    url: string;
+    rank: number | null;
+    players: number;
+    maxPlayers: number;
+    wipe_date?: string;
+    offline?: boolean;
+}
 
-    const bm_id = url.split('/').pop();
+const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, url, rank, players, maxPlayers, wipe_date, offline }) => {
+    const bm_id = url.split('/').pop() || '';
 
-    var today = new Date();
+    const today = new Date();
     let final_date = 'Offline';
-    let heat_class = null;
+    let heat_class: string | null = null;
+
     if (wipe_date != null) {
-        let diff = Math.floor((today - new Date(wipe_date)) / 1000);
+        let diff = Math.floor((today.getTime() - new Date(wipe_date).getTime()) / 1000);
 
         let days = Math.floor(diff / (60 * 60 * 24));
         diff -= days * (60 * 60 * 24);
@@ -47,33 +55,24 @@ export default function RecentServerRow({ id, ip, className, url, rank, players,
     return (
         <Link href={`/server/${bm_id}`}>
             <div
-                className={`border-secondary_dark flex h-9 items-center border-b bg-secondary ${heat_class} ${offline ? 'bg-primary_dark opacity-80' : ''}
-                hover:bg-primary_light hover:text-white`}
+                className={`flex h-9 items-center border-b border-secondary_dark ${heat_class} ${
+                    offline ? 'bg-red-500 opacity-80' : 'bg-secondary'
+                } hover:bg-primary_light hover:text-white`}
             >
-                <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank}</div>
+                <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank || 'N/A'}</div>
                 <div className="flex-1 overflow-hidden whitespace-nowrap p-1.5 text-left">
-                    <b className="cursor-pointer">{className}</b>
+                    <b className="cursor-pointer">{className || 'Unknown'}</b>
                 </div>
                 <div className="w-24 overflow-hidden whitespace-nowrap p-1.5 text-center">
-                    {!players ? 'Offline' : `${players} / ${max_players}`}
+                    {!players ? 'Offline' : `${players} / ${maxPlayers}`}
                 </div>
                 <div className="w-20 overflow-hidden whitespace-nowrap p-1.5 text-center">{final_date}</div>
                 <div className="flex w-12 justify-center overflow-hidden whitespace-nowrap p-1.5">
-                    <CopyToClipboardButton textToCopy={`client.connect ${ip}`} />
+                    {ip && <CopyToClipboardButton textToCopy={`client.connect ${ip}`} />}
                 </div>
             </div>
         </Link>
     );
-}
-
-RecentServerRow.propTypes = {
-    id: PropTypes.number.isRequired,
-    ip: PropTypes.string.isRequired,
-    className: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    rank: PropTypes.number.isRequired,
-    players: PropTypes.number,
-    max_players: PropTypes.number,
-    wipe_date: PropTypes.string,
-    offline: PropTypes.bool,
 };
+
+export default RecentServerRow;

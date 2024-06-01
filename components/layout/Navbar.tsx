@@ -18,8 +18,8 @@ export default function Navbar({ page }: NavbarProps) {
                     <div
                         className={
                             isActive
-                                ? 'from-primary_dark text-secondary_light inline-block rounded-b-lg bg-gradient-to-t to-primary px-4 py-1 font-bold md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:py-3'
-                                : 'to-primary_dark hover:from-primary_dark from-primary_light hover:text-secondary_light text-secondary_dark inline-block rounded-b-lg bg-gradient-to-t px-4 py-1 font-bold hover:to-primary md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:py-3'
+                                ? 'inline-block rounded-b-lg bg-gradient-to-t from-primary_dark to-primary px-4 py-1 font-bold text-secondary_light md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:py-3'
+                                : 'inline-block rounded-b-lg bg-gradient-to-t from-primary_light to-primary_dark px-4 py-1 font-bold text-secondary_dark hover:from-primary_dark hover:to-primary hover:text-secondary_light md-nav:rounded-b-none md-nav:rounded-t-lg md-nav:py-3'
                         }
                     >
                         {menu_item_string}
