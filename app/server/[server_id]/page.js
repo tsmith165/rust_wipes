@@ -10,7 +10,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import PageLayout from '@/components/layout/PageLayout';
-import ServerInfoPage from '@/app/server/[server_id]/ServerInfoPage';
+import ServerInfoPage from '@/app/server/ServerInfoPage';
 
 // eslint-disable-next-line no-unused-vars
 export default function ServerPage({ params, searchParams }) {

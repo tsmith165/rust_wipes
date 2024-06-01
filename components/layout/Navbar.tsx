@@ -1,22 +1,18 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { menu_list, MenuItem } from '@/lib/menu_list';
 
-import { menu_list } from '@/lib/menu_list';
+interface NavbarProps {
+    page: string;
+}
 
-export default function Navbar(page) {
-    page = page.page;
-    const generate_navbar = (menu_list) => {
+export default function Navbar({ page }: NavbarProps) {
+    const generate_navbar = (menu_list: MenuItem[]) => {
         return menu_list.map((item, i) => {
-            let menu_item_class_string = item[0];
-            let menu_item_string = item[1];
-            let tab_url_endpoint = item[3];
-
+            const [menu_item_class_string, menu_item_string, , tab_url_endpoint] = item;
             console.log(`page: ${page}, tab_url_endpoint: ${tab_url_endpoint}`);
             const isActive = menu_item_class_string === page;
-
             return (
                 <Link key={i} href={tab_url_endpoint} passHref>
                     <div
@@ -34,6 +30,7 @@ export default function Navbar(page) {
     };
 
     const tab_menu = generate_navbar(menu_list);
+
     return (
         <nav className="bg-secondary_dark p-0">
             <div className="flex flex-col-reverse items-center p-0 md-nav:flex-row md-nav:items-end">
@@ -45,9 +42,9 @@ export default function Navbar(page) {
                                     src="/rust_wipes_hazmat_logo_no_bg.png"
                                     alt="Rust Logo"
                                     priority={true}
-                                    width={544} // Specify the width directly
-                                    height={100} // And the height
-                                    objectFit="contain" // This keeps the aspect ratio and makes the image scale within the given width and height
+                                    width={544}
+                                    height={100}
+                                    objectFit="contain"
                                 />
                             </div>
                         </div>

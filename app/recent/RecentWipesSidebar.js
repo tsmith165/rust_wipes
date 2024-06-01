@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
-import InputComponent from '../../components/InputComponent';
+import InputComponent from '@/components/InputComponent';
 import { FaRegThumbsUp } from 'react-icons/fa';
 import { HiRefresh } from 'react-icons/hi';
 
