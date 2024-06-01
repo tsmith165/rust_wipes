@@ -64,7 +64,7 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
                     <b className="cursor-pointer">{className || 'Unknown'}</b>
                 </div>
                 <div className="w-24 overflow-hidden whitespace-nowrap p-1.5 text-center">
-                    {!players ? 'Offline' : `${players} / ${maxPlayers}`}
+                    {!players || players === 0 || maxPlayers === 0 ? 'Offline' : `${players} / ${maxPlayers}`}
                 </div>
                 <div className="w-20 overflow-hidden whitespace-nowrap p-1.5 text-center">{final_date}</div>
                 <div className="flex w-12 justify-center overflow-hidden whitespace-nowrap p-1.5">
