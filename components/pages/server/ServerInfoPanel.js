@@ -67,7 +67,7 @@ export default function ServerInfoPanel({ bm_api_attributes, database_data, ip, 
     ];
 
     return (
-        <div className="flex flex-col rounded-b-lg bg-grey p-2.5">
+        <div className="bg-secondary_light flex flex-col rounded-b-lg p-2.5">
             <div
                 className="relative flex min-w-[124px] space-x-3 rounded-lg xl:flex-col xl:space-x-0"
                 onClick={copyToClipboard}
@@ -77,15 +77,17 @@ export default function ServerInfoPanel({ bm_api_attributes, database_data, ip, 
             >
                 <div className=" m-0 flex flex-row space-x-1.5 p-0" key={'ip'}>
                     <b className="text-primary">{`IP: `}</b>
-                    <p className="hover:text-bold text-dark hover:font-bold hover:text-light">{`${ip}:${port}`}</p>
-                    {copySuccess && <div className="rounded bg-green-400 px-3 py-0 font-bold text-black">Copy Success!</div>}
-                    {hover && !copySuccess && <div className="rounded bg-green-600 px-3 py-0 text-black">Click to copy server IP</div>}
+                    <p className="hover:text-bold hover:text-primary_light text-secondary hover:font-bold">{`${ip}:${port}`}</p>
+                    {copySuccess && <div className="text-secondary_dark rounded bg-green-400 px-3 py-0 font-bold">Copy Success!</div>}
+                    {hover && !copySuccess && (
+                        <div className="text-secondary_dark rounded bg-green-600 px-3 py-0">Click to copy server IP</div>
+                    )}
                 </div>
             </div>
             {server_info_data.map(({ title, value }) => (
                 <div className="m-0 flex flex-row space-x-1.5 p-0" key={title}>
                     <b className="text-primary">{`${title}: `}</b>
-                    <p className="text-dark hover:font-bold hover:text-light">{value}</p>
+                    <p className="hover:text-primary_light text-secondary hover:font-bold">{value}</p>
                 </div>
             ))}
         </div>

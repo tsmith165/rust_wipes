@@ -21,7 +21,7 @@ export default function UpcomingServerRow({ id, server }) {
     }
 
     return (
-        <div className="flex h-10 flex-row border-b border-black bg-dark font-bold leading-6 text-primary">
+        <div className="border-secondary_dark flex h-10 flex-row border-b bg-secondary font-bold leading-6 text-primary">
             <div className="w-16 overflow-hidden whitespace-nowrap px-2.5">{`#${server.rank}`}</div>
             <div className="w-24 overflow-hidden whitespace-nowrap px-2.5">{last_wipe_date_str}</div>
             <div className="flex-grow overflow-x-auto overflow-y-hidden px-2.5 sm:w-[calc(100vw-175px)] lg:w-[calc(65vw-175px)]">

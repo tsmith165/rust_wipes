@@ -11,13 +11,16 @@ const ServerDescriptionPanel = ({ description }) => {
     const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
     return (
-        <div className="mt-2.5 rounded-lg bg-dark">
-            <button className={`flex w-full items-center justify-between p-2.5 text-xl font-bold text-light`} onClick={toggleCollapse}>
+        <div className="mt-2.5 rounded-lg bg-secondary">
+            <button
+                className={`text-primary_light flex w-full items-center justify-between p-2.5 text-xl font-bold`}
+                onClick={toggleCollapse}
+            >
                 Description
                 <FiChevronDown className={`${isCollapsed ? 'rotate-90' : ''}`} />
             </button>
             {!isCollapsed && (
-                <div className="w-full rounded-b-lg bg-grey pb-2.5">
+                <div className="bg-secondary_light w-full rounded-b-lg pb-2.5">
                     <pre className="overflow-auto whitespace-pre-wrap p-2.5 text-lg">{description}</pre>
                 </div>
             )}

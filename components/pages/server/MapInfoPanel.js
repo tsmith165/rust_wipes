@@ -17,15 +17,15 @@ export default function MapInfoPanel({ mapData, name }) {
     ];
 
     return (
-        <div className="rounded-lg bg-dark">
-            <div className="rounded-t-lg p-2.5 text-light">
+        <div className="rounded-lg bg-secondary">
+            <div className="text-primary_light rounded-t-lg p-2.5">
                 <h3 className="text-xl font-bold ">Map Info</h3>
             </div>
-            <div className="bg-grey px-2.5 pb-2.5">
+            <div className="bg-secondary_light px-2.5 pb-2.5">
                 {map_info_data.map(({ title, value }) => (
                     <div className="m-0 flex flex-row space-x-1.5 p-0" key={title}>
                         <b className="text-primary">{`${title}: `}</b>
-                        <p className="text-dark hover:font-bold hover:text-light">{value}</p>
+                        <p className="hover:text-primary_light text-secondary hover:font-bold">{value}</p>
                     </div>
                 ))}
             </div>

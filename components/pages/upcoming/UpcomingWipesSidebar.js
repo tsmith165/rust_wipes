@@ -55,7 +55,12 @@ const UpcomingWipesSidebar = () => {
     ];
 
     return (
-        <form action="/upcoming" method="GET" className="h-fit bg-black p-2.5 md-nav:h-full" style={{ flex: '1 1 35%', minHeight: '20px' }}>
+        <form
+            action="/upcoming"
+            method="GET"
+            className="bg-secondary_dark h-fit p-2.5 md-nav:h-full"
+            style={{ flex: '1 1 35%', minHeight: '20px' }}
+        >
             {/* Filter Row 1 */}
             <div className="flex flex-row space-x-2.5 pb-2.5">
                 <InputComponent
@@ -115,7 +120,7 @@ const UpcomingWipesSidebar = () => {
                 />
                 {/* <div className="flex-grow text-left text-2xl font-bold text-primary">{wipe_day_header_str}</div> */}
             </div>
-            <button type="submit" className="mt-2.5 rounded bg-primary px-2.5 py-2 font-bold text-white hover:bg-light">
+            <button type="submit" className="hover:bg-primary_light mt-2.5 rounded bg-primary px-2.5 py-2 font-bold text-white">
                 Update Filters
             </button>
         </form>

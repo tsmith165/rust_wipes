@@ -45,7 +45,7 @@ export default async function ServerInfoPage({ params }) {
     console.log('rust_description_final: ', rust_description_final);
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-dark bg-gradient-to-b from-grey to-primary px-5 pt-5 text-primary">
+        <div className="from-secondary_light h-full w-full overflow-y-auto bg-secondary bg-gradient-to-b to-primary px-5 pt-5 text-primary">
             <div className="mx-auto flex h-full w-full max-w-7xl flex-col space-y-2.5 md-nav:flex-row md-nav:space-y-0">
                 <div className="w-full md-nav:max-h-full md-nav:w-3/5">
                     <div className="min-w-fill flex max-h-full flex-col overflow-y-auto">
@@ -65,7 +65,7 @@ export default async function ServerInfoPage({ params }) {
                     <div className="flex w-full flex-col space-y-2.5">
                         <MapInfoPanel mapData={rust_maps} name={name} />
                         {/* Placeholder for AD */}
-                        <div className="h-10 rounded-md bg-dark p-2.5 text-center">AD</div>
+                        <div className="h-10 rounded-md bg-secondary p-2.5 text-center">AD</div>
                     </div>
                 </div>
             </div>

@@ -14,9 +14,9 @@ const RecentWipesSidebar = ({ searchParams }) => {
         filterColumnAdContainer = (
             <div className={'h-full w-full'}>
                 <div className={'p-2.5'}>{/* Ad script and elements */}</div>
-                <div className={'flex h-full w-full space-x-2 bg-dark p-2.5'}>
+                <div className={'flex h-full w-full space-x-2 bg-secondary p-2.5'}>
                     <div className={'styles.ad_blocked_message'}>Please Disable Ad-Block To Support The Developers</div>
-                    <FaRegThumbsUp className={'h-10 w-10 rounded-md bg-light p-2'} />
+                    <FaRegThumbsUp className={'bg-primary_light h-10 w-10 rounded-md p-2'} />
                 </div>
             </div>
         );
@@ -47,7 +47,7 @@ const RecentWipesSidebar = ({ searchParams }) => {
     console.log('Using following form_action_url for updating query string: ' + form_action_url);
 
     return (
-        <div className="max-h-full bg-black" style={{ flex: '1 1 35%', minHeight: '20px' }}>
+        <div className="bg-secondary_dark max-h-full" style={{ flex: '1 1 35%', minHeight: '20px' }}>
             <form method="GET" action={form_action_url}>
                 <div className="flex flex-col">
                     <div className="py-1.5" />
@@ -76,7 +76,7 @@ const RecentWipesSidebar = ({ searchParams }) => {
                             param_full_name={'Country'}
                             searchParams={searchParams}
                         />
-                        <button type="submit" className={`h-8 w-8 rounded-md bg-dark p-1.5 hover:bg-primary`}>
+                        <button type="submit" className={`h-8 w-8 rounded-md bg-secondary p-1.5 hover:bg-primary`}>
                             <HiRefresh className={`hover:animate-spin`} />
                         </button>
                     </div>

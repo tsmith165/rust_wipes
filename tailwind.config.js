@@ -1,21 +1,20 @@
+import typography from '@tailwindcss/typography';
+
 module.exports = {
-    content: ['./app/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+    content: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
             colors: {
-                light: '#dc2626', // red-600
+                primary_light: '#dc2626', // red-600
                 primary: '#991b1b', // red-800
-                secondary: '#7f1d1d', // red-900
-
+                primary_dark: '#7f1d1d', // red-900
+                secondary_light: '#a8a29e', // stone-400
+                secondary: '#3f3f46', // stone-700
+                secondary_dark: '#1c1917', // stone-900
+                hot_wipe: '#dc2626', // red-600
+                cool_wipe: '#f97316', // orange-500
+                cold_wipe: '#fde047', // yellow-500
                 white: '#ffffff', // white
-                grey: '#a8a29e', // stone-400
-                dark: '#3f3f46', // stone-700
-                black: '#1c1917', // stone-900
-
-                'hot-wipe': '#dc2626', // red-600
-                'cool-wipe': '#f97316', // orange-500
-                'cold-wipe': '#fde047', // yellow-500
-
                 link: '#57aaf3', // unvisited link color,
                 visited: '#be23ae', // visited link color
             },
@@ -33,4 +32,6 @@ module.exports = {
             },
         },
     },
+    mode: 'jit',
+    plugins: [typography],
 };

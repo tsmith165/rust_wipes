@@ -8,7 +8,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 export default function PageLayout({ children, page }) {
     return (
         <div className="p-0">
-            <main className="min-h-full bg-grey">
+            <main className="bg-secondary_light min-h-full">
                 <Navbar page={page || ''} />
                 <div className="relative h-[calc(100vh-97px)] w-full md-nav:h-[calc(100vh-100px)]">{children}</div>
             </main>

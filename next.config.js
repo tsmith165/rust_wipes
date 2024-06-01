@@ -13,6 +13,20 @@ const nextConfig = {
                 hostname: 'files.rustmaps.com',
             },
         ],
+        minimumCacheTTL: 60 * 60 * 24 * 7, //In seconds
+    },
+    async headers() {
+        return [
+            {
+                source: '/:all*(js|css|jpg|png|svg)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=3600, stale-while-revalidate=86400',
+                    },
+                ],
+            },
+        ];
     },
 };
 

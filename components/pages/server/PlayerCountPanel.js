@@ -77,7 +77,7 @@ const PlayerCountPanel = ({ player_count_data }) => {
     const xAxisInterval = Math.floor(formatted_data.length / 3) - 1;
 
     return (
-        <div className="h-full w-full overflow-hidden rounded-lg bg-dark p-2.5">
+        <div className="h-full w-full overflow-hidden rounded-lg bg-secondary p-2.5">
             <ResponsiveContainer className="h-full w-full">
                 <LineChart data={formatted_data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />

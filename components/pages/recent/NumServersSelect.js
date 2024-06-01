@@ -9,7 +9,7 @@ export default function NumServersSelect({ defaultValue, searchParams }) {
         <select
             id="num_servers"
             name="numServers"
-            className="rounded-md border border-none bg-secondary px-2 py-1 text-lg font-bold"
+            className="bg-primary_dark rounded-md border border-none px-2 py-1 text-lg font-bold"
             defaultValue={defaultValue}
             onChange={(e) => onChange(e, searchParams)}
         >

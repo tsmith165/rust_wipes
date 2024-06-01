@@ -19,16 +19,16 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }) {
     console.log(`Creating Server Hour Group for hour ${hour_str}`);
 
     return (
-        <div className="cursor-pointer border-b border-grey p-4" onClick={headerClicked}>
+        <div className="border-secondary_light cursor-pointer border-b p-4" onClick={headerClicked}>
             <div className="flex items-center">
                 <div className="mr-2 transform transition-transform duration-500">
                     <IoIosArrowForward className={`${isWipeContainerHidden ? '' : 'rotate-90'}`} />
                 </div>
                 <div className="mr-2 text-lg font-bold">{hour_str}</div>
-                <div className="text-grey">{`(${Object.keys(wipe_dict).length} ${Object.keys(wipe_dict).length === 1 ? 'Server' : 'Servers'})`}</div>
+                <div className="text-secondary_light">{`(${Object.keys(wipe_dict).length} ${Object.keys(wipe_dict).length === 1 ? 'Server' : 'Servers'})`}</div>
             </div>
             <div className={`mt-4 ${isWipeContainerHidden ? 'hidden' : ''}`}>
-                <div className="flex justify-between p-2 text-sm font-semibold text-dark">
+                <div className="flex justify-between p-2 text-sm font-semibold text-secondary">
                     <div>{`Rank`}</div>
                     <div>{`Last Wipe`}</div>
                     <div>{`Server Title`}</div>

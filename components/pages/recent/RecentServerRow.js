@@ -26,10 +26,10 @@ export default function RecentServerRow({ id, ip, className, url, rank, players,
         let hrs = Math.floor(diff / (60 * 60));
         diff -= hrs * (60 * 60);
 
-        if (diff < HOT_WIPE) heat_class = 'text-hot-wipe';
-        else if (diff < COOL_WIPE) heat_class = 'text-cool-wipe';
-        else if (diff < COLD_WIPE) heat_class = 'text-cold-wipe';
-        else heat_class = 'text-grey';
+        if (diff < HOT_WIPE) heat_class = 'text-hot_wipe';
+        else if (diff < COOL_WIPE) heat_class = 'text-cool_wipe';
+        else if (diff < COLD_WIPE) heat_class = 'text-cold_wipe';
+        else heat_class = 'text-secondary_light';
 
         let mins = Math.floor(diff / 60);
 
@@ -47,8 +47,8 @@ export default function RecentServerRow({ id, ip, className, url, rank, players,
     return (
         <Link href={`/server/${bm_id}`}>
             <div
-                className={`flex h-9 items-center border-b border-black bg-dark ${heat_class} ${offline ? 'bg-secondary opacity-80' : ''}
-                hover:bg-light hover:text-white`}
+                className={`border-secondary_dark flex h-9 items-center border-b bg-secondary ${heat_class} ${offline ? 'bg-primary_dark opacity-80' : ''}
+                hover:bg-primary_light hover:text-white`}
             >
                 <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank}</div>
                 <div className="flex-1 overflow-hidden whitespace-nowrap p-1.5 text-left">

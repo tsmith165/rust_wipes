@@ -38,7 +38,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     var servers_jsx_array = [];
     if (server_list == undefined) {
         console.log('NO SERVERS FOUND.  Returning empty table...');
-        return <div className="max-h-full min-w-full bg-dark md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
+        return <div className="max-h-full min-w-full bg-secondary md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
     }
 
     var server_list_length = server_list.length;
@@ -84,7 +84,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
 
     if (server_list == null || server_list.length == 0) {
         return (
-            <div className="max-h-full min-w-full bg-dark md:min-w-[461px]" style={{ flex: '1 1 60%' }}>
+            <div className="max-h-full min-w-full bg-secondary md:min-w-[461px]" style={{ flex: '1 1 60%' }}>
                 {/* Loader can be implemented with Tailwind CSS or any other library */}
             </div>
         );
@@ -94,7 +94,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     const incrementPage = page + 1;
 
     const pagination_container = (
-        <div className="flex items-center space-x-2 rounded-lg bg-secondary p-1">
+        <div className="bg-primary_dark flex items-center space-x-2 rounded-lg p-1">
             <form method="GET" action="/recent" className="flex items-center">
                 <input type="hidden" name="page" value={decrementPage} />
                 <input type="hidden" name="numServers" value={numServers} />
@@ -102,7 +102,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
                 <button type="submit" className="flex items-center justify-center px-0 py-1">
-                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-black text-2xl hover:fill-light" />
+                    <IoIosArrowForward className="hover:fill-primary_light fill-secondary_dark rotate-180 cursor-pointer text-2xl" />
                 </button>
             </form>
             <span className="flex items-center justify-center text-lg font-bold">{page}</span>
@@ -113,7 +113,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
                 <button type="submit" className="flex items-center justify-center px-0 py-1">
-                    <IoIosArrowForward className="cursor-pointer fill-black text-2xl hover:fill-light" />
+                    <IoIosArrowForward className="hover:fill-primary_light fill-secondary_dark cursor-pointer text-2xl" />
                 </button>
             </form>
         </div>
@@ -122,7 +122,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
     const num_servers_select = <NumServersSelect defaultValue={numServers} searchParams={searchParams} />;
 
     const server_list_table_header = (
-        <div className="flex bg-grey pr-2 font-bold text-primary">
+        <div className="bg-secondary_light flex pr-2 font-bold text-primary">
             <div className="w-16 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
@@ -133,12 +133,12 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
 
     const server_list_table_row_container = (
         <div className="grow overflow-y-auto">
-            <div className="flex-1 bg-dark">{servers_jsx_array}</div>
+            <div className="flex-1 bg-secondary">{servers_jsx_array}</div>
         </div>
     );
 
     const server_list_table_menu = (
-        <div className="flex w-full items-center justify-between bg-black py-2 pl-2 md:pl-0">
+        <div className="bg-secondary_dark flex w-full items-center justify-between py-2 pl-2 md:pl-0">
             {pagination_container /* Pagination */}
             <div className="flex-grow"></div>
             {num_servers_select /* Number of servers selector */}=
@@ -147,7 +147,7 @@ const RecentWipesTable = ({ searchParams, server_list }) => {
 
     console.log('Returning Recent Wipes Table...');
     return (
-        <div className="max-h-full w-full bg-dark md:min-w-[461px]" style={{ flex: '1 1 65%' }}>
+        <div className="max-h-full w-full bg-secondary md:min-w-[461px]" style={{ flex: '1 1 65%' }}>
             <div className="flex h-[calc(100%-99px)] w-full flex-col overflow-y-hidden md:h-full">
                 {server_list_table_header /* Server List Table Header */}
                 {server_list_table_row_container /* Server List Table */}

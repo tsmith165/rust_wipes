@@ -42,7 +42,7 @@ export default function InputComponent({
         <div className={'flex w-full'}>
             {/* Tooltip trigger */}
             <div data-tip data-for={id} className="flex items-center justify-center whitespace-nowrap rounded-l-md bg-primary p-1">
-                <div className="text-md font-bold text-black">{param_full_name}</div>
+                <div className="text-md text-secondary_dark font-bold">{param_full_name}</div>
             </div>
             {/* Actual tooltip */}
             <Tooltip id={id} place="top" effect="solid">
@@ -53,7 +53,7 @@ export default function InputComponent({
                 <input
                     id={id}
                     name={param_name}
-                    className="text-md w-full rounded-r-md border-none bg-dark p-1 font-bold text-primary"
+                    className="text-md w-full rounded-r-md border-none bg-secondary p-1 font-bold text-primary"
                     value={value || defaultValue}
                     onChange={handleChange}
                 />
@@ -63,12 +63,12 @@ export default function InputComponent({
                     <input
                         id={`${id}-input`}
                         name={param_name}
-                        className="text-md rounded-r-md border-none bg-dark px-1 font-bold text-primary"
+                        className="text-md rounded-r-md border-none bg-secondary px-1 font-bold text-primary"
                         value={value || defaultValue}
                         onChange={handleChange}
                     />
                     <div
-                        className={`cursor-pointer rounded-md p-0.5 ${running ? 'bg-green-500' : 'bg-dark'} `}
+                        className={`cursor-pointer rounded-md p-0.5 ${running ? 'bg-green-500' : 'bg-secondary'} `}
                         onClick={(e) => {
                             e.preventDefault();
                             button_function();
@@ -82,7 +82,7 @@ export default function InputComponent({
                 <DatePicker
                     id={id}
                     name={param_name}
-                    className="text-md w-full rounded-r-md border-none bg-dark p-1 font-bold text-primary"
+                    className="text-md w-full rounded-r-md border-none bg-secondary p-1 font-bold text-primary"
                     selected={value}
                     onChange={handleDateChange}
                     autoComplete="off"
@@ -94,7 +94,7 @@ export default function InputComponent({
                     <select
                         id={id || defaultValue}
                         name={param_name}
-                        className="text-md w-full rounded-r-md border-none bg-dark p-1 font-bold text-primary"
+                        className="text-md w-full rounded-r-md border-none bg-secondary p-1 font-bold text-primary"
                         value={value}
                         onChange={handleChange}
                     >

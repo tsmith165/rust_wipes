@@ -27,25 +27,27 @@ export default async function ScrapperStatsPage({ searchParams }) {
     const { stats, totalPages } = await fetchScrapperStatsData(currentPage);
 
     return (
-        <div className="h-full min-h-screen w-full bg-gradient-to-b from-dark to-black p-5">
-            <h1 className="font-alegreya mb-4 text-center text-2xl font-bold uppercase tracking-wider text-grey">Scrapper Stats</h1>
+        <div className="to-secondary_dark h-full min-h-screen w-full bg-gradient-to-b from-secondary p-5">
+            <h1 className="font-alegreya text-secondary_light mb-4 text-center text-2xl font-bold uppercase tracking-wider">
+                Scrapper Stats
+            </h1>
             <div className="table-container">
-                <table className="mx-auto w-full max-w-2xl border-collapse rounded bg-light">
+                <table className="bg-primary_light mx-auto w-full max-w-2xl border-collapse rounded">
                     <thead>
                         <tr>
-                            <th className="font-lato rounded-tl bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato text-secondary_light bg-secondary_dark rounded-tl px-4 py-2 text-center text-lg font-bold uppercase tracking-wider">
                                 Date
                             </th>
-                            <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato text-secondary_light bg-secondary_dark px-4 py-2 text-center text-lg font-bold uppercase tracking-wider">
                                 Duration
                             </th>
-                            <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato text-secondary_light bg-secondary_dark px-4 py-2 text-center text-lg font-bold uppercase tracking-wider">
                                 Servers Parsed
                             </th>
-                            <th className="font-lato bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato text-secondary_light bg-secondary_dark px-4 py-2 text-center text-lg font-bold uppercase tracking-wider">
                                 Servers Skipped
                             </th>
-                            <th className="font-lato rounded-tr bg-black px-4 py-2 text-center text-lg font-bold uppercase tracking-wider text-grey">
+                            <th className="font-lato text-secondary_light bg-secondary_dark rounded-tr px-4 py-2 text-center text-lg font-bold uppercase tracking-wider">
                                 Servers Posted
                             </th>
                         </tr>
@@ -66,22 +68,22 @@ export default async function ScrapperStatsPage({ searchParams }) {
                     </tbody>
                 </table>
                 <div className="mt-4 flex w-full items-center justify-center">
-                    <div className="mt-4 flex w-fit flex-row items-center justify-center rounded-lg bg-black p-4">
+                    <div className="bg-secondary_dark mt-4 flex w-fit flex-row items-center justify-center rounded-lg p-4">
                         <Link href={`/scrapper/stats?page=${currentPage - 1}`}>
                             <button
                                 disabled={currentPage <= 1}
-                                className="font-lato mx-2 rounded border border-dark bg-primary px-5 py-2 text-base text-grey hover:bg-light disabled:cursor-not-allowed disabled:border-primary disabled:bg-dark"
+                                className="font-lato hover:bg-primary_light text-secondary_light mx-2 rounded border border-secondary bg-primary px-5 py-2 text-base disabled:cursor-not-allowed disabled:border-primary disabled:bg-secondary"
                             >
                                 Prev
                             </button>
                         </Link>
-                        <span className="font-lato mx-4 text-lg text-grey">
+                        <span className="font-lato text-secondary_light mx-4 text-lg">
                             Page {currentPage} of {totalPages}
                         </span>
                         <Link href={`/scrapper/stats?page=${currentPage + 1}`}>
                             <button
                                 disabled={currentPage >= totalPages}
-                                className="font-lato mx-2 rounded border border-dark bg-primary px-5 py-2 text-base text-grey hover:bg-light disabled:cursor-not-allowed disabled:border-primary disabled:bg-dark"
+                                className="font-lato hover:bg-primary_light text-secondary_light mx-2 rounded border border-secondary bg-primary px-5 py-2 text-base disabled:cursor-not-allowed disabled:border-primary disabled:bg-secondary"
                             >
                                 Next
                             </button>
