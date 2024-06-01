@@ -1,4 +1,11 @@
-export default function sitemap() {
+interface SitemapEntry {
+    url: string;
+    lastModified: Date;
+    changeFrequency: 'yearly' | 'weekly' | 'hourly' | 'daily' | 'monthly' | 'never' | 'always';
+    priority: number;
+}
+
+export default function sitemap(): SitemapEntry[] {
     return [
         {
             url: 'https://www.rustwipes.net',

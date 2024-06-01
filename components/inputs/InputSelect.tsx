@@ -49,7 +49,8 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, name, select_op
                         control: (baseStyles, state) => ({
                             ...baseStyles,
                             borderColor: '',
-                            backgroundColor: '#54786d',
+                            backgroundColor: '#991b1b',
+                            color: '#ffffff',
                         }),
                     }}
                     options={react_select_options}
@@ -70,7 +71,8 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, name, select_op
                         control: (baseStyles, state) => ({
                             ...baseStyles,
                             borderColor: '',
-                            backgroundColor: '#54786d',
+                            backgroundColor: '#991b1b',
+                            color: '#ffffff',
                         }),
                     }}
                     options={react_select_options}
