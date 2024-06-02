@@ -14,7 +14,7 @@ interface ScrapperStats {
     servers_posted: number | null;
 }
 
-async function fetchScrapperStatsData(currentPage = 1, itemsPerPage = 5): Promise<{ stats: ScrapperStats[]; totalPages: number }> {
+async function fetchScrapperStatsData(currentPage = 1, itemsPerPage = 10): Promise<{ stats: ScrapperStats[]; totalPages: number }> {
     const skip = (currentPage - 1) * itemsPerPage;
     console.log(`Fetching scrapper stats data for page ${currentPage} and skipping ${skip}`);
     const stats = await db.select().from(rw_scrapper_stats).orderBy(desc(rw_scrapper_stats.date)).offset(skip).limit(itemsPerPage);
