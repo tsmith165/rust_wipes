@@ -27,11 +27,11 @@ export default function HomePage() {
             label: 'Server Networks',
             img: '/rust_server_networks.jpg',
         },
-        {
-            href: '/scrapper/stats/?page=1',
-            label: 'Scrapper Stats',
-            img: '/rust_scrapper_stats.jpg',
-        },
+        // {
+        //     href: '/scrapper/stats/?page=1',
+        //     label: 'Scrapper Stats',
+        //     img: '/rust_scrapper_stats.jpg',
+        // },
     ];
 
     return (
