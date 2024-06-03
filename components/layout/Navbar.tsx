@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { menu_list, MenuItem } from '@/lib/menu_list';
+import { menu_list, MenuItem } from '@/lib/menu_list.js';
 
 interface NavbarProps {
     page: string;

@@ -29,6 +29,6 @@
             "@/db/*": ["db/*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/*", "app/recent/RecentWipesSidebar.js"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/recent/RecentWipesSidebar.js"],
     "exclude": ["node_modules"]
 }
