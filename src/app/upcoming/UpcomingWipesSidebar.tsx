@@ -65,13 +65,14 @@ const UpcomingWipesSidebar = () => {
         >
             {/* Filter Row 1 */}
             <div className="flex">
-                <InputDatePicker name="date" defaultValue={new Date()} />
+                <InputDatePicker idName="date" name="date" defaultValue={new Date()} />
             </div>
             <div className="flex">
-                <InputTextbox name="min_rank" placeholder="Min Rank" />
+                <InputTextbox idName="min_rank" name="min_rank" placeholder="Min Rank" />
             </div>
             <div className="flex">
                 <InputSelect
+                    idName="time_zone"
                     name="time_zone"
                     select_options={timeSelectOptions}
                     defaultValue={{ value: timeSelectOptions[2][0], label: timeSelectOptions[2][1] }}
@@ -79,6 +80,7 @@ const UpcomingWipesSidebar = () => {
             </div>
             <div className="flex">
                 <InputSelect
+                    idName="region"
                     name="region"
                     select_options={regionSelectOptions}
                     defaultValue={{ value: regionSelectOptions[0][0], label: regionSelectOptions[0][1] }}
@@ -86,6 +88,7 @@ const UpcomingWipesSidebar = () => {
             </div>
             <div className="flex">
                 <InputSelect
+                    idName="resources"
                     name="resources"
                     select_options={rateSelectOptions}
                     defaultValue={{ value: rateSelectOptions[0][0], label: rateSelectOptions[0][1] }}
@@ -93,6 +96,7 @@ const UpcomingWipesSidebar = () => {
             </div>
             <div className="flex">
                 <InputSelect
+                    idName="group_limit"
                     name="group_limit"
                     select_options={groupSelectOptions}
                     defaultValue={{ value: groupSelectOptions[0][0], label: groupSelectOptions[0][1] }}
@@ -100,6 +104,7 @@ const UpcomingWipesSidebar = () => {
             </div>
             <div className="flex">
                 <InputSelect
+                    idName="game_mode"
                     name="game_mode"
                     select_options={modeSelectOptions}
                     defaultValue={{ value: modeSelectOptions[0][0], label: modeSelectOptions[0][1] }}

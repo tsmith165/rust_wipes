@@ -52,11 +52,11 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams })
             <form method="GET" action={form_action_url}>
                 <div className="flex flex-col space-y-2 p-2">
                     <div className="flex w-full flex-row space-x-2 ">
-                        <InputTextbox name="minPlayers" value={minPlayers.toString()} placeholder="Min Players" />
-                        <InputTextbox name="maxDist" value={maxDist.toString()} placeholder="Max Dist" />
+                        <InputTextbox idName="minPlayers" name="minPlayers" value={minPlayers.toString()} placeholder="Min Players" />
+                        <InputTextbox idName="maxDist" name="maxDist" value={maxDist.toString()} placeholder="Max Dist" />
                     </div>
                     <div className="flex flex-row space-x-2">
-                        <InputTextbox name="country" value={country} placeholder="Country" />
+                        <InputTextbox idName="country" name="country" value={country} placeholder="Country" />
                         <button type="submit" className={`h-8 w-8 rounded-md bg-primary p-1.5 hover:bg-primary_dark`}>
                             <HiRefresh className={`hover:animate-spin`} />
                         </button>
