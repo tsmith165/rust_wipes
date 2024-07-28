@@ -20,15 +20,17 @@
                 "name": "next"
             }
         ],
-        "baseUrl": ".",
+        "baseUrl": "./src",
         "paths": {
             "@/components/*": ["components/*"],
             "@/styles/*": ["styles/*"],
             "@/lib/*": ["lib/*"],
             "@/app/*": ["app/*"],
-            "@/db/*": ["db/*"]
+            "@/db/*": ["db/*"],
+            "@/stores/*": ["stores/*"],
+            "@/utils/*": ["utils/*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/recent/RecentWipesSidebar.js"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/recent/RecentWipesSidebar.js"],
     "exclude": ["node_modules"]
 }

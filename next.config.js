@@ -12,6 +12,11 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'files.rustmaps.com',
             },
+            {
+                protocol: 'https',
+                hostname: 'utfs.io',
+                pathname: '**',
+            },
         ],
         minimumCacheTTL: 60 * 60 * 24 * 7, //In seconds
     },

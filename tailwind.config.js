@@ -1,7 +1,9 @@
 import typography from '@tailwindcss/typography';
+const plugin = require('tailwindcss/plugin');
+import { withUt } from 'uploadthing/tw';
 
-module.exports = {
-    content: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+export default withUt({
+    content: ['./src/app/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
             colors: {
@@ -34,4 +36,4 @@ module.exports = {
     },
     mode: 'jit',
     plugins: [typography],
-};
+});
