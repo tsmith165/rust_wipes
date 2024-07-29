@@ -28,7 +28,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
     const selectedKit = useMemo(() => (selectedKitIndex !== null ? kits[selectedKitIndex] : null), [kits, selectedKitIndex]);
     const selectedImageRef = useRef<HTMLDivElement>(null);
 
-    const imageList = useMemo(() => {
+    const smallImageList = useMemo(() => {
         if (!selectedKit) return [];
         return [
             {
@@ -40,6 +40,22 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
                 src: image.small_image_path || image.image_path,
                 width: image.small_width || image.width,
                 height: image.small_height || image.height,
+            })),
+        ];
+    }, [selectedKit]);
+
+    const imageList = useMemo(() => {
+        if (!selectedKit) return [];
+        return [
+            {
+                src: selectedKit.image_path,
+                width: selectedKit.width,
+                height: selectedKit.height,
+            },
+            ...(selectedKit.extraImages || []).map((image) => ({
+                src: image.image_path,
+                width: image.width,
+                height: image.height,
             })),
         ];
     }, [selectedKit]);
@@ -116,7 +132,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
         return (
             <div className="inset-0 flex h-full w-full items-center justify-center">
                 <div className="xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70">
-                    <Image src="/logo/ccs_logo.png" alt="Capital City Staging Logo" width={370} height={150} />
+                    <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} />
                 </div>
             </div>
         );
@@ -124,7 +140,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
     return (
         <>
             <motion.div
-                className={`flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-stone-900`}
+                className={`radial-gradient flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}
@@ -134,6 +150,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
                         selectedKit={selectedKit}
                         currentImageIndex={currentImageIndex}
                         imageList={imageList}
+                        smallImageList={smallImageList}
                         imageLoadStates={imageLoadStates}
                         handleImageLoad={handleImageLoad}
                         setIsFullScreenImage={setIsFullScreenImage}
@@ -148,7 +165,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
                     />
                 )}
                 <motion.div
-                    className={`flex h-fit w-full px-8 ${selectedKit ? 'py-4 md:py-8' : 'py-8'}`}
+                    className={`flex h-fit w-full px-8 ${selectedKit ? 'pb-4 md:pb-8' : 'py-8'}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 2 }}
@@ -159,7 +176,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
                             1500: 4,
                             1100: 3,
                             700: 2,
-                            300: 1,
+                            400: 1,
                         }}
                         className="my-masonry-grid w-full"
                         columnClassName="my-masonry-grid_column"

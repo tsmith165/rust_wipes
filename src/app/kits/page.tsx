@@ -21,17 +21,17 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+    const suspense_fallback = (
+        <div className="inset-0 flex h-full w-full items-center justify-center">
+            <div className="xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70">
+                <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} />
+            </div>
+        </div>
+    );
+
     return (
         <PageLayout page="/kits">
-            <Suspense
-                fallback={
-                    <div className="inset-0 flex h-full w-full items-center justify-center">
-                        <div className="xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70">
-                            <Image src="/logo/admin_logo.png" alt="Admin Logo" width={370} height={150} />
-                        </div>
-                    </div>
-                }
-            >
+            <Suspense fallback={suspense_fallback}>
                 <KitPage />
             </Suspense>
         </PageLayout>

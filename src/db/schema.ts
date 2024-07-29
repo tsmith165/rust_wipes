@@ -1,4 +1,4 @@
-import { pgTable, integer, varchar, timestamp, text, serial } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, timestamp, text, serial, boolean } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 export const rw_parsed_server = pgTable('rw_parsed_server', {
@@ -71,6 +71,8 @@ export type InsertServerNetwork = InferInsertModel<typeof rw_server_network>;
 export const kitsTable = pgTable('kits', {
     id: serial('id').notNull().primaryKey(),
     o_id: integer('o_id').notNull(),
+    p_id: integer('p_id').notNull().default(0),
+    active: boolean('active').default(true),
     name: text('name').notNull(),
     price: integer('price'),
     permission_string: text('permission_string'),

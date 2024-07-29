@@ -18,7 +18,6 @@ export const admin_menu_list: [string, string, string][] = [
     ['kits', 'Kits', '/kits'],
     ['recent', 'Recent', '/recent?page=1&numServers=25&minPlayers=2&maxDist=5000&country=US'],
     ['upcoming', 'Upcoming', '/upcoming'],
-    ['inventory', 'Inventory', '/kits'],
     ['manage', 'Manage', '/admin/manage'],
     ['edit', 'Edit', '/admin/edit'],
 ];

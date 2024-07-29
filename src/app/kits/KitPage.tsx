@@ -1,4 +1,4 @@
-import { fetchKits } from '@/app/kits/actions';
+import { fetchKits } from '@/app/actions';
 import React from 'react';
 import KitViewer from './KitViewer';
 

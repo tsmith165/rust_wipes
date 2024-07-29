@@ -25,7 +25,7 @@ export default function HomePage() {
     ];
 
     return (
-        <div className="flex h-full w-full items-center justify-center overflow-y-auto bg-secondary bg-gradient-to-b from-secondary to-secondary_dark">
+        <div className="radial-gradient flex h-full w-full items-center justify-center overflow-y-auto bg-secondary_dark">
             <div className="w-70% flex h-fit flex-col items-center justify-center">
                 <h1 className="pb-8 text-4xl text-stone-300 md:text-6xl">
                     {`Find Your `}
