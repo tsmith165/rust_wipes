@@ -1,5 +1,23 @@
-import { pgTable, integer, varchar, timestamp, text, serial, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+
+const DEFAULT_CONTENTS = {
+    guns: {
+        AK: 1,
+    },
+    armor: {
+        'HQM Facemask': 1,
+    },
+    resources: {
+        Scrap: 1000,
+    },
+    components: {
+        'Rifle Body': 1,
+    },
+    medical: {
+        'Medical Syringe': 12,
+    },
+};
 
 export const rw_parsed_server = pgTable('rw_parsed_server', {
     id: serial('id').primaryKey(),
@@ -83,6 +101,7 @@ export const kitsTable = pgTable('kits', {
     height: integer('height').notNull(),
     small_width: integer('small_width').notNull(),
     small_height: integer('small_height').notNull(),
+    contents: jsonb('contents').default(DEFAULT_CONTENTS),
 });
 
 export type Kits = InferSelectModel<typeof kitsTable>;

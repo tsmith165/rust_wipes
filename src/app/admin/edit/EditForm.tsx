@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-
 import InputTextbox from '@/components/inputs/InputTextbox';
 import InputTextArea from '@/components/inputs/InputTextArea';
-
 import { onSubmitEditForm } from './actions';
 
 const MAX_CHANGE_DISPLAY_LENGTH = 30;
@@ -22,6 +20,7 @@ interface SubmitFormData {
     image_path: string;
     width: string;
     height: string;
+    contents: string; // JSON string of contents
 }
 
 const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
@@ -33,6 +32,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
         image_path: current_kit.image_path || '',
         width: current_kit.width?.toString() || '',
         height: current_kit.height?.toString() || '',
+        contents: JSON.stringify(current_kit.contents || {}, null, 2),
     });
 
     const [formData, setFormData] = useState<SubmitFormData>(initialFormData);
@@ -43,13 +43,13 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
     useEffect(() => {
         const newInitialFormData = {
             kit_id: current_kit.id.toString(),
-            kit_name: current_kit.name,
             description: current_kit.description || '',
             price: current_kit.price?.toString() || '',
             permission_string: current_kit.permission_string || '',
             image_path: current_kit.image_path || '',
             width: current_kit.width?.toString() || '',
             height: current_kit.height?.toString() || '',
+            contents: JSON.stringify(current_kit.contents || {}, null, 2),
         };
         setInitialFormData(newInitialFormData);
         setFormData(newInitialFormData);
@@ -84,15 +84,13 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
         e.preventDefault();
         setSubmittedChanges([]);
         setSubmitMessage(null);
-        console.log('Form Data (Next Line):');
-        console.log(formData);
         try {
             const result = await onSubmitEditForm(formData);
             if (result.success) {
                 setSubmitMessage({ type: 'success', text: 'Changes submitted successfully!' });
                 setSubmittedChanges(changes);
-                setInitialFormData(formData); // Update initial data after successful submission
-                setChanges([]); // Clear pending changes
+                setInitialFormData(formData);
+                setChanges([]);
             } else {
                 setSubmitMessage({ type: 'error', text: result.error || 'An error occurred while submitting changes.' });
             }
@@ -108,18 +106,8 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
     return (
         <div className="flex h-fit w-full p-2">
             <form onSubmit={handleSubmit} className="flex w-full flex-col space-y-2">
-                <div className="flex h-fit w-full">
-                    <InputTextbox idName="price" name="Price" value={formData.price} onChange={handleChange} />
-                </div>
-                <div className="flex h-fit w-full">
-                    <InputTextbox
-                        idName="permission_string"
-                        name="Permissions"
-                        value={formData.permission_string}
-                        onChange={handleChange}
-                    />
-                </div>
-
+                <InputTextbox idName="price" name="Price" value={formData.price} onChange={handleChange} />
+                <InputTextbox idName="permission_string" name="Permissions" value={formData.permission_string} onChange={handleChange} />
                 <div className="flex h-fit w-full flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
                     <div className="w-full md:w-1/2">
                         <InputTextbox idName="width" name="Width (px)" value={formData.width} onChange={handleChange} />
@@ -128,10 +116,8 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                         <InputTextbox idName="height" name="Height (px)" value={formData.height} onChange={handleChange} />
                     </div>
                 </div>
-
-                <div className="flex h-fit w-full">
-                    <InputTextArea idName="description" name="Description" value={formData.description} rows={5} onChange={handleChange} />
-                </div>
+                <InputTextArea idName="description" name="Description" value={formData.description} rows={5} onChange={handleChange} />
+                <InputTextArea idName="contents" name="Contents (JSON)" value={formData.contents} rows={10} onChange={handleChange} />
 
                 <div className="flex flex-row items-center space-x-2">
                     <button

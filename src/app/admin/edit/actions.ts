@@ -29,6 +29,7 @@ interface SubmitFormData {
     image_path: string;
     width: string;
     height: string;
+    contents: string; // JSON string of contents
 }
 
 export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success: boolean; error?: string }> {
@@ -39,13 +40,16 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
     }
 
     try {
-        console.log('Form Data (Next Line):');
-        console.log(data);
-
         console.log('Editing kit with form data:', data);
 
         if (data.kit_id) {
-            // Update existing kit
+            let contentsObject;
+            try {
+                contentsObject = JSON.parse(data.contents);
+            } catch (error) {
+                return { success: false, error: 'Invalid JSON in contents field' };
+            }
+
             await db
                 .update(kitsTable)
                 .set({
@@ -55,11 +59,10 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
                     image_path: data.image_path || '',
                     width: parseInt(data.width || '0'),
                     height: parseInt(data.height || '0'),
+                    contents: contentsObject,
                 })
                 .where(eq(kitsTable.id, parseInt(data.kit_id)));
         } else {
-            console.log("Couldn't find kit with id " + data.kit_id);
-            console.log('Skipping kit creation');
             return { success: false, error: 'Could not find kit with id ' + data.kit_id };
         }
         revalidatePath(`/kits/edit`);

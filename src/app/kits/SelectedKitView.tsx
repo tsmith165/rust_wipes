@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosArrowForward, IoIosArrowBack, IoIosSpeedometer } from 'react-icons/io';
-import { FaPlay, FaPause, FaEdit } from 'react-icons/fa';
+import { FaPlay, FaPause, FaEdit, FaShieldAlt, FaCube, FaCogs, FaMedkit, FaAppleAlt } from 'react-icons/fa';
+import { FaGun } from 'react-icons/fa6';
 import { KitsWithExtraImages } from '@/db/schema';
 import Link from 'next/link';
+import { Protect } from '@clerk/nextjs';
+import AdminProtect from '@/utils/auth/AdminProtect';
+
+// Define the structure of the contents field
+interface KitContents {
+    [category: string]: {
+        [item: string]: number;
+    };
+}
 
 interface SelectedKitViewProps {
     selectedKit: KitsWithExtraImages;
@@ -41,25 +51,117 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
     setSpeed,
 }) => {
     const [showSlider, setShowSlider] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+    // Parse the contents JSON string
+    const parsedContents = useMemo(() => {
+        if (typeof selectedKit.contents === 'string') {
+            try {
+                return JSON.parse(selectedKit.contents);
+            } catch (error) {
+                console.error('Error parsing contents JSON:', error);
+                return null;
+            }
+        }
+        // set selected category to the first category
+        console.log(selectedKit);
+        if (typeof selectedKit.contents === 'object' && selectedKit.contents !== null) {
+            setSelectedCategory(Object.keys(selectedKit.contents)[0]);
+            return selectedKit.contents;
+        }
+        return null;
+    }, [selectedKit.contents]);
 
     const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newSpeed = parseInt(e.target.value, 10);
         setSpeed(newSpeed);
     };
 
+    const toggleCategory = (category: string) => {
+        setSelectedCategory((prev) => (prev === category ? null : category));
+    };
+
+    const getCategoryIcon = (category: string) => {
+        switch (category.toLowerCase()) {
+            case 'guns':
+                return <FaGun />;
+            case 'armor':
+                return <FaShieldAlt />;
+            case 'resources':
+                return <FaCube />;
+            case 'components':
+                return <FaCogs />;
+            case 'medical':
+                return <FaMedkit />;
+            case 'food':
+                return <FaAppleAlt />;
+            default:
+                return null;
+        }
+    };
+
+    const renderContentsButtons = () => {
+        if (!parsedContents) return null;
+
+        return (
+            <div className="flex flex-wrap gap-2 overflow-y-auto">
+                {Object.entries(parsedContents).map(([category, items]) => (
+                    <div key={category} className="">
+                        <button
+                            onClick={() => toggleCategory(category)}
+                            className={`flex items-center space-x-2 rounded-full bg-gradient-to-b ${category !== selectedCategory ? 'from-stone-300 to-stone-500 text-stone-950' : 'from-primary_light to-primary text-stone-300'} px-3 py-1 text-sm hover:from-primary_light hover:to-primary hover:text-stone-300`}
+                        >
+                            {getCategoryIcon(category)}
+                        </button>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderContents = () => {
+        if (!parsedContents) return null;
+
+        return (
+            <div className="flex flex-wrap gap-2">
+                {Object.entries(parsedContents).map(([category, items]) => {
+                    if (category !== selectedCategory) return null;
+                    return (
+                        <div key={category} className="">
+                            <h2 className="text-lg font-bold gradient-primary-text">
+                                {category.charAt(0).toUpperCase() + category.slice(1)}
+                            </h2>
+                            <div className="flex flex-wrap gap-2">
+                                {Object.entries(items as Record<string, number>).map(([item, amount]) => (
+                                    <div
+                                        key={item}
+                                        className="flex items-center space-x-2 rounded-full bg-gradient-to-b from-stone-300 to-stone-500 px-3 py-1 text-sm text-stone-950 hover:from-primary_light hover:to-primary hover:text-stone-300"
+                                    >
+                                        <span>{item}</span>
+                                        <span>{`x${amount}`}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     return (
         <motion.div
-            className={`mx-auto flex max-h-[400px] min-h-[400px] w-full flex-col items-center justify-center space-y-4 p-4 sm:w-4/5 sm:flex-row md:max-h-[30dvh] md:min-h-[30dvh] md:w-3/5 md:space-x-4 md:space-y-0`}
+            className={`mx-auto flex max-h-[400px] min-h-[400px] w-full flex-col items-start justify-start space-y-4 p-4 sm:w-4/5 sm:flex-row md:max-h-[30dvh] md:min-h-[30dvh] md:w-3/5 md:space-x-4 md:space-y-0`}
             ref={selectedImageRef}
             initial={{ y: -300, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.75 }}
         >
-            <div className="flex h-fit w-4/5 flex-col items-center justify-center space-y-2 md:w-3/5 md:items-start ">
-                <h1 className="font-cinzel gradient-primary-text flextext-center text-4xl font-bold">{`${selectedKit.name}`}</h1>
-                <div className="max-h-[calc(30dvh-80px)] w-full overflow-y-auto">
-                    <p className="max-h-[20dvh] whitespace-pre-wrap text-stone-300 md:max-h-full">{selectedKit.description}</p>
-                </div>
+            <div className="flex h-full max-h-full w-4/5 flex-col items-center justify-start space-y-2 md:w-3/5 md:items-start ">
+                <h1 className="font-cinzel flex text-center text-4xl font-bold gradient-primary-text">{`${selectedKit.name}`}</h1>
+                <p className="text-stone-300">{selectedKit.description}</p>
+                <div className="w-full">{renderContentsButtons()}</div>
+                <div className="w-full overflow-y-auto">{renderContents()}</div>
             </div>
             <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 md:h-full md:w-2/5">
                 <AnimatePresence mode="wait">
@@ -107,15 +209,19 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                     </motion.div>
                 </AnimatePresence>
                 <div className="flex h-7 w-full items-center justify-center space-x-4">
-                    <div className="flex w-full flex-row items-center justify-center ">
-                        <div className="flex flex-grow justify-end pr-1">
-                            <Link href={`/admin/edit?id=${selectedKit.id}`} className="ml-2 flex items-center justify-center">
-                                <FaEdit className="fill-stone-600 text-xl hover:fill-primary" />
-                            </Link>
+                    <div className="flex w-full flex-row items-center justify-center space-x-1">
+                        <div className="flex flex-grow justify-end">
+                            <Protect fallback={<></>}>
+                                <AdminProtect fallback={<></>}>
+                                    <Link href={`/admin/edit?id=${selectedKit.id}`} className="ml-2 flex items-center justify-center">
+                                        <FaEdit className="h-[24px] w-[24px] fill-stone-600 p-0.5 text-xl hover:fill-primary" />
+                                    </Link>
+                                </AdminProtect>
+                            </Protect>
                             {smallImageList.length > 1 && (
                                 <button aria-label={isPlaying ? 'Pause' : 'Play'} onClick={togglePlayPause} className="ml-2">
                                     {isPlaying ? (
-                                        <FaPause className="fill-stone-600 text-xl hover:fill-primary" />
+                                        <FaPause className="h-[24px] w-[24px] fill-stone-600 p-0.5 text-xl hover:fill-primary" />
                                     ) : (
                                         <FaPlay className="fill-stone-600 text-xl hover:fill-primary" />
                                     )}
@@ -141,7 +247,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                             )}
                         </div>
                         <div
-                            className="group relative flex flex-grow flex-row justify-start pl-1"
+                            className="group relative flex flex-grow flex-row justify-start"
                             onMouseEnter={() => setShowSlider(true)}
                             onMouseLeave={() => setShowSlider(false)}
                         >
