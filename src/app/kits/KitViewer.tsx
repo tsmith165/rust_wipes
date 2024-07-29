@@ -176,7 +176,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
                             1500: 4,
                             1100: 3,
                             700: 2,
-                            400: 1,
+                            500: 1,
                         }}
                         className="my-masonry-grid w-full"
                         columnClassName="my-masonry-grid_column"
