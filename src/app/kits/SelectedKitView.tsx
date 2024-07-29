@@ -152,22 +152,13 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
 
     return (
         <motion.div
-            className={`mx-auto flex max-h-[400px] min-h-[400px] w-full flex-col items-start justify-start space-y-2 p-4 sm:w-4/5 sm:flex-row md:max-h-[30dvh] md:min-h-[30dvh] md:w-3/5 md:space-x-4 md:space-y-0`}
+            className={`mx-auto flex w-full flex-col items-start justify-start space-y-2 p-4 sm:w-4/5 sm:flex-row md:max-h-[35dvh] md:min-h-[35dvh] md:w-4/5 md:space-x-4 md:space-y-0`}
             ref={selectedImageRef}
             initial={{ y: -300, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.75 }}
         >
-            <div className="flex h-full max-h-full w-4/5 flex-col items-center justify-start md:w-3/5 md:items-start ">
-                <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
-                <p className="text-stone-300">{selectedKit.description}</p>
-                <div className="pt-2">
-                    <StripeBrandedButton url={'/checkout/' + selectedKit.id} price={`${selectedKit.price}`} text="checkout" />
-                </div>
-                <div className="w-full pt-2">{renderContentsButtons()}</div>
-                <div className="w-full overflow-y-auto">{renderContents()}</div>
-            </div>
-            <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 md:h-full md:w-2/5">
+            <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 md:h-full md:w-1/2">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={`${selectedKitIndex}-${currentImageIndex}`}
@@ -190,7 +181,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                                     alt={selectedKit.name}
                                     width={image.width}
                                     height={image.height}
-                                    className="max-h-[134px] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[calc(30dvh-64px)]"
+                                    className="max-h-[134px] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[calc(35dvh-64px)]"
                                     onLoad={handleImageLoad}
                                 />
                             ) : (
@@ -286,6 +277,15 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start md:w-1/2 md:items-start">
+                <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
+                <p className="text-stone-300">{selectedKit.description}</p>
+                <div className="pt-2">
+                    <StripeBrandedButton url={'/checkout/' + selectedKit.id} price={`${selectedKit.price}`} text="checkout" />
+                </div>
+                <div className="w-full pt-2">{renderContentsButtons()}</div>
+                <div className="w-full overflow-y-auto">{renderContents()}</div>
             </div>
         </motion.div>
     );
