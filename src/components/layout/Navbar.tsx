@@ -24,7 +24,7 @@ export default function Navbar({ page }: { page: string }) {
             <div
                 key={menu_class_name}
                 onClick={() => router.push(href)}
-                className={`h-full cursor-pointer items-center justify-center font-bold ${menu_class_name === 'upcoming' ? 'hidden md:!flex' : 'flex'} ${page.includes(menu_class_name) ? 'gradient-primary-text hover:gradient-white-text' : 'gradient-white-text hover:gradient-primary-text'}`}
+                className={`h-full cursor-pointer items-center justify-center font-bold ${menu_class_name === 'upcoming' ? 'hidden md:!flex' : 'flex'} ${page.includes(menu_class_name) ? 'radial-gradient-primary bg-primary bg-clip-text text-transparent' : 'radial-gradient-primary bg-stone-300 bg-clip-text text-transparent hover:bg-primary_dark'}`}
             >
                 {menu_full_name}
             </div>

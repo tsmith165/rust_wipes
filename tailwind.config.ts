@@ -53,16 +53,13 @@ export default withUt({
             // Custom gradeint utility classes
             const newUtilities = {
                 '.gradient-primary-text': {
-                    '@apply text-transparent bg-gradient-to-r bg-clip-text bg-gradient-to-r from-primary_light from-15% via-primary via-50% to-primary_light to-85%':
-                        {},
+                    '@apply text-transparent bg-clip-text bg-gradient-to-t from-primary_light to-primary': {},
                 },
                 '.gradient-primary-text-opp': {
-                    '@apply text-transparent bg-gradient-to-r bg-clip-text bg-gradient-to-r from-primary from-15% via-primary_light via-50% to-primary to-85%':
-                        {},
+                    '@apply text-transparent bg-clip-text bg-gradient-to-t from-primary_light to-primary': {},
                 },
                 '.gradient-white-text': {
-                    '@apply text-transparent bg-gradient-to-r bg-clip-text bg-gradient-to-r from-stone-300 from-15% via-stone-400 via-50% to-stone-300 to-85%':
-                        {},
+                    '@apply text-transparent bg-clip-text bg-gradient-to-t from-stone-300 to-stone-500': {},
                 },
             };
 

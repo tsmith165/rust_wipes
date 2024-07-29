@@ -58,3 +58,7 @@ a {
 .radial-gradient {
     background-image: radial-gradient(circle at top center, theme('colors.secondary') 0%, transparent 90%);
 }
+
+.radial-gradient-primary {
+    background-image: radial-gradient(circle at top center, theme('colors.primary_light') 0%, transparent 90%);
+}

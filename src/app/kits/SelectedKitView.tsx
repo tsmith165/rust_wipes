@@ -7,6 +7,7 @@ import { KitsWithExtraImages } from '@/db/schema';
 import Link from 'next/link';
 import { Protect } from '@clerk/nextjs';
 import AdminProtect from '@/utils/auth/AdminProtect';
+import StripeBrandedButton from '@/components/svg/StripeBrandedButton';
 
 // Define the structure of the contents field
 interface KitContents {
@@ -128,9 +129,11 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                     if (category !== selectedCategory) return null;
                     return (
                         <div key={category} className="">
+                            {/*
                             <h2 className="text-lg font-bold gradient-primary-text">
                                 {category.charAt(0).toUpperCase() + category.slice(1)}
                             </h2>
+                            */}
                             <div className="flex flex-wrap gap-2">
                                 {Object.entries(items as Record<string, number>).map(([item, amount]) => (
                                     <div
@@ -158,8 +161,9 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
             transition={{ duration: 0.75 }}
         >
             <div className="flex h-full max-h-full w-4/5 flex-col items-center justify-start space-y-2 md:w-3/5 md:items-start ">
-                <h1 className="font-cinzel flex text-center text-4xl font-bold gradient-primary-text">{`${selectedKit.name}`}</h1>
+                <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
                 <p className="text-stone-300">{selectedKit.description}</p>
+                <StripeBrandedButton url={'/checkout/' + selectedKit.id} price={`${selectedKit.price}`} text="checkout" />
                 <div className="w-full">{renderContentsButtons()}</div>
                 <div className="w-full overflow-y-auto">{renderContents()}</div>
             </div>
