@@ -86,7 +86,7 @@ export const rw_server_network = pgTable('rw_server_network', {
 export type ServerNetwork = InferSelectModel<typeof rw_server_network>;
 export type InsertServerNetwork = InferInsertModel<typeof rw_server_network>;
 
-export const kits_table = pgTable('kits_table', {
+export const kits = pgTable('kits', {
     id: serial('id').notNull().primaryKey(),
     o_id: integer('o_id').notNull(),
     p_id: integer('p_id').notNull().default(0),
@@ -104,14 +104,14 @@ export const kits_table = pgTable('kits_table', {
     contents: jsonb('contents').default(DEFAULT_CONTENTS),
 });
 
-export type Kits = InferSelectModel<typeof kits_table>;
-export type InsertKits = InferInsertModel<typeof kits_table>;
+export type Kits = InferSelectModel<typeof kits>;
+export type InsertKits = InferInsertModel<typeof kits>;
 
-export const kit_extra_images_table = pgTable('kit_extra_images_table', {
+export const KitExtraImages = pgTable('KitExtraImages', {
     id: serial('id').notNull().primaryKey(),
     kit_id: integer('kit_id')
         .notNull()
-        .references(() => kits_table.id),
+        .references(() => kits.id),
     title: text('title').default(''),
     image_path: text('image_path').notNull(),
     width: integer('width').notNull(),
@@ -121,14 +121,14 @@ export const kit_extra_images_table = pgTable('kit_extra_images_table', {
     small_height: integer('small_height'),
 });
 
-export type KitExtraImages = InferSelectModel<typeof kit_extra_images_table>;
-export type InsertKitExtraImages = InferInsertModel<typeof kit_extra_images_table>;
+export type KitExtraImagesType = InferSelectModel<typeof KitExtraImages>;
+export type InsertKitExtraImagesType = InferInsertModel<typeof KitExtraImages>;
 
 export type KitsWithExtraImages = Kits & {
-    extraImages: KitExtraImages[];
+    extraImages: KitExtraImagesType[];
 };
 
-export const pending_tranactions_table = pgTable('pending_tranactions_table', {
+export const pending_transactions_table = pgTable('pending_transactions', {
     id: serial('id').notNull().primaryKey(),
     kit_db_id: integer('kit_db_id').notNull(),
     kit_name: text('kit_name').notNull(),
@@ -138,10 +138,10 @@ export const pending_tranactions_table = pgTable('pending_tranactions_table', {
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
-export type PendingTransactions = InferSelectModel<typeof pending_tranactions_table>;
-export type InsertPendingTransactions = InferInsertModel<typeof pending_tranactions_table>;
+export type PendingTransactions = InferSelectModel<typeof pending_transactions_table>;
+export type InsertPendingTransactions = InferInsertModel<typeof pending_transactions_table>;
 
-export const verified_tranactions_table = pgTable('verified_tranactions_table', {
+export const verified_transactions_table = pgTable('verified_transactions', {
     id: serial('id').notNull().primaryKey(),
     kit_db_id: integer('kit_db_id').notNull(),
     kit_name: text('kit_name').notNull(),
@@ -157,5 +157,5 @@ export const verified_tranactions_table = pgTable('verified_tranactions_table', 
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
-export type VerifiedTransactions = InferSelectModel<typeof verified_tranactions_table>;
-export type InsertVerifiedTransactions = InferInsertModel<typeof verified_tranactions_table>;
+export type VerifiedTransactions = InferSelectModel<typeof verified_transactions_table>;
+export type InsertVerifiedTransactions = InferInsertModel<typeof verified_transactions_table>;

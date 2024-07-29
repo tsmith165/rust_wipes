@@ -6,10 +6,10 @@ import {
     rw_wipe_history,
     rw_scrapper_stats,
     rw_server_network,
-    kits_table,
-    kit_extra_images_table,
-    pending_tranactions_table,
-    verified_tranactions_table,
+    kits,
+    KitExtraImages,
+    pending_transactions_table,
+    verified_transactions_table,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -21,8 +21,8 @@ export {
     rw_wipe_history,
     rw_scrapper_stats,
     rw_server_network,
-    kits_table,
-    kit_extra_images_table,
-    pending_tranactions_table,
-    verified_tranactions_table,
+    kits,
+    KitExtraImages,
+    pending_transactions_table,
+    verified_transactions_table,
 };

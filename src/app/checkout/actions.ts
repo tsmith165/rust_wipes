@@ -1,6 +1,6 @@
 'use server';
 
-import { db, kits_table, pending_tranactions_table } from '@/db/db';
+import { db, kits, pending_transactions_table } from '@/db/db';
 import { eq, desc, sql } from 'drizzle-orm';
 
 import PROJECT_CONSTANTS from '@/lib/constants';
@@ -24,9 +24,9 @@ export async function runStripePurchase(data: FormData) {
 
     const kit_data = await db
         .select()
-        .from(kits_table)
-        .where(eq(kits_table.id, parseInt(kit_id)))
-        .orderBy(desc(kits_table.o_id))
+        .from(kits)
+        .where(eq(kits.id, parseInt(kit_id)))
+        .orderBy(desc(kits.o_id))
         .limit(1);
 
     if (!kit_data.length) {
@@ -101,8 +101,8 @@ export async function create_pending_transaction(kit_db_id: number, kit_name: st
     console.log(`Attempting to create pending transaction for kit_db_id: ${kit_db_id}`);
     // Fetch the current maximum ID from the PendingTransactions table
     const maxIdResult: MaxIdResult[] = await db
-        .select({ value: sql`max(${pending_tranactions_table.id})`.mapWith(Number) })
-        .from(pending_tranactions_table);
+        .select({ value: sql`max(${pending_transactions_table.id})`.mapWith(Number) })
+        .from(pending_transactions_table);
 
     const maxId = maxIdResult[0].value ?? 0; // If max_id is null, set it to 0
 
@@ -110,7 +110,7 @@ export async function create_pending_transaction(kit_db_id: number, kit_name: st
     const nextId = maxId + 1;
 
     // Insert the new record with the next ID
-    const pending_transaction_output = await db.insert(pending_tranactions_table).values({
+    const pending_transaction_output = await db.insert(pending_transactions_table).values({
         id: nextId,
         kit_db_id,
         kit_name,
