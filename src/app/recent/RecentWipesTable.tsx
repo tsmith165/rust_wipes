@@ -123,7 +123,6 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
                 <input type="hidden" name="page" value={incrementPage} />
                 <input type="hidden" name="numServers" value={numServers} />
                 <input type="hidden" name="minPlayers" value={minPlayers} />
-                ``
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
                 <button type="submit" className="flex items-center justify-center px-0 py-1">
