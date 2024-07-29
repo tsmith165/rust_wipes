@@ -20,17 +20,15 @@ export default function Navbar({ page }: { page: string }) {
     const [showMenu, setShowMenu] = useState(false);
 
     const navbar = menu_list.map(([menu_class_name, menu_full_name, href]) => {
-        if (menu_class_name !== 'upcoming') {
-            return (
-                <div
-                    key={menu_class_name}
-                    onClick={() => router.push(href)}
-                    className={`flex h-full cursor-pointer items-center justify-center font-bold ${page.includes(menu_class_name) ? 'gradient-primary-text hover:gradient-white-text' : 'gradient-white-text hover:gradient-primary-text'}`}
-                >
-                    {menu_full_name}
-                </div>
-            );
-        }
+        return (
+            <div
+                key={menu_class_name}
+                onClick={() => router.push(href)}
+                className={`h-full cursor-pointer items-center justify-center font-bold ${menu_class_name === 'upcoming' ? 'hidden md:!flex' : 'flex'} ${page.includes(menu_class_name) ? 'gradient-primary-text hover:gradient-white-text' : 'gradient-white-text hover:gradient-primary-text'}`}
+            >
+                {menu_full_name}
+            </div>
+        );
     });
 
     const halfLength = Math.ceil(navbar.length / 2);
@@ -59,7 +57,7 @@ export default function Navbar({ page }: { page: string }) {
                         className="max-h-[50px] w-fit object-contain pt-2.5"
                     />
                 </div>
-                <div className="hidden flex-1 flex-row items-center justify-start space-x-4 md:!flex">{rightNavbar}</div>
+                <div className="hidden flex-1 flex-row items-center justify-start space-x-4 pl-2 md:!flex">{rightNavbar}</div>
                 <div className="flex h-full flex-row justify-end space-x-2">
                     <div className="flex w-full flex-row items-center justify-center space-x-2 md:hidden">{navbar}</div>
                     <Protect fallback={<></>}>
