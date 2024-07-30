@@ -84,16 +84,18 @@ const Servers: React.FC = () => {
     );
 
     return (
-        <div className="radial-gradient-stone-950 container max-h-full min-h-full w-full min-w-full overflow-y-auto bg-primary_dark px-4 py-8">
-            <h1 className="radial-gradient-primary mb-8 bg-primary_dark bg-clip-text text-center text-4xl font-bold text-transparent">
+        <div className="radial-gradient-stone-950 container flex max-h-full min-h-full w-full min-w-full flex-col items-center overflow-y-auto bg-primary_dark px-4 py-8">
+            <h1 className="radial-gradient-primary_dark mb-8 w-fit bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">
                 Our Servers
             </h1>
             <div className="mx-auto grid w-4/5 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {servers.map((server) => (
-                    <div key={server.id} className="radial-gradient-stone-600 rounded-lg bg-stone-950 p-6 shadow-md">
-                        <h2 className="radial-gradient-primary_dark mb-4 w-full bg-primary bg-clip-text text-start text-2xl font-semibold text-transparent">
-                            {server.short_title || server.name}
-                        </h2>
+                    <div key={server.id} className="radial-gradient-stone-600 flex flex-col rounded-lg bg-stone-950 p-6 shadow-md">
+                        <div className="flex w-full items-center justify-center">
+                            <h2 className="radial-gradient-stone-300 mb-4 w-fit bg-primary_light bg-clip-text text-center text-2xl font-semibold text-transparent">
+                                {server.short_title || server.name}
+                            </h2>
+                        </div>
                         <div className="flex flex-col space-y-2">
                             <ServerInfoRow label="Group Size" value={server.group_size || 'N/A'} />
                             <ServerInfoRow label="Drop Rate" value={server.rate} />

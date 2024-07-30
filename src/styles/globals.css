@@ -68,9 +68,13 @@ a {
 }
 
 .radial-gradient-primary {
+    background-image: radial-gradient(circle at top center, theme('colors.primary') 0%, transparent 70%);
+}
+
+.radial-gradient-primary_light {
     background-image: radial-gradient(circle at top center, theme('colors.primary_light') 0%, transparent 70%);
 }
 
 .radial-gradient-primary_dark {
-    background-image: radial-gradient(circle at top center, theme('colors.primary_light') 0%, transparent 70%);
+    background-image: radial-gradient(circle at top center, theme('colors.primary_dark') 0%, transparent 70%);
 }

@@ -110,9 +110,16 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                     <div key={category} className="">
                         <button
                             onClick={() => toggleCategory(category)}
-                            className={`flex items-center space-x-2 rounded-full bg-gradient-to-b ${category !== selectedCategory ? 'from-stone-300 to-stone-500 text-stone-950' : 'from-primary_light to-primary text-stone-300'} px-3 py-1 text-sm hover:from-primary_light hover:to-primary hover:text-stone-300`}
+                            className={`group flex items-center space-x-2 rounded-full bg-gradient-to-b ${category !== selectedCategory ? 'from-stone-300 to-stone-500 text-stone-950' : 'from-primary_light to-primary text-stone-300'} px-3 py-1 text-sm hover:from-primary_light hover:to-primary hover:text-stone-300`}
                         >
                             {getCategoryIcon(category)}
+                            {
+                                <span
+                                    className={`text-xs leading-[14px] text-stone-400 ${category !== selectedCategory ? 'hidden' : 'flex'}`}
+                                >
+                                    {category}
+                                </span>
+                            }
                         </button>
                     </div>
                 ))}
@@ -128,10 +135,12 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                 {Object.entries(parsedContents).map(([category, items]) => {
                     if (category !== selectedCategory) return null;
                     return (
-                        <div key={category} className="">
+                        <div key={category} className="pt-2">
+                            {/*
                             <b className="text-lg font-bold gradient-primary-text">
                                 {category.charAt(0).toUpperCase() + category.slice(1)}
                             </b>
+                            */}
                             <div className="flex flex-wrap gap-2">
                                 {Object.entries(items as Record<string, number>).map(([item, amount]) => (
                                     <div
@@ -152,13 +161,13 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
 
     return (
         <motion.div
-            className={`mx-auto flex w-full flex-col items-start justify-start space-y-2 p-4 sm:w-4/5 sm:flex-row md:max-h-[35dvh] md:min-h-[35dvh] md:w-4/5 md:space-x-4 md:space-y-0`}
+            className={`mx-auto flex w-full flex-col items-start justify-start space-y-2 p-4 sm:w-4/5 sm:flex-row md:max-h-[35dvh] md:min-h-[35dvh] md:space-x-4 md:space-y-0`}
             ref={selectedImageRef}
             initial={{ y: -300, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.75 }}
         >
-            <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 md:h-full md:w-1/2">
+            <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 sm:w-1/3 md:h-full md:w-1/2">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={`${selectedKitIndex}-${currentImageIndex}`}
@@ -181,7 +190,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                                     alt={selectedKit.name}
                                     width={image.width}
                                     height={image.height}
-                                    className="max-h-[134px] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[calc(35dvh-64px)]"
+                                    className="max-h-[200px] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[calc(35dvh-64px)]"
                                     onLoad={handleImageLoad}
                                 />
                             ) : (
@@ -196,7 +205,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                                     width={image.width}
                                     height={image.height}
                                     hidden
-                                    className="max-h-[134px] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[calc(30dvh-64px)]"
+                                    className="max-h-[200px] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[calc(30dvh-64px)]"
                                     onLoad={handleImageLoad}
                                 />
                             ),
@@ -278,7 +287,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                     </div>
                 </div>
             </div>
-            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start md:w-1/2 md:items-start">
+            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start sm:w-2/3 md:w-1/2 md:items-start">
                 <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
                 <p className="text-stone-300">{selectedKit.description}</p>
                 <div className="pt-2">

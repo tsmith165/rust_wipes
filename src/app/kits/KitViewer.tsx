@@ -17,7 +17,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(null);
+    const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(0);
     const [isMasonryLoaded, setIsMasonryLoaded] = useState(false);
     const [isFullScreenImage, setIsFullScreenImage] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
