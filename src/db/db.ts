@@ -2,6 +2,7 @@ import '@/lib/config';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import {
+    rw_servers,
     rw_parsed_server,
     rw_wipe_history,
     rw_scrapper_stats,
@@ -17,6 +18,7 @@ const db = drizzle(sql);
 
 export {
     db,
+    rw_servers,
     rw_parsed_server,
     rw_wipe_history,
     rw_scrapper_stats,

@@ -159,3 +159,16 @@ export const verified_transactions_table = pgTable('verified_transactions', {
 
 export type VerifiedTransactions = InferSelectModel<typeof verified_transactions_table>;
 export type InsertVerifiedTransactions = InferInsertModel<typeof verified_transactions_table>;
+
+export const rw_servers = pgTable('rw_servers', {
+    id: serial('id').primaryKey(),
+    o_id: integer('o_id').notNull(),
+    name: varchar('name').notNull(),
+    rate: varchar('rate').notNull(),
+    wipe_days: varchar('wipe_days').notNull(),
+    wipe_time: integer('wipe_time').default(11),
+    connection_url: varchar('connection_url').notNull(),
+});
+
+export type RwServer = InferSelectModel<typeof rw_servers>;
+export type InsertRwServer = InferInsertModel<typeof rw_servers>;

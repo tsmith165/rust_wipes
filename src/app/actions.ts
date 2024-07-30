@@ -1,8 +1,8 @@
 'use server';
 
 import { eq, desc, asc, gt, lt, and, inArray } from 'drizzle-orm';
-import { db, kits, KitExtraImages } from '@/db/db';
-import { KitsWithExtraImages } from '@/db/schema';
+import { db, kits, KitExtraImages, rw_servers } from '@/db/db';
+import { KitsWithExtraImages, RwServer } from '@/db/schema';
 
 export async function fetchKits(): Promise<KitsWithExtraImages[]> {
     console.log(`Fetching active kits with Drizzle`);
@@ -160,4 +160,12 @@ export async function fetchKitImageById(id: number) {
         .execute();
 
     return kit[0] || null;
+}
+
+export async function fetchServers(): Promise<RwServer[]> {
+    console.log('Fetching servers with Drizzle');
+    const servers = await db.select().from(rw_servers).orderBy(asc(rw_servers.o_id));
+
+    console.log('Captured servers successfully');
+    return servers;
 }
