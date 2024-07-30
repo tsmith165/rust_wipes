@@ -83,18 +83,18 @@ export default function HomePage() {
                 className="absolute inset-0 bg-stone-900"
             ></motion.div>
             <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-full bg-stone-950 bg-opacity-70 p-16">
-                    <h1 className="pb-8 text-center text-4xl text-stone-300 md:text-6xl">
+                <div className="h-fit w-5/6 rounded-full bg-stone-950 bg-opacity-70 px-8 md:max-w-full md:p-16">
+                    <h1 className="pb-4 pt-8 text-center text-4xl text-stone-300 md:text-6xl">
                         {`Find Your `}
                         <span className="w-fit bg-gradient-to-r from-primary_dark via-primary_light to-primary_dark bg-clip-text text-transparent">
                             Perfect
                         </span>
                         {` Wipe`}
                     </h1>
-                    <div className="flex flex-row justify-center space-x-4">
+                    <div className="flex flex-wrap justify-center pb-4">
                         {linkData.map((link, index) => (
                             <Link key={index} href={link.href}>
-                                <button className="rounded-md bg-gradient-to-b from-stone-300 to-stone-500 p-2 text-stone-950 hover:from-primary_light hover:to-primary_dark hover:text-stone-300">
+                                <button className="mx-2 mb-2 rounded-md bg-gradient-to-b from-stone-300 to-stone-500 p-2 text-stone-950 hover:from-primary_light hover:to-primary_dark hover:text-stone-300">
                                     {link.label}
                                 </button>
                             </Link>
