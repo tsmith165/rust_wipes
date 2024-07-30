@@ -1,7 +1,7 @@
 import React from 'react';
 import { IoIosArrowUp, IoIosArrowDown, IoIosTrash } from 'react-icons/io';
 import { handleImageReorder, handleImageDelete, handleImageTitleEdit } from './actions';
-import { KitsWithExtraImages, KitExtraImages } from '@/db/schema';
+import { KitsWithExtraImages, KitExtraImagesType } from '@/db/schema';
 import Image from 'next/image';
 
 interface KitImagePanelProps {
@@ -9,7 +9,7 @@ interface KitImagePanelProps {
 }
 
 const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
-    const extra_images: KitExtraImages[] = current_kit.extraImages || [];
+    const extra_images: KitExtraImagesType[] = current_kit.extraImages || [];
 
     async function handleImageReorderAction(formData: FormData) {
         const kitId = Number(formData.get('kitId'));
@@ -51,7 +51,7 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
         await handleImageTitleEdit(imageId, newTitle);
     }
 
-    const renderImages = (images: KitExtraImages[], imageType: string) => {
+    const renderImages = (images: KitExtraImagesType[], imageType: string) => {
         const elements = [];
         for (let index = 0; index < images.length; index++) {
             const image = images[index];

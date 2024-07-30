@@ -1,26 +1,25 @@
 import type { Metadata } from 'next';
 export const metadata: Metadata = {
-    title: 'JWS Fine Art - Cancel Checkout',
-    description: 'Cancel Checkout for JWS Fine Art',
+    title: 'Rust Wipes - Cancel Checkout',
+    description: 'Cancel Checkout for Rust Wipes',
     keywords:
-        'Jill Weeks Smith, JWS Fine Art, Jill Weeks Smith Art, JWS Art, Art, Artist, Oil Painting, Oil, Gallery, Jill, Weeks, Smith, Checkout, Cancel',
-    applicationName: 'JWS Fine Art',
+        'rust, rustwipes, rust wipes, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list, Checkout, Cancel',
+    applicationName: 'Rust Wipes',
     icons: {
-        icon: '/logo/JWS_ICON_260.png',
-        shortcut: '/logo/JWS_ICON_260.png',
-        apple: '/favicon/apple-icon.png',
+        icon: '/rust_hazmat_icon.png',
+        shortcut: '/rust_hazmat_icon.png',
     },
     openGraph: {
-        title: 'JWS Fine Art - Cancel Checkout',
-        description: 'Cancel Checkout for JWS Fine Art',
-        siteName: 'JWS Fine Art',
-        url: 'https://www.jwsfineart.com',
+        title: 'Rust Wipes - Cancel Checkout',
+        description: 'Cancel Checkout for Rust Wipes',
+        siteName: 'Rust Wipes',
+        url: 'https://www.rustwipes.com',
         images: [
             {
-                url: '/favicon/og-image.png',
+                url: '/og-image.png',
                 width: 1200,
                 height: 630,
-                alt: 'JWS Fine Art',
+                alt: 'Rust Wipes',
             },
         ],
         locale: 'en_US',
@@ -28,18 +27,23 @@ export const metadata: Metadata = {
     },
 };
 
-import { fetchPieceById } from '@/app/actions';
-import { PiecesWithImages } from '@/db/schema';
+import { fetchKitById } from '@/app/actions';
+import { KitsWithExtraImages } from '@/db/schema';
 import PageLayout from '@/components/layout/PageLayout';
 import Cancel from '@/app/checkout/cancel/[id]/Cancel';
 
 export default async function Page(props: { params: { id: string } }) {
     const current_id = parseInt(props.params.id);
-    const current_piece: PiecesWithImages = await fetchPieceById(current_id);
+    const current_kit: KitsWithExtraImages | null = await fetchKitById(current_id);
+
+    if (!current_kit) {
+        // Handle the case where the kit is not found
+        return <div>Kit not found</div>;
+    }
 
     return (
         <PageLayout page={`/checkout/cancel/${current_id}`}>
-            <Cancel current_piece={current_piece} current_id={current_id} />
+            <Cancel current_kit={current_kit} current_id={current_id} />
         </PageLayout>
     );
 }

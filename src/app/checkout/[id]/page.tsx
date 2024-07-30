@@ -24,7 +24,12 @@ import Checkout from '@/app/checkout/[id]/Checkout';
 
 export default async function Page(props: { params: { id: string } }) {
     const current_id = parseInt(props.params.id);
-    const current_kit: KitsWithExtraImages = await fetchKitById(current_id);
+    const current_kit: KitsWithExtraImages | null = await fetchKitById(current_id);
+
+    if (!current_kit) {
+        // Handle the case where the kit is not found
+        return <div>Kit not found</div>;
+    }
 
     return (
         <PageLayout page={`/checkout/${props.params.id}`}>
