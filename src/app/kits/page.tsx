@@ -42,10 +42,7 @@ export default async function KitPage({ searchParams }: PageProps) {
         // Redirect to the first kit of the selected type if no kit is selected
         const firstKitOfType = kitData.find((kit) => kit.type === selectedType);
         if (firstKitOfType) {
-            redirect(`/kits?kit=${firstKitOfType.id}&type=${selectedType}`);
-        } else {
-            // If no kit of the selected type exists, redirect to the first kit
-            redirect(`/kits?kit=${kitData[0].id}&type=${kitData[0].type}`);
+            redirect(`/kits?type=${selectedType}&kit=${firstKitOfType.id}`);
         }
     }
 

@@ -14,17 +14,6 @@ export default async function KitPage({ searchParams }: { searchParams: { [key: 
     const selectedKitId = searchParams.kit ? parseInt(searchParams.kit as string, 10) : null;
     const selectedType = (searchParams.type as string) || 'monthly';
 
-    if (!selectedKitId) {
-        // Redirect to the first kit of the selected type if no kit is selected
-        const firstKitOfType = kitData.find((kit) => kit.type === selectedType);
-        if (firstKitOfType) {
-            redirect(`/kits?kit=${firstKitOfType.id}&type=${selectedType}`);
-        } else {
-            // If no kit of the selected type exists, redirect to the first kit
-            redirect(`/kits?kit=${kitData[0].id}&type=${kitData[0].type}`);
-        }
-    }
-
     return (
         <PageLayout page="/kits">
             <KitViewer kits={kitData} initialSelectedKitId={selectedKitId} initialSelectedType={selectedType} />

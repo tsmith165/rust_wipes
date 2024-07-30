@@ -32,7 +32,7 @@ const KitItem = ({ kit, handleKitClick }: KitItemProps) => {
             </div>
             */}
             <div className="flex flex-row justify-between p-2">
-                <b className="gradient-white-text group-hover:gradient-primary-text-opp text-lg">{kit.name}</b>
+                <b className="text-lg gradient-white-text group-hover:gradient-primary-text-opp">{kit.name}</b>
                 <span className="text-md text-stone-400 group-hover:text-primary">{`$${kit.price}.00`}</span>
             </div>
         </div>

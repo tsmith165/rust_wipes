@@ -15,6 +15,7 @@ interface NewKitData {
     smallImagePath: string;
     smallWidth: number;
     smallHeight: number;
+    type: string;
 }
 
 export default function CreateKit() {
@@ -30,6 +31,7 @@ export default function CreateKit() {
     const [smallHeight, setSmallHeight] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [type, setType] = useState('monthly');
 
     const router = useRouter();
 
@@ -80,6 +82,7 @@ export default function CreateKit() {
                 smallImagePath: smallImageUrl,
                 smallWidth,
                 smallHeight,
+                type,
             };
             const kit_data = await createNewKit(data);
             setStatusMessage({ type: 'success', message: 'Kit created successfully.' });

@@ -12,6 +12,7 @@ import { KitsWithExtraImages } from '@/db/schema';
 import KitItem from './KitView';
 import FullScreenView from './FullScreenView';
 import SelectedKitView from './SelectedKitView';
+import Link from 'next/link';
 
 interface KitViewerProps {
     kits: KitsWithExtraImages[];
@@ -101,20 +102,6 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         [selectedKitIndex, searchParams, router, selectedType],
     );
 
-    const handleTypeChange = (type: string) => {
-        setSelectedType(type);
-        const firstKitOfType = kits.find((kit) => kit.type === type);
-        if (firstKitOfType) {
-            const newSearchParams = new URLSearchParams(searchParams);
-            newSearchParams.set('kit', `${firstKitOfType.id}`);
-            newSearchParams.set('type', type);
-            router.replace(`/kits?${newSearchParams.toString()}`);
-            setSelectedKitIndex(0);
-            setCurrentImageIndex(0);
-            setImageLoadStates({});
-        }
-    };
-
     const kitItems = useMemo(() => {
         return filteredKits.map((kit, index) => <KitItem key={`kit-${kit.id}`} kit={{ ...kit, index }} handleKitClick={handleKitClick} />);
     }, [filteredKits, handleKitClick]);
@@ -154,6 +141,16 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         setIsPlaying((prevState) => !prevState);
     }, []);
 
+    const handleTypeChange = (type: string) => {
+        setSelectedType(type);
+        const firstKitOfType = kits.find((kit) => kit.type === type);
+        if (firstKitOfType) {
+            router.push(`/kits?type=${type}&kit=${firstKitOfType.id}`);
+        } else {
+            router.push(`/kits?type=${type}`);
+        }
+    };
+
     if (!isMasonryLoaded)
         return (
             <div className="inset-0 flex h-full w-full items-center justify-center">
@@ -167,13 +164,12 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         <>
             <div className=" flex justify-center space-x-4 pt-4">
                 {['monthly', 'single', 'priority'].map((type) => (
-                    <button
-                        key={type}
-                        onClick={() => handleTypeChange(type)}
+                    <div
                         className={`rounded-3xl px-4 py-2 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
+                        onClick={() => handleTypeChange(type)}
                     >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
+                    </div>
                 ))}
             </div>
             <motion.div
