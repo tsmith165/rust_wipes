@@ -88,11 +88,11 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                 return <FaGun />;
             case 'armor':
                 return <FaShieldAlt />;
-            case 'resources':
+            case 'farm':
                 return <FaCube />;
-            case 'components':
+            case 'comps':
                 return <FaCogs />;
-            case 'medical':
+            case 'meds':
                 return <FaMedkit />;
             case 'food':
                 return <FaAppleAlt />;
@@ -115,7 +115,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                             {getCategoryIcon(category)}
                             {
                                 <span
-                                    className={`text-xs leading-[14px] text-stone-400 ${category !== selectedCategory ? 'hidden' : 'flex'}`}
+                                    className={`text-xs leading-[14px] text-stone-300 ${category !== selectedCategory ? 'hidden group-hover:!flex' : 'flex'}`}
                                 >
                                     {category}
                                 </span>
@@ -289,10 +289,10 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
             </div>
             <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start sm:w-1/2 md:w-1/2 md:items-start">
                 <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
-                <p className="text-stone-300">{selectedKit.description}</p>
                 <div className="pt-2">
                     <StripeBrandedButton url={'/checkout/' + selectedKit.id} price={`${selectedKit.price}`} text="checkout" />
                 </div>
+                <p className="pt-2 text-stone-300">{selectedKit.description}</p>
                 <div className="w-full pt-2">{renderContentsButtons()}</div>
                 <div className="w-full overflow-y-auto">{renderContents()}</div>
             </div>

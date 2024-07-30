@@ -9,7 +9,7 @@ import 'react-tooltip/dist/react-tooltip.css';
 
 import { KitsWithExtraImages } from '@/db/schema';
 
-import KitItem from './KitView';
+import KitItemView from './KitItemView';
 import FullScreenView from './FullScreenView';
 import SelectedKitView from './SelectedKitView';
 import Link from 'next/link';
@@ -104,7 +104,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
 
     const kitItems = useMemo(() => {
         return filteredKits.map((kit, index) => (
-            <KitItem
+            <KitItemView
                 key={`kit-${kit.id}`}
                 kit={{ ...kit, index }}
                 handleKitClick={handleKitClick}
