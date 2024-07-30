@@ -77,12 +77,14 @@ const Servers: React.FC = () => {
     };
 
     return (
-        <div className="container max-h-full min-h-full w-full min-w-full overflow-y-auto bg-gradient-to-b from-stone-400 to-stone-800 px-4 py-8">
-            <h1 className="radial-gradient-primary mb-8 bg-clip-text text-center text-4xl font-bold text-transparent">Our Servers</h1>
+        <div className="radial-gradient bg-stone-850 container max-h-full min-h-full w-full min-w-full overflow-y-auto px-4 py-8">
+            <h1 className="radial-gradient-primary mb-8 bg-primary_dark bg-clip-text text-center text-4xl font-bold text-transparent">
+                Our Servers
+            </h1>
             <div className="mx-auto grid w-4/5 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {servers.map((server) => (
-                    <div key={server.id} className="rounded-lg bg-stone-800 p-6 shadow-md">
-                        <h2 className="radial-gradient-primary mb-2 w-full bg-stone-300 bg-clip-text text-center text-2xl font-semibold text-transparent">
+                    <div key={server.id} className="radial-gradient rounded-lg bg-stone-950 p-6 shadow-md">
+                        <h2 className="radial-gradient-white mb-2 w-full bg-stone-500 bg-clip-text text-center text-2xl font-semibold text-transparent">
                             {server.name}
                         </h2>
                         {/* <p className="mb-2 text-stone-300">Resource Rate: {server.rate}</p> */}
