@@ -14,12 +14,12 @@ const DynamicMenuOverlay = dynamic(() => import('./menu/MenuOverlay'), { ssr: fa
 
 export default function Navbar({ page }: { page: string }) {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const pathname = usePathname();
-    const [isPending, startTransition] = useTransition();
     const [showMenu, setShowMenu] = useState(false);
 
     const navbar = menu_list.map(([menu_class_name, menu_full_name, href]) => {
+        if (page.includes('checkout')) {
+            page = 'kits';
+        }
         return (
             <div
                 key={menu_class_name}
