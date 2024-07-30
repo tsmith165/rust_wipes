@@ -60,7 +60,10 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
             const nextImageId = images[index + 1]?.id || images[0]?.id;
 
             elements.push(
-                <div key={index} className="group flex h-[60px] flex-row items-center space-x-2 rounded-lg px-2 py-2 hover:bg-stone-400">
+                <div
+                    key={index}
+                    className="group flex h-[60px] flex-row items-center space-x-2 rounded-lg bg-stone-400 px-2 py-2 hover:bg-stone-500"
+                >
                     <Image
                         src={image.image_path}
                         alt={image.image_path}
@@ -75,7 +78,7 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
                             <input type="hidden" name="targetImageId" value={prevImageId.toString()} />
                             <input type="hidden" name="imageType" value={imageType} />
                             <button type="submit">
-                                <IoIosArrowUp className="h-[20px] w-[20px] cursor-pointer rounded-sm bg-primary fill-stone-950 p-1 hover:bg-primary_dark hover:fill-stone-400" />
+                                <IoIosArrowUp className="h-[20px] w-[20px] cursor-pointer rounded-sm bg-primary fill-stone-300 p-1 hover:bg-primary_light hover:fill-stone-950" />
                             </button>
                         </form>
                         <form action={handleImageReorderAction}>
@@ -84,7 +87,7 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
                             <input type="hidden" name="targetImageId" value={nextImageId.toString()} />
                             <input type="hidden" name="imageType" value={imageType} />
                             <button type="submit">
-                                <IoIosArrowDown className="h-[20px] w-[20px] cursor-pointer rounded-sm bg-primary fill-stone-950 p-1 hover:bg-primary_dark hover:fill-stone-400" />
+                                <IoIosArrowDown className="h-[20px] w-[20px] cursor-pointer rounded-sm bg-primary fill-stone-300 p-1 hover:bg-primary_light hover:fill-stone-950" />
                             </button>
                         </form>
                     </div>
@@ -95,7 +98,7 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
                             <input type="hidden" name="imagePath" value={image.image_path} />
                             <input type="hidden" name="imageType" value={imageType} />
                             <button type="submit">
-                                <IoIosTrash className="h-6 w-6 cursor-pointer rounded-sm bg-red-600 fill-stone-950 p-1 hover:bg-red-800 hover:fill-stone-400" />
+                                <IoIosTrash className="h-6 w-6 cursor-pointer rounded-sm bg-primary fill-stone-300 p-1 hover:bg-primary_light hover:fill-stone-950" />
                             </button>
                         </form>
                     </div>
@@ -110,16 +113,14 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
 
     return (
         <div className="flex h-fit w-full flex-col pt-2">
-            <div className="rounded-lg">
-                {extra_images.length > 0 && (
-                    <div>
-                        <h3 className="gradient-primary-main-text rounded-t-lg px-2 py-2 text-center text-2xl font-semibold">
-                            Extra Images
-                        </h3>
-                        <div className="flex h-fit flex-col">{renderImages(extra_images, 'extra')}</div>
-                    </div>
-                )}
-            </div>
+            {extra_images.length > 0 && (
+                <div className="flex h-fit w-full flex-col items-center justify-center rounded-lg">
+                    <h3 className="radial-gradient-stone-300 w-fit rounded-t-lg bg-primary bg-clip-text text-center text-2xl font-semibold text-transparent">
+                        Extra Images
+                    </h3>
+                    <div className="flex h-fit w-full flex-col px-4 py-4">{renderImages(extra_images, 'extra')}</div>
+                </div>
+            )}
         </div>
     );
 };
