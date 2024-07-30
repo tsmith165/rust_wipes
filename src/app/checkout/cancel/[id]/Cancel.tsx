@@ -33,7 +33,9 @@ const Cancel: React.FC<CancelProps> = ({ current_kit, current_id }) => {
                 </div>
                 <div className="flex h-full w-fit items-center justify-center rounded-lg text-white shadow-lg md:justify-start">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                        <h1 className="w-full text-center text-2xl font-bold text-primary">{current_kit ? `"${current_kit.name}"` : ''}</h1>
+                        <h1 className="w-full text-center text-2xl font-bold text-primary">
+                            {current_kit ? `"${current_kit.full_name || current_kit.name}"` : ''}
+                        </h1>
                         <div className="flex w-full flex-col space-y-2 px-4 text-left">
                             <p className="font-sans text-lg font-bold text-red-600">Purchase was not successful.</p>
                             <p className="font-sans text-lg font-bold text-red-600">

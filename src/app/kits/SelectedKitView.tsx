@@ -288,11 +288,15 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                 </div>
             </div>
             <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start sm:w-1/2 md:w-1/2 md:items-start">
-                <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
+                <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.full_name || selectedKit.name}`}</h1>
                 <div className="pt-2">
                     <StripeBrandedButton url={'/checkout/' + selectedKit.id} price={`${selectedKit.price}`} text="checkout" />
                 </div>
                 <p className="pt-2 text-stone-300">{selectedKit.description}</p>
+                <p className={`pt-0 text-stone-300 ${selectedKit.type === 'monthly' ? '' : 'hidden'}`}>
+                    Kits are locked for 4 hours after wipe, then available every 8 hours.
+                </p>
+                {/*<p className={`pt-0 text-stone-300`}>If you have any questions, feel free to reach out on discord!</p>*/}
                 <div className="w-full pt-2">{renderContentsButtons()}</div>
                 <div className="w-full overflow-y-auto">{renderContents()}</div>
             </div>

@@ -29,8 +29,9 @@ interface SubmitFormData {
     image_path: string;
     width: string;
     height: string;
-    contents: string; // JSON string of contents
+    contents: string;
     type: string;
+    full_name: string;
 }
 
 export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success: boolean; error?: string }> {
@@ -62,6 +63,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
                     height: parseInt(data.height || '0'),
                     contents: contentsObject,
                     type: data.type || 'monthly',
+                    full_name: data.full_name || '',
                 })
                 .where(eq(kits.id, parseInt(data.kit_id)));
         } else {

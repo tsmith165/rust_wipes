@@ -92,6 +92,7 @@ export const kits = pgTable('kits', {
     p_id: integer('p_id').notNull().default(0),
     active: boolean('active').default(true),
     name: text('name').notNull(),
+    full_name: text('full_name'), // Add this new field
     price: integer('price'),
     permission_string: text('permission_string'),
     description: text('description'),

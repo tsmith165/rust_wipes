@@ -21,8 +21,9 @@ interface SubmitFormData {
     image_path: string;
     width: string;
     height: string;
-    contents: string; // JSON string of contents
+    contents: string;
     type: string;
+    full_name: string;
 }
 
 const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
@@ -36,6 +37,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
         height: current_kit.height?.toString() || '',
         contents: JSON.stringify(current_kit.contents || {}, null, 2),
         type: current_kit.type || 'monthly',
+        full_name: current_kit.full_name || '', // Add this new field
     });
 
     const [formData, setFormData] = useState<SubmitFormData>(initialFormData);
@@ -54,6 +56,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
             height: current_kit.height?.toString() || '',
             contents: JSON.stringify(current_kit.contents || {}, null, 2),
             type: current_kit.type || 'monthly',
+            full_name: current_kit.full_name || '',
         };
         setInitialFormData(newInitialFormData);
         setFormData(newInitialFormData);
@@ -110,6 +113,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
     return (
         <div className="flex h-fit w-full p-2">
             <form onSubmit={handleSubmit} className="flex w-full flex-col space-y-2">
+                <InputTextbox idName="full_name" name="Full Name" value={formData.full_name} onChange={handleChange} />
                 <InputTextbox idName="price" name="Price" value={formData.price} onChange={handleChange} />
                 <InputTextbox idName="permission_string" name="Permissions" value={formData.permission_string} onChange={handleChange} />
                 <div className="flex h-fit w-full flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">

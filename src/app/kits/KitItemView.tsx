@@ -23,7 +23,7 @@ const KitItemView = ({ kit, handleKitClick, isSelected }: KitItemProps) => {
                 <b
                     className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
                 >
-                    {kit.name}
+                    {kit.full_name || kit.name}
                 </b>
                 <b
                     className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
