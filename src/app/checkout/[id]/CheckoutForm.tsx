@@ -84,8 +84,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
             <form onSubmit={handleStripePurchaseClick} className="flex flex-col">
                 <input type="hidden" name="kit_id" value={current_kit.id} />
 
-                <div className="flex flex-col items-center space-y-2">
-                    <div className="flex w-full flex-row items-center">
+                <div className="flex flex-col items-start space-y-2">
+                    <div className="flex w-full flex-row">
                         <div className="flex-grow">
                             <input
                                 type="text"
@@ -107,10 +107,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                         </button>
                     </div>
                     {steamProfile && (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-start space-x-2 pt-2">
                             <img src={steamProfile.avatarUrl} alt="Steam Avatar" className="h-8 w-8 rounded-full" />
-                            <span>{steamProfile.name}</span>
-                            <span className="text-sm text-gray-500">({steamProfile.steamId})</span>
+                            <span className="text-md leading-8 text-gray-300">{steamProfile.name}</span>
+                            <span className="text-md leading-8 text-gray-400">({steamProfile.steamId})</span>
                         </div>
                     )}
                     {steamError && <div className="text-red-500">{steamError}</div>}
