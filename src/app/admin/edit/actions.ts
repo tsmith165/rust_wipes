@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-import { db, kitsTable, kitExtraImagesTable } from '@/db/db';
+import { db, kits, KitExtraImages } from '@/db/db';
 import { Kits } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
@@ -51,7 +51,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
             }
 
             await db
-                .update(kitsTable)
+                .update(kits)
                 .set({
                     description: data.description || '',
                     price: parseInt(data.price || '0'),
@@ -61,7 +61,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
                     height: parseInt(data.height || '0'),
                     contents: contentsObject,
                 })
-                .where(eq(kitsTable.id, parseInt(data.kit_id)));
+                .where(eq(kits.id, parseInt(data.kit_id)));
         } else {
             return { success: false, error: 'Could not find kit with id ' + data.kit_id };
         }
@@ -86,8 +86,8 @@ export async function handleImageReorder(
     }
 
     try {
-        const currentImage = await db.select().from(kitExtraImagesTable).where(eq(kitExtraImagesTable.id, currentImageId)).limit(1);
-        const targetImage = await db.select().from(kitExtraImagesTable).where(eq(kitExtraImagesTable.id, targetImageId)).limit(1);
+        const currentImage = await db.select().from(KitExtraImages).where(eq(KitExtraImages.id, currentImageId)).limit(1);
+        const targetImage = await db.select().from(KitExtraImages).where(eq(KitExtraImages.id, targetImageId)).limit(1);
 
         if (currentImage.length === 0 || targetImage.length === 0) {
             console.error(`No images found for reordering`);
@@ -95,16 +95,10 @@ export async function handleImageReorder(
         }
 
         console.log(`Setting image path for ${currentImageId} to ${targetImage[0].image_path}`);
-        await db
-            .update(kitExtraImagesTable)
-            .set({ image_path: targetImage[0].image_path })
-            .where(eq(kitExtraImagesTable.id, currentImageId));
+        await db.update(KitExtraImages).set({ image_path: targetImage[0].image_path }).where(eq(KitExtraImages.id, currentImageId));
 
         console.log(`Setting image path for ${targetImageId} to ${currentImage[0].image_path}`);
-        await db
-            .update(kitExtraImagesTable)
-            .set({ image_path: currentImage[0].image_path })
-            .where(eq(kitExtraImagesTable.id, targetImageId));
+        await db.update(KitExtraImages).set({ image_path: currentImage[0].image_path }).where(eq(KitExtraImages.id, targetImageId));
 
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
@@ -123,7 +117,7 @@ export async function handleImageTitleEdit(imageId: number, newTitle: string): P
     }
 
     try {
-        await db.update(kitExtraImagesTable).set({ title: newTitle }).where(eq(kitExtraImagesTable.id, imageId));
+        await db.update(KitExtraImages).set({ title: newTitle }).where(eq(KitExtraImages.id, imageId));
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
@@ -140,9 +134,7 @@ export async function handleImageDelete(kitId: number, imagePath: string): Promi
         return { success: false, error: roleError };
     }
     try {
-        await db
-            .delete(kitExtraImagesTable)
-            .where(and(eq(kitExtraImagesTable.kit_id, kitId), eq(kitExtraImagesTable.image_path, imagePath)));
+        await db.delete(KitExtraImages).where(and(eq(KitExtraImages.kit_id, kitId), eq(KitExtraImages.image_path, imagePath)));
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
@@ -168,7 +160,7 @@ export async function handleTitleUpdate(formData: FormData): Promise<{ success: 
             return { success: false, error: 'Required form data missing. Cannot update title.' };
         }
 
-        await db.update(kitsTable).set({ name: newTitle }).where(eq(kitsTable.id, kitId));
+        await db.update(kits).set({ name: newTitle }).where(eq(kits.id, kitId));
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
@@ -179,7 +171,7 @@ export async function handleTitleUpdate(formData: FormData): Promise<{ success: 
 }
 
 async function getMostRecentOId() {
-    const lastKit = await db.select({ o_id: kitsTable.o_id }).from(kitsTable).orderBy(desc(kitsTable.o_id)).limit(1);
+    const lastKit = await db.select({ o_id: kits.o_id }).from(kits).orderBy(desc(kits.o_id)).limit(1);
     return lastKit.length > 0 ? lastKit[0].o_id : null;
 }
 
@@ -218,7 +210,7 @@ export async function createKit(newKitData: NewKitData): Promise<{ success: bool
         };
         console.log('New Kit Data:', data);
 
-        const newKit = await db.insert(kitsTable).values(data).returning();
+        const newKit = await db.insert(kits).values(data).returning();
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true, kit: newKit[0] };
@@ -276,7 +268,7 @@ export async function storeUploadedImageDetails(data: UploadFormData): Promise<{
         const smallWidth = parseInt(data.small_width?.toString() || '0');
         const smallHeight = parseInt(data.small_height?.toString() || '0');
 
-        const kit = await db.select().from(kitsTable).where(eq(kitsTable.id, kitId)).limit(1);
+        const kit = await db.select().from(kits).where(eq(kits.id, kitId)).limit(1);
         if (!kit.length) {
             console.error(`Kit with id ${kitId} not found`);
             return { success: false, error: `Kit with id ${kitId} not found` };
@@ -285,7 +277,7 @@ export async function storeUploadedImageDetails(data: UploadFormData): Promise<{
         if (imageType === 'main') {
             console.log('Modifying main image');
             await db
-                .update(kitsTable)
+                .update(kits)
                 .set({
                     image_path: imageUrl,
                     width: width,
@@ -294,11 +286,11 @@ export async function storeUploadedImageDetails(data: UploadFormData): Promise<{
                     small_width: smallWidth,
                     small_height: smallHeight,
                 })
-                .where(eq(kitsTable.id, kitId));
+                .where(eq(kits.id, kitId));
         } else {
             if (imageType === 'extra') {
                 console.log('Adding extra image');
-                await db.insert(kitExtraImagesTable).values({
+                await db.insert(KitExtraImages).values({
                     kit_id: kitId,
                     image_path: imageUrl,
                     title: title,
