@@ -6,20 +6,49 @@ import { eq, desc, sql } from 'drizzle-orm';
 import PROJECT_CONSTANTS from '@/lib/constants';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2024-04-10',
-});
+let stripe: Stripe | null = null;
+
+console.log('STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
+if (process.env.STRIPE_SECRET_KEY) {
+    console.log('STRIPE_SECRET_KEY length:', process.env.STRIPE_SECRET_KEY.length);
+    console.log('STRIPE_SECRET_KEY starts with:', process.env.STRIPE_SECRET_KEY.substring(0, 3) + '...');
+}
+
+try {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) {
+        console.error('STRIPE_SECRET_KEY is not set in the environment');
+        throw new Error('Stripe secret key is not configured');
+    }
+
+    console.log('Attempting to initialize Stripe...');
+    stripe = new Stripe(stripeSecretKey, {
+        apiVersion: '2024-04-10',
+    });
+    console.log('Stripe initialized successfully');
+} catch (error) {
+    console.error('Error initializing Stripe:', error);
+}
 
 interface MaxIdResult {
     value: number | null;
 }
 
 export async function runStripePurchase(data: FormData) {
+    console.log('runStripePurchase called');
+    console.log('Stripe instance exists:', !!stripe);
+
+    if (!stripe) {
+        console.error('Stripe is not initialized in runStripePurchase');
+        throw new Error('Stripe is not initialized');
+    }
+
     const kit_id = data.get('kit_id')?.toString();
     const steam_id = data.get('steam_id')?.toString();
+    const steam_username = data.get('steam_username')?.toString();
 
-    if (!kit_id || !steam_id) {
-        throw new Error('Kit ID and Steam ID are required');
+    if (!kit_id || !steam_id || !steam_username) {
+        throw new Error('Kit ID, Steam ID, and Steam Username are required');
     }
 
     const kit_data = await db
@@ -35,7 +64,7 @@ export async function runStripePurchase(data: FormData) {
     const kit = kit_data[0];
 
     console.log('Creating a Pending Transaction ...');
-    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id);
+    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username);
 
     console.log(`Pending Transaction Response (Next Line):`);
     console.log(pending_response);
@@ -51,6 +80,7 @@ export async function runStripePurchase(data: FormData) {
     const metadata = {
         product_id: kit.id.toString(),
         steam_id: steam_id,
+        steam_username: steam_username,
         image_path: kit.image_path,
         image_width: kit.width.toString(),
         image_height: kit.height.toString(),
@@ -66,7 +96,7 @@ export async function runStripePurchase(data: FormData) {
                 {
                     price_data: {
                         currency: 'usd',
-                        unit_amount: kit.price || 0 * 100, // Amount in cents
+                        unit_amount: (kit.price || 5) * 100, // Amount in cents
                         product_data: {
                             name: kit.name,
                             images: [kit.image_path],
@@ -97,7 +127,7 @@ export async function runStripePurchase(data: FormData) {
     }
 }
 
-export async function create_pending_transaction(kit_db_id: number, kit_name: string, steam_id: string) {
+export async function create_pending_transaction(kit_db_id: number, kit_name: string, steam_id: string, steam_username: string) {
     console.log(`Attempting to create pending transaction for kit_db_id: ${kit_db_id}`);
     // Fetch the current maximum ID from the PendingTransactions table
     const maxIdResult: MaxIdResult[] = await db
@@ -115,18 +145,90 @@ export async function create_pending_transaction(kit_db_id: number, kit_name: st
         kit_db_id,
         kit_name,
         steam_id,
+        steam_name: steam_username,
     });
     return pending_transaction_output;
 }
 
-export async function verifySteamId(steamId: string) {
-    // This is a placeholder function. You'll need to implement the actual Steam ID verification logic.
-    // You might want to use the Steam Web API to fetch user details.
-    // For now, we'll return a mock response.
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    return {
-        name: 'Steam User',
-        avatarUrl:
-            'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg',
-    };
+export async function verifySteamProfile(profileUrl: string) {
+    const STEAM_API_KEY = process.env.STEAM_API_KEY;
+    if (!STEAM_API_KEY) {
+        throw new Error('Steam API key is not set');
+    }
+
+    // Extract the Steam ID from the profile URL
+    const steamId = await extractSteamIdFromUrl(profileUrl);
+    if (!steamId) {
+        throw new Error('Invalid Steam profile URL');
+    }
+
+    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+    try {
+        const response = await fetch(steamApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Steam API response:', data);
+
+        if (data.response && data.response.players && data.response.players.length > 0) {
+            const player = data.response.players[0];
+            return {
+                name: player.personaname,
+                avatarUrl: player.avatarfull,
+                steamId: player.steamid,
+            };
+        } else {
+            console.error('Steam user not found in API response:', data);
+            throw new Error('Steam user not found');
+        }
+    } catch (error) {
+        console.error('Error verifying Steam profile:', error);
+        throw error;
+    }
+}
+
+async function extractSteamIdFromUrl(url: string): Promise<string | null> {
+    // Custom ID format: https://steamcommunity.com/id/[custom_id]
+    const customIdMatch = url.match(/steamcommunity\.com\/id\/([^\/]+)/);
+    if (customIdMatch) {
+        // For custom IDs, we need to make an additional API call to get the Steam ID
+        return await resolveVanityUrl(customIdMatch[1]);
+    }
+
+    // Steam ID format: https://steamcommunity.com/profiles/[steam_id]
+    const steamIdMatch = url.match(/steamcommunity\.com\/profiles\/(\d+)/);
+    if (steamIdMatch) {
+        return steamIdMatch[1];
+    }
+
+    return null;
+}
+
+async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
+    const STEAM_API_KEY = process.env.STEAM_API_KEY;
+    if (!STEAM_API_KEY) {
+        throw new Error('Steam API key is not set');
+    }
+
+    const apiUrl = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${STEAM_API_KEY}&vanityurl=${vanityUrl}`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.response && data.response.success === 1) {
+            return data.response.steamid;
+        } else {
+            console.error('Failed to resolve vanity URL:', data);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error resolving vanity URL:', error);
+        return null;
+    }
 }

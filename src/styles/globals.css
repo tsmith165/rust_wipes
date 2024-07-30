@@ -55,14 +55,22 @@ a {
     margin-bottom: 30px;
 }
 
-.radial-gradient {
-    background-image: radial-gradient(circle at top center, theme('colors.secondary') 0%, transparent 90%);
+.radial-gradient-stone-950 {
+    background-image: radial-gradient(circle at top center, #0c0a09 0%, transparent 70%);
 }
 
-.radial-gradient-white {
-    background-image: radial-gradient(circle at top center, #d6d3d1 0%, transparent 90%);
+.radial-gradient-stone-600 {
+    background-image: radial-gradient(circle at top center, #57534e 0%, transparent 70%);
+}
+
+.radial-gradient-stone-300 {
+    background-image: radial-gradient(circle at top center, #d6d3d1 0%, transparent 70%);
 }
 
 .radial-gradient-primary {
-    background-image: radial-gradient(circle at top center, theme('colors.primary_light') 0%, transparent 90%);
+    background-image: radial-gradient(circle at top center, theme('colors.primary_light') 0%, transparent 70%);
+}
+
+.radial-gradient-primary_dark {
+    background-image: radial-gradient(circle at top center, theme('colors.primary_light') 0%, transparent 70%);
 }

@@ -140,7 +140,7 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
     return (
         <>
             <motion.div
-                className={`radial-gradient flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
+                className={`radial-gradient-stone-600flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}

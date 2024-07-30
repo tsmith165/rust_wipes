@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { TbProgress } from 'react-icons/tb';
-import { runStripePurchase, verifySteamId } from '../actions';
+import { runStripePurchase, verifySteamProfile } from '../actions';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import StripeBrandedButton from '@/components/svg/StripeBrandedButton';
 import { KitsWithExtraImages } from '@/db/schema';
@@ -18,16 +18,23 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [errorFound, setErrorFound] = useState(false);
-    const [steamId, setSteamId] = useState('');
-    const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string } | null>(null);
+    const [steamProfileUrl, setSteamProfileUrl] = useState('');
+    const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string; steamId: string } | null>(null);
+    const [steamError, setSteamError] = useState<string | null>(null);
 
     const handleStripePurchaseClick = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (!steamProfile) {
+            setSteamError('Please verify your Steam profile before purchasing.');
+            return;
+        }
         setLoading(true);
         setSubmitted(false);
         setErrorFound(false);
 
         const formData = new FormData(event.currentTarget);
+        formData.append('steam_id', steamProfile.steamId);
+        formData.append('steam_username', steamProfile.name);
         const response = await runStripePurchase(formData);
 
         if (response && response.success && response.redirectUrl) {
@@ -40,11 +47,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
         }
     };
 
-    const handleSteamIdChange = async (value: string) => {
-        setSteamId(value);
-        if (value.length > 0) {
-            const profile = await verifySteamId(value);
-            setSteamProfile(profile);
+    const handleSteamProfileVerification = async () => {
+        setSteamError(null);
+        if (steamProfileUrl.length > 0) {
+            try {
+                const profile = await verifySteamProfile(steamProfileUrl);
+                setSteamProfile(profile);
+            } catch (error) {
+                console.error('Error verifying Steam profile:', error);
+                setSteamProfile(null);
+                setSteamError('Failed to verify Steam profile. Please check the URL and try again.');
+            }
         } else {
             setSteamProfile(null);
         }
@@ -71,18 +84,28 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
 
                 <div className="flex flex-col space-y-2">
                     <InputTextbox
-                        idName="steam_id"
-                        name="Steam ID"
-                        placeholder="Enter your Steam ID..."
-                        value={steamId}
-                        onChange={(e) => handleSteamIdChange(e.target.value)}
+                        idName="steam_profile_url"
+                        name="Steam Profile URL"
+                        placeholder="Enter your Steam Profile URL..."
+                        value={steamProfileUrl}
+                        onChange={(e) => setSteamProfileUrl(e.target.value)}
+                        labelWidth="xl" // Use the extra large width for this label
                     />
+                    <button
+                        type="button"
+                        onClick={handleSteamProfileVerification}
+                        className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                    >
+                        Verify Steam Profile
+                    </button>
                     {steamProfile && (
                         <div className="flex items-center space-x-2">
                             <img src={steamProfile.avatarUrl} alt="Steam Avatar" className="h-8 w-8 rounded-full" />
                             <span>{steamProfile.name}</span>
+                            <span className="text-sm text-gray-500">({steamProfile.steamId})</span>
                         </div>
                     )}
+                    {steamError && <div className="text-red-500">{steamError}</div>}
                 </div>
 
                 <div className="mt-4">

@@ -5,36 +5,45 @@ import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 const isPrivateRoute = createRouteMatcher(['/admin(/.*)', '/api/uploadthing']);
 
 export default clerkMiddleware(async (auth, req) => {
-    const route_is_private = isPrivateRoute(req);
-    console.log('Current route: ' + req.url);
-    console.log('Route is private? ' + route_is_private);
+    const currentPath = req.nextUrl.pathname;
+    console.log('Current path:', currentPath);
 
-    // Check if the request is for the Uploadthing route
-    const isUploadthingRoute = req.nextUrl.pathname === '/api/uploadthing';
+    const isUploadthingRoute = currentPath === '/api/uploadthing';
     if (isUploadthingRoute) {
+        console.log('Uploadthing route, proceeding...');
         return NextResponse.next();
     }
 
-    if (route_is_private === true) {
-        console.log('Route is private.  Protecting with admin role.');
-        console.log('Current auth object: ' + JSON.stringify(auth()));
+    const route_is_private = isPrivateRoute(req);
+    console.log('Route is private?', route_is_private);
 
-        const userId = auth().userId;
-        console.log('User ID: ' + userId);
+    if (route_is_private) {
+        console.log('Route is private. Protecting with admin role.');
+        const { userId } = auth();
+        console.log('User ID:', userId);
 
         if (!userId) {
-            console.log('User ID is null. Redirecting to home page.');
-            return NextResponse.redirect(new URL('/', req.url));
+            console.log('User ID is null. Redirecting to sign-in page.');
+            return NextResponse.redirect(new URL('/sign-in', req.url));
         }
 
         const hasAdminRole = await isClerkUserIdAdmin(userId);
-        console.log('User hasAdminRole: ' + hasAdminRole);
+        console.log('User hasAdminRole:', hasAdminRole);
+
         if (!hasAdminRole) {
             console.log('User does not have admin role. Redirecting to home page.');
+            // Prevent redirecting to home if already on home
+            if (currentPath === '/') {
+                console.log('Already on home page. Returning 403.');
+                return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+            }
             return NextResponse.redirect(new URL('/', req.url));
         }
         console.log('User has admin role. Continuing...');
+    } else {
+        console.log('Public route. Proceeding...');
     }
+
     return NextResponse.next();
 });
 
