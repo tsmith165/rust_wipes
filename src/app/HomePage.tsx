@@ -84,7 +84,7 @@ export default function HomePage() {
             ></motion.div>
             <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-fit w-5/6 rounded-full bg-stone-950 bg-opacity-70 px-8 md:w-fit md:p-16">
-                    <h1 className="pb-4 pt-8 text-center text-4xl text-stone-300 md:pt-4 md:text-6xl">
+                    <h1 className="px-4 pb-4 pt-8 text-center text-4xl text-stone-300 md:pt-4 md:text-6xl">
                         {`Find Your `}
                         <span className="w-fit bg-gradient-to-r from-primary_dark via-primary_light to-primary_dark bg-clip-text text-transparent">
                             Perfect
