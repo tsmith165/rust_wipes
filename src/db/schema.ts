@@ -102,6 +102,7 @@ export const kits = pgTable('kits', {
     small_width: integer('small_width').notNull(),
     small_height: integer('small_height').notNull(),
     contents: jsonb('contents').default(DEFAULT_CONTENTS),
+    type: varchar('type').notNull().default('monthly'),
 });
 
 export type Kits = InferSelectModel<typeof kits>;

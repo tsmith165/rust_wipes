@@ -30,6 +30,7 @@ interface SubmitFormData {
     width: string;
     height: string;
     contents: string; // JSON string of contents
+    type: string;
 }
 
 export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success: boolean; error?: string }> {
@@ -60,6 +61,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
                     width: parseInt(data.width || '0'),
                     height: parseInt(data.height || '0'),
                     contents: contentsObject,
+                    type: data.type || 'monthly',
                 })
                 .where(eq(kits.id, parseInt(data.kit_id)));
         } else {
@@ -183,6 +185,7 @@ interface NewKitData {
     smallImagePath: string;
     smallWidth: number;
     smallHeight: number;
+    type: string;
 }
 
 export async function createKit(newKitData: NewKitData): Promise<{ success: boolean; kit?: Kits; error?: string }> {
@@ -207,6 +210,7 @@ export async function createKit(newKitData: NewKitData): Promise<{ success: bool
             small_width: newKitData.smallWidth,
             small_height: newKitData.smallHeight,
             o_id: newOId,
+            type: newKitData.type || 'monthly',
         };
         console.log('New Kit Data:', data);
 

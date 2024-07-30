@@ -16,13 +16,15 @@ import SelectedKitView from './SelectedKitView';
 interface KitViewerProps {
     kits: KitsWithExtraImages[];
     initialSelectedKitId: number | null;
+    initialSelectedType: string;
 }
 
-const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId }) => {
+const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initialSelectedType }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(null);
+    const [selectedType, setSelectedType] = useState(initialSelectedType);
     const [isMasonryLoaded, setIsMasonryLoaded] = useState(false);
     const [isFullScreenImage, setIsFullScreenImage] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -30,7 +32,11 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId }) => 
     const [isPlaying, setIsPlaying] = useState(true);
     const [speed, setSpeed] = useState(3000);
 
-    const selectedKit = useMemo(() => (selectedKitIndex !== null ? kits[selectedKitIndex] : null), [kits, selectedKitIndex]);
+    const filteredKits = useMemo(() => kits.filter((kit) => kit.type === selectedType), [kits, selectedType]);
+    const selectedKit = useMemo(
+        () => (selectedKitIndex !== null ? filteredKits[selectedKitIndex] : null),
+        [filteredKits, selectedKitIndex],
+    );
     const selectedImageRef = useRef<HTMLDivElement>(null);
 
     const smallImageList = useMemo(() => {
@@ -69,13 +75,13 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId }) => 
         if (kits.length > 0) {
             setIsMasonryLoaded(true);
             if (initialSelectedKitId) {
-                const index = kits.findIndex((kit) => kit.id === initialSelectedKitId);
+                const index = filteredKits.findIndex((kit) => kit.id === initialSelectedKitId);
                 setSelectedKitIndex(index !== -1 ? index : 0);
             } else {
                 setSelectedKitIndex(0);
             }
         }
-    }, [kits, initialSelectedKitId]);
+    }, [kits, initialSelectedKitId, filteredKits]);
 
     const handleKitClick = useCallback(
         (id: number, index: number) => {
@@ -87,16 +93,31 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId }) => 
             setSelectedKitIndex(index);
             const newSearchParams = new URLSearchParams(searchParams);
             newSearchParams.set('kit', `${id}`);
+            newSearchParams.set('type', selectedType);
             router.replace(`/kits?${newSearchParams.toString()}`);
             setImageLoadStates({});
             selectedImageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
-        [selectedKitIndex, searchParams, router],
+        [selectedKitIndex, searchParams, router, selectedType],
     );
 
+    const handleTypeChange = (type: string) => {
+        setSelectedType(type);
+        const firstKitOfType = kits.find((kit) => kit.type === type);
+        if (firstKitOfType) {
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.set('kit', `${firstKitOfType.id}`);
+            newSearchParams.set('type', type);
+            router.replace(`/kits?${newSearchParams.toString()}`);
+            setSelectedKitIndex(0);
+            setCurrentImageIndex(0);
+            setImageLoadStates({});
+        }
+    };
+
     const kitItems = useMemo(() => {
-        return kits.map((kit, index) => <KitItem key={`kit-${kit.id}`} kit={{ ...kit, index }} handleKitClick={handleKitClick} />);
-    }, [kits, handleKitClick]);
+        return filteredKits.map((kit, index) => <KitItem key={`kit-${kit.id}`} kit={{ ...kit, index }} handleKitClick={handleKitClick} />);
+    }, [filteredKits, handleKitClick]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -144,6 +165,17 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId }) => 
 
     return (
         <>
+            <div className=" flex justify-center space-x-4 pt-4">
+                {['monthly', 'single', 'priority'].map((type) => (
+                    <button
+                        key={type}
+                        onClick={() => handleTypeChange(type)}
+                        className={`rounded-3xl px-4 py-2 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
+                    >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </button>
+                ))}
+            </div>
             <motion.div
                 className={`radial-gradient-stone-600flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
                 initial={{ opacity: 0 }}

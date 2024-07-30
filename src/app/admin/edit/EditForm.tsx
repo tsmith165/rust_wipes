@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import InputTextArea from '@/components/inputs/InputTextArea';
+import InputSelect from '@/components/inputs/InputSelect';
 import { onSubmitEditForm } from './actions';
 
 const MAX_CHANGE_DISPLAY_LENGTH = 30;
@@ -21,6 +22,7 @@ interface SubmitFormData {
     width: string;
     height: string;
     contents: string; // JSON string of contents
+    type: string;
 }
 
 const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
@@ -33,6 +35,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
         width: current_kit.width?.toString() || '',
         height: current_kit.height?.toString() || '',
         contents: JSON.stringify(current_kit.contents || {}, null, 2),
+        type: current_kit.type || 'monthly',
     });
 
     const [formData, setFormData] = useState<SubmitFormData>(initialFormData);
@@ -50,6 +53,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
             width: current_kit.width?.toString() || '',
             height: current_kit.height?.toString() || '',
             contents: JSON.stringify(current_kit.contents || {}, null, 2),
+            type: current_kit.type || 'monthly',
         };
         setInitialFormData(newInitialFormData);
         setFormData(newInitialFormData);
@@ -71,7 +75,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
         return changesArray;
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => {
             const newData = { ...prevData, [name]: value };
@@ -116,6 +120,17 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                         <InputTextbox idName="height" name="Height (px)" value={formData.height} onChange={handleChange} />
                     </div>
                 </div>
+                <InputSelect
+                    idName="type"
+                    name="Type"
+                    value={formData.type || 'monthly'}
+                    onChange={handleChange}
+                    select_options={[
+                        ['monthly', 'Monthly'],
+                        ['single', 'Single'],
+                        ['priority', 'Priority'],
+                    ]}
+                />
                 <InputTextArea idName="description" name="Description" value={formData.description} rows={5} onChange={handleChange} />
                 <InputTextArea idName="contents" name="Contents (JSON)" value={formData.contents} rows={10} onChange={handleChange} />
 
