@@ -31,7 +31,15 @@ const Checkout: React.FC<CheckoutProps> = ({ current_kit, current_id }) => {
                 </div>
                 <div className="flex h-fit w-full items-center justify-center rounded-lg text-white shadow-lg md:h-full md:w-fit md:justify-start">
                     <div className="flex w-full flex-col items-center justify-center space-y-2">
-                        <h1 className="text-center text-xl font-bold text-primary">{current_kit.full_name || current_kit.name}</h1>
+                        <h1 className={`text-center text-xl font-bold text-primary ${current_kit.type === 'monthly' ? '' : 'hidden'}`}>
+                            Purchase {current_kit.full_name || current_kit.name} Kit
+                        </h1>
+                        <h1 className={`text-center text-xl font-bold text-primary ${current_kit.type === 'single' ? '' : 'hidden'}`}>
+                            Purchase {current_kit.full_name || current_kit.name} Single-Use Kit
+                        </h1>
+                        <h1 className={`text-center text-xl font-bold text-primary ${current_kit.type === 'priority' ? '' : 'hidden'}`}>
+                            Purchase {current_kit.full_name || current_kit.name} Priority
+                        </h1>
                         <CheckoutForm current_kit={current_kit} />
                     </div>
                 </div>
