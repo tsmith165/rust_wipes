@@ -103,7 +103,14 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     );
 
     const kitItems = useMemo(() => {
-        return filteredKits.map((kit, index) => <KitItem key={`kit-${kit.id}`} kit={{ ...kit, index }} handleKitClick={handleKitClick} />);
+        return filteredKits.map((kit, index) => (
+            <KitItem
+                key={`kit-${kit.id}`}
+                kit={{ ...kit, index }}
+                handleKitClick={handleKitClick}
+                isSelected={selectedKitIndex === index}
+            />
+        ));
     }, [filteredKits, handleKitClick]);
 
     useEffect(() => {
@@ -161,7 +168,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         );
 
     return (
-        <>
+        <div className="flex h-full w-full flex-col items-center justify-center">
             <div className=" flex justify-center space-x-4 pt-4">
                 {['monthly', 'single', 'priority'].map((type) => (
                     <div
@@ -232,7 +239,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                     speed={speed}
                 />
             )}
-        </>
+        </div>
     );
 };
 

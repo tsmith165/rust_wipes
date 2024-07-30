@@ -5,9 +5,10 @@ import { KitsWithExtraImages } from '@/db/schema';
 interface KitItemProps {
     kit: KitsWithExtraImages & { index: number };
     handleKitClick: (id: number, index: number) => void;
+    isSelected: boolean;
 }
 
-const KitItem = ({ kit, handleKitClick }: KitItemProps) => {
+const KitItem = ({ kit, handleKitClick, isSelected }: KitItemProps) => {
     const image_path = kit.small_image_path || kit.image_path;
     let image_width = kit.small_width || kit.width || 0;
     let image_height = kit.small_height || kit.height || 0;
@@ -15,7 +16,7 @@ const KitItem = ({ kit, handleKitClick }: KitItemProps) => {
     return (
         <div
             key={`kit-${kit.id}`}
-            className="group relative cursor-pointer overflow-hidden rounded-md bg-stone-700 shadow-lg transition duration-300 ease-in-out hover:bg-stone-800 hover:shadow-2xl"
+            className={`group relative cursor-pointer overflow-hidden rounded-md ${isSelected ? 'bg-stone-800' : 'bg-stone-700'} shadow-lg transition duration-300 ease-in-out hover:bg-stone-800 hover:shadow-2xl`}
             onClick={() => handleKitClick(kit.id, kit.index)}
         >
             <Image
@@ -32,8 +33,14 @@ const KitItem = ({ kit, handleKitClick }: KitItemProps) => {
             </div>
             */}
             <div className="flex flex-row justify-between p-2">
-                <b className="text-lg gradient-white-text group-hover:gradient-primary-text-opp">{kit.name}</b>
-                <span className="text-md text-stone-400 group-hover:text-primary">{`$${kit.price}.00`}</span>
+                <b
+                    className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
+                >
+                    {kit.name}
+                </b>
+                <span
+                    className={`text-md ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
+                >{`$${kit.price}.00`}</span>
             </div>
         </div>
     );
