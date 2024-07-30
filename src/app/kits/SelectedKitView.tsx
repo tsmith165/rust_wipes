@@ -161,13 +161,13 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
 
     return (
         <motion.div
-            className={`mx-auto flex w-full flex-col items-start justify-start space-y-2 p-4 sm:w-4/5 sm:flex-row md:max-h-[35dvh] md:min-h-[35dvh] md:space-x-4 md:space-y-0`}
+            className={`sm: mx-auto flex h-fit w-full flex-col items-start justify-start space-y-2 p-4 sm:w-5/6 sm:flex-row sm:space-x-4 md:h-full md:max-h-[35dvh] md:min-h-[35dvh] md:space-x-4 md:space-y-0`}
             ref={selectedImageRef}
             initial={{ y: -300, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.75 }}
         >
-            <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 sm:w-1/3 md:h-full md:w-1/2">
+            <div className="relative flex h-full min-h-full w-full cursor-pointer flex-col space-y-2 sm:w-1/2 md:h-full md:w-1/2">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={`${selectedKitIndex}-${currentImageIndex}`}
@@ -287,7 +287,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                     </div>
                 </div>
             </div>
-            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start sm:w-2/3 md:w-1/2 md:items-start">
+            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start sm:w-1/2 md:w-1/2 md:items-start">
                 <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.name}`}</h1>
                 <p className="text-stone-300">{selectedKit.description}</p>
                 <div className="pt-2">

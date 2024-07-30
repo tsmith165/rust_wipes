@@ -13,11 +13,16 @@ import KitItem from './KitView';
 import FullScreenView from './FullScreenView';
 import SelectedKitView from './SelectedKitView';
 
-const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
+interface KitViewerProps {
+    kits: KitsWithExtraImages[];
+    initialSelectedKitId: number | null;
+}
+
+const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(0);
+    const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(null);
     const [isMasonryLoaded, setIsMasonryLoaded] = useState(false);
     const [isFullScreenImage, setIsFullScreenImage] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -60,6 +65,18 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
         ];
     }, [selectedKit]);
 
+    useEffect(() => {
+        if (kits.length > 0) {
+            setIsMasonryLoaded(true);
+            if (initialSelectedKitId) {
+                const index = kits.findIndex((kit) => kit.id === initialSelectedKitId);
+                setSelectedKitIndex(index !== -1 ? index : 0);
+            } else {
+                setSelectedKitIndex(0);
+            }
+        }
+    }, [kits, initialSelectedKitId]);
+
     const handleKitClick = useCallback(
         (id: number, index: number) => {
             if (selectedKitIndex === index) {
@@ -80,18 +97,6 @@ const KitViewer: React.FC<{ kits: KitsWithExtraImages[] }> = ({ kits }) => {
     const kitItems = useMemo(() => {
         return kits.map((kit, index) => <KitItem key={`kit-${kit.id}`} kit={{ ...kit, index }} handleKitClick={handleKitClick} />);
     }, [kits, handleKitClick]);
-
-    useEffect(() => {
-        if (kits.length > 0) {
-            setIsMasonryLoaded(true);
-        }
-    }, [kits]);
-
-    useEffect(() => {
-        const selectedKitId = searchParams.get('kit');
-        const initialSelectedIndex = kits.findIndex((kit) => kit.id.toString() === selectedKitId);
-        setSelectedKitIndex(initialSelectedIndex !== -1 ? initialSelectedIndex : null);
-    }, [searchParams, kits]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;

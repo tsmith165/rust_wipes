@@ -1,9 +1,4 @@
-import { Metadata } from 'next';
-import React, { Suspense } from 'react';
-import PageLayout from '@/components/layout/PageLayout';
-import KitPage from './KitPage';
-import Image from 'next/image';
-
+import type { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Kits',
     description:
@@ -20,20 +15,35 @@ export const metadata: Metadata = {
     },
 };
 
-export default async function Page() {
-    const suspense_fallback = (
-        <div className="inset-0 flex h-full w-full items-center justify-center">
-            <div className="xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70">
-                <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} />
-            </div>
-        </div>
-    );
+import { fetchKits } from '@/app/actions';
+import React from 'react';
+import KitViewer from './KitViewer';
+import PageLayout from '@/components/layout/PageLayout';
+import { redirect } from 'next/navigation';
+
+interface PageProps {
+    searchParams?: {
+        kit?: string;
+    };
+}
+
+export default async function KitPage({ searchParams }: PageProps) {
+    const kitData = await fetchKits();
+
+    if (kitData.length === 0) {
+        return <div>No kits available.</div>;
+    }
+
+    const selectedKitId = searchParams?.kit ? parseInt(searchParams.kit, 10) : null;
+
+    if (!selectedKitId) {
+        // Redirect to the first kit if no kit is selected
+        redirect(`/kits?kit=${kitData[0].id}`);
+    }
 
     return (
         <PageLayout page="/kits">
-            <Suspense fallback={suspense_fallback}>
-                <KitPage />
-            </Suspense>
+            <KitViewer kits={kitData} initialSelectedKitId={selectedKitId} />
         </PageLayout>
     );
 }
