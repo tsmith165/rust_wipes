@@ -18,7 +18,55 @@ const Servers: React.FC = () => {
         loadServers();
     }, []);
 
-    // ... (keep the existing useEffect for countdowns and getNextWipeDate function)
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const now = new Date();
+            const updatedCountdowns: { [key: number]: string } = {};
+
+            servers.forEach((server) => {
+                const nextWipe = getNextWipeDate(server);
+                const timeLeft = nextWipe.getTime() - now.getTime();
+
+                if (timeLeft > 0) {
+                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    updatedCountdowns[server.id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    updatedCountdowns[server.id] = 'Wipe in progress!';
+                }
+            });
+
+            setCountdowns(updatedCountdowns);
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [servers]);
+
+    const getNextWipeDate = (server: RwServer): Date => {
+        const now = new Date();
+        const currentDay = now.getDay();
+        const currentHour = now.getHours();
+
+        const wipeDays = server.wipe_days.split(',').map(Number);
+        let nextWipeDay = wipeDays.find((day) => day > currentDay) || wipeDays[0];
+        let daysUntilWipe = nextWipeDay - currentDay;
+
+        if (daysUntilWipe <= 0) {
+            daysUntilWipe += 7;
+        }
+
+        if (daysUntilWipe === 0 && currentHour >= (server.wipe_time || 11)) {
+            daysUntilWipe = 7;
+        }
+
+        const nextWipe = new Date(now.getTime() + daysUntilWipe * 24 * 60 * 60 * 1000);
+        nextWipe.setHours(server.wipe_time || 11, 0, 0, 0);
+
+        return nextWipe;
+    };
 
     const handleCopy = (serverId: number, connectionUrl: string) => {
         navigator.clipboard.writeText(connectionUrl);
@@ -29,8 +77,8 @@ const Servers: React.FC = () => {
     };
 
     const ServerInfoRow: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
-        <div className="flex flex-row justify-between">
-            <div className="font-bold text-primary">{label}:</div>
+        <div className="flex flex-row space-x-2">
+            <div className="w-[90px] font-bold text-stone-300">{label}:</div>
             <div className="text-stone-300">{value}</div>
         </div>
     );
@@ -43,11 +91,11 @@ const Servers: React.FC = () => {
             <div className="mx-auto grid w-4/5 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {servers.map((server) => (
                     <div key={server.id} className="radial-gradient-stone-600 rounded-lg bg-stone-950 p-6 shadow-md">
-                        <h2 className="radial-gradient-primary_dark mb-4 w-full bg-primary bg-clip-text text-center text-2xl font-semibold text-transparent">
-                            {server.short_title}
+                        <h2 className="radial-gradient-primary_dark mb-4 w-full bg-primary bg-clip-text text-start text-2xl font-semibold text-transparent">
+                            {server.short_title || server.name}
                         </h2>
                         <div className="flex flex-col space-y-2">
-                            <ServerInfoRow label="Group Size" value={server.group_size || '1x'} />
+                            <ServerInfoRow label="Group Size" value={server.group_size || 'N/A'} />
                             <ServerInfoRow label="Drop Rate" value={server.rate} />
                             <ServerInfoRow
                                 label="Wipe Days"
@@ -80,7 +128,7 @@ const Servers: React.FC = () => {
                                 <MdFileCopy className="h-6 w-6" />
                             </button>
                         </div>
-                        {copiedStates[server.id] && <p className="mt-2 text-center text-sm text-green-500">Copied!</p>}
+                        {copiedStates[server.id] && <b className="mt-2 text-center text-sm text-green-500">Copied!</b>}
                     </div>
                 ))}
             </div>
