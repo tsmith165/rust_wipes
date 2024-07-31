@@ -64,20 +64,24 @@ export default function Navbar({ page }: { page: string }) {
                     >
                         <div className="flex w-full flex-row items-center justify-center space-x-2 md:hidden">{navbar}</div>
                     </Protect>
-                    <Protect fallback={<></>}>
-                        <AdminProtect fallback={<></>}>
-                            <div className="group relative" onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
-                                <IoIosMenu className="h-[50px] w-[50px] fill-primary_dark py-[5px] group-hover:fill-primary" />
-                                {showMenu && (
-                                    <div className="absolute right-0 top-full z-50 h-fit w-[160px] rounded-bl-md border-b-2 border-l-2 border-primary_dark bg-secondary_light">
-                                        <DynamicMenuOverlay currentPage={page} isAdmin={true} />
-                                    </div>
-                                )}
-                            </div>
-                        </AdminProtect>
-                    </Protect>
                 </div>
             </div>
+            <Protect fallback={<></>}>
+                <AdminProtect fallback={<></>}>
+                    <div
+                        className="group absolute right-0 top-0"
+                        onMouseEnter={() => setShowMenu(true)}
+                        onMouseLeave={() => setShowMenu(false)}
+                    >
+                        <IoIosMenu className="h-[50px] w-[50px] fill-primary_dark py-[5px] group-hover:fill-primary" />
+                        {showMenu && (
+                            <div className="absolute right-0 top-full z-50 h-fit w-[160px] rounded-bl-md border-b-2 border-l-2 border-primary_dark bg-secondary_light">
+                                <DynamicMenuOverlay currentPage={page} isAdmin={true} />
+                            </div>
+                        )}
+                    </div>
+                </AdminProtect>
+            </Protect>
         </nav>
     );
 }
