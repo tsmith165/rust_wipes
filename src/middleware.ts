@@ -31,13 +31,8 @@ export default clerkMiddleware(async (auth, req) => {
         console.log('User hasAdminRole:', hasAdminRole);
 
         if (!hasAdminRole) {
-            console.log('User does not have admin role. Redirecting to home page.');
-            // Prevent redirecting to home if already on home
-            if (currentPath === '/') {
-                console.log('Already on home page. Returning 403.');
-                return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-            }
-            return NextResponse.redirect(new URL('/', req.url));
+            console.log('User does not have admin role. Returning 403.');
+            return NextResponse.json({ error: 'Access denied' }, { status: 403 });
         }
         console.log('User has admin role. Continuing...');
     } else {
@@ -48,5 +43,5 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-    matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+    matcher: ['/admin(.*)', '/api/uploadthing'],
 };
