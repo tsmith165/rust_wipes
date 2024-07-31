@@ -27,7 +27,7 @@ const KitItemView = ({ kit, handleKitClick, isSelected }: KitItemProps) => {
                 </b>
                 <b
                     className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
-                >{`$${kit.price}.00`}</b>
+                >{`$${kit.price?.toString().includes('.') ? `${kit.price}0` : `${kit.price}.00`}`}</b>
             </div>
             <Image
                 src={image_path}

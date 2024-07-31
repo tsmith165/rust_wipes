@@ -56,7 +56,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
                 .update(kits)
                 .set({
                     description: data.description || '',
-                    price: parseInt(data.price || '0'),
+                    price: data.price ? data.price.toString() : '0.0',
                     permission_string: data.permission_string || '',
                     image_path: data.image_path || '',
                     width: parseInt(data.width || '0'),

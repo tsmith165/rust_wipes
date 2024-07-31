@@ -1,4 +1,4 @@
-import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 const DEFAULT_CONTENTS = {
@@ -93,7 +93,7 @@ export const kits = pgTable('kits', {
     active: boolean('active').default(true),
     name: text('name').notNull(),
     full_name: text('full_name'), // Add this new field
-    price: integer('price'),
+    price: decimal('price'),
     permission_string: text('permission_string'),
     description: text('description'),
     image_path: text('image_path').notNull(),
