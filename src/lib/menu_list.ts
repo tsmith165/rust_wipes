@@ -22,6 +22,7 @@ export const admin_menu_list: [string, string, string][] = [
     ['upcoming', 'Upcoming', '/upcoming'],
     ['manage', 'Manage', '/admin/manage'],
     ['edit', 'Edit', '/admin/edit'],
+    ['users', 'Users', '/admin/users'],
     ['discord', 'Discord', PROJECT_CONSTANTS.CONTACT_DISCORD],
 ];
 

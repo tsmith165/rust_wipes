@@ -17,7 +17,10 @@
         "@emotion/react": "^11.11.3",
         "@emotion/styled": "^11.10.5",
         "@neondatabase/serverless": "^0.9.1",
+        "@react-email/components": "^0.0.19",
+        "@react-email/render": "^0.0.15",
         "@tailwindcss/typography": "^0.5.12",
+        "@uploadthing/react": "^6.7.2",
         "@vercel/speed-insights": "^1.0.10",
         "autoprefixer": "^10.4.17",
         "axios": "^1.6.7",
@@ -42,27 +45,24 @@
         "react-select": "^5.8.0",
         "react-tooltip": "^5.26.3",
         "recharts": "^2.12.0",
+        "resend": "^3.4.0",
         "sharp": "^0.33.4",
         "stripe": "^15.5.0",
         "tailwind-merge": "^2.2.1",
         "tailwindcss": "^3.4.3",
-        "zustand": "^4.5.4",
-        "uuid": "^10.0.0",
         "uploadthing": "^6.10.1",
-        "@uploadthing/react": "^6.7.2",
-        "resend": "^3.4.0",
-        "@react-email/components": "^0.0.19",
-        "@react-email/render": "^0.0.15"
+        "uuid": "^10.0.0",
+        "zustand": "^4.5.4"
     },
     "devDependencies": {
         "@next/env": "^14.2.3",
+        "@stripe/stripe-js": "^1.26.0",
         "@types/node": "^20.11.25",
-        "@types/uuid": "^10.0.0",
         "@types/react": "^18.2.64",
         "@types/react-datepicker": "^6.2.0",
         "@types/react-places-autocomplete": "^7.2.14",
+        "@types/uuid": "^10.0.0",
         "drizzle-kit": "^0.20.14",
-        "@stripe/stripe-js": "^1.26.0",
         "typescript": "^5.4.2"
     }
 }
