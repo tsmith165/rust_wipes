@@ -143,7 +143,9 @@ export type InsertUsers = InferInsertModel<typeof users>;
 
 export const pending_transactions_table = pgTable('pending_transactions', {
     id: serial('id').notNull().primaryKey(),
-    kit_db_id: integer('kit_db_id').notNull(),
+    kit_db_id: integer('kit_db_id')
+        .notNull()
+        .references(() => kits.id),
     kit_name: text('kit_name').notNull(),
     user_id: integer('user_id')
         .notNull()
@@ -156,7 +158,9 @@ export type InsertPendingTransactions = InferInsertModel<typeof pending_transact
 
 export const verified_transactions_table = pgTable('verified_transactions', {
     id: serial('id').notNull().primaryKey(),
-    kit_db_id: integer('kit_db_id').notNull(),
+    kit_db_id: integer('kit_db_id')
+        .notNull()
+        .references(() => kits.id),
     kit_name: text('kit_name').notNull(),
     user_id: integer('user_id')
         .notNull()

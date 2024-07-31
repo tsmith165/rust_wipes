@@ -2,27 +2,26 @@ import React from 'react';
 import { Html, Head, Preview, Body, Container, Section, Heading, Text, Tailwind } from '@react-email/components';
 
 interface CheckoutSuccessEmailProps {
-    piece_title: string;
-    full_name: string;
-    address: string;
+    steam_username: string;
+    kit_name: string;
     price_paid: number;
 }
 
-const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ piece_title, full_name, address, price_paid }) => {
+const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_username, kit_name, price_paid }) => {
     return (
         <Html>
             <Head />
-            <Preview>Purchase Confirmation - JWS Fine Art Gallery</Preview>
+            <Preview>Purchase Confirmation - Rust Kit</Preview>
             <Tailwind
                 config={{
                     theme: {
                         extend: {
                             colors: {
-                                primary: '#54786d',
-                                primary_dark: '#365349',
-                                secondary_light: '#616c63',
-                                secondary: '#475451',
-                                secondary_dark: '#333739',
+                                primary: '#cd412b',
+                                primary_dark: '#a33322',
+                                secondary_light: '#f0a58f',
+                                secondary: '#e8836a',
+                                secondary_dark: '#b56552',
                             },
                         },
                     },
@@ -31,31 +30,33 @@ const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ piece_title
                 <Body className="h-full w-full">
                     <Container className="h-full w-full rounded-lg bg-stone-900 p-2">
                         <Heading className="h-fit w-full p-4 pb-0 text-center text-2xl font-bold text-primary">
-                            JWS Fine Art Purchase Confirmation
+                            Rust Kit Purchase Confirmation
                         </Heading>
                         <Section className="flex-col space-y-0.5 px-4">
-                            <Text className="text-lg">Dear {full_name},</Text>
+                            <Text className="text-lg">Hello {steam_username},</Text>
                             <Text className="text-lg">
-                                Thank you for your purchase of "{piece_title}". Your transaction of ${price_paid.toFixed(2)} has been
+                                Thank you for your purchase of the "{kit_name}" kit. Your transaction of ${price_paid.toFixed(2)} has been
                                 successfully processed.
                             </Text>
-                            <Text className="text-lg">We appreciate your support and hope you enjoy your new artwork!</Text>
+                            <Text className="text-lg">We appreciate your support and hope you enjoy your new Rust kit!</Text>
                             <Text className="text-lg">
-                                Your piece will be shipped to you within 5 business days. If you have any questions or concerns, please
-                                don't hesitate to contact us.
+                                Your kit is now available for use in-game. To claim your kit, use the command{' '}
+                                <span className="font-bold text-secondary">/kit {kit_name.toLowerCase()}</span> when you're in the game.
                             </Text>
-                            <Text className="text-lg">We will be shipping to:</Text>
+                            <Text className="text-lg">Please note:</Text>
+                            <ul className="list-disc pl-5 text-lg">
+                                <li>Kits are locked for 4 hours after a server wipe.</li>
+                                <li>After the initial 4-hour lock, your kit will be available every 8 hours.</li>
+                                <li>This kit access is valid for 30 days from the date of purchase.</li>
+                            </ul>
                             <Text className="text-lg">
-                                {full_name}
-                                <br />
-                                {address}
+                                If you have any questions or issues with your kit, please don't hesitate to contact our support team.
                             </Text>
-                            <Text className="text-lg">If you have any questions or concerns, please don't hesitate to contact us.</Text>
-                            <Text className="text-lg">Have a great day!</Text>
-                            <Text className="text-lg">Jill Weeks Smith</Text>
+                            <Text className="text-lg">Good luck, and have fun raiding!</Text>
+                            <Text className="text-lg">The Rust Team</Text>
                             <Text className="text-lg">
-                                <a href="https://www.jwsfineart.com" className="text-blue-400 hover:text-blue-300">
-                                    jwsfineart@gmail.com
+                                <a href="https://www.yourwebsite.com" className="text-blue-400 hover:text-blue-300">
+                                    support@yourwebsite.com
                                 </a>
                             </Text>
                         </Section>

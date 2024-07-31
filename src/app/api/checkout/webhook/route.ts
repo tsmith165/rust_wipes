@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { eq, and, sql } from 'drizzle-orm';
-import { db, piecesTable, pendingTransactionsTable, verifiedTransactionsTable } from '@/db/db';
+import { db, kits, pending_transactions_table, verified_transactions_table } from '@/db/db';
 import React from 'react';
 import { render } from '@react-email/render';
 import { sendEmail } from '@/utils/emails/resend_utils';
@@ -10,7 +10,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04
 
 interface WebhookEventMetadata {
     product_id: string;
-    full_name: string;
+    user_id: string;
+    steam_username: string;
     image_path: string;
     image_width: string;
     image_height: string;
@@ -48,20 +49,19 @@ export async function POST(request: Request) {
             console.log(`ID: ${stripeId}`);
             console.log(`Metadata:`, metadata);
 
-            if (!metadata.product_id || !metadata.full_name) {
+            if (!metadata.product_id || !metadata.user_id || !metadata.steam_username) {
                 throw new Error('Missing required metadata');
             }
 
-            console.log(`Querying pending transactions for Piece DB ID: ${metadata.product_id} | Full Name: ${metadata.full_name}`);
+            const userId = parseInt(metadata.user_id, 10);
+            const kitDbId = parseInt(metadata.product_id, 10);
+
+            console.log(`Querying pending transactions for Kit DB ID: ${kitDbId} | User ID: ${userId}`);
+
             const pendingTransactionData = await db
                 .select()
-                .from(pendingTransactionsTable)
-                .where(
-                    and(
-                        eq(pendingTransactionsTable.piece_db_id, parseInt(metadata.product_id, 10)),
-                        eq(pendingTransactionsTable.full_name, metadata.full_name),
-                    ),
-                )
+                .from(pending_transactions_table)
+                .where(and(eq(pending_transactions_table.kit_db_id, kitDbId), eq(pending_transactions_table.user_id, userId)))
                 .limit(1);
 
             console.log('Pending Transaction Data:', pendingTransactionData);
@@ -70,57 +70,38 @@ export async function POST(request: Request) {
                 throw new Error('Pending transaction not found');
             }
 
-            // Fetch the current maximum ID from the VerifiedTransactions table
-            const maxIdResult = await db
-                .select({ value: sql`max(${verifiedTransactionsTable.id})`.mapWith(Number) })
-                .from(verifiedTransactionsTable);
-
-            const maxId = maxIdResult.length > 0 && maxIdResult[0].value !== null ? maxIdResult[0].value : 0;
-
-            // Calculate the next ID
-            const nextId = maxId + 1;
-
             console.log('Creating Verified Transaction...');
-            const createOutput = await db.insert(verifiedTransactionsTable).values({
-                id: nextId, // Manually setting the id
-                piece_db_id: parseInt(metadata.product_id, 10),
-                full_name: metadata.full_name,
-                piece_title: pendingTransactionData[0].piece_title,
-                phone: pendingTransactionData[0].phone,
-                email: pendingTransactionData[0].email,
-                address: pendingTransactionData[0].address,
-                international: pendingTransactionData[0].international,
+            const createOutput = await db.insert(verified_transactions_table).values({
+                kit_db_id: kitDbId,
+                kit_name: pendingTransactionData[0].kit_name,
+                user_id: userId,
                 image_path: metadata.image_path,
                 image_width: parseInt(metadata.image_width, 10),
                 image_height: parseInt(metadata.image_height, 10),
-                date: new Date().toISOString(),
+                date: new Date().toISOString().split('T')[0], // Convert to YYYY-MM-DD format
                 stripe_id: stripeId,
                 price: parseInt(metadata.price_id, 10),
             });
-
-            console.log('Pending Transaction Create Output:', createOutput);
-
-            console.log('Setting Piece As Sold...');
-            const updateOutput = await db
-                .update(piecesTable)
-                .set({ sold: true })
-                .where(eq(piecesTable.id, parseInt(metadata.product_id, 10)));
-
-            console.log('Set Sold Update Output:', updateOutput);
+            console.log('Verified Transaction Create Output:', createOutput);
 
             // Send email to user and admin
+            const kitData = await db.select().from(kits).where(eq(kits.id, kitDbId)).limit(1);
+
+            if (kitData.length === 0) {
+                throw new Error('Kit not found');
+            }
+
             const checkoutSuccessEmailTemplate = React.createElement(CheckoutSuccessEmail, {
-                full_name: metadata.full_name,
-                piece_title: pendingTransactionData[0].piece_title,
-                address: pendingTransactionData[0].address,
+                steam_username: metadata.steam_username,
+                kit_name: kitData[0].name,
                 price_paid: parseInt(metadata.price_id, 10),
             });
             const emailHtml = render(checkoutSuccessEmailTemplate);
 
             await sendEmail({
-                from: 'contact@jwsfineart.com',
-                to: [pendingTransactionData[0].email, 'jwsfineart@gmail.com'],
-                subject: 'Purchase Confirmation - JWS Fine Art Gallery',
+                from: 'noreply@yourwebsite.com',
+                to: [metadata.steam_username, 'admin@yourwebsite.com'],
+                subject: 'Purchase Confirmation - Rust Kit',
                 html: emailHtml,
             });
         } else if (event.type === 'payment_intent.payment_failed') {
