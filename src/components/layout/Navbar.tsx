@@ -2,12 +2,16 @@
 
 import React, { useEffect, useCallback, useTransition, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 import { menu_list } from '@/lib/menu_list';
 import { IoIosMenu } from 'react-icons/io';
+import { FaDiscord } from 'react-icons/fa';
 import { Protect } from '@clerk/nextjs';
 import AdminProtect from '@/utils/auth/AdminProtect';
+
+import PROJECT_CONSTANTS from '@/lib/constants';
 
 import dynamic from 'next/dynamic';
 const DynamicMenuOverlay = dynamic(() => import('./menu/MenuOverlay'), { ssr: false });
@@ -15,6 +19,21 @@ const DynamicMenuOverlay = dynamic(() => import('./menu/MenuOverlay'), { ssr: fa
 export default function Navbar({ page }: { page: string }) {
     const router = useRouter();
     const [showMenu, setShowMenu] = useState(false);
+
+    const discord_component = (
+        <Link href={PROJECT_CONSTANTS.CONTACT_DISCORD}>
+            <div className="group absolute right-[0px] top-0">
+                <FaDiscord className="h-[50px] w-[50px] fill-[#5865F2] p-3 group-hover:brightness-125" />
+            </div>
+        </Link>
+    );
+    const discord_component_admin = (
+        <Link href={PROJECT_CONSTANTS.CONTACT_DISCORD}>
+            <div className="group absolute right-[50px] top-0">
+                <FaDiscord className="h-[50px] w-[50px] fill-[#5865F2] py-3 pl-3 group-hover:brightness-125" />
+            </div>
+        </Link>
+    );
 
     const navbar = menu_list.map(([menu_class_name, menu_full_name, href]) => {
         if (page.includes('checkout')) {
@@ -66,8 +85,9 @@ export default function Navbar({ page }: { page: string }) {
                     </Protect>
                 </div>
             </div>
-            <Protect fallback={<></>}>
-                <AdminProtect fallback={<></>}>
+            <Protect fallback={discord_component}>
+                <AdminProtect fallback={discord_component}>
+                    {discord_component_admin}
                     <div
                         className="group absolute right-0 top-0"
                         onMouseEnter={() => setShowMenu(true)}

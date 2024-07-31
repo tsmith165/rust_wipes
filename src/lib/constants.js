@@ -7,4 +7,5 @@ export default Object.freeze({
         'Rust Wipes helps gamers find servers based on their wipe schedules. Discover recent wipes, upcoming wipes, and scrapper statistics.',
     CONTACT_FULL_NAME: 'Rust Wipes Admins',
     CONTACT_EMAIL: 'rustserverwipes@gmail.com',
+    CONTACT_DISCORD: 'https://discord.gg/6fBzfsNTY7',
 });
