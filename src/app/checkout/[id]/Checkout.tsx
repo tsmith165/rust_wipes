@@ -29,7 +29,7 @@ const Checkout: React.FC<CheckoutProps> = ({ current_kit, current_id }) => {
                         className="max-h-[40dvh] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[50dvh]"
                     />
                 </div>
-                <div className="flex h-fit w-full items-start justify-start rounded-lg text-white shadow-lg md:h-fit md:w-fit md:justify-start">
+                <div className="flex h-fit w-full items-start justify-start rounded-lg p-2 text-white shadow-2xl md:h-fit md:w-fit md:justify-start">
                     <div className="flex w-full flex-col items-start justify-start space-y-2">
                         <h1
                             className={`radial-gradient-stone-300 bg-primary bg-clip-text text-center text-3xl font-bold text-transparent ${current_kit.type === 'monthly' ? '' : 'hidden'}`}
