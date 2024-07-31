@@ -47,6 +47,7 @@ export async function runStripePurchase(data: FormData) {
     const steam_id = data.get('steam_id')?.toString();
     const steam_username = data.get('steam_username')?.toString();
     const email = data.get('email')?.toString();
+    const is_subscription = data.get('is_subscription') === 'true';
 
     if (!kit_id || !steam_id || !steam_username || !email) {
         throw new Error('Kit ID, Steam ID, Steam Username, and Email are required');
@@ -65,7 +66,7 @@ export async function runStripePurchase(data: FormData) {
     const kit = kit_data[0];
 
     console.log('Creating a Pending Transaction ...');
-    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username, email);
+    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username, email, is_subscription);
 
     console.log(`Pending Transaction Response (Next Line):`);
     console.log(pending_response);
@@ -95,6 +96,7 @@ export async function runStripePurchase(data: FormData) {
         image_width: kit.width.toString(),
         image_height: kit.height.toString(),
         price_id: kit.price?.toString() || '',
+        is_subscription: is_subscription.toString(),
     };
 
     console.log(`Creating a Stripe Checkout Session with metadata:`, metadata);
@@ -111,17 +113,16 @@ export async function runStripePurchase(data: FormData) {
                             name: kit.name,
                             images: [kit.image_path],
                         },
+                        recurring: is_subscription ? { interval: 'month' } : undefined,
                     },
                     quantity: 1,
                 },
             ],
-            mode: 'payment',
+            mode: is_subscription ? 'subscription' : 'payment',
             success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
             cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/${kit.id}`,
             client_reference_id: kit.id.toString(),
-            payment_intent_data: {
-                metadata: metadata, // Include metadata in the payment intent
-            },
+            metadata: metadata,
         });
 
         console.log(`Stripe Session Created:`, session);
@@ -143,6 +144,7 @@ export async function create_pending_transaction(
     steam_id: string,
     steam_username: string,
     email: string,
+    is_subscription: boolean,
 ) {
     console.log(`Attempting to create pending transaction for kit_db_id: ${kit_db_id}`);
 
@@ -174,6 +176,7 @@ export async function create_pending_transaction(
         kit_name,
         user_id: user[0].id,
         email,
+        is_subscription,
     });
     return pending_transaction_output;
 }

@@ -5,13 +5,14 @@ interface CheckoutSuccessEmailProps {
     steam_username: string;
     kit_name: string;
     price_paid: number;
+    is_subscription: boolean;
 }
 
-const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_username, kit_name, price_paid }) => {
+const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_username, kit_name, price_paid, is_subscription }) => {
     return (
         <Html>
             <Head />
-            <Preview>Purchase Confirmation - Rust Kit</Preview>
+            <Preview>{is_subscription ? 'Subscription' : 'Purchase'} Confirmation - Rust Kit</Preview>
             <Tailwind
                 config={{
                     theme: {
@@ -30,13 +31,14 @@ const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_usern
                 <Body className="h-full w-full">
                     <Container className="h-full w-full rounded-lg bg-stone-900 p-2">
                         <Heading className="h-fit w-full p-4 pb-0 text-center text-2xl font-bold text-primary">
-                            Rust Kit Purchase Confirmation
+                            Rust Kit {is_subscription ? 'Subscription' : 'Purchase'} Confirmation
                         </Heading>
                         <Section className="flex-col space-y-0.5 px-4">
                             <Text className="text-lg">Hello {steam_username},</Text>
                             <Text className="text-lg">
-                                Thank you for your purchase of the "{kit_name}" kit. Your transaction of ${price_paid.toFixed(2)} has been
-                                successfully processed.
+                                Thank you for your {is_subscription ? 'subscription to' : 'purchase of'} the "{kit_name}" kit. Your{' '}
+                                {is_subscription ? 'initial payment' : 'transaction'} of ${price_paid.toFixed(2)} has been successfully
+                                processed.
                             </Text>
                             <Text className="text-lg">We appreciate your support and hope you enjoy your new Rust kit!</Text>
                             <Text className="text-lg">
@@ -47,7 +49,11 @@ const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_usern
                             <ul className="list-disc pl-5 text-lg">
                                 <li>Kits are locked for 4 hours after a server wipe.</li>
                                 <li>After the initial 4-hour lock, your kit will be available every 8 hours.</li>
-                                <li>This kit access is valid for 30 days from the date of purchase.</li>
+                                {is_subscription ? (
+                                    <li>Your subscription will automatically renew each month until canceled.</li>
+                                ) : (
+                                    <li>This kit access is valid for 30 days from the date of purchase.</li>
+                                )}
                             </ul>
                             <Text className="text-lg">
                                 If you have any questions or issues with your kit, please don't hesitate to contact our support team.

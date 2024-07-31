@@ -43,6 +43,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
         formData.append('steam_id', steamProfile.steamId);
         formData.append('steam_username', steamProfile.name);
         formData.append('email', email);
+        formData.append('is_subscription', (current_kit.type === 'monthly' || current_kit.type === 'priority').toString());
         const response = await runStripePurchase(formData);
 
         if (response && response.success && response.redirectUrl) {
@@ -142,7 +143,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                         </div>
                     )}
                     <div className={`mt-2 ${steamProfile && email ? '' : 'pointer-events-none opacity-50'}`}>
-                        <StripeBrandedButton url={'submit'} price={String(current_kit.price || 0)} text="purchase" />
+                        <StripeBrandedButton
+                            url={'submit'}
+                            price={String(current_kit.price || 0)}
+                            text={current_kit.type === 'monthly' || current_kit.type === 'priority' ? 'subscribe' : 'purchase'}
+                        />
                     </div>
                     <div className={`mt-2 ${current_kit.type === 'monthly' ? '' : 'hidden'}`}>
                         <div className={`font-sans text-stone-300`}>
@@ -154,9 +159,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                             {`Kits are locked for 4 hours after wipe, then available every 8 hours.`}
                         </div>
                         <div className={`font-sans text-stone-300`}>
-                            <span>{`This rank give access to `}</span>
+                            <span>{`This subscription gives access to `}</span>
                             <span className="text-primary_light">{`/kit ${current_kit.name.toLowerCase()}`}</span>
-                            <span>{` for 30 days.`}</span>
+                            <span>{` for as long as your subscription is active.`}</span>
                         </div>
                     </div>
                     <div className={`mt-2 ${current_kit.type === 'single' ? '' : 'hidden'}`}>
@@ -166,6 +171,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                             <span>{` on any of our servers after purchase to redeem.`}</span>
                         </div>
                         <div className={`font-sans text-stone-300`}>{`Kits are locked and cannot be redeemed for 4 hours after wipe.`}</div>
+                    </div>
+                    <div className={`mt-2 ${current_kit.type === 'priority' ? '' : 'hidden'}`}>
+                        <div className={`font-sans text-stone-300`}>
+                            <span>{`This subscription gives you priority access to our servers and `}</span>
+                            <span className="text-primary_light">{`/kit ${current_kit.name.toLowerCase()}`}</span>
+                            <span>{` for as long as your subscription is active.`}</span>
+                        </div>
                     </div>
                 </div>
 

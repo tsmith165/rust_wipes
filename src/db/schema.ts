@@ -152,6 +152,7 @@ export const pending_transactions_table = pgTable('pending_transactions', {
         .notNull()
         .references(() => users.id),
     email: varchar('email').notNull(),
+    is_subscription: boolean('is_subscription').notNull().default(false),
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
@@ -168,6 +169,8 @@ export const verified_transactions_table = pgTable('verified_transactions', {
         .notNull()
         .references(() => users.id),
     email: varchar('email').notNull(),
+    is_subscription: boolean('is_subscription').notNull().default(false),
+    subscription_id: text('subscription_id'),
     image_path: text('image_path').notNull(),
     image_width: integer('image_width').notNull(),
     image_height: integer('image_height').notNull(),

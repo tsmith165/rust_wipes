@@ -1,10 +1,11 @@
 import Stripe from 'stripe';
-import { eq, and, sql } from 'drizzle-orm';
-import { db, kits, pending_transactions_table, verified_transactions_table } from '@/db/db';
+import { eq, and } from 'drizzle-orm';
+import { db, kits, pending_transactions_table, verified_transactions_table, users } from '@/db/db';
 import React from 'react';
 import { render } from '@react-email/render';
 import { sendEmail } from '@/utils/emails/resend_utils';
-import CheckoutSuccessEmail from '@/utils/emails/templates/checkoutSuccessEmail';
+import CheckoutSuccessEmail from '@/utils/emails/templates/CheckoutSuccessEmail';
+import SubscriptionCanceledEmail from '@/utils/emails/templates/SubscriptionCanceledEmail';
 
 import PROJECT_CONSTANTS from '@/lib/constants';
 
@@ -19,6 +20,7 @@ interface WebhookEventMetadata {
     image_width: string;
     image_height: string;
     price_id: string;
+    is_subscription: string;
 }
 
 function hasMetadata(event: Stripe.Event): event is Stripe.Event & { data: { object: { metadata: WebhookEventMetadata } } } {
@@ -44,10 +46,11 @@ export async function POST(request: Request) {
 
         console.log('Stripe Event:', event);
 
-        if (event.type === 'payment_intent.succeeded' && hasMetadata(event)) {
+        if ((event.type === 'payment_intent.succeeded' || event.type === 'checkout.session.completed') && hasMetadata(event)) {
             const stripeEvent = event.data.object;
             const metadata = stripeEvent.metadata;
             const stripeId = stripeEvent.id;
+            const subscriptionId = 'subscription' in stripeEvent ? stripeEvent.subscription : null;
 
             console.log(`ID: ${stripeId}`);
             console.log(`Metadata:`, metadata);
@@ -79,14 +82,23 @@ export async function POST(request: Request) {
                 kit_name: pendingTransactionData[0].kit_name,
                 user_id: userId,
                 email: metadata.email,
+                is_subscription: metadata.is_subscription === 'true',
+                subscription_id: subscriptionId ? subscriptionId.toString() : null,
                 image_path: metadata.image_path,
                 image_width: parseInt(metadata.image_width, 10),
                 image_height: parseInt(metadata.image_height, 10),
-                date: new Date().toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+                date: new Date().toISOString().split('T')[0],
                 stripe_id: stripeId,
                 price: parseInt(metadata.price_id, 10),
             });
             console.log('Verified Transaction Create Output:', createOutput);
+
+            // Fetch user data to get steam_username
+            const userData = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+            if (userData.length === 0) {
+                throw new Error('User not found');
+            }
 
             // Send email to user and admin
             const kitData = await db.select().from(kits).where(eq(kits.id, kitDbId)).limit(1);
@@ -96,21 +108,64 @@ export async function POST(request: Request) {
             }
 
             const checkoutSuccessEmailTemplate = React.createElement(CheckoutSuccessEmail, {
-                steam_username: metadata.steam_username,
+                steam_username: userData[0].steam_user,
                 kit_name: kitData[0].name,
                 price_paid: parseInt(metadata.price_id, 10),
+                is_subscription: metadata.is_subscription === 'true',
             });
             const emailHtml = render(checkoutSuccessEmailTemplate);
 
             await sendEmail({
                 from: 'noreply@rustwipes.net',
                 to: [metadata.email, PROJECT_CONSTANTS.CONTACT_EMAIL],
-                subject: 'Purchase Confirmation - Rust Kit',
+                subject: `{Purchase Confirmation - ${kitData[0].name}}`,
                 html: emailHtml,
             });
+        } else if (event.type === 'customer.subscription.deleted') {
+            // Handle subscription cancellation
+            const subscription = event.data.object as Stripe.Subscription;
+            const subscriptionId = subscription.id;
+
+            // Find the verified transaction with this subscription ID
+            const verifiedTransaction = await db
+                .select()
+                .from(verified_transactions_table)
+                .where(eq(verified_transactions_table.subscription_id, subscriptionId))
+                .limit(1);
+
+            if (verifiedTransaction.length > 0) {
+                // TODO: Implement logic to remove permissions from the user
+                console.log(`Subscription ${subscriptionId} canceled for user ${verifiedTransaction[0].user_id}`);
+
+                // You might want to update the user's permissions in your game server here
+                // For example:
+                // await removeUserPermissions(verifiedTransaction[0].user_id, verifiedTransaction[0].kit_db_id);
+
+                // Fetch user data to get steam_username
+                const userData = await db.select().from(users).where(eq(users.id, verifiedTransaction[0].user_id)).limit(1);
+
+                if (userData.length === 0) {
+                    throw new Error('User not found');
+                }
+
+                // Send an email to the user about their subscription cancellation
+                const cancelEmailTemplate = React.createElement(SubscriptionCanceledEmail, {
+                    steam_username: userData[0].steam_user,
+                    kit_name: verifiedTransaction[0].kit_name,
+                });
+                const cancelEmailHtml = render(cancelEmailTemplate);
+
+                await sendEmail({
+                    from: 'noreply@rustwipes.net',
+                    to: [verifiedTransaction[0].email, PROJECT_CONSTANTS.CONTACT_EMAIL],
+                    subject: `Subscription Cancellation - ${verifiedTransaction[0].kit_name}`,
+                    html: cancelEmailHtml,
+                });
+            }
         } else if (event.type === 'payment_intent.payment_failed') {
             // Handle unsuccessful payment
             console.log('Payment Unsuccessful. Handle unverified transaction (no current handling)...');
+            // You might want to notify the user or update your database here
         } else if (event.type === 'payment_intent.canceled') {
             // Handle canceled payment
             console.log('Payment Canceled. Handle canceled transaction...');
