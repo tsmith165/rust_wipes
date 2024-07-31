@@ -79,15 +79,16 @@ export default function Navbar({ page }: { page: string }) {
                 <div className="hidden flex-1 flex-row items-center justify-start space-x-4 pl-2 md:!flex">{rightNavbar}</div>
                 <div className="flex h-full flex-row justify-end space-x-2">
                     <Protect
-                        fallback={<div className="flex w-full flex-row items-center justify-center space-x-2 pr-4 md:hidden">{navbar}</div>}
+                        fallback={
+                            <div className="flex w-full flex-row items-center justify-center space-x-2 pr-[50px] md:hidden">{navbar}</div>
+                        }
                     >
-                        <div className="flex w-full flex-row items-center justify-center space-x-2 md:hidden">{navbar}</div>
+                        <div className="flex w-full flex-row items-center justify-center space-x-2 pr-[50px] md:hidden">{navbar}</div>
                     </Protect>
                 </div>
             </div>
             <Protect fallback={discord_component}>
                 <AdminProtect fallback={discord_component}>
-                    {discord_component_admin}
                     <div
                         className="group absolute right-0 top-0"
                         onMouseEnter={() => setShowMenu(true)}
