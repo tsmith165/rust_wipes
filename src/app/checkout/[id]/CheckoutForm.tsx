@@ -127,7 +127,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                         </button>
                     </div>
                     {steamProfile && (
-                        <div className="flex items-start space-x-2 pt-2">
+                        <div className="flex items-start space-x-2">
                             <img src={steamProfile.avatarUrl} alt="Steam Avatar" className="h-8 w-8 rounded-full" />
                             <span className="text-md leading-8 text-gray-300">{steamProfile.name}</span>
                             <span className="text-md leading-8 text-gray-400">({steamProfile.steamId})</span>
