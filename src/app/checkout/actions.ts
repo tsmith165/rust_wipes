@@ -46,9 +46,10 @@ export async function runStripePurchase(data: FormData) {
     const kit_id = data.get('kit_id')?.toString();
     const steam_id = data.get('steam_id')?.toString();
     const steam_username = data.get('steam_username')?.toString();
+    const email = data.get('email')?.toString();
 
-    if (!kit_id || !steam_id || !steam_username) {
-        throw new Error('Kit ID, Steam ID, and Steam Username are required');
+    if (!kit_id || !steam_id || !steam_username || !email) {
+        throw new Error('Kit ID, Steam ID, Steam Username, and Email are required');
     }
 
     const kit_data = await db
@@ -64,7 +65,7 @@ export async function runStripePurchase(data: FormData) {
     const kit = kit_data[0];
 
     console.log('Creating a Pending Transaction ...');
-    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username);
+    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username, email);
 
     console.log(`Pending Transaction Response (Next Line):`);
     console.log(pending_response);
@@ -89,6 +90,7 @@ export async function runStripePurchase(data: FormData) {
         user_id: userId.toString(),
         steam_id: steam_id,
         steam_username: steam_username,
+        email: email,
         image_path: kit.image_path,
         image_width: kit.width.toString(),
         image_height: kit.height.toString(),
@@ -135,7 +137,13 @@ export async function runStripePurchase(data: FormData) {
     }
 }
 
-export async function create_pending_transaction(kit_db_id: number, kit_name: string, steam_id: string, steam_username: string) {
+export async function create_pending_transaction(
+    kit_db_id: number,
+    kit_name: string,
+    steam_id: string,
+    steam_username: string,
+    email: string,
+) {
     console.log(`Attempting to create pending transaction for kit_db_id: ${kit_db_id}`);
 
     // First, find or create the user
@@ -148,9 +156,16 @@ export async function create_pending_transaction(kit_db_id: number, kit_name: st
             .values({
                 steam_id,
                 steam_user: steam_username,
+                email,
             })
             .returning();
         user = insertedUser;
+    } else {
+        // Update the user's email if it has changed
+        if (user[0].email !== email) {
+            await db.update(users).set({ email, updated_at: new Date() }).where(eq(users.id, user[0].id));
+            user[0].email = email;
+        }
     }
 
     // Insert the new record
@@ -158,6 +173,7 @@ export async function create_pending_transaction(kit_db_id: number, kit_name: st
         kit_db_id,
         kit_name,
         user_id: user[0].id,
+        email,
     });
     return pending_transaction_output;
 }

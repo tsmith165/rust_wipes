@@ -134,6 +134,7 @@ export const users = pgTable('users', {
     id: serial('id').notNull().primaryKey(),
     steam_id: varchar('steam_id').notNull().unique(),
     steam_user: varchar('steam_user').notNull(),
+    email: varchar('email'),
     created_at: timestamp('created_at').defaultNow(),
     updated_at: timestamp('updated_at').defaultNow(),
 });
@@ -150,6 +151,7 @@ export const pending_transactions_table = pgTable('pending_transactions', {
     user_id: integer('user_id')
         .notNull()
         .references(() => users.id),
+    email: varchar('email').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
@@ -165,6 +167,7 @@ export const verified_transactions_table = pgTable('verified_transactions', {
     user_id: integer('user_id')
         .notNull()
         .references(() => users.id),
+    email: varchar('email').notNull(),
     image_path: text('image_path').notNull(),
     image_width: integer('image_width').notNull(),
     image_height: integer('image_height').notNull(),

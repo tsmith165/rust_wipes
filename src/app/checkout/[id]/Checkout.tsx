@@ -14,9 +14,9 @@ const Checkout: React.FC<CheckoutProps> = ({ current_kit, current_id }) => {
     console.log(`LOADING CHECKOUT PAGE - Kit ID: ${current_id}`);
 
     return (
-        <div className="flex h-full w-full overflow-y-auto bg-stone-900 p-4">
-            <div className="flex h-fit w-full flex-col items-center justify-center space-y-4 md:h-full md:flex-row md:space-x-4 md:space-y-0">
-                <div className="flex h-full w-auto items-center justify-center rounded-md ">
+        <div className="flex h-full w-full items-center justify-center overflow-y-auto bg-stone-900 p-4">
+            <div className="flex h-fit w-full flex-col items-center justify-center space-y-4 md:h-fit md:flex-row md:space-x-4 md:space-y-0">
+                <div className="flex h-fit w-auto items-center justify-center rounded-md ">
                     <motion.img
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -26,11 +26,11 @@ const Checkout: React.FC<CheckoutProps> = ({ current_kit, current_id }) => {
                         alt={current_kit.name}
                         width={current_kit.width}
                         height={current_kit.height}
-                        className="max-h-[40dvh] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[50dvh] md:min-h-[50dvh]"
+                        className="max-h-[40dvh] w-auto rounded-md bg-stone-600 object-contain p-1 hover:cursor-pointer md:max-h-[50dvh]"
                     />
                 </div>
-                <div className="flex h-fit w-full items-center justify-center rounded-lg text-white shadow-lg md:h-full md:w-fit md:justify-start">
-                    <div className="flex w-full flex-col items-center justify-center space-y-2">
+                <div className="flex h-fit w-full items-start justify-start rounded-lg text-white shadow-lg md:h-fit md:w-fit md:justify-start">
+                    <div className="flex w-full flex-col items-start justify-start space-y-2">
                         <h1 className={`text-center text-xl font-bold text-primary ${current_kit.type === 'monthly' ? '' : 'hidden'}`}>
                             Purchase {current_kit.full_name || current_kit.name} Kit
                         </h1>

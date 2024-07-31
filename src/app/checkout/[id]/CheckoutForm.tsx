@@ -23,11 +23,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
     const [steamProfileUrl, setSteamProfileUrl] = useState('');
     const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string; steamId: string } | null>(null);
     const [steamError, setSteamError] = useState<string | null>(null);
+    const [email, setEmail] = useState('');
 
     const handleStripePurchaseClick = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!steamProfile) {
             setSteamError('Please verify your Steam profile before purchasing.');
+            return;
+        }
+        if (!email) {
+            setErrorFound(true);
             return;
         }
         setLoading(true);
@@ -37,6 +42,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
         const formData = new FormData(event.currentTarget);
         formData.append('steam_id', steamProfile.steamId);
         formData.append('steam_username', steamProfile.name);
+        formData.append('email', email);
         const response = await runStripePurchase(formData);
 
         if (response && response.success && response.redirectUrl) {
@@ -77,14 +83,27 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
             ? submit_unsuccessful_jsx
             : null;
 
-    const submit_container = loader_container && <div className="mt-4">{loader_container}</div>;
+    const submit_container = loader_container && <div className="mt-2">{loader_container}</div>;
 
     return (
         <div className="flex h-full w-full flex-col overflow-y-auto">
             <form onSubmit={handleStripePurchaseClick} className="flex flex-col">
                 <input type="hidden" name="kit_id" value={current_kit.id} />
 
-                <div className="flex flex-col items-start space-y-2">
+                <div className="">
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        className="h-8 w-full rounded-md border-none bg-stone-400 px-2 text-sm font-bold text-stone-950 placeholder-stone-700"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+
+                <div className="mt-2 flex flex-col items-start space-y-2">
                     <div className="flex w-full flex-row">
                         <div className="flex-grow">
                             <input
@@ -116,15 +135,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                     {steamError && <div className="text-red-500">{steamError}</div>}
                 </div>
 
-                <div className="mt-4">
-                    <div className={`${steamProfile ? '' : 'pointer-events-none opacity-50'}`}>
-                        <StripeBrandedButton url={'submit'} price={String(current_kit.price || 0)} text="purchase" />
-                    </div>
-                    {!steamProfile && (
+                <div className="">
+                    {(!steamProfile || !email) && (
                         <div className="mt-2 text-sm text-yellow-500">
-                            Before you can purchase, we need to verify your Steam ID in order to grant in-game access to the kit.
+                            Please verify your Steam profile and provide your email before purchasing.
                         </div>
                     )}
+                    <div className={`mt-2 ${steamProfile && email ? '' : 'pointer-events-none opacity-50'}`}>
+                        <StripeBrandedButton url={'submit'} price={String(current_kit.price || 0)} text="purchase" />
+                    </div>
                     <div className={`mt-2 ${current_kit.type === 'monthly' ? '' : 'hidden'}`}>
                         <div className={`font-sans text-stone-300`}>
                             <span>{`Kit will be available in-game with `}</span>

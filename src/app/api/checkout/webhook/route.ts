@@ -6,12 +6,15 @@ import { render } from '@react-email/render';
 import { sendEmail } from '@/utils/emails/resend_utils';
 import CheckoutSuccessEmail from '@/utils/emails/templates/checkoutSuccessEmail';
 
+import PROJECT_CONSTANTS from '@/lib/constants';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' });
 
 interface WebhookEventMetadata {
     product_id: string;
     user_id: string;
     steam_username: string;
+    email: string;
     image_path: string;
     image_width: string;
     image_height: string;
@@ -49,7 +52,7 @@ export async function POST(request: Request) {
             console.log(`ID: ${stripeId}`);
             console.log(`Metadata:`, metadata);
 
-            if (!metadata.product_id || !metadata.user_id || !metadata.steam_username) {
+            if (!metadata.product_id || !metadata.user_id || !metadata.steam_username || !metadata.email) {
                 throw new Error('Missing required metadata');
             }
 
@@ -75,6 +78,7 @@ export async function POST(request: Request) {
                 kit_db_id: kitDbId,
                 kit_name: pendingTransactionData[0].kit_name,
                 user_id: userId,
+                email: metadata.email,
                 image_path: metadata.image_path,
                 image_width: parseInt(metadata.image_width, 10),
                 image_height: parseInt(metadata.image_height, 10),
@@ -99,8 +103,8 @@ export async function POST(request: Request) {
             const emailHtml = render(checkoutSuccessEmailTemplate);
 
             await sendEmail({
-                from: 'noreply@yourwebsite.com',
-                to: [metadata.steam_username, 'admin@yourwebsite.com'],
+                from: 'noreply@rustwipes.net',
+                to: [metadata.email, PROJECT_CONSTANTS.CONTACT_EMAIL],
                 subject: 'Purchase Confirmation - Rust Kit',
                 html: emailHtml,
             });
