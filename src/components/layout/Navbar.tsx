@@ -58,7 +58,7 @@ export default function Navbar({ page }: { page: string }) {
                     />
                 </div>
                 <div className="hidden flex-1 flex-row items-center justify-start space-x-4 pl-2 md:!flex">{rightNavbar}</div>
-                <div className="flex h-full flex-row justify-end space-x-2">
+                <div className="flex h-full flex-row justify-end space-x-2 pr-[50px]">
                     <Protect
                         fallback={<div className="flex w-full flex-row items-center justify-center space-x-2 pr-4 md:hidden">{navbar}</div>}
                     >

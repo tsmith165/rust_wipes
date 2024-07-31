@@ -169,10 +169,10 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
 
     return (
         <div className="flex h-full w-full flex-col items-center justify-center">
-            <div className=" flex justify-center space-x-4 pt-4">
+            <div className="xs:space-x-4 flex justify-center space-x-2 pt-4">
                 {['monthly', 'single', 'priority'].map((type) => (
                     <div
-                        className={`rounded-3xl px-4 py-2 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
+                        className={`xs:px-4 xs:py-2 rounded-3xl px-2 py-1 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
                         onClick={() => handleTypeChange(type)}
                     >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
