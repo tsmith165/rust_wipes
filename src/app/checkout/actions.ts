@@ -1,47 +1,22 @@
 'use server';
 
-import { db, kits, pending_transactions_table, users, verified_transactions_table } from '@/db/db';
-import { eq, desc, sql } from 'drizzle-orm';
-
-import PROJECT_CONSTANTS from '@/lib/constants';
 import Stripe from 'stripe';
+import { db, kits, pending_transactions_table, users } from '@/db/db';
+import { eq, desc } from 'drizzle-orm';
+import PROJECT_CONSTANTS from '@/lib/constants';
 
-let stripe: Stripe | null = null;
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' });
 
-console.log('STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
-if (process.env.STRIPE_SECRET_KEY) {
-    console.log('STRIPE_SECRET_KEY length:', process.env.STRIPE_SECRET_KEY.length);
-    console.log('STRIPE_SECRET_KEY starts with:', process.env.STRIPE_SECRET_KEY.substring(0, 3) + '...');
+// Type definitions
+interface StripeResponse {
+    sessionId: string;
+    error?: string;
 }
 
-try {
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-    if (!stripeSecretKey) {
-        console.error('STRIPE_SECRET_KEY is not set in the environment');
-        throw new Error('Stripe secret key is not configured');
-    }
-
-    console.log('Attempting to initialize Stripe...');
-    stripe = new Stripe(stripeSecretKey, {
-        apiVersion: '2024-04-10',
-    });
-    console.log('Stripe initialized successfully');
-} catch (error) {
-    console.error('Error initializing Stripe:', error);
-}
-
-interface MaxIdResult {
-    value: number | null;
-}
-
-export async function runStripePurchase(data: FormData) {
-    console.log('runStripePurchase called');
-    console.log('Stripe instance exists:', !!stripe);
-
-    if (!stripe) {
-        console.error('Stripe is not initialized in runStripePurchase');
-        throw new Error('Stripe is not initialized');
-    }
+// Main function to create Stripe session
+export async function createStripeSession(data: FormData): Promise<StripeResponse> {
+    console.log('createStripeSession called');
 
     const kit_id = data.get('kit_id')?.toString();
     const steam_id = data.get('steam_id')?.toString();
@@ -50,65 +25,35 @@ export async function runStripePurchase(data: FormData) {
     const is_subscription = data.get('is_subscription') === 'true';
 
     if (!kit_id || !steam_id || !steam_username || !email) {
-        throw new Error('Kit ID, Steam ID, Steam Username, and Email are required');
+        return { error: 'Missing required fields', sessionId: '' };
     }
-
-    const kit_data = await db
-        .select()
-        .from(kits)
-        .where(eq(kits.id, parseInt(kit_id)))
-        .orderBy(desc(kits.o_id))
-        .limit(1);
-
-    if (!kit_data.length) {
-        throw new Error('Kit not found');
-    }
-    const kit = kit_data[0];
-
-    console.log('Creating a Pending Transaction ...');
-    const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username, email, is_subscription);
-
-    console.log(`Pending Transaction Response (Next Line):`);
-    console.log(pending_response);
-
-    if (!pending_response) {
-        console.error('No Response From Create Pending Transaction. Cannot check out...');
-        return;
-    }
-
-    // Get the user ID from the pending transaction
-    const user = await db.select().from(users).where(eq(users.steam_id, steam_id)).limit(1);
-    if (user.length === 0) {
-        throw new Error('User not found');
-    }
-    const userId = user[0].id;
-
-    console.log(`Creating stripe session with kit:`, kit);
-
-    // Create Stripe Checkout Session
-    const metadata = {
-        product_id: kit.id.toString(),
-        user_id: userId.toString(),
-        steam_id: steam_id,
-        steam_username: steam_username,
-        email: email,
-        image_path: kit.image_path,
-        image_width: kit.width.toString(),
-        image_height: kit.height.toString(),
-        price_id: kit.price?.toString() || '',
-        is_subscription: is_subscription.toString(),
-    };
-
-    console.log(`Creating a Stripe Checkout Session with metadata:`, metadata);
 
     try {
+        // Fetch kit data
+        const kit_data = await db
+            .select()
+            .from(kits)
+            .where(eq(kits.id, parseInt(kit_id)))
+            .limit(1);
+        if (!kit_data.length) {
+            return { error: 'Kit not found', sessionId: '' };
+        }
+        const kit = kit_data[0];
+
+        // Create pending transaction
+        const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username, email, is_subscription);
+        if (!pending_response) {
+            return { error: 'Failed to create pending transaction', sessionId: '' };
+        }
+
+        // Create Stripe session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
                 {
                     price_data: {
                         currency: 'usd',
-                        unit_amount: Number(kit.price || 5) * 100, // Amount in cents
+                        unit_amount: Number(kit.price || 5) * 100,
                         product_data: {
                             name: kit.name,
                             images: [kit.image_path],
@@ -119,26 +64,32 @@ export async function runStripePurchase(data: FormData) {
                 },
             ],
             mode: is_subscription ? 'subscription' : 'payment',
-            success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
-            cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/${kit.id}`,
-            client_reference_id: kit.id.toString(),
-            metadata: metadata,
+            success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/${kit_id}?canceled=true`,
+            metadata: {
+                kit_id: kit.id.toString(),
+                steam_id,
+                steam_username,
+                email,
+                is_subscription: is_subscription.toString(),
+            },
         });
 
         console.log(`Stripe Session Created:`, session);
         console.log(`Session ID: ${session.id}`);
 
-        return {
-            success: true,
-            redirectUrl: session.url,
-        };
+        return { sessionId: session.id };
     } catch (error) {
         console.error('Error creating Stripe session:', error);
-        throw error;
+        return {
+            error: error instanceof Error ? error.message : 'An unknown error occurred',
+            sessionId: '',
+        };
     }
 }
 
-export async function create_pending_transaction(
+// Function to create pending transaction
+async function create_pending_transaction(
     kit_db_id: number,
     kit_name: string,
     steam_id: string,
@@ -181,6 +132,7 @@ export async function create_pending_transaction(
     return pending_transaction_output;
 }
 
+// Function to verify Steam profile
 export async function verifySteamProfile(profileUrl: string) {
     const STEAM_API_KEY = process.env.STEAM_API_KEY;
     if (!STEAM_API_KEY) {
@@ -220,6 +172,7 @@ export async function verifySteamProfile(profileUrl: string) {
     }
 }
 
+// Helper function to extract Steam ID from URL
 async function extractSteamIdFromUrl(url: string): Promise<string | null> {
     // Custom ID format: https://steamcommunity.com/id/[custom_id]
     const customIdMatch = url.match(/steamcommunity\.com\/id\/([^\/]+)/);
@@ -237,6 +190,7 @@ async function extractSteamIdFromUrl(url: string): Promise<string | null> {
     return null;
 }
 
+// Helper function to resolve vanity URL
 async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
     const STEAM_API_KEY = process.env.STEAM_API_KEY;
     if (!STEAM_API_KEY) {

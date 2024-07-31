@@ -2,13 +2,10 @@
 
 import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-
-import { runStripePurchase, verifySteamProfile } from '../actions';
+import { createStripeSession, verifySteamProfile } from '../actions';
 import StripeBrandedButton from '@/components/svg/StripeBrandedButton';
 import { KitsWithExtraImages } from '@/db/schema';
-
 import { FaSteam } from 'react-icons/fa';
-import { TbProgress } from 'react-icons/tb';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -17,9 +14,6 @@ interface CheckoutFormProps {
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
-    const [loading, setLoading] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-    const [errorFound, setErrorFound] = useState(false);
     const [steamProfileUrl, setSteamProfileUrl] = useState('');
     const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string; steamId: string } | null>(null);
     const [steamError, setSteamError] = useState<string | null>(null);
@@ -32,27 +26,35 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
             return;
         }
         if (!email) {
-            setErrorFound(true);
+            setSteamError('Please provide your email before purchasing.');
             return;
         }
-        setLoading(true);
-        setSubmitted(false);
-        setErrorFound(false);
 
         const formData = new FormData(event.currentTarget);
         formData.append('steam_id', steamProfile.steamId);
         formData.append('steam_username', steamProfile.name);
         formData.append('email', email);
         formData.append('is_subscription', (current_kit.type === 'monthly' || current_kit.type === 'priority').toString());
-        const response = await runStripePurchase(formData);
 
-        if (response && response.success && response.redirectUrl) {
-            window.location.href = response.redirectUrl;
-        } else {
-            console.error('Stripe purchase failed');
-            setLoading(false);
-            setSubmitted(false);
-            setErrorFound(true);
+        const response = await createStripeSession(formData);
+
+        if (response.error) {
+            setSteamError(response.error);
+            return;
+        }
+
+        const stripe = await stripePromise;
+        if (!stripe) {
+            setSteamError('Failed to load Stripe');
+            return;
+        }
+
+        const result = await stripe.redirectToCheckout({
+            sessionId: response.sessionId,
+        });
+
+        if (result.error) {
+            setSteamError(result.error.message || 'An error occurred. Please try again.');
         }
     };
 
@@ -71,20 +73,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
             setSteamProfile(null);
         }
     };
-
-    const submit_loader_spinner = <TbProgress className="animate-spin text-primary" />;
-    const submit_successful_jsx = <div className="text-green-500">Checkout submit successful.</div>;
-    const submit_unsuccessful_jsx = <div className="text-red-500">Checkout submit was not successful.</div>;
-
-    const loader_container = loading
-        ? submit_loader_spinner
-        : submitted
-          ? submit_successful_jsx
-          : errorFound
-            ? submit_unsuccessful_jsx
-            : null;
-
-    const submit_container = loader_container && <div className="mt-2">{loader_container}</div>;
 
     return (
         <div className="flex h-full w-full flex-col overflow-y-auto">
@@ -120,10 +108,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                         <button
                             type="button"
                             onClick={handleSteamProfileVerification}
-                            className="flex h-8 items-center justify-center rounded-r-md bg-gradient-to-b from-blue-500 to-blue-600 px-3 text-white hover:from-blue-600 hover:to-blue-900"
+                            className="flex h-8 items-center justify-center rounded-r-md bg-gradient-to-b from-blue-500 to-blue-600 px-3 text-stone-950 hover:from-blue-600 hover:to-blue-900 hover:text-stone-300"
                         >
-                            <FaSteam className="mr-2 h-4 w-4" />
-                            <span className="text-sm font-bold">Verify</span>
+                            <FaSteam className="mr-1.5 h-6 w-6" />
+                            <span className="text-md font-bold">Verify</span>
                         </button>
                     </div>
                     {steamProfile && (
@@ -180,8 +168,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                         </div>
                     </div>
                 </div>
-
-                {submit_container}
             </form>
         </div>
     );
