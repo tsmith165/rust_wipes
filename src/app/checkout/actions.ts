@@ -1,6 +1,6 @@
 'use server';
 
-import { db, kits, pending_transactions_table } from '@/db/db';
+import { db, kits, pending_transactions_table, users, verified_transactions_table } from '@/db/db';
 import { eq, desc, sql } from 'drizzle-orm';
 
 import PROJECT_CONSTANTS from '@/lib/constants';
@@ -96,7 +96,7 @@ export async function runStripePurchase(data: FormData) {
                 {
                     price_data: {
                         currency: 'usd',
-                        unit_amount: (kit.price || 5) * 100, // Amount in cents
+                        unit_amount: Number(kit.price || 5) * 100, // Amount in cents
                         product_data: {
                             name: kit.name,
                             images: [kit.image_path],
@@ -129,6 +129,22 @@ export async function runStripePurchase(data: FormData) {
 
 export async function create_pending_transaction(kit_db_id: number, kit_name: string, steam_id: string, steam_username: string) {
     console.log(`Attempting to create pending transaction for kit_db_id: ${kit_db_id}`);
+
+    // First, find or create the user
+    let user = await db.select().from(users).where(eq(users.steam_id, steam_id)).limit(1);
+
+    if (user.length === 0) {
+        // User doesn't exist, create a new one
+        const insertedUser = await db
+            .insert(users)
+            .values({
+                steam_id,
+                steam_user: steam_username,
+            })
+            .returning();
+        user = insertedUser;
+    }
+
     // Fetch the current maximum ID from the PendingTransactions table
     const maxIdResult: MaxIdResult[] = await db
         .select({ value: sql`max(${pending_transactions_table.id})`.mapWith(Number) })
@@ -144,8 +160,7 @@ export async function create_pending_transaction(kit_db_id: number, kit_name: st
         id: nextId,
         kit_db_id,
         kit_name,
-        steam_id,
-        steam_name: steam_username,
+        user_id: user[0].id,
     });
     return pending_transaction_output;
 }

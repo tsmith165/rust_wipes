@@ -92,7 +92,7 @@ export const kits = pgTable('kits', {
     p_id: integer('p_id').notNull().default(0),
     active: boolean('active').default(true),
     name: text('name').notNull(),
-    full_name: text('full_name'), // Add this new field
+    full_name: text('full_name'),
     price: decimal('price'),
     permission_string: text('permission_string'),
     description: text('description'),
@@ -130,13 +130,24 @@ export type KitsWithExtraImages = Kits & {
     extraImages: KitExtraImagesType[];
 };
 
+export const users = pgTable('users', {
+    id: serial('id').notNull().primaryKey(),
+    steam_id: varchar('steam_id').notNull().unique(),
+    steam_user: varchar('steam_user').notNull(),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export type Users = InferSelectModel<typeof users>;
+export type InsertUsers = InferInsertModel<typeof users>;
+
 export const pending_transactions_table = pgTable('pending_transactions', {
     id: serial('id').notNull().primaryKey(),
     kit_db_id: integer('kit_db_id').notNull(),
     kit_name: text('kit_name').notNull(),
-    steam_id: text('steam_id').notNull(),
-    steam_name: text('steam_name'),
-    steam_avatar: text('steam_avatar'),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => users.id),
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
@@ -147,9 +158,9 @@ export const verified_transactions_table = pgTable('verified_transactions', {
     id: serial('id').notNull().primaryKey(),
     kit_db_id: integer('kit_db_id').notNull(),
     kit_name: text('kit_name').notNull(),
-    steam_id: text('steam_id').notNull(),
-    steam_name: text('steam_name'),
-    steam_avatar: text('steam_avatar'),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => users.id),
     image_path: text('image_path').notNull(),
     image_width: integer('image_width').notNull(),
     image_height: integer('image_height').notNull(),

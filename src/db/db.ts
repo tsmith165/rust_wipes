@@ -9,6 +9,7 @@ import {
     rw_server_network,
     kits,
     KitExtraImages,
+    users,
     pending_transactions_table,
     verified_transactions_table,
 } from './schema';
@@ -25,6 +26,7 @@ export {
     rw_server_network,
     kits,
     KitExtraImages,
+    users,
     pending_transactions_table,
     verified_transactions_table,
 };
