@@ -25,6 +25,9 @@ interface UserWithSteamProfile extends UserWithKits {
     };
 }
 
+const RUST_SERVER_CONNECTION_DETAILS = process.env.RUST_SERVER_CONNECTION_DETAILS || [];
+console.log('RUST_SERVER_CONNECTION_DETAILS:', RUST_SERVER_CONNECTION_DETAILS);
+
 export default async function UsersPage() {
     const users = await getUsers();
 

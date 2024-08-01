@@ -6,6 +6,8 @@ import { render } from '@react-email/render';
 import { sendEmail } from '@/utils/emails/resend_utils';
 import CheckoutSuccessEmail from '@/utils/emails/templates/CheckoutSuccessEmail';
 import SubscriptionCanceledEmail from '@/utils/emails/templates/SubscriptionCanceledEmail';
+import ErrorEmailTemplate from '@/utils/emails/templates/ErrorEmailTemplate';
+import { grantKitAccess, revokeKitAccess } from '@/utils/rust/rustServerCommands';
 
 import PROJECT_CONSTANTS from '@/lib/constants';
 
@@ -107,6 +109,27 @@ export async function POST(request: Request) {
                 throw new Error('Kit not found');
             }
 
+            // Grant kit access in Rust servers
+            try {
+                await grantKitAccess(userData[0].steam_id, kitData[0].name);
+                console.log(`Kit access granted for user ${userData[0].steam_id} to kit ${kitData[0].name}`);
+            } catch (error) {
+                console.error('Error granting kit access:', error);
+                const errorEmailTemplate = React.createElement(ErrorEmailTemplate, {
+                    error_message: error instanceof Error ? error.message : 'Unknown error',
+                    steam_username: userData[0].steam_user,
+                    kit_name: kitData[0].name,
+                    action_type: 'grant',
+                });
+                const errorEmailHtml = render(errorEmailTemplate);
+                await sendEmail({
+                    from: 'noreply@rustwipes.net',
+                    to: PROJECT_CONSTANTS.CONTACT_EMAIL,
+                    subject: `Error Granting Kit Access - ${kitData[0].name}`,
+                    html: errorEmailHtml,
+                });
+            }
+
             const checkoutSuccessEmailTemplate = React.createElement(CheckoutSuccessEmail, {
                 steam_username: userData[0].steam_user,
                 kit_name: kitData[0].name,
@@ -118,7 +141,7 @@ export async function POST(request: Request) {
             await sendEmail({
                 from: 'noreply@rustwipes.net',
                 to: [metadata.email, PROJECT_CONSTANTS.CONTACT_EMAIL],
-                subject: `{Purchase Confirmation - ${kitData[0].name}}`,
+                subject: `Purchase Confirmation - ${kitData[0].name}`,
                 html: emailHtml,
             });
         } else if (event.type === 'customer.subscription.deleted') {
@@ -134,18 +157,34 @@ export async function POST(request: Request) {
                 .limit(1);
 
             if (verifiedTransaction.length > 0) {
-                // TODO: Implement logic to remove permissions from the user
                 console.log(`Subscription ${subscriptionId} canceled for user ${verifiedTransaction[0].user_id}`);
-
-                // You might want to update the user's permissions in your game server here
-                // For example:
-                // await removeUserPermissions(verifiedTransaction[0].user_id, verifiedTransaction[0].kit_db_id);
 
                 // Fetch user data to get steam_username
                 const userData = await db.select().from(users).where(eq(users.id, verifiedTransaction[0].user_id)).limit(1);
 
                 if (userData.length === 0) {
                     throw new Error('User not found');
+                }
+
+                // Revoke kit access in Rust servers
+                try {
+                    await revokeKitAccess(userData[0].steam_id, verifiedTransaction[0].kit_name);
+                    console.log(`Kit access revoked for user ${userData[0].steam_id} to kit ${verifiedTransaction[0].kit_name}`);
+                } catch (error) {
+                    console.error('Error revoking kit access:', error);
+                    const errorEmailTemplate = React.createElement(ErrorEmailTemplate, {
+                        error_message: error instanceof Error ? error.message : 'Unknown error',
+                        steam_username: userData[0].steam_user,
+                        kit_name: verifiedTransaction[0].kit_name,
+                        action_type: 'revoke',
+                    });
+                    const errorEmailHtml = render(errorEmailTemplate);
+                    await sendEmail({
+                        from: 'noreply@rustwipes.net',
+                        to: PROJECT_CONSTANTS.CONTACT_EMAIL,
+                        subject: `Error Revoking Kit Access - ${verifiedTransaction[0].kit_name}`,
+                        html: errorEmailHtml,
+                    });
                 }
 
                 // Send an email to the user about their subscription cancellation

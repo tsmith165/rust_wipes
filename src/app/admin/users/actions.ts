@@ -1,6 +1,23 @@
 import { db, users, verified_transactions_table } from '@/db/db';
 import { eq } from 'drizzle-orm';
 
+import { auth } from '@clerk/nextjs/server';
+import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
+
+async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string | undefined }> {
+    const { userId } = auth();
+    if (!userId) {
+        return { isAdmin: false, error: 'User is not authenticated. Cannot edit kit.' };
+    }
+    console.log(`User ID: ${userId}`);
+    const hasAdminRole = await isClerkUserIdAdmin(userId);
+    console.log(`User hasAdminRole: ${hasAdminRole}`);
+    if (!hasAdminRole) {
+        return { isAdmin: false, error: 'User does not have the admin role. Cannot edit kit.' };
+    }
+    return { isAdmin: true };
+}
+
 export interface UserWithKits {
     id: number;
     steam_id: string;
@@ -16,6 +33,12 @@ export interface UserWithKits {
 }
 
 export async function getUsers(): Promise<UserWithKits[]> {
+    const { isAdmin, error: roleError } = await checkUserRole();
+    if (!isAdmin) {
+        console.error(roleError);
+        return [];
+    }
+
     const result = await db
         .select({
             id: users.id,
