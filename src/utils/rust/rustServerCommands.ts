@@ -50,11 +50,11 @@ async function sendCommandToRustServer(command: string, config: ServerConfig): P
             rcon.send(command, 'RustWipes', 1);
         });
 
-        rcon.on('message', (message: string) => {
+        rcon.on('message', (message: any) => {
             console.log(`Response from ${config.name}:`, message);
             clearTimeout(timeout);
             rcon.destroy();
-            resolve(message);
+            resolve(JSON.stringify(message));
         });
 
         rcon.on('error', (error: Error) => {

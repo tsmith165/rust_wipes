@@ -11,12 +11,19 @@ interface TestsProps {
     activeTab: string;
 }
 
+interface ServerResponse {
+    content: string;
+    Identifier: number;
+    Type: string;
+    Stacktrace: string;
+}
+
 export function Tests({ kits, activeTab }: TestsProps) {
     const [steamProfileUrl, setSteamProfileUrl] = useState('');
     const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string; steamId: string } | null>(null);
     const [steamError, setSteamError] = useState<string | null>(null);
     const [selectedKit, setSelectedKit] = useState<string>('');
-    const [actionResults, setActionResults] = useState<{ serverName: string; response: string }[] | null>(null);
+    const [actionResults, setActionResults] = useState<{ serverName: string; response: ServerResponse | string }[] | null>(null);
 
     const handleSteamProfileVerification = async () => {
         setSteamError(null);
@@ -38,7 +45,12 @@ export function Tests({ kits, activeTab }: TestsProps) {
         if (!steamProfile || !selectedKit) return;
         try {
             const results = await grantKitAccess(steamProfile.steamId, selectedKit);
-            setActionResults(results);
+            setActionResults(
+                results.map((result) => ({
+                    ...result,
+                    response: tryParseJSON(result.response) || result.response,
+                })),
+            );
         } catch (error) {
             setActionResults([
                 { serverName: 'Error', response: `Error granting access: ${error instanceof Error ? error.message : String(error)}` },
@@ -50,7 +62,12 @@ export function Tests({ kits, activeTab }: TestsProps) {
         if (!steamProfile || !selectedKit) return;
         try {
             const results = await revokeKitAccess(steamProfile.steamId, selectedKit);
-            setActionResults(results);
+            setActionResults(
+                results.map((result) => ({
+                    ...result,
+                    response: tryParseJSON(result.response) || result.response,
+                })),
+            );
         } catch (error) {
             setActionResults([
                 { serverName: 'Error', response: `Error revoking access: ${error instanceof Error ? error.message : String(error)}` },
@@ -58,9 +75,17 @@ export function Tests({ kits, activeTab }: TestsProps) {
         }
     };
 
+    const tryParseJSON = (jsonString: string): ServerResponse | null => {
+        try {
+            return JSON.parse(jsonString);
+        } catch (e) {
+            return null;
+        }
+    };
+
     return (
         <div className="flex h-full w-full flex-col items-center overflow-y-auto py-4">
-            <div className="w-[95%] rounded-lg bg-primary_dark text-lg font-bold text-secondary_dark md:w-4/5">
+            <div className="w-[95%] rounded-lg bg-stone-700 text-lg font-bold text-secondary_dark md:w-4/5">
                 <div className="w-full rounded-t-md bg-primary_dark text-lg font-bold text-secondary_dark">
                     <div className="flex pt-1">
                         <Link
@@ -71,18 +96,15 @@ export function Tests({ kits, activeTab }: TestsProps) {
                                     : 'bg-primary text-secondary_dark hover:bg-secondary_dark hover:text-primary'
                             }`}
                         >
-                            Kit Access Test
+                            Kit Access
                         </Link>
                         {/* Add more tabs here as needed */}
                     </div>
                 </div>
 
-                <div className="flex h-fit w-full flex-col items-center p-4">
-                    <div className="w-full max-w-md">
-                        <div className="mb-4">
-                            <label htmlFor="kit_select" className="mb-2 block text-sm font-bold">
-                                Select Kit
-                            </label>
+                <div className="flex h-fit w-full flex-col items-center p-2 sm:p-4">
+                    <div className="w-full space-y-2 sm:w-4/5 sm:space-y-4">
+                        <div className="">
                             <select
                                 id="kit_select"
                                 className="w-full rounded-md border-none bg-stone-400 px-2 py-1 text-sm font-bold text-stone-950"
@@ -98,33 +120,34 @@ export function Tests({ kits, activeTab }: TestsProps) {
                             </select>
                         </div>
 
-                        <div className="mb-4">
-                            <label htmlFor="steam_profile_url" className="mb-2 block text-sm font-bold">
-                                Steam Profile URL
-                            </label>
+                        <div className="">
                             <div className="flex">
                                 <input
                                     type="text"
                                     id="steam_profile_url"
-                                    className="flex-grow rounded-l-md border-none bg-stone-400 px-2 py-1 text-sm font-bold text-stone-950"
+                                    className="flex-grow rounded-l-md border-none bg-stone-400 px-2 py-1 text-sm font-bold text-stone-950 placeholder-stone-950"
                                     placeholder="Enter Steam Profile URL"
                                     value={steamProfileUrl}
                                     onChange={(e) => setSteamProfileUrl(e.target.value)}
                                 />
                                 <button
                                     onClick={handleSteamProfileVerification}
-                                    className="rounded-r-md bg-blue-500 px-4 py-1 text-white hover:bg-blue-600"
+                                    className="flex flex-row items-center justify-center rounded-r-md bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
                                 >
-                                    <FaSteam className="mr-2 inline-block" />
+                                    <FaSteam className="mr-1.5 flex h-[16px] w-[16px] " />
                                     Verify
                                 </button>
                             </div>
                         </div>
 
                         {steamProfile && (
-                            <div className="mb-4">
+                            <div className="mb-4 flex items-center space-x-2">
+                                <img src={steamProfile.avatarUrl} alt="Steam Avatar" className="h-8 w-8 rounded-full" />
                                 <p className="text-sm">
-                                    Verified: {steamProfile.name} ({steamProfile.steamId})
+                                    <span className="font-semibold text-green-500">Verified: </span>
+                                    <span className="text-stone-300">
+                                        {steamProfile.name} ({steamProfile.steamId})
+                                    </span>
                                 </p>
                             </div>
                         )}
@@ -134,14 +157,14 @@ export function Tests({ kits, activeTab }: TestsProps) {
                         <div className="flex justify-between">
                             <button
                                 onClick={handleGrantAccess}
-                                className="rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600 disabled:opacity-50"
+                                className="rounded bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800 disabled:opacity-50"
                                 disabled={!steamProfile || !selectedKit}
                             >
                                 Grant Access
                             </button>
                             <button
                                 onClick={handleRevokeAccess}
-                                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-600 disabled:opacity-50"
+                                className="rounded bg-red-700 px-4 py-2 font-bold text-white hover:bg-red-800 disabled:opacity-50"
                                 disabled={!steamProfile || !selectedKit}
                             >
                                 Revoke Access
@@ -154,7 +177,16 @@ export function Tests({ kits, activeTab }: TestsProps) {
                                 {actionResults.map((result, index) => (
                                     <div key={index} className="mb-2 rounded bg-stone-700 p-2">
                                         <p className="font-bold">{result.serverName}:</p>
-                                        <p className="text-sm">{result.response}</p>
+                                        {typeof result.response === 'string' ? (
+                                            <p className="text-sm">{result.response}</p>
+                                        ) : (
+                                            <div>
+                                                <p className="text-sm">{result.response.content}</p>
+                                                {result.response.Stacktrace !== '' && (
+                                                    <p className="text-sm">Stacktrace: {result.response.Stacktrace}</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
