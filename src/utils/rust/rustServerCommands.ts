@@ -46,6 +46,7 @@ async function sendCommandToRustServer(command: string, config: ServerConfig): P
 
         rcon.on('connected', () => {
             console.log(`Connected to ${config.name}`);
+            console.log(`Sending command: ${command}`);
             rcon.send(command, 'RustWipes', 1);
         });
 
