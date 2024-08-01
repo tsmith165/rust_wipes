@@ -87,13 +87,13 @@ async function sendCommandToAllServers(command: string): Promise<void> {
 }
 
 export async function grantKitAccess(steamId: string, kitName: string): Promise<void> {
-    const command = `oxide.grant user ${steamId} kits.${kitName}`;
+    const command = `oxide.grant user ${steamId} kits.${kitName.toLowerCase()}`;
     console.log(`Granting access for Steam ID: ${steamId} to kit: ${kitName}`);
     await sendCommandToAllServers(command);
 }
 
 export async function revokeKitAccess(steamId: string, kitName: string): Promise<void> {
-    const command = `oxide.revoke user ${steamId} kits.${kitName}`;
+    const command = `oxide.revoke user ${steamId} kits.${kitName.toLowerCase()}`;
     console.log(`Revoking access for Steam ID: ${steamId} from kit: ${kitName}`);
     await sendCommandToAllServers(command);
 }
