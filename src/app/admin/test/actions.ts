@@ -107,34 +107,38 @@ async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
     }
 }
 
-export async function grantKitAccess(steamId: string, kitName: string): Promise<void> {
+export async function grantKitAccess(steamId: string, kitName: string): Promise<{ serverName: string; response: string }[]> {
     const { isAdmin, error: roleError } = await checkUserRole();
     if (!isAdmin) {
         console.error(roleError);
-        return;
+        return [{ serverName: 'Error', response: roleError || 'User is not authorized' }];
     }
 
     try {
         await grantKitAccessRust(steamId, kitName);
         console.log(`Access granted for ${steamId} to kit ${kitName}`);
+        // Since grantKitAccessRust doesn't return results, we'll create a generic success message
+        return [{ serverName: 'All Servers', response: `Access granted for ${steamId} to kit ${kitName}` }];
     } catch (error) {
         console.error(`Error granting access for ${steamId} to kit ${kitName}:`, error);
-        throw error;
+        return [{ serverName: 'Error', response: `Error: ${error instanceof Error ? error.message : String(error)}` }];
     }
 }
 
-export async function revokeKitAccess(steamId: string, kitName: string): Promise<void> {
+export async function revokeKitAccess(steamId: string, kitName: string): Promise<{ serverName: string; response: string }[]> {
     const { isAdmin, error: roleError } = await checkUserRole();
     if (!isAdmin) {
         console.error(roleError);
-        return;
+        return [{ serverName: 'Error', response: roleError || 'User is not authorized' }];
     }
 
     try {
         await revokeKitAccessRust(steamId, kitName);
-        console.log(`Access revoked for ${steamId} to kit ${kitName}`);
+        console.log(`Access revoked for ${steamId} from kit ${kitName}`);
+        // Since revokeKitAccessRust doesn't return results, we'll create a generic success message
+        return [{ serverName: 'All Servers', response: `Access revoked for ${steamId} from kit ${kitName}` }];
     } catch (error) {
-        console.error(`Error revoking access for ${steamId} to kit ${kitName}:`, error);
-        throw error;
+        console.error(`Error revoking access for ${steamId} from kit ${kitName}:`, error);
+        return [{ serverName: 'Error', response: `Error: ${error instanceof Error ? error.message : String(error)}` }];
     }
 }

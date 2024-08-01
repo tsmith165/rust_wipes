@@ -16,7 +16,7 @@ export function Tests({ kits, activeTab }: TestsProps) {
     const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string; steamId: string } | null>(null);
     const [steamError, setSteamError] = useState<string | null>(null);
     const [selectedKit, setSelectedKit] = useState<string>('');
-    const [actionResult, setActionResult] = useState<string | null>(null);
+    const [actionResults, setActionResults] = useState<{ serverName: string; response: string }[] | null>(null);
 
     const handleSteamProfileVerification = async () => {
         setSteamError(null);
@@ -37,20 +37,24 @@ export function Tests({ kits, activeTab }: TestsProps) {
     const handleGrantAccess = async () => {
         if (!steamProfile || !selectedKit) return;
         try {
-            await grantKitAccess(steamProfile.steamId, selectedKit);
-            setActionResult(`Access granted for ${steamProfile.name} to kit ${selectedKit}`);
+            const results = await grantKitAccess(steamProfile.steamId, selectedKit);
+            setActionResults(results);
         } catch (error) {
-            setActionResult(`Error granting access: ${error instanceof Error ? error.message : String(error)}`);
+            setActionResults([
+                { serverName: 'Error', response: `Error granting access: ${error instanceof Error ? error.message : String(error)}` },
+            ]);
         }
     };
 
     const handleRevokeAccess = async () => {
         if (!steamProfile || !selectedKit) return;
         try {
-            await revokeKitAccess(steamProfile.steamId, selectedKit);
-            setActionResult(`Access revoked for ${steamProfile.name} to kit ${selectedKit}`);
+            const results = await revokeKitAccess(steamProfile.steamId, selectedKit);
+            setActionResults(results);
         } catch (error) {
-            setActionResult(`Error revoking access: ${error instanceof Error ? error.message : String(error)}`);
+            setActionResults([
+                { serverName: 'Error', response: `Error revoking access: ${error instanceof Error ? error.message : String(error)}` },
+            ]);
         }
     };
 
@@ -144,7 +148,17 @@ export function Tests({ kits, activeTab }: TestsProps) {
                             </button>
                         </div>
 
-                        {actionResult && <div className="mt-4 text-sm">{actionResult}</div>}
+                        {actionResults && (
+                            <div className="mt-4">
+                                <h3 className="mb-2 text-lg font-bold">Results:</h3>
+                                {actionResults.map((result, index) => (
+                                    <div key={index} className="mb-2 rounded bg-stone-700 p-2">
+                                        <p className="font-bold">{result.serverName}:</p>
+                                        <p className="text-sm">{result.response}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
