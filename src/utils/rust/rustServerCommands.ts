@@ -72,28 +72,30 @@ async function sendCommandToRustServer(command: string, config: ServerConfig): P
     });
 }
 
-async function sendCommandToAllServers(command: string): Promise<void> {
+async function sendCommandToAllServers(command: string): Promise<{ serverName: string; response: string }[]> {
     const serverConfigs = getServerConfigs();
     const results = await Promise.allSettled(serverConfigs.map((config) => sendCommandToRustServer(command, config)));
 
-    results.forEach((result, index) => {
+    return results.map((result, index) => {
         const serverName = serverConfigs[index].name;
         if (result.status === 'fulfilled') {
             console.log(`Command executed successfully on ${serverName}`);
+            return { serverName, response: result.value };
         } else {
             console.error(`Failed to execute command on ${serverName}:`, result.reason);
+            return { serverName, response: `Error: ${result.reason.message}` };
         }
     });
 }
 
-export async function grantKitAccess(steamId: string, kitName: string): Promise<void> {
+export async function grantKitAccess(steamId: string, kitName: string): Promise<{ serverName: string; response: string }[]> {
     const command = `oxide.grant user ${steamId} kits.${kitName.toLowerCase()}`;
     console.log(`Granting access for Steam ID: ${steamId} to kit: ${kitName}`);
-    await sendCommandToAllServers(command);
+    return await sendCommandToAllServers(command);
 }
 
-export async function revokeKitAccess(steamId: string, kitName: string): Promise<void> {
+export async function revokeKitAccess(steamId: string, kitName: string): Promise<{ serverName: string; response: string }[]> {
     const command = `oxide.revoke user ${steamId} kits.${kitName.toLowerCase()}`;
     console.log(`Revoking access for Steam ID: ${steamId} from kit: ${kitName}`);
-    await sendCommandToAllServers(command);
+    return await sendCommandToAllServers(command);
 }

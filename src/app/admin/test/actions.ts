@@ -115,10 +115,9 @@ export async function grantKitAccess(steamId: string, kitName: string): Promise<
     }
 
     try {
-        await grantKitAccessRust(steamId, kitName);
+        const results = await grantKitAccessRust(steamId, kitName);
         console.log(`Access granted for ${steamId} to kit ${kitName}`);
-        // Since grantKitAccessRust doesn't return results, we'll create a generic success message
-        return [{ serverName: 'All Servers', response: `Access granted for ${steamId} to kit ${kitName}` }];
+        return results;
     } catch (error) {
         console.error(`Error granting access for ${steamId} to kit ${kitName}:`, error);
         return [{ serverName: 'Error', response: `Error: ${error instanceof Error ? error.message : String(error)}` }];
@@ -133,10 +132,9 @@ export async function revokeKitAccess(steamId: string, kitName: string): Promise
     }
 
     try {
-        await revokeKitAccessRust(steamId, kitName);
+        const results = await revokeKitAccessRust(steamId, kitName);
         console.log(`Access revoked for ${steamId} from kit ${kitName}`);
-        // Since revokeKitAccessRust doesn't return results, we'll create a generic success message
-        return [{ serverName: 'All Servers', response: `Access revoked for ${steamId} from kit ${kitName}` }];
+        return results;
     } catch (error) {
         console.error(`Error revoking access for ${steamId} from kit ${kitName}:`, error);
         return [{ serverName: 'Error', response: `Error: ${error instanceof Error ? error.message : String(error)}` }];
