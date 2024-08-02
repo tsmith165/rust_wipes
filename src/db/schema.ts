@@ -168,6 +168,7 @@ export const verified_transactions_table = pgTable('verified_transactions', {
     user_id: integer('user_id')
         .notNull()
         .references(() => users.id),
+    steam_id: varchar('steam_id'),
     email: varchar('email').notNull(),
     is_subscription: boolean('is_subscription').notNull().default(false),
     subscription_id: text('subscription_id'),
@@ -178,6 +179,7 @@ export const verified_transactions_table = pgTable('verified_transactions', {
     stripe_id: text('stripe_id').notNull(),
     price: integer('price').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
+    redeemed: boolean('redeemed').notNull().default(false),
 });
 
 export type VerifiedTransactions = InferSelectModel<typeof verified_transactions_table>;

@@ -1,9 +1,10 @@
 'use server';
 
 import Stripe from 'stripe';
-import { db, kits, pending_transactions_table, users } from '@/db/db';
-import { eq, desc } from 'drizzle-orm';
+import { db, kits, pending_transactions_table, users, verified_transactions_table } from '@/db/db';
+import { eq, desc, and } from 'drizzle-orm';
 import PROJECT_CONSTANTS from '@/lib/constants';
+import { grantKitAccess } from '@/utils/rust/rustServerCommands';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' });
@@ -215,5 +216,60 @@ async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
     } catch (error) {
         console.error('Error resolving vanity URL:', error);
         return null;
+    }
+}
+
+export async function redeemSingleUseKit(kitId: number, userId: number): Promise<{ success: boolean; message: string }> {
+    try {
+        // Check if the kit exists and is a single-use kit
+        const kitData = await db.select().from(kits).where(eq(kits.id, kitId)).limit(1);
+        if (kitData.length === 0) {
+            return { success: false, message: 'Kit not found' };
+        }
+        if (kitData[0].type !== 'single') {
+            return { success: false, message: 'This is not a single-use kit' };
+        }
+
+        // Check if the user has a verified transaction for this kit
+        const verifiedTransaction = await db
+            .select()
+            .from(verified_transactions_table)
+            .where(
+                and(
+                    eq(verified_transactions_table.kit_db_id, kitId),
+                    eq(verified_transactions_table.user_id, userId),
+                    eq(verified_transactions_table.redeemed, false),
+                ),
+            )
+            .limit(1);
+
+        if (verifiedTransaction.length === 0) {
+            return { success: false, message: 'No unredeemed purchase found for this kit' };
+        }
+
+        // Fetch user data to get steam_id
+        const userData = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (userData.length === 0) {
+            return { success: false, message: 'User not found' };
+        }
+
+        // Grant kit access in Rust servers
+        const grantResult = await grantKitAccess(userData[0].steam_id, kitData[0].name);
+        console.log(`Attempt to grant kit access: ${grantResult.message}`);
+
+        if (grantResult.success) {
+            // Update the redeemed status
+            await db
+                .update(verified_transactions_table)
+                .set({ redeemed: true })
+                .where(eq(verified_transactions_table.id, verifiedTransaction[0].id));
+
+            return { success: true, message: 'Kit redeemed successfully' };
+        } else {
+            return { success: false, message: `Failed to grant kit access: ${grantResult.message}` };
+        }
+    } catch (error) {
+        console.error('Error redeeming single-use kit:', error);
+        return { success: false, message: 'An unexpected error occurred. Please try again later.' };
     }
 }

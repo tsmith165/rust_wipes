@@ -5,6 +5,8 @@ import { db, kits } from '@/db/db';
 import { Kits } from '@/db/schema';
 import { grantKitAccess as grantKitAccessRust, revokeKitAccess as revokeKitAccessRust } from '@/utils/rust/rustServerCommands';
 
+import { verified_transactions_table } from '@/db/schema';
+
 import { auth } from '@clerk/nextjs/server';
 import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 
@@ -107,36 +109,68 @@ async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
     }
 }
 
-export async function grantKitAccess(steamId: string, kitName: string): Promise<{ serverName: string; response: string }[]> {
-    const { isAdmin, error: roleError } = await checkUserRole();
-    if (!isAdmin) {
-        console.error(roleError);
-        return [{ serverName: 'Error', response: roleError || 'User is not authorized' }];
+export async function grantKitAccess(
+    steamId: string,
+    kitId: number,
+): Promise<{
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
+}> {
+    const kit = await db.select().from(kits).where(eq(kits.id, kitId)).limit(1);
+    if (kit.length === 0) {
+        return { success: false, message: 'Kit not found', serverResults: [] };
     }
+    const result = await grantKitAccessRust(steamId, kit[0].name);
+    console.log(`Attempt to grant access for ${steamId} to kit ${kit[0].name}: ${result.message}`);
+    return result;
+}
 
-    try {
-        const results = await grantKitAccessRust(steamId, kitName);
-        console.log(`Access granted for ${steamId} to kit ${kitName}`);
-        return results;
-    } catch (error) {
-        console.error(`Error granting access for ${steamId} to kit ${kitName}:`, error);
-        return [{ serverName: 'Error', response: `Error: ${error instanceof Error ? error.message : String(error)}` }];
+export async function revokeKitAccess(
+    steamId: string,
+    kitId: number,
+): Promise<{
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
+}> {
+    const kit = await db.select().from(kits).where(eq(kits.id, kitId)).limit(1);
+    if (kit.length === 0) {
+        return { success: false, message: 'Kit not found', serverResults: [] };
+    }
+    const result = await revokeKitAccessRust(steamId, kit[0].name);
+    console.log(`Attempt to revoke access for ${steamId} from kit ${kit[0].name}: ${result.message}`);
+    return result;
+}
+
+export async function updateKitRedemptionStatus(transactionId: number, redeemed: boolean): Promise<void> {
+    await db.update(verified_transactions_table).set({ redeemed }).where(eq(verified_transactions_table.id, transactionId));
+}
+
+export async function grantAndUpdateKitAccess(
+    steamId: string,
+    kitId: number,
+    transactionId: number,
+): Promise<{ success: boolean; message: string }> {
+    const result = await grantKitAccess(steamId, kitId);
+    if (result.success) {
+        await updateKitRedemptionStatus(transactionId, true);
+        return { success: true, message: `Successfully granted access for ${steamId} to kit ID ${kitId} and updated redemption status` };
+    } else {
+        return { success: false, message: `Failed to grant access: ${result.message}` };
     }
 }
 
-export async function revokeKitAccess(steamId: string, kitName: string): Promise<{ serverName: string; response: string }[]> {
-    const { isAdmin, error: roleError } = await checkUserRole();
-    if (!isAdmin) {
-        console.error(roleError);
-        return [{ serverName: 'Error', response: roleError || 'User is not authorized' }];
-    }
-
-    try {
-        const results = await revokeKitAccessRust(steamId, kitName);
-        console.log(`Access revoked for ${steamId} from kit ${kitName}`);
-        return results;
-    } catch (error) {
-        console.error(`Error revoking access for ${steamId} from kit ${kitName}:`, error);
-        return [{ serverName: 'Error', response: `Error: ${error instanceof Error ? error.message : String(error)}` }];
+export async function revokeAndUpdateKitAccess(
+    steamId: string,
+    kitId: number,
+    transactionId: number,
+): Promise<{ success: boolean; message: string }> {
+    const result = await revokeKitAccess(steamId, kitId);
+    if (result.success) {
+        await updateKitRedemptionStatus(transactionId, false);
+        return { success: true, message: `Successfully revoked access for ${steamId} from kit ID ${kitId} and updated redemption status` };
+    } else {
+        return { success: false, message: `Failed to revoke access: ${result.message}` };
     }
 }

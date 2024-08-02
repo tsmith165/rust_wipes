@@ -78,11 +78,19 @@ export async function POST(request: Request) {
                 throw new Error('Pending transaction not found');
             }
 
+            // Fetch user data to get steam_id / steam_username
+            const userData = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+            if (userData.length === 0) {
+                throw new Error('User not found');
+            }
+
             console.log('Creating Verified Transaction...');
             const createOutput = await db.insert(verified_transactions_table).values({
                 kit_db_id: kitDbId,
                 kit_name: pendingTransactionData[0].kit_name,
                 user_id: userId,
+                steam_id: userData[0].steam_id, // Add Steam ID to the verified transaction
                 email: metadata.email,
                 is_subscription: metadata.is_subscription === 'true',
                 subscription_id: subscriptionId ? subscriptionId.toString() : null,
@@ -92,11 +100,9 @@ export async function POST(request: Request) {
                 date: new Date().toISOString().split('T')[0],
                 stripe_id: stripeId,
                 price: parseInt(metadata.price_id, 10),
+                redeemed: false,
             });
             console.log('Verified Transaction Create Output:', createOutput);
-
-            // Fetch user data to get steam_username
-            const userData = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
             if (userData.length === 0) {
                 throw new Error('User not found');
@@ -113,6 +119,15 @@ export async function POST(request: Request) {
             try {
                 await grantKitAccess(userData[0].steam_id, kitData[0].name);
                 console.log(`Kit access granted for user ${userData[0].steam_id} to kit ${kitData[0].name}`);
+
+                // Update the redeemed status for monthly and priority kits
+                if (metadata.is_subscription === 'true') {
+                    await db
+                        .update(verified_transactions_table)
+                        .set({ redeemed: true })
+                        .where(eq(verified_transactions_table.stripe_id, stripeId));
+                    console.log(`Marked subscription kit as redeemed for stripe_id: ${stripeId}`);
+                }
             } catch (error) {
                 console.error('Error granting kit access:', error);
                 const errorEmailTemplate = React.createElement(ErrorEmailTemplate, {
@@ -170,6 +185,13 @@ export async function POST(request: Request) {
                 try {
                     await revokeKitAccess(userData[0].steam_id, verifiedTransaction[0].kit_name);
                     console.log(`Kit access revoked for user ${userData[0].steam_id} to kit ${verifiedTransaction[0].kit_name}`);
+
+                    // Update the redeemed status to false when subscription is canceled
+                    await db
+                        .update(verified_transactions_table)
+                        .set({ redeemed: false })
+                        .where(eq(verified_transactions_table.subscription_id, subscriptionId));
+                    console.log(`Marked subscription kit as not redeemed for subscription_id: ${subscriptionId}`);
                 } catch (error) {
                     console.error('Error revoking kit access:', error);
                     const errorEmailTemplate = React.createElement(ErrorEmailTemplate, {

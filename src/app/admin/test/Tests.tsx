@@ -11,19 +11,18 @@ interface TestsProps {
     activeTab: string;
 }
 
-interface ServerResponse {
-    content: string;
-    Identifier: number;
-    Type: string;
-    Stacktrace: string;
+interface ActionResult {
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
 }
 
 export function Tests({ kits, activeTab }: TestsProps) {
     const [steamProfileUrl, setSteamProfileUrl] = useState('');
     const [steamProfile, setSteamProfile] = useState<{ name: string; avatarUrl: string; steamId: string } | null>(null);
     const [steamError, setSteamError] = useState<string | null>(null);
-    const [selectedKit, setSelectedKit] = useState<string>('');
-    const [actionResults, setActionResults] = useState<{ serverName: string; response: ServerResponse | string }[] | null>(null);
+    const [selectedKitId, setSelectedKitId] = useState<number | ''>('');
+    const [actionResult, setActionResult] = useState<ActionResult | null>(null);
 
     const handleSteamProfileVerification = async () => {
         setSteamError(null);
@@ -42,44 +41,30 @@ export function Tests({ kits, activeTab }: TestsProps) {
     };
 
     const handleGrantAccess = async () => {
-        if (!steamProfile || !selectedKit) return;
+        if (!steamProfile || selectedKitId === '') return;
         try {
-            const results = await grantKitAccess(steamProfile.steamId, selectedKit);
-            setActionResults(
-                results.map((result) => ({
-                    ...result,
-                    response: tryParseJSON(result.response) || result.response,
-                })),
-            );
+            const result = await grantKitAccess(steamProfile.steamId, selectedKitId);
+            setActionResult(result);
         } catch (error) {
-            setActionResults([
-                { serverName: 'Error', response: `Error granting access: ${error instanceof Error ? error.message : String(error)}` },
-            ]);
+            setActionResult({
+                success: false,
+                message: `Error granting access: ${error instanceof Error ? error.message : String(error)}`,
+                serverResults: [],
+            });
         }
     };
 
     const handleRevokeAccess = async () => {
-        if (!steamProfile || !selectedKit) return;
+        if (!steamProfile || selectedKitId === '') return;
         try {
-            const results = await revokeKitAccess(steamProfile.steamId, selectedKit);
-            setActionResults(
-                results.map((result) => ({
-                    ...result,
-                    response: tryParseJSON(result.response) || result.response,
-                })),
-            );
+            const result = await revokeKitAccess(steamProfile.steamId, selectedKitId);
+            setActionResult(result);
         } catch (error) {
-            setActionResults([
-                { serverName: 'Error', response: `Error revoking access: ${error instanceof Error ? error.message : String(error)}` },
-            ]);
-        }
-    };
-
-    const tryParseJSON = (jsonString: string): ServerResponse | null => {
-        try {
-            return JSON.parse(jsonString);
-        } catch (e) {
-            return null;
+            setActionResult({
+                success: false,
+                message: `Error revoking access: ${error instanceof Error ? error.message : String(error)}`,
+                serverResults: [],
+            });
         }
     };
 
@@ -108,18 +93,17 @@ export function Tests({ kits, activeTab }: TestsProps) {
                             <select
                                 id="kit_select"
                                 className="w-full rounded-md border-none bg-stone-400 px-2 py-1 text-sm font-bold text-stone-950"
-                                value={selectedKit}
-                                onChange={(e) => setSelectedKit(e.target.value)}
+                                value={selectedKitId}
+                                onChange={(e) => setSelectedKitId(Number(e.target.value))}
                             >
                                 <option value="">Select a kit</option>
                                 {kits.map((kit) => (
-                                    <option key={kit.id} value={kit.name}>
+                                    <option key={kit.id} value={kit.id}>
                                         {`(${kit.id}) ${kit.name} - ${kit.type}`}
                                     </option>
                                 ))}
                             </select>
                         </div>
-
                         <div className="">
                             <div className="flex">
                                 <input
@@ -139,7 +123,6 @@ export function Tests({ kits, activeTab }: TestsProps) {
                                 </button>
                             </div>
                         </div>
-
                         {steamProfile && (
                             <div className="mb-4 flex items-center space-x-2">
                                 <img src={steamProfile.avatarUrl} alt="Steam Avatar" className="h-8 w-8 rounded-full" />
@@ -151,44 +134,50 @@ export function Tests({ kits, activeTab }: TestsProps) {
                                 </p>
                             </div>
                         )}
-
                         {steamError && <div className="mb-4 text-sm text-red-500">{steamError}</div>}
-
-                        <div className="flex justify-between">
+                        <div className="flex flex-row space-x-4">
                             <button
                                 onClick={handleGrantAccess}
-                                className="rounded bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800 disabled:opacity-50"
-                                disabled={!steamProfile || !selectedKit}
+                                className="rounded bg-green-800 px-4 py-2 font-bold text-white hover:bg-green-700 hover:text-stone-950 disabled:opacity-50"
+                                disabled={!steamProfile || selectedKitId === ''}
                             >
                                 Grant Access
                             </button>
                             <button
                                 onClick={handleRevokeAccess}
-                                className="rounded bg-red-700 px-4 py-2 font-bold text-white hover:bg-red-800 disabled:opacity-50"
-                                disabled={!steamProfile || !selectedKit}
+                                className="rounded bg-red-800 px-4 py-2 font-bold text-white hover:bg-red-700 hover:text-stone-950 disabled:opacity-50"
+                                disabled={!steamProfile || selectedKitId === ''}
                             >
                                 Revoke Access
                             </button>
                         </div>
-
-                        {actionResults && (
+                        {actionResult && (
                             <div className="mt-4">
-                                <h3 className="mb-2 text-lg font-bold">Results:</h3>
-                                {actionResults.map((result, index) => (
-                                    <div key={index} className="mb-2 rounded bg-stone-700 p-2">
-                                        <p className="font-bold">{result.serverName}:</p>
-                                        {typeof result.response === 'string' ? (
-                                            <p className="text-sm">{result.response}</p>
-                                        ) : (
-                                            <div>
-                                                <p className="text-sm">{result.response.content}</p>
-                                                {result.response.Stacktrace !== '' && (
-                                                    <p className="text-sm">Stacktrace: {result.response.Stacktrace}</p>
-                                                )}
+                                {/* Global Result 
+                                <h3 className="mb-2 text-lg font-bold">Result:</h3>
+                                <div className={`mb-2 rounded p-2 ${actionResult.success ? 'bg-green-700' : 'bg-red-700'}`}>
+                                    <p className="text-sm font-bold">{actionResult.message}</p>
+                                </div>
+                                */}
+                                {actionResult.serverResults && (
+                                    <div className="mt-2">
+                                        <h4 className="text-md mb-1 font-bold">Server Details:</h4>
+                                        {actionResult.serverResults.map((result, index) => (
+                                            <div
+                                                key={index}
+                                                className={`mb-2 rounded p-2 ${result.success ? 'bg-green-600' : 'bg-red-600'}`}
+                                            >
+                                                <p className="text-sm font-bold">{result.serverName}:</p>
+                                                <p className="mb-1 font-mono text-sm">Command: {result.command}</p>
+                                                {typeof result.response === 'string' ? (
+                                                    <p className="text-sm">
+                                                        Response: {JSON.parse(result.response).content || 'Command executed successfully'}
+                                                    </p>
+                                                ) : null}
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
-                                ))}
+                                )}
                             </div>
                         )}
                     </div>
