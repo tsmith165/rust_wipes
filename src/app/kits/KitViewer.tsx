@@ -180,7 +180,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                 ))}
             </div>
             <motion.div
-                className={` flex h-full w-full flex-col overflow-y-auto overflow-x-hidden `}
+                className={`flex h-full w-full flex-col overflow-y-auto overflow-x-hidden `}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}
@@ -218,7 +218,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                             700: 2,
                             500: 1,
                         }}
-                        className="my-masonry-grid flex w-full items-center justify-center "
+                        className="my-masonry-grid flex w-full "
                         columnClassName="my-masonry-grid_column"
                     >
                         {kitItems}
