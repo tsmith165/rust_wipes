@@ -161,7 +161,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     if (!isMasonryLoaded)
         return (
             <div className="inset-0 flex h-full w-full items-center justify-center">
-                <div className="xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70">
+                <div className="xxs:h-[300px] xxs:w-[300px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70 xs:h-[350px] xs:w-[350px]">
                     <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} />
                 </div>
             </div>
@@ -169,10 +169,10 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
 
     return (
         <div className="flex h-full w-full flex-col items-center justify-center">
-            <div className="xs:space-x-4 flex justify-center space-x-2 pt-4">
+            <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
                 {['monthly', 'single', 'priority'].map((type) => (
                     <div
-                        className={`xs:px-4 xs:py-2 rounded-3xl px-2 py-1 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
+                        className={`rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
                         onClick={() => handleTypeChange(type)}
                     >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -180,7 +180,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                 ))}
             </div>
             <motion.div
-                className={`radial-gradient-stone-600flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
+                className={`radial-gradient-stone-600 flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}
@@ -205,7 +205,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                     />
                 )}
                 <motion.div
-                    className={`flex h-fit w-full px-8 ${selectedKit ? 'pb-4 md:pb-8' : 'py-8'}`}
+                    className={`flex h-fit w-full items-center justify-center px-8 ${selectedKit ? 'pb-4 md:pb-8' : 'py-8'}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 2 }}
