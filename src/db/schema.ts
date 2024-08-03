@@ -1,4 +1,4 @@
-import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal, bigint } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 const DEFAULT_CONTENTS = {
@@ -199,3 +199,19 @@ export const rw_servers = pgTable('rw_servers', {
 
 export type RwServer = InferSelectModel<typeof rw_servers>;
 export type InsertRwServer = InferInsertModel<typeof rw_servers>;
+
+export const player_stats = pgTable('player_stats', {
+    id: serial('id').primaryKey(),
+    steam_id: bigint('steam_id', { mode: 'number' }).notNull().unique(),
+    kills: integer('kills').notNull().default(0),
+    deaths: integer('deaths').notNull().default(0),
+    scrap_gathered: integer('scrap_gathered').notNull().default(0),
+    stone_gathered: integer('stone_gathered').notNull().default(0),
+    wood_gathered: integer('wood_gathered').notNull().default(0),
+    metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
+    scrap_gambled: integer('scrap_gambled').notNull().default(0),
+    last_updated: timestamp('last_updated').defaultNow(),
+});
+
+export type PlayerStats = InferSelectModel<typeof player_stats>;
+export type InsertPlayerStats = InferInsertModel<typeof player_stats>;
