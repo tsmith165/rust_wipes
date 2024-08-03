@@ -1,4 +1,4 @@
-import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal, bigint } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 const DEFAULT_CONTENTS = {
@@ -202,7 +202,7 @@ export type InsertRwServer = InferInsertModel<typeof rw_servers>;
 
 export const player_stats = pgTable('player_stats', {
     id: serial('id').primaryKey(),
-    steam_id: bigint('steam_id', { mode: 'number' }).notNull().unique(),
+    steam_id: varchar('steam_id').notNull().unique(),
     kills: integer('kills').notNull().default(0),
     deaths: integer('deaths').notNull().default(0),
     scrap_gathered: integer('scrap_gathered').notNull().default(0),
