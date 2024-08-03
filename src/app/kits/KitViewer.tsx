@@ -168,7 +168,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         );
 
     return (
-        <div className="flex h-full w-full flex-col items-center justify-center">
+        <div className="radial-gradient-stone-600 flex h-full w-full flex-col items-center justify-center bg-stone-950">
             <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
                 {['monthly', 'single', 'priority'].map((type) => (
                     <div
@@ -180,7 +180,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                 ))}
             </div>
             <motion.div
-                className={`radial-gradient-stone-600 flex h-full w-full flex-col overflow-y-auto overflow-x-hidden bg-secondary_dark`}
+                className={` flex h-full w-full flex-col overflow-y-auto overflow-x-hidden `}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}
@@ -218,7 +218,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                             700: 2,
                             500: 1,
                         }}
-                        className="my-masonry-grid w-full"
+                        className="my-masonry-grid flex w-full items-center justify-center "
                         columnClassName="my-masonry-grid_column"
                     >
                         {kitItems}
