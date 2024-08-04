@@ -202,7 +202,7 @@ export type InsertRwServer = InferInsertModel<typeof rw_servers>;
 
 export const player_stats = pgTable('player_stats', {
     id: serial('id').primaryKey(),
-    steam_id: varchar('steam_id').notNull().unique(),
+    steam_id: varchar('steam_id').notNull(),
     server_id: varchar('server_id').notNull().default(''),
     kills: integer('kills').notNull().default(0),
     deaths: integer('deaths').notNull().default(0),
@@ -211,6 +211,7 @@ export const player_stats = pgTable('player_stats', {
     wood_gathered: integer('wood_gathered').notNull().default(0),
     metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
     scrap_gambled: integer('scrap_gambled').notNull().default(0),
+    scrap_won: integer('scrap_won').notNull().default(0),
     last_updated: timestamp('last_updated').defaultNow(),
 });
 
