@@ -13,6 +13,7 @@ import {
     pending_transactions_table,
     verified_transactions_table,
     player_stats,
+    server_performance,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -31,4 +32,5 @@ export {
     pending_transactions_table,
     verified_transactions_table,
     player_stats,
+    server_performance,
 };
