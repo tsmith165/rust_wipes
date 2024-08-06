@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { fetchPlayerStats } from '@/app/actions';
+import { fetchPlayerStats, fetchServerInfo } from '@/app/actions';
 import React from 'react';
 import StatsViewer from './StatsViewer';
 import PageLayout from '@/components/layout/PageLayout';
@@ -21,16 +21,25 @@ export const metadata: Metadata = {
 interface PageProps {
     searchParams?: {
         category?: string;
+        server?: string;
     };
 }
 
 export default async function StatsPage({ searchParams }: PageProps) {
-    const playerStats = await fetchPlayerStats();
+    const serverInfo = await fetchServerInfo();
     const selectedCategory = searchParams?.category || 'kills';
+    const selectedServer = searchParams?.server || serverInfo[0]?.id;
+
+    const playerStats = await fetchPlayerStats(selectedServer);
 
     return (
         <PageLayout page="/stats">
-            <StatsViewer playerStats={playerStats} initialSelectedCategory={selectedCategory} />
+            <StatsViewer
+                playerStats={playerStats}
+                initialSelectedCategory={selectedCategory}
+                serverInfo={serverInfo}
+                initialSelectedServer={selectedServer}
+            />
         </PageLayout>
     );
 }

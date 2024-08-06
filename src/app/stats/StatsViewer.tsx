@@ -1,5 +1,3 @@
-// File: /src/app/stats/StatsViewer.tsx
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -10,12 +8,15 @@ import { PlayerStats } from '@/db/schema';
 interface StatsViewerProps {
     playerStats: PlayerStats[];
     initialSelectedCategory: string;
+    serverInfo: { id: string; name: string }[];
+    initialSelectedServer: string;
 }
 
-const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedCategory }) => {
+const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedCategory, serverInfo, initialSelectedServer }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [selectedCategory, setSelectedCategory] = useState(initialSelectedCategory);
+    const [selectedServer, setSelectedServer] = useState(initialSelectedServer);
 
     const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
@@ -24,12 +25,23 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
         router.push(`/stats?${newSearchParams.toString()}`);
     };
 
+    const handleServerChange = (serverId: string) => {
+        setSelectedServer(serverId);
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('server', serverId);
+        router.push(`/stats?${newSearchParams.toString()}`);
+    };
+
+    const filteredStats = useMemo(() => {
+        return playerStats.filter((stat) => stat.server_id === selectedServer);
+    }, [playerStats, selectedServer]);
+
     const sortedStats = useMemo(() => {
         switch (selectedCategory) {
             case 'kills':
-                return [...playerStats].sort((a, b) => b.kills - a.kills);
+                return [...filteredStats].sort((a, b) => b.kills - a.kills);
             case 'farm':
-                return [...playerStats].sort(
+                return [...filteredStats].sort(
                     (a, b) =>
                         b.stone_gathered +
                         b.wood_gathered +
@@ -37,11 +49,11 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                         (a.stone_gathered + a.wood_gathered + a.metal_ore_gathered),
                 );
             case 'gambling':
-                return [...playerStats].sort((a, b) => b.scrap_wagered - a.scrap_wagered);
+                return [...filteredStats].sort((a, b) => b.scrap_wagered - a.scrap_wagered);
             default:
-                return playerStats;
+                return filteredStats;
         }
-    }, [playerStats, selectedCategory]);
+    }, [filteredStats, selectedCategory]);
 
     const renderStatsRow = (stat: PlayerStats, index: number) => {
         switch (selectedCategory) {
@@ -81,31 +93,44 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
     };
 
     return (
-        <div className="radial-gradient-stone-600 flex h-full w-full flex-col items-center justify-center bg-stone-950">
-            <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
-                {['kills', 'farm', 'gambling'].map((category) => (
-                    <div
-                        key={category}
-                        className={`cursor-pointer rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${
-                            selectedCategory === category
-                                ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
-                                : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
-                        }`}
-                        onClick={() => handleCategoryChange(category)}
-                    >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </div>
-                ))}
+        <div className="radial-gradient-stone-950 flex h-full w-full flex-col items-center justify-center bg-primary">
+            <div className="flex flex-col items-center justify-center space-y-4 pt-4">
+                <select
+                    className="rounded-md bg-stone-800 px-4 py-2 text-stone-300"
+                    value={selectedServer}
+                    onChange={(e) => handleServerChange(e.target.value)}
+                >
+                    {serverInfo.map((server) => (
+                        <option key={server.id} value={server.id}>
+                            {server.name}
+                        </option>
+                    ))}
+                </select>
+                <div className="flex justify-center space-x-2 xs:space-x-4">
+                    {['kills', 'farm', 'gambling'].map((category) => (
+                        <div
+                            key={category}
+                            className={`cursor-pointer rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${
+                                selectedCategory === category
+                                    ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
+                                    : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
+                            }`}
+                            onClick={() => handleCategoryChange(category)}
+                        >
+                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </div>
+                    ))}
+                </div>
             </div>
             <motion.div
-                className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-4"
+                className="flex h-full w-full flex-col items-center overflow-y-auto overflow-x-hidden p-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse rounded-lg md:w-4/5">
                     <thead>
-                        <tr className="bg-stone-900 text-stone-300">
+                        <tr className="rounded-t-lg bg-stone-900 text-stone-300">
                             <th className="px-4 py-2">Rank</th>
                             <th className="px-4 py-2">Player</th>
                             {selectedCategory === 'kills' && (
@@ -131,7 +156,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                             )}
                         </tr>
                     </thead>
-                    <tbody>{sortedStats.map((stat, index) => renderStatsRow(stat, index))}</tbody>
+                    <tbody className="text-center text-stone-300">{sortedStats.map((stat, index) => renderStatsRow(stat, index))}</tbody>
                 </table>
             </motion.div>
         </div>

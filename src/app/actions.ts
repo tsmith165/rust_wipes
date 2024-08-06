@@ -1,8 +1,9 @@
 'use server';
 
-import { eq, desc, asc, gt, lt, and, inArray } from 'drizzle-orm';
+import { eq, desc, asc, gt, lt, and, inArray, like } from 'drizzle-orm';
 import { db, kits, KitExtraImages, rw_servers, player_stats } from '@/db/db';
 import { KitsWithExtraImages, RwServer, PlayerStats } from '@/db/schema';
+import { SQL } from 'drizzle-orm';
 
 export async function fetchKits(): Promise<KitsWithExtraImages[]> {
     console.log(`Fetching active kits with Drizzle`);
@@ -170,10 +171,39 @@ export async function fetchServers(): Promise<RwServer[]> {
     return servers;
 }
 
-export async function fetchPlayerStats(): Promise<PlayerStats[]> {
+export async function fetchPlayerStats(serverId?: string): Promise<PlayerStats[]> {
     console.log('Fetching player stats with Drizzle');
-    const stats = await db.select().from(player_stats).orderBy(desc(player_stats.kills));
+
+    let whereClause: SQL | undefined;
+    if (serverId) {
+        whereClause = eq(player_stats.server_id, serverId);
+    }
+
+    const stats = await db.select().from(player_stats).where(whereClause).orderBy(desc(player_stats.kills));
 
     console.log('Captured player stats successfully');
     return stats;
+}
+
+export async function fetchServerInfo(): Promise<{ id: string; name: string }[]> {
+    console.log('Fetching server information');
+    const serverIds = await db.select({ server_id: player_stats.server_id }).from(player_stats).groupBy(player_stats.server_id);
+
+    const serverInfo = await Promise.all(
+        serverIds.map(async ({ server_id }) => {
+            const server = await db
+                .select({ name: rw_servers.name, connection_url: rw_servers.connection_url })
+                .from(rw_servers)
+                .where(like(rw_servers.connection_url, `%:${server_id}`))
+                .limit(1);
+
+            return {
+                id: server_id,
+                name: server[0]?.name || `Unknown Server (${server_id})`,
+            };
+        }),
+    );
+
+    console.log('Captured server information successfully');
+    return serverInfo;
 }
