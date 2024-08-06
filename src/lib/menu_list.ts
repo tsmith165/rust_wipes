@@ -12,6 +12,8 @@ export const navbar_menu_list: [string, string][] = [
 export const menu_list: [string, string, string][] = [
     ['servers', 'Servers', '/servers'],
     ['kits', 'Kits', '/kits'],
+    ['stats', 'Stats', '/stats'],
+    ['networks', 'Networks', '/networks'],
     ['recent', 'Recent', '/recent?page=1&numServers=25&minPlayers=2&maxDist=5000&country=US'],
     ['upcoming', 'Upcoming', '/upcoming'],
     // ['networks', 'Networks', false, '/networks'],
