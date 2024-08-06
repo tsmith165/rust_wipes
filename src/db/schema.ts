@@ -229,6 +229,7 @@ export type InsertPlayerStats = InferInsertModel<typeof player_stats>;
 export const server_performance = pgTable('server_performance', {
     id: serial('id').primaryKey(),
     system_id: varchar('system_id', { length: 64 }).notNull(),
+    server_name: varchar('server_name', { length: 255 }).notNull().default('NEW SERVER'),
     timestamp: timestamp('timestamp').defaultNow(),
     cpu_usage: decimal('cpu_usage', { precision: 5, scale: 2 }).notNull(),
     memory_usage: decimal('memory_usage', { precision: 5, scale: 2 }).notNull(),

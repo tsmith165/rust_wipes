@@ -11,14 +11,17 @@ interface PerformanceDisplayProps {
 export function PerformanceDisplay({ performanceData }: PerformanceDisplayProps) {
     const [selectedServer, setSelectedServer] = useState<string>('');
     const [filteredData, setFilteredData] = useState<ServerPerformanceData[]>([]);
-    const [servers, setServers] = useState<string[]>([]);
+    const [servers, setServers] = useState<{ id: string; name: string }[]>([]);
 
     useEffect(() => {
-        const uniqueServers = Array.from(new Set(performanceData.map((data) => data.system_id)));
+        const uniqueServers = Array.from(new Set(performanceData.map((data) => data.system_id))).map((id) => ({
+            id,
+            name: performanceData.find((data) => data.system_id === id)?.server_name || 'Unknown',
+        }));
         setServers(uniqueServers);
 
         if (uniqueServers.length > 0 && !selectedServer) {
-            setSelectedServer(uniqueServers[0]);
+            setSelectedServer(uniqueServers[0].id);
         }
     }, [performanceData, selectedServer]);
 
@@ -51,8 +54,8 @@ export function PerformanceDisplay({ performanceData }: PerformanceDisplayProps)
                         className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                     >
                         {servers.map((server) => (
-                            <option key={server} value={server}>
-                                {server}
+                            <option key={server.id} value={server.id}>
+                                {server.name}
                             </option>
                         ))}
                     </select>
