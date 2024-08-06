@@ -3,6 +3,8 @@ import PROJECT_CONSTANTS from '@/lib/constants';
 export const navbar_menu_list: [string, string][] = [
     ['servers', 'Servers'],
     ['kits', 'Kits'],
+    ['stats', 'Stats'],
+    ['networks', 'Networks'],
     ['recent', 'Recent'],
     ['upcoming', 'Upcoming'],
 ];
@@ -23,6 +25,7 @@ export const admin_menu_list: [string, string, string][] = [
     ['manage', 'Manage', '/admin/manage'],
     ['edit', 'Edit', '/admin/edit'],
     ['users', 'Users', '/admin/users'],
+    ['performance', 'Performance', '/admin/hosting/performance'],
     ['discord', 'Discord', PROJECT_CONSTANTS.CONTACT_DISCORD],
 ];
 
