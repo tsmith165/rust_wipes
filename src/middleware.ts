@@ -23,8 +23,8 @@ export default clerkMiddleware(async (auth, req) => {
         console.log('User ID:', userId);
 
         if (!userId) {
-            console.log('User ID is null. Redirecting to sign-in page.');
-            return NextResponse.redirect(new URL('/sign-in', req.url));
+            console.log('User ID is null. Redirecting to sign in page.');
+            return NextResponse.redirect(new URL('/signin', req.url));
         }
 
         const hasAdminRole = await isClerkUserIdAdmin(userId);
