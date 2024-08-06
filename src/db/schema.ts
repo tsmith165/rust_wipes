@@ -1,4 +1,5 @@
-import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal, unique } from 'drizzle-orm/pg-core';
+
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 const DEFAULT_CONTENTS = {
@@ -200,20 +201,40 @@ export const rw_servers = pgTable('rw_servers', {
 export type RwServer = InferSelectModel<typeof rw_servers>;
 export type InsertRwServer = InferInsertModel<typeof rw_servers>;
 
-export const player_stats = pgTable('player_stats', {
-    id: serial('id').primaryKey(),
-    steam_id: varchar('steam_id').notNull(),
-    server_id: varchar('server_id').notNull().default(''),
-    kills: integer('kills').notNull().default(0),
-    deaths: integer('deaths').notNull().default(0),
-    scrap_gathered: integer('scrap_gathered').notNull().default(0),
-    stone_gathered: integer('stone_gathered').notNull().default(0),
-    wood_gathered: integer('wood_gathered').notNull().default(0),
-    metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
-    scrap_gambled: integer('scrap_gambled').notNull().default(0),
-    scrap_won: integer('scrap_won').notNull().default(0),
-    last_updated: timestamp('last_updated').defaultNow(),
-});
+export const player_stats = pgTable(
+    'player_stats',
+    {
+        id: serial('id').primaryKey(),
+        steam_id: varchar('steam_id').notNull(),
+        server_id: varchar('server_id').notNull().default(''),
+        kills: integer('kills').notNull().default(0),
+        deaths: integer('deaths').notNull().default(0),
+        scrap_gathered: integer('scrap_gathered').notNull().default(0),
+        stone_gathered: integer('stone_gathered').notNull().default(0),
+        wood_gathered: integer('wood_gathered').notNull().default(0),
+        metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
+        scrap_won: integer('scrap_won').notNull().default(0),
+        last_updated: timestamp('last_updated').defaultNow(),
+    },
+    (table: any) => {
+        return {
+            unique_player_server: unique('unique_player_server').on(table.steam_id, table.server_id),
+        };
+    },
+);
 
 export type PlayerStats = InferSelectModel<typeof player_stats>;
 export type InsertPlayerStats = InferInsertModel<typeof player_stats>;
+
+export const server_performance = pgTable('server_performance', {
+    id: serial('id').primaryKey(),
+    timestamp: timestamp('timestamp').defaultNow(),
+    cpu_usage: decimal('cpu_usage', { precision: 5, scale: 2 }).notNull(),
+    memory_usage: decimal('memory_usage', { precision: 5, scale: 2 }).notNull(),
+    disk_usage: decimal('disk_usage', { precision: 5, scale: 2 }).notNull(),
+    network_in: decimal('network_in', { precision: 10, scale: 2 }).notNull(),
+    network_out: decimal('network_out', { precision: 10, scale: 2 }).notNull(),
+});
+
+export type ServerPerformance = typeof server_performance.$inferSelect;
+export type InsertServerPerformance = typeof server_performance.$inferInsert;
