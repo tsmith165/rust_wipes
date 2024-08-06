@@ -171,7 +171,47 @@ export async function fetchServers(): Promise<RwServer[]> {
     return servers;
 }
 
-export async function fetchPlayerStats(serverId?: string): Promise<PlayerStats[]> {
+async function fetchSteamUserInfo(steamId: string) {
+    const STEAM_API_KEY = process.env.STEAM_API_KEY;
+    if (!STEAM_API_KEY) {
+        throw new Error('Steam API key is not set');
+    }
+
+    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+    try {
+        const response = await fetch(steamApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.response && data.response.players && data.response.players.length > 0) {
+            const player = data.response.players[0];
+            return {
+                personaname: player.personaname,
+                avatarfull: player.avatarfull,
+                steamid: player.steamid,
+            };
+        } else {
+            console.error('Steam user not found in API response:', data);
+            return {
+                personaname: 'Unknown',
+                avatarfull: '/default-avatar.png', // Make sure to have a default avatar image
+                steamid: steamId,
+            };
+        }
+    } catch (error) {
+        console.error('Error fetching Steam user info:', error);
+        return {
+            personaname: 'Unknown',
+            avatarfull: '/default-avatar.png',
+            steamid: steamId,
+        };
+    }
+}
+
+export async function fetchPlayerStats(serverId?: string): Promise<(PlayerStats & { steamUsername: string; avatarUrl: string })[]> {
     console.log('Fetching player stats with Drizzle');
 
     let whereClause: SQL | undefined;
@@ -181,8 +221,20 @@ export async function fetchPlayerStats(serverId?: string): Promise<PlayerStats[]
 
     const stats = await db.select().from(player_stats).where(whereClause).orderBy(desc(player_stats.kills));
 
-    console.log('Captured player stats successfully');
-    return stats;
+    // Fetch Steam user info for all players
+    const statsWithSteamInfo = await Promise.all(
+        stats.map(async (stat) => {
+            const steamInfo = await fetchSteamUserInfo(stat.steam_id);
+            return {
+                ...stat,
+                steamUsername: steamInfo.personaname,
+                avatarUrl: steamInfo.avatarfull,
+            };
+        }),
+    );
+
+    console.log('Captured player stats with Steam info successfully');
+    return statsWithSteamInfo;
 }
 
 export async function fetchServerInfo(): Promise<{ id: string; name: string }[]> {

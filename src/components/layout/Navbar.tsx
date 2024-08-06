@@ -43,7 +43,7 @@ export default function Navbar({ page }: { page: string }) {
             <div
                 key={menu_class_name}
                 onClick={() => router.push(href)}
-                className={`h-full cursor-pointer items-center justify-center font-bold ${menu_class_name === 'upcoming' ? 'hidden md:!flex' : 'flex'} ${page.includes(menu_class_name) ? 'radial-gradient-stone-300 bg-primary bg-clip-text text-transparent' : 'radial-gradient-stone-300 bg-stone-600 bg-clip-text text-transparent hover:!bg-primary'}`}
+                className={`h-full cursor-pointer items-center justify-center font-bold ${['upcoming', 'networks'].includes(menu_class_name) ? 'hidden md:!flex' : 'flex'} ${page.includes(menu_class_name) ? 'radial-gradient-stone-300 bg-primary bg-clip-text text-transparent' : 'radial-gradient-stone-300 bg-stone-600 bg-clip-text text-transparent hover:!bg-primary'}`}
             >
                 {menu_full_name}
             </div>

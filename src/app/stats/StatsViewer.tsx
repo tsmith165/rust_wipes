@@ -1,12 +1,20 @@
+// File: /src/app/stats/StatsViewer.tsx
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { PlayerStats } from '@/db/schema';
 
+interface ExtendedPlayerStats extends PlayerStats {
+    steamUsername: string;
+    avatarUrl: string;
+}
+
 interface StatsViewerProps {
-    playerStats: PlayerStats[];
+    playerStats: ExtendedPlayerStats[];
     initialSelectedCategory: string;
     serverInfo: { id: string; name: string }[];
     initialSelectedServer: string;
@@ -55,36 +63,47 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
         }
     }, [filteredStats, selectedCategory]);
 
-    const renderStatsRow = (stat: PlayerStats, index: number) => {
+    const renderStatsRow = (stat: ExtendedPlayerStats, index: number) => {
+        const commonCells = (
+            <>
+                <td className="whitespace-nowrap px-2 py-2 text-center">{index + 1}</td>
+                <td className="whitespace-nowrap px-2 py-2">
+                    <div className="flex items-center">
+                        <Image src={stat.avatarUrl} alt={stat.steamUsername} width={32} height={32} className="mr-2 rounded-full" />
+                        <span className="max-w-[80px] overflow-hidden text-clip whitespace-nowrap xs:max-w-fit">{stat.steamUsername}</span>
+                    </div>
+                </td>
+            </>
+        );
+
         switch (selectedCategory) {
             case 'kills':
                 return (
                     <tr key={stat.id} className={index % 2 === 0 ? 'bg-stone-800' : 'bg-stone-700'}>
-                        <td className="px-4 py-2">{index + 1}</td>
-                        <td className="px-4 py-2">{stat.steam_id}</td>
-                        <td className="px-4 py-2">{stat.kills}</td>
-                        <td className="px-4 py-2">{stat.deaths}</td>
-                        <td className="px-4 py-2">{(stat.kills / (stat.deaths || 1)).toFixed(2)}</td>
+                        {commonCells}
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.kills}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.deaths}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{(stat.kills / (stat.deaths || 1)).toFixed(2)}</td>
                     </tr>
                 );
             case 'farm':
                 return (
                     <tr key={stat.id} className={index % 2 === 0 ? 'bg-stone-800' : 'bg-stone-700'}>
-                        <td className="px-4 py-2">{index + 1}</td>
-                        <td className="px-4 py-2">{stat.steam_id}</td>
-                        <td className="px-4 py-2">{stat.wood_gathered}</td>
-                        <td className="px-4 py-2">{stat.stone_gathered}</td>
-                        <td className="px-4 py-2">{stat.metal_ore_gathered}</td>
+                        {commonCells}
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.wood_gathered}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.stone_gathered}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.metal_ore_gathered}</td>
                     </tr>
                 );
             case 'gambling':
                 return (
                     <tr key={stat.id} className={index % 2 === 0 ? 'bg-stone-800' : 'bg-stone-700'}>
-                        <td className="px-4 py-2">{index + 1}</td>
-                        <td className="px-4 py-2">{stat.steam_id}</td>
-                        <td className="px-4 py-2">{stat.scrap_wagered}</td>
-                        <td className="px-4 py-2">{stat.scrap_won}</td>
-                        <td className="px-4 py-2">{((stat.scrap_won / (stat.scrap_wagered || 1)) * 100).toFixed(2)}%</td>
+                        {commonCells}
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.scrap_wagered}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-center">{stat.scrap_won}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-center">
+                            {((stat.scrap_won / (stat.scrap_wagered || 1)) * 100).toFixed(2)}%
+                        </td>
                     </tr>
                 );
             default:
@@ -93,10 +112,10 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
     };
 
     return (
-        <div className="radial-gradient-stone-950 flex h-full w-full flex-col items-center justify-center bg-primary">
-            <div className="flex flex-col items-center justify-center space-y-4 pt-4">
+        <div className="radial-gradient-stone-950 flex h-full w-full flex-col items-center bg-primary p-4">
+            <div className="flex w-full max-w-4xl flex-col items-center justify-center space-y-4">
                 <select
-                    className="rounded-md bg-stone-800 px-4 py-2 text-stone-300"
+                    className="w-full rounded-md bg-stone-800 px-4 py-2 text-stone-300 sm:w-auto"
                     value={selectedServer}
                     onChange={(e) => handleServerChange(e.target.value)}
                 >
@@ -106,11 +125,11 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                         </option>
                     ))}
                 </select>
-                <div className="flex justify-center space-x-2 xs:space-x-4">
+                <div className="flex flex-wrap justify-center space-x-2">
                     {['kills', 'farm', 'gambling'].map((category) => (
                         <div
                             key={category}
-                            className={`cursor-pointer rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${
+                            className={`m-1 cursor-pointer rounded-3xl px-2 py-1 ${
                                 selectedCategory === category
                                     ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
                                     : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
@@ -122,43 +141,45 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                     ))}
                 </div>
             </div>
-            <motion.div
-                className="flex h-full w-full flex-col items-center overflow-y-auto overflow-x-hidden p-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-            >
-                <table className="w-full border-collapse rounded-lg md:w-4/5">
-                    <thead>
-                        <tr className="rounded-t-lg bg-stone-900 text-stone-300">
-                            <th className="px-4 py-2">Rank</th>
-                            <th className="px-4 py-2">Player</th>
-                            {selectedCategory === 'kills' && (
-                                <>
-                                    <th className="px-4 py-2">Kills</th>
-                                    <th className="px-4 py-2">Deaths</th>
-                                    <th className="px-4 py-2">KDR</th>
-                                </>
-                            )}
-                            {selectedCategory === 'farm' && (
-                                <>
-                                    <th className="px-4 py-2">Wood</th>
-                                    <th className="px-4 py-2">Stone</th>
-                                    <th className="px-4 py-2">Metal Ore</th>
-                                </>
-                            )}
-                            {selectedCategory === 'gambling' && (
-                                <>
-                                    <th className="px-4 py-2">Wagered</th>
-                                    <th className="px-4 py-2">Winnings</th>
-                                    <th className="px-4 py-2">Win Rate</th>
-                                </>
-                            )}
-                        </tr>
-                    </thead>
-                    <tbody className="text-center text-stone-300">{sortedStats.map((stat, index) => renderStatsRow(stat, index))}</tbody>
-                </table>
-            </motion.div>
+            <div className="w-full overflow-x-auto pt-4">
+                <motion.div
+                    className="inline-block min-w-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <table className="w-full border-collapse rounded-lg">
+                        <thead>
+                            <tr className="bg-stone-900 text-stone-300">
+                                <th className="whitespace-nowrap px-2 py-2">Rank</th>
+                                <th className="whitespace-nowrap px-2 py-2">Player</th>
+                                {selectedCategory === 'kills' && (
+                                    <>
+                                        <th className="whitespace-nowrap px-2 py-2">Kills</th>
+                                        <th className="whitespace-nowrap px-2 py-2">Deaths</th>
+                                        <th className="whitespace-nowrap px-2 py-2">KDR</th>
+                                    </>
+                                )}
+                                {selectedCategory === 'farm' && (
+                                    <>
+                                        <th className="whitespace-nowrap px-2 py-2">Wood</th>
+                                        <th className="whitespace-nowrap px-2 py-2">Stone</th>
+                                        <th className="whitespace-nowrap px-2 py-2">Metal</th>
+                                    </>
+                                )}
+                                {selectedCategory === 'gambling' && (
+                                    <>
+                                        <th className="whitespace-nowrap px-2 py-2">Wagered</th>
+                                        <th className="whitespace-nowrap px-2 py-2">Won</th>
+                                        <th className="whitespace-nowrap px-2 py-2">Win %</th>
+                                    </>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody className="text-stone-300">{sortedStats.map((stat, index) => renderStatsRow(stat, index))}</tbody>
+                    </table>
+                </motion.div>
+            </div>
         </div>
     );
 };
