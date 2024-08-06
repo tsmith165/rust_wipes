@@ -17,7 +17,8 @@ async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string | und
 
 export interface ServerPerformanceData {
     id: number;
-    timestamp: Date;
+    system_id: string;
+    timestamp: Date | null;
     cpu_usage: number;
     memory_usage: number;
     disk_usage: number;
@@ -32,15 +33,16 @@ export async function getServerPerformanceData(): Promise<ServerPerformanceData[
         return [];
     }
 
-    const result = await db.select().from(server_performance).orderBy(desc(server_performance.timestamp)).limit(100); // Get the latest 100 entries
+    const result = await db.select().from(server_performance).orderBy(desc(server_performance.timestamp)).limit(1000); // Get the latest 1000 entries across all servers
 
     return result.map((entry) => ({
         id: entry.id,
+        system_id: entry.system_id,
         timestamp: entry.timestamp,
-        cpu_usage: entry.cpu_usage,
-        memory_usage: entry.memory_usage,
-        disk_usage: entry.disk_usage,
-        network_in: entry.network_in,
-        network_out: entry.network_out,
+        cpu_usage: Number(entry.cpu_usage),
+        memory_usage: Number(entry.memory_usage),
+        disk_usage: Number(entry.disk_usage),
+        network_in: Number(entry.network_in),
+        network_out: Number(entry.network_out),
     }));
 }
