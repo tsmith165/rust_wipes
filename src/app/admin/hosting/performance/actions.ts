@@ -1,19 +1,5 @@
 import { db, server_performance } from '@/db/db';
 import { desc } from 'drizzle-orm';
-import { auth } from '@clerk/nextjs/server';
-import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
-
-async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string | undefined }> {
-    const { userId } = auth();
-    if (!userId) {
-        return { isAdmin: false, error: 'User is not authenticated. Cannot view server performance.' };
-    }
-    const hasAdminRole = await isClerkUserIdAdmin(userId);
-    if (!hasAdminRole) {
-        return { isAdmin: false, error: 'User does not have the admin role. Cannot view server performance.' };
-    }
-    return { isAdmin: true };
-}
 
 export interface ServerPerformanceData {
     id: number;
@@ -28,12 +14,6 @@ export interface ServerPerformanceData {
 }
 
 export async function getServerPerformanceData(recordsToDisplay: number = 250): Promise<ServerPerformanceData[]> {
-    const { isAdmin, error: roleError } = await checkUserRole();
-    if (!isAdmin) {
-        console.error(roleError);
-        return [];
-    }
-
     const result = await db.select().from(server_performance).orderBy(desc(server_performance.timestamp)).limit(recordsToDisplay);
 
     return result.map((entry) => ({

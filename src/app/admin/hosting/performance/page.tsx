@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { getServerPerformanceData } from './actions';
+import { checkUserRole } from './serverActions';
 import PageLayout from '@/components/layout/PageLayout';
 import { PerformanceDisplay } from '@/app/admin/hosting/performance/PerformanceDisplay';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
     title: 'Rust Wipes - Server Performance',
@@ -18,6 +20,13 @@ export const metadata: Metadata = {
 };
 
 export default async function PerformancePage() {
+    const { isAdmin, error } = await checkUserRole();
+
+    if (!isAdmin) {
+        console.error(error);
+        redirect('/unauthorized'); // Redirect to an unauthorized page
+    }
+
     const initialPerformanceData = await getServerPerformanceData(250); // Default to 250 records
 
     return (

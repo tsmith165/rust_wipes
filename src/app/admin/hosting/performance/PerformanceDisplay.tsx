@@ -36,8 +36,12 @@ export function PerformanceDisplay({ initialPerformanceData }: PerformanceDispla
     useEffect(() => {
         const intervalMs = (60 / updatesPerMinute) * 1000;
         const interval = setInterval(async () => {
-            const newData = await getServerPerformanceData(recordsToDisplay);
-            setPerformanceData(newData);
+            try {
+                const newData = await getServerPerformanceData(recordsToDisplay);
+                setPerformanceData(newData);
+            } catch (error) {
+                console.error('Error fetching performance data:', error);
+            }
         }, intervalMs);
 
         return () => clearInterval(interval);
