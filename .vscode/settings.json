@@ -1,5 +1,5 @@
 {
-    "window.title": "RUST WIPES",
+    "window.title": "RUST WIPES NextJS",
     "terminal.integrated.env.windows": {
         "node_options": "--max_old_space_size=4096"
     }

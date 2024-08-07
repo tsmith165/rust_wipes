@@ -34,7 +34,7 @@ export async function getServerPerformanceData(): Promise<ServerPerformanceData[
         return [];
     }
 
-    const result = await db.select().from(server_performance).orderBy(desc(server_performance.timestamp)).limit(51840); // Get the latest 51,840 entries (3 days worth) across all servers
+    const result = await db.select().from(server_performance).orderBy(desc(server_performance.timestamp)).limit(100); // Get the latest 51,840 entries (3 days worth) across all servers
 
     return result.map((entry) => ({
         id: entry.id,
