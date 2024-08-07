@@ -14,6 +14,7 @@ import {
     verified_transactions_table,
     player_stats,
     server_performance,
+    next_wipe_info,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -33,4 +34,5 @@ export {
     verified_transactions_table,
     player_stats,
     server_performance,
+    next_wipe_info,
 };

@@ -240,3 +240,15 @@ export const server_performance = pgTable('server_performance', {
 
 export type ServerPerformance = InferSelectModel<typeof server_performance>;
 export type InsertServerPerformance = InferInsertModel<typeof server_performance>;
+
+export const next_wipe_info = pgTable('next_wipe_info', {
+    id: serial('id').primaryKey(),
+    server_id: varchar('server_id').notNull(),
+    level_url: text('level_url').notNull(),
+    map_seed: integer('map_seed'),
+    map_size: integer('map_size'),
+    map_name: varchar('map_name'),
+});
+
+export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
+export type InsertNextWipeInfo = InferInsertModel<typeof next_wipe_info>;
