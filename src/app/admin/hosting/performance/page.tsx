@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getInitialPerformanceData } from './serverActions';
+import { getServerPerformanceData } from './serverActions';
 import PageLayout from '@/components/layout/PageLayout';
 import { PerformanceDisplay } from '@/app/admin/hosting/performance/PerformanceDisplay';
 import { redirect } from 'next/navigation';
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PerformancePage() {
-    const initialPerformanceData = await getInitialPerformanceData(250); // Default to 250 records
+    const initialPerformanceData = await getServerPerformanceData(250); // Default to 250 records
 
     if (initialPerformanceData.length === 0) {
         redirect('/unauthorized'); // Redirect to an unauthorized page

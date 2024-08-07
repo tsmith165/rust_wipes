@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ServerPerformanceData, getServerPerformanceData } from './actions';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { getServerPerformanceData, ServerPerformanceData } from './serverActions';
 
 interface PerformanceDisplayProps {
     initialPerformanceData: ServerPerformanceData[];
