@@ -15,6 +15,7 @@ export function PerformanceDisplay({ initialPerformanceData }: PerformanceDispla
     const [updatesPerMinute, setUpdatesPerMinute] = useState<number>(12);
     const [recordsToDisplay, setRecordsToDisplay] = useState<number>(250);
     const [performanceData, setPerformanceData] = useState<ServerPerformanceData[]>(initialPerformanceData);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const uniqueServers = Array.from(new Set(performanceData.map((data) => data.system_id))).map((id) => ({
@@ -39,13 +40,19 @@ export function PerformanceDisplay({ initialPerformanceData }: PerformanceDispla
             try {
                 const newData = await getServerPerformanceData(recordsToDisplay);
                 setPerformanceData(newData);
+                setError(null);
             } catch (error) {
                 console.error('Error fetching performance data:', error);
+                setError('Failed to fetch performance data. Please try again later.');
             }
         }, intervalMs);
 
         return () => clearInterval(interval);
     }, [updatesPerMinute, recordsToDisplay]);
+
+    if (error) {
+        return <div className="text-red-500">{error}</div>;
+    }
 
     const formatDate = (timestamp: Date | null) => {
         return timestamp ? new Date(timestamp).toLocaleTimeString() : 'N/A';
