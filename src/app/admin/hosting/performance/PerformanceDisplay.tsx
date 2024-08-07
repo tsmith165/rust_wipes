@@ -1,17 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ServerPerformanceData } from './actions';
+import { ServerPerformanceData, getServerPerformanceData } from './actions';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PerformanceDisplayProps {
-    performanceData: ServerPerformanceData[];
+    initialPerformanceData: ServerPerformanceData[];
 }
 
-export function PerformanceDisplay({ performanceData }: PerformanceDisplayProps) {
+export function PerformanceDisplay({ initialPerformanceData }: PerformanceDisplayProps) {
     const [selectedServer, setSelectedServer] = useState<string>('');
     const [filteredData, setFilteredData] = useState<ServerPerformanceData[]>([]);
     const [servers, setServers] = useState<{ id: string; name: string }[]>([]);
+    const [updatesPerMinute, setUpdatesPerMinute] = useState<number>(12);
+    const [recordsToDisplay, setRecordsToDisplay] = useState<number>(250);
+    const [performanceData, setPerformanceData] = useState<ServerPerformanceData[]>(initialPerformanceData);
 
     useEffect(() => {
         const uniqueServers = Array.from(new Set(performanceData.map((data) => data.system_id))).map((id) => ({
@@ -27,8 +30,18 @@ export function PerformanceDisplay({ performanceData }: PerformanceDisplayProps)
 
     useEffect(() => {
         const filtered = performanceData.filter((data) => data.system_id === selectedServer);
-        setFilteredData(filtered);
-    }, [selectedServer, performanceData]);
+        setFilteredData(filtered.slice(-recordsToDisplay));
+    }, [selectedServer, performanceData, recordsToDisplay]);
+
+    useEffect(() => {
+        const intervalMs = (60 / updatesPerMinute) * 1000;
+        const interval = setInterval(async () => {
+            const newData = await getServerPerformanceData(recordsToDisplay);
+            setPerformanceData(newData);
+        }, intervalMs);
+
+        return () => clearInterval(interval);
+    }, [updatesPerMinute, recordsToDisplay]);
 
     const formatDate = (timestamp: Date | null) => {
         return timestamp ? new Date(timestamp).toLocaleTimeString() : 'N/A';
@@ -38,27 +51,73 @@ export function PerformanceDisplay({ performanceData }: PerformanceDisplayProps)
         setSelectedServer(event.target.value);
     };
 
+    const handleUpdatesPerMinuteChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setUpdatesPerMinute(Number(event.target.value));
+    };
+
+    const handleRecordsToDisplayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setRecordsToDisplay(Number(event.target.value));
+    };
+
     return (
         <div className="flex h-full w-full flex-col items-center overflow-y-auto py-4">
             <div className="w-[95%] rounded-lg bg-stone-600 p-4 text-lg font-bold text-stone-950 md:w-4/5">
                 <h2 className="mb-4 text-2xl">Server Performance Metrics</h2>
 
-                <div className="mb-4">
-                    <label htmlFor="server-select" className="mr-2">
-                        Select Server:
-                    </label>
-                    <select
-                        id="server-select"
-                        value={selectedServer}
-                        onChange={handleServerChange}
-                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                        {servers.map((server) => (
-                            <option key={server.id} value={server.id}>
-                                {server.name}
-                            </option>
-                        ))}
-                    </select>
+                <div className="mb-4 flex flex-wrap gap-4">
+                    <div>
+                        <label htmlFor="server-select" className="mr-2">
+                            Select Server:
+                        </label>
+                        <select
+                            id="server-select"
+                            value={selectedServer}
+                            onChange={handleServerChange}
+                            className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        >
+                            {servers.map((server) => (
+                                <option key={server.id} value={server.id}>
+                                    {server.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="updates-per-minute" className="mr-2">
+                            Updates per minute:
+                        </label>
+                        <select
+                            id="updates-per-minute"
+                            value={updatesPerMinute}
+                            onChange={handleUpdatesPerMinuteChange}
+                            className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        >
+                            {[12, 6, 3, 1].map((value) => (
+                                <option key={value} value={value}>
+                                    {value}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="records-to-display" className="mr-2">
+                            Records to display:
+                        </label>
+                        <select
+                            id="records-to-display"
+                            value={recordsToDisplay}
+                            onChange={handleRecordsToDisplayChange}
+                            className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        >
+                            {[50, 100, 250, 500, 1000].map((value) => (
+                                <option key={value} value={value}>
+                                    {value}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <ResponsiveContainer width="100%" height={400}>

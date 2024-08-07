@@ -18,11 +18,11 @@ export const metadata: Metadata = {
 };
 
 export default async function PerformancePage() {
-    const performanceData = await getServerPerformanceData();
+    const initialPerformanceData = await getServerPerformanceData(250); // Default to 250 records
 
     return (
         <PageLayout page="/admin/hosting/performance">
-            <PerformanceDisplay performanceData={performanceData} />
+            <PerformanceDisplay initialPerformanceData={initialPerformanceData} />
         </PageLayout>
     );
 }
