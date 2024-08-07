@@ -129,7 +129,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                     {['kills', 'farm', 'gambling'].map((category) => (
                         <div
                             key={category}
-                            className={`m-1 cursor-pointer rounded-3xl px-2 py-1 ${
+                            className={`m-1 cursor-pointer rounded-3xl px-4 py-2 ${
                                 selectedCategory === category
                                     ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
                                     : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
@@ -141,7 +141,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                     ))}
                 </div>
             </div>
-            <div className="w-full overflow-x-auto pt-4">
+            <div className="w-full overflow-x-auto pt-4 sm:w-4/5 md:w-3/5">
                 <motion.div
                     className="inline-block min-w-full"
                     initial={{ opacity: 0 }}
@@ -152,7 +152,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                         <thead>
                             <tr className="bg-stone-900 text-stone-300">
                                 <th className="whitespace-nowrap px-2 py-2">Rank</th>
-                                <th className="whitespace-nowrap px-2 py-2">Player</th>
+                                <th className="whitespace-nowrap px-2 py-2 text-left">Player</th>
                                 {selectedCategory === 'kills' && (
                                     <>
                                         <th className="whitespace-nowrap px-2 py-2">Kills</th>
