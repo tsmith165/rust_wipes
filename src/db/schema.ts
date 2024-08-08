@@ -252,3 +252,30 @@ export const next_wipe_info = pgTable('next_wipe_info', {
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
 export type InsertNextWipeInfo = InferInsertModel<typeof next_wipe_info>;
+
+export const map_options = pgTable('map_options', {
+    id: serial('id').primaryKey(),
+    map_name: varchar('map_name').notNull(),
+    seed: integer('seed').notNull(),
+    size: integer('size').notNull(),
+    level_url: text('level_url').notNull(),
+    rust_maps_url: text('rust_maps_url').notNull(),
+    enabled: boolean('enabled').notNull().default(true),
+});
+
+export type MapOptions = InferSelectModel<typeof map_options>;
+export type InsertMapOptions = InferInsertModel<typeof map_options>;
+
+export const map_votes = pgTable('map_votes', {
+    id: serial('id').primaryKey(),
+    map_id: integer('map_id')
+        .notNull()
+        .references(() => map_options.id),
+    timestamp: timestamp('timestamp').defaultNow(),
+    steam_id: varchar('steam_id').notNull(),
+    wipe_id: integer('wipe_id').notNull(),
+    server_id: varchar('server_id').notNull(),
+});
+
+export type MapVotes = InferSelectModel<typeof map_votes>;
+export type InsertMapVotes = InferInsertModel<typeof map_votes>;
