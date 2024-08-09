@@ -4,9 +4,16 @@ import { Html, Head, Preview, Body, Container, Section, Heading, Text, Tailwind 
 interface SubscriptionCanceledEmailProps {
     steam_username: string;
     kit_name: string;
+    end_date: string;
 }
 
-const SubscriptionCanceledEmail: React.FC<SubscriptionCanceledEmailProps> = ({ steam_username, kit_name }) => {
+const SubscriptionCanceledEmail: React.FC<SubscriptionCanceledEmailProps> = ({ steam_username, kit_name, end_date }) => {
+    const formattedEndDate = new Date(end_date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
     return (
         <Html>
             <Head />
@@ -37,9 +44,9 @@ const SubscriptionCanceledEmail: React.FC<SubscriptionCanceledEmailProps> = ({ s
                                 We're writing to confirm that your subscription to the "{kit_name}" kit has been canceled.
                             </Text>
                             <Text className="text-lg">
-                                You will continue to have access to the kit until the end of your current billing period. After that, you
-                                will no longer be able to use the{' '}
-                                <span className="font-bold text-secondary">/kit {kit_name.toLowerCase()}</span> command in-game.
+                                You will continue to have access to the kit until{' '}
+                                <span className="font-bold text-secondary">{formattedEndDate}</span>. After that, you will no longer be able
+                                to use the <span className="font-bold text-secondary">/kit {kit_name.toLowerCase()}</span> command in-game.
                             </Text>
                             <Text className="text-lg">
                                 If you've canceled by mistake or wish to resubscribe in the future, you can do so at any time through our

@@ -177,6 +177,7 @@ export const verified_transactions_table = pgTable('verified_transactions', {
     image_width: integer('image_width').notNull(),
     image_height: integer('image_height').notNull(),
     date: date('date').notNull(),
+    end_date: timestamp('end_date'),
     stripe_id: text('stripe_id').notNull(),
     price: integer('price').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
@@ -248,6 +249,7 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     map_seed: integer('map_seed'),
     map_size: integer('map_size'),
     map_name: varchar('map_name'),
+    is_queued: boolean('is_queued').notNull().default(false),
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
@@ -260,6 +262,7 @@ export const map_options = pgTable('map_options', {
     size: integer('size').notNull(),
     level_url: text('level_url').notNull(),
     rust_maps_url: text('rust_maps_url').notNull(),
+    rust_maps_image: text('rust_maps_image').notNull().default(''),
     enabled: boolean('enabled').notNull().default(true),
 });
 
@@ -286,3 +289,12 @@ export const map_votes = pgTable(
 
 export type MapVotes = InferSelectModel<typeof map_votes>;
 export type InsertMapVotes = InferInsertModel<typeof map_votes>;
+
+export const server_backend_info = pgTable('server_backend_info', {
+    id: serial('id').primaryKey(),
+    server_id: varchar('server_id').notNull().unique(),
+    server_folder: varchar('server_folder').notNull(),
+});
+
+export type ServerBackendInfo = InferSelectModel<typeof server_backend_info>;
+export type InsertServerBackendInfo = InferInsertModel<typeof server_backend_info>;

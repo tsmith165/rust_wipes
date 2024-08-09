@@ -1,8 +1,8 @@
 'use server';
 
 import { eq, desc, asc, gt, lt, and, inArray, like } from 'drizzle-orm';
-import { db, kits, KitExtraImages, rw_servers, player_stats } from '@/db/db';
-import { KitsWithExtraImages, RwServer, PlayerStats } from '@/db/schema';
+import { db, kits, KitExtraImages, rw_servers, player_stats, next_wipe_info, map_options, map_votes } from '@/db/db';
+import { KitsWithExtraImages, RwServer, PlayerStats, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
 import { SQL } from 'drizzle-orm';
 
 export async function fetchKits(): Promise<KitsWithExtraImages[]> {
@@ -169,6 +169,30 @@ export async function fetchServers(): Promise<RwServer[]> {
 
     console.log('Captured servers successfully');
     return servers;
+}
+
+export async function fetchNextWipeInfo(): Promise<NextWipeInfo[]> {
+    console.log('Fetching next wipe info with Drizzle');
+    const wipeInfo = await db.select().from(next_wipe_info);
+
+    console.log('Captured next wipe info successfully');
+    return wipeInfo;
+}
+
+export async function fetchMapOptions(): Promise<MapOptions[]> {
+    console.log('Fetching map options with Drizzle');
+    const options = await db.select().from(map_options).where(eq(map_options.enabled, true));
+
+    console.log('Captured map options successfully');
+    return options;
+}
+
+export async function fetchMapVotes(): Promise<MapVotes[]> {
+    console.log('Fetching map votes with Drizzle');
+    const votes = await db.select().from(map_votes);
+
+    console.log('Captured map votes successfully');
+    return votes;
 }
 
 async function fetchSteamUserInfo(steamId: string) {
