@@ -85,30 +85,34 @@ export async function POST(request: Request) {
                 throw new Error('User not found');
             }
 
+            const currentDate = new Date();
+            let endDate: Date | null = null;
+
+            if (metadata.is_subscription !== 'true') {
+                endDate = new Date(currentDate.getTime() + 31 * 24 * 60 * 60 * 1000); // 31 days from now for non-subscription purchases
+            }
+
             console.log('Creating Verified Transaction...');
             const createOutput = await db.insert(verified_transactions_table).values({
                 kit_db_id: kitDbId,
                 kit_name: pendingTransactionData[0].kit_name,
                 user_id: userId,
-                steam_id: userData[0].steam_id, // Add Steam ID to the verified transaction
+                steam_id: userData[0].steam_id,
                 email: metadata.email,
                 is_subscription: metadata.is_subscription === 'true',
                 subscription_id: subscriptionId ? subscriptionId.toString() : null,
                 image_path: metadata.image_path,
                 image_width: parseInt(metadata.image_width, 10),
                 image_height: parseInt(metadata.image_height, 10),
-                date: new Date().toISOString().split('T')[0],
+                date: currentDate.toISOString().split('T')[0],
+                end_date: endDate, // This can be null for subscriptions
                 stripe_id: stripeId,
                 price: parseInt(metadata.price_id, 10),
                 redeemed: false,
             });
             console.log('Verified Transaction Create Output:', createOutput);
 
-            if (userData.length === 0) {
-                throw new Error('User not found');
-            }
-
-            // Send email to user and admin
+            // Fetch kit data
             const kitData = await db.select().from(kits).where(eq(kits.id, kitDbId)).limit(1);
 
             if (kitData.length === 0) {
@@ -181,38 +185,26 @@ export async function POST(request: Request) {
                     throw new Error('User not found');
                 }
 
-                // Revoke kit access in Rust servers
-                try {
-                    await revokeKitAccess(userData[0].steam_id, verifiedTransaction[0].kit_name);
-                    console.log(`Kit access revoked for user ${userData[0].steam_id} to kit ${verifiedTransaction[0].kit_name}`);
+                // Get the end of the current period from the Stripe subscription
+                const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
 
-                    // Update the redeemed status to false when subscription is canceled
-                    await db
-                        .update(verified_transactions_table)
-                        .set({ redeemed: false })
-                        .where(eq(verified_transactions_table.subscription_id, subscriptionId));
-                    console.log(`Marked subscription kit as not redeemed for subscription_id: ${subscriptionId}`);
-                } catch (error) {
-                    console.error('Error revoking kit access:', error);
-                    const errorEmailTemplate = React.createElement(ErrorEmailTemplate, {
-                        error_message: error instanceof Error ? error.message : 'Unknown error',
-                        steam_username: userData[0].steam_user,
-                        kit_name: verifiedTransaction[0].kit_name,
-                        action_type: 'revoke',
-                    });
-                    const errorEmailHtml = render(errorEmailTemplate);
-                    await sendEmail({
-                        from: 'noreply@rustwipes.net',
-                        to: PROJECT_CONSTANTS.CONTACT_EMAIL,
-                        subject: `Error Revoking Kit Access - ${verifiedTransaction[0].kit_name}`,
-                        html: errorEmailHtml,
-                    });
-                }
+                // Update the end_date to the end of the current period
+                await db
+                    .update(verified_transactions_table)
+                    .set({
+                        end_date: currentPeriodEnd,
+                    })
+                    .where(eq(verified_transactions_table.subscription_id, subscriptionId));
+                console.log(`Updated end_date to ${currentPeriodEnd} for subscription_id: ${subscriptionId}`);
+
+                // Note: We're not revoking access or changing the redeemed status here
+                // Access will be automatically revoked when the end_date is reached
 
                 // Send an email to the user about their subscription cancellation
                 const cancelEmailTemplate = React.createElement(SubscriptionCanceledEmail, {
                     steam_username: userData[0].steam_user,
                     kit_name: verifiedTransaction[0].kit_name,
+                    end_date: currentPeriodEnd.toISOString(),
                 });
                 const cancelEmailHtml = render(cancelEmailTemplate);
 

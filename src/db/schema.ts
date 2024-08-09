@@ -177,6 +177,7 @@ export const verified_transactions_table = pgTable('verified_transactions', {
     image_width: integer('image_width').notNull(),
     image_height: integer('image_height').notNull(),
     date: date('date').notNull(),
+    end_date: timestamp('end_date'),
     stripe_id: text('stripe_id').notNull(),
     price: integer('price').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),

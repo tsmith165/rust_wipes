@@ -119,14 +119,22 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
         console.log('NextWipeInfo:', nextWipeInfo);
         const currentMap = mapOptions.find((option) => option.seed === nextWipeInfo?.map_seed);
 
-        if (!currentMap) return null;
+        if (!currentMap)
+            return (
+                <div className="flex h-[230px] max-h-[230px] flex-col items-center justify-center bg-gradient-to-t from-stone-300 to-stone-500 bg-clip-text text-lg text-transparent">
+                    No map found
+                </div>
+            );
         return (
-            <div className="flex h-full items-center justify-center">
+            <div className="flex h-full max-h-[230px] flex-col items-center justify-center">
+                <b className="mb-1 h-fit bg-gradient-to-t from-stone-300 to-stone-500 bg-clip-text text-lg text-transparent">
+                    Current Selected Next Map
+                </b>
                 <a
                     href={currentMap.rust_maps_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-full w-full items-center justify-center"
+                    className="flex h-[calc(100%-30px)] w-full items-center justify-center"
                 >
                     <img src={currentMap.rust_maps_image} alt={currentMap.map_name} className="h-full w-fit rounded-lg object-contain" />
                 </a>
@@ -220,21 +228,36 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
         return (
             <>
                 {activePanel !== 'nextWipe' && (
-                    <button onClick={() => setActivePanel('nextWipe')} className={`${buttonClass} left-0 rounded-br-lg rounded-tl-lg`}>
+                    <button
+                        onClick={() => setActivePanel('nextWipe')}
+                        className={`${buttonClass} left-0 rounded-br-lg rounded-tl-lg`}
+                        data-tooltip-id={`nextWipe-${server.id}`}
+                        data-tooltip-content="Server Info"
+                    >
                         <MdInfo size={28} />
+                        <Tooltip id={`nextWipe-${server.id}`} />
                     </button>
                 )}
                 {activePanel !== 'mapDisplay' && (
                     <button
                         onClick={() => setActivePanel('mapDisplay')}
                         className={`${buttonClass} ${activePanel === 'nextWipe' ? 'left-0 rounded-br-lg rounded-tl-lg' : 'right-0 rounded-bl-lg rounded-tr-lg'}`}
+                        data-tooltip-id={`mapDisplay-${server.id}`}
+                        data-tooltip-content="Current Map"
                     >
                         <MdMap size={28} />
+                        <Tooltip id={`mapDisplay-${server.id}`} />
                     </button>
                 )}
                 {activePanel !== 'mapVoting' && (
-                    <button onClick={() => setActivePanel('mapVoting')} className={`${buttonClass} right-0 rounded-bl-lg rounded-tr-lg`}>
+                    <button
+                        onClick={() => setActivePanel('mapVoting')}
+                        className={`${buttonClass} right-0 rounded-bl-lg rounded-tr-lg`}
+                        data-tooltip-id={`mapVoting-${server.id}`}
+                        data-tooltip-content="Map Voting"
+                    >
                         <GiVote size={28} />
+                        <Tooltip id={`mapVoting-${server.id}`} />
                     </button>
                 )}
             </>
@@ -243,13 +266,13 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
 
     return (
         <div className="radial-gradient-stone-600 relative flex flex-col rounded-lg bg-stone-950 p-4 shadow-md">
-            <div className="mb-2 flex w-full items-center justify-center">
+            <div className="mb-1 flex w-full items-center justify-center">
                 <h2 className="radial-gradient-stone-300 w-fit bg-primary_light bg-clip-text text-center text-2xl font-semibold text-transparent">
                     {server.short_title || server.name}
                 </h2>
             </div>
             {renderButtons()}
-            <div className="h-[230px] overflow-y-auto">{renderPanel()}</div>
+            <div className="max-h-[230px] overflow-y-auto">{renderPanel()}</div>
             <div className="mt-2 flex flex-row items-center justify-between space-x-2">
                 <a
                     href={`steam://connect/${server.connection_url}`}
