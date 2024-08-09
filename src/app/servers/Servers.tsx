@@ -144,7 +144,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
 
     const MapVotingPanel = () => {
         const chartData = useMemo(() => {
-            const labels = mapOptions.map((option) => option.map_name);
+            const labels = mapOptions.map((option) => option.map_name.split('-')[1]);
             const data = mapOptions.map((option) => mapVotes.filter((vote) => vote.map_id === option.id).length);
 
             return {
@@ -190,11 +190,22 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
                     },
                 },
             },
-            onClick: (_: ChartEvent, elements: ActiveElement[]) => {
+            onClick: (event: ChartEvent, elements: ActiveElement[], chart: ChartJS) => {
                 if (elements.length > 0) {
                     const index = elements[0].index;
                     if (index !== undefined && mapOptions[index]) {
                         window.open(mapOptions[index].rust_maps_url, '_blank');
+                    }
+                } else {
+                    // Check if a label was clicked
+                    const points = chart.getElementsAtEventForMode(event.native as Event, 'nearest', { intersect: true }, true);
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const label = chart.data.labels?.[firstPoint.index];
+                        const clickedMapOption = mapOptions.find((option) => option.map_name.split('-')[1] === label);
+                        if (clickedMapOption) {
+                            window.open(clickedMapOption.rust_maps_url, '_blank');
+                        }
                     }
                 }
             },
