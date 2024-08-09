@@ -261,6 +261,7 @@ export const map_options = pgTable('map_options', {
     size: integer('size').notNull(),
     level_url: text('level_url').notNull(),
     rust_maps_url: text('rust_maps_url').notNull(),
+    rust_maps_image: text('rust_maps_image').notNull().default(''),
     enabled: boolean('enabled').notNull().default(true),
 });
 
