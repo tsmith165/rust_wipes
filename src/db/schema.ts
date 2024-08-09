@@ -248,6 +248,7 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     map_seed: integer('map_seed'),
     map_size: integer('map_size'),
     map_name: varchar('map_name'),
+    is_queued: boolean('is_queued').notNull().default(false),
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
@@ -279,3 +280,12 @@ export const map_votes = pgTable('map_votes', {
 
 export type MapVotes = InferSelectModel<typeof map_votes>;
 export type InsertMapVotes = InferInsertModel<typeof map_votes>;
+
+export const server_backend_info = pgTable('server_backend_info', {
+    id: serial('id').primaryKey(),
+    server_id: varchar('server_id').notNull().unique(),
+    server_folder: varchar('server_folder').notNull(),
+});
+
+export type ServerBackendInfo = InferSelectModel<typeof server_backend_info>;
+export type InsertServerBackendInfo = InferInsertModel<typeof server_backend_info>;
