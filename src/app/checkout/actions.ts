@@ -74,6 +74,15 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
                 email,
                 is_subscription: is_subscription.toString(),
             },
+            payment_intent_data: {
+                metadata: {
+                    kit_id: kit.id.toString(),
+                    steam_id,
+                    steam_username,
+                    email,
+                    is_subscription: is_subscription.toString(),
+                },
+            },
         });
 
         console.log(`Stripe Session Created:`, session);
