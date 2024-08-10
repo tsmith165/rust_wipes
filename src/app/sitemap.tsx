@@ -26,12 +26,6 @@ export default function sitemap(): SitemapEntry[] {
             priority: 1,
         },
         {
-            url: 'https://www.rustwipes.net/stats',
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 1,
-        },
-        {
             url: 'https://www.rustwipes.net/recent',
             lastModified: new Date(),
             changeFrequency: 'always',

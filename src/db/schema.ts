@@ -1,24 +1,5 @@
-import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, date, decimal, unique } from 'drizzle-orm/pg-core';
-
+import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, numeric, date } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
-
-const DEFAULT_CONTENTS = {
-    guns: {
-        AK: 1,
-    },
-    armor: {
-        'HQM Facemask': 1,
-    },
-    resources: {
-        Scrap: 1000,
-    },
-    components: {
-        'Rifle Body': 1,
-    },
-    medical: {
-        'Medical Syringe': 12,
-    },
-};
 
 export const rw_parsed_server = pgTable('rw_parsed_server', {
     id: serial('id').primaryKey(),
@@ -32,50 +13,13 @@ export const rw_parsed_server = pgTable('rw_parsed_server', {
     game_mode: varchar('game_mode'),
     resource_rate: varchar('resource_rate'),
     group_limit: varchar('group_limit'),
-    last_wipe: varchar('last_wipe'),
-    last_bp_wipe: varchar('last_bp_wipe'),
-    next_wipe: varchar('next_wipe'),
-    next_wipe_full: varchar('next_wipe_full'),
-    next_wipe_is_bp: varchar('next_wipe_is_bp'),
-    next_wipe_hour: integer('next_wipe_hour'),
-    next_wipe_dow: integer('next_wipe_dow'),
-    next_wipe_week: integer('next_wipe_week'),
-    main_wipe_hour: integer('main_wipe_hour'),
-    main_wipe_dow: integer('main_wipe_dow'),
-    sec_wipe_hour: integer('sec_wipe_hour'),
-    sec_wipe_dow: integer('sec_wipe_dow'),
-    bp_wipe_hour: integer('bp_wipe_hour'),
-    bp_wipe_dow: integer('bp_wipe_dow'),
+    last_wipe: timestamp('last_wipe').defaultNow(),
+    next_wipe: timestamp('next_wipe'),
+    next_full_wipe: timestamp('next_full_wipe'),
 });
 
 export type ParsedServer = InferSelectModel<typeof rw_parsed_server>;
 export type InsertParsedServer = InferInsertModel<typeof rw_parsed_server>;
-
-export const rw_wipe_history = pgTable('rw_wipe_history', {
-    id: serial('id').primaryKey(),
-    bm_id: integer('bm_id'),
-    timestamp: timestamp('timestamp').defaultNow(),
-    wipe_time: varchar('wipe_time'),
-    is_bp: varchar('is_bp'),
-    title: varchar('title'),
-    description: text('description'),
-    attributes: text('attributes'),
-});
-
-export type WipeHistory = InferSelectModel<typeof rw_wipe_history>;
-export type InsertWipeHistory = InferInsertModel<typeof rw_wipe_history>;
-
-export const rw_scrapper_stats = pgTable('rw_scrapper_stats', {
-    id: serial('id').primaryKey(),
-    date: timestamp('date').defaultNow(),
-    scrapper_duration: integer('scrapper_duration'),
-    servers_parsed: integer('servers_parsed'),
-    servers_skipped: integer('servers_skipped'),
-    servers_posted: integer('servers_posted'),
-});
-
-export type ScrapperStats = InferSelectModel<typeof rw_scrapper_stats>;
-export type InsertScrapperStats = InferInsertModel<typeof rw_scrapper_stats>;
 
 export const rw_server_network = pgTable('rw_server_network', {
     id: serial('id').primaryKey(),
@@ -94,7 +38,7 @@ export const kits = pgTable('kits', {
     active: boolean('active').default(true),
     name: text('name').notNull(),
     full_name: text('full_name'),
-    price: decimal('price'),
+    price: numeric('price'),
     permission_string: text('permission_string'),
     description: text('description'),
     image_path: text('image_path').notNull(),
@@ -103,7 +47,7 @@ export const kits = pgTable('kits', {
     height: integer('height').notNull(),
     small_width: integer('small_width').notNull(),
     small_height: integer('small_height').notNull(),
-    contents: jsonb('contents').default(DEFAULT_CONTENTS),
+    contents: jsonb('contents'),
     type: varchar('type').notNull().default('monthly'),
 });
 
@@ -202,27 +146,19 @@ export const rw_servers = pgTable('rw_servers', {
 export type RwServer = InferSelectModel<typeof rw_servers>;
 export type InsertRwServer = InferInsertModel<typeof rw_servers>;
 
-export const player_stats = pgTable(
-    'player_stats',
-    {
-        id: serial('id').primaryKey(),
-        steam_id: varchar('steam_id').notNull(),
-        server_id: varchar('server_id').notNull().default(''),
-        kills: integer('kills').notNull().default(0),
-        deaths: integer('deaths').notNull().default(0),
-        stone_gathered: integer('stone_gathered').notNull().default(0),
-        wood_gathered: integer('wood_gathered').notNull().default(0),
-        metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
-        scrap_wagered: integer('scrap_wagered').notNull().default(0),
-        scrap_won: integer('scrap_won').notNull().default(0),
-        last_updated: timestamp('last_updated').defaultNow(),
-    },
-    (table: any) => {
-        return {
-            unique_player_server: unique('unique_player_server').on(table.steam_id, table.server_id),
-        };
-    },
-);
+export const player_stats = pgTable('player_stats', {
+    id: serial('id').primaryKey(),
+    steam_id: varchar('steam_id').notNull(),
+    server_id: varchar('server_id').notNull(),
+    kills: integer('kills').notNull().default(0),
+    deaths: integer('deaths').notNull().default(0),
+    stone_gathered: integer('stone_gathered').notNull().default(0),
+    wood_gathered: integer('wood_gathered').notNull().default(0),
+    metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
+    scrap_wagered: integer('scrap_wagered').notNull().default(0),
+    scrap_won: integer('scrap_won').notNull().default(0),
+    last_updated: timestamp('last_updated').defaultNow(),
+});
 
 export type PlayerStats = InferSelectModel<typeof player_stats>;
 export type InsertPlayerStats = InferInsertModel<typeof player_stats>;
@@ -232,11 +168,11 @@ export const server_performance = pgTable('server_performance', {
     system_id: varchar('system_id', { length: 64 }).notNull(),
     server_name: varchar('server_name', { length: 255 }).notNull().default('NEW SERVER'),
     timestamp: timestamp('timestamp').defaultNow(),
-    cpu_usage: decimal('cpu_usage', { precision: 5, scale: 2 }).notNull(),
-    memory_usage: decimal('memory_usage', { precision: 5, scale: 2 }).notNull(),
-    disk_usage: decimal('disk_usage', { precision: 5, scale: 2 }).notNull(),
-    network_in: decimal('network_in', { precision: 10, scale: 2 }).notNull(),
-    network_out: decimal('network_out', { precision: 10, scale: 2 }).notNull(),
+    cpu_usage: numeric('cpu_usage', { precision: 5, scale: 2 }).notNull(),
+    memory_usage: numeric('memory_usage', { precision: 5, scale: 2 }).notNull(),
+    disk_usage: numeric('disk_usage', { precision: 5, scale: 2 }).notNull(),
+    network_in: numeric('network_in', { precision: 10, scale: 2 }).notNull(),
+    network_out: numeric('network_out', { precision: 10, scale: 2 }).notNull(),
 });
 
 export type ServerPerformance = InferSelectModel<typeof server_performance>;
@@ -269,23 +205,15 @@ export const map_options = pgTable('map_options', {
 export type MapOptions = InferSelectModel<typeof map_options>;
 export type InsertMapOptions = InferInsertModel<typeof map_options>;
 
-export const map_votes = pgTable(
-    'map_votes',
-    {
-        id: serial('id').primaryKey(),
-        map_id: integer('map_id')
-            .notNull()
-            .references(() => map_options.id),
-        timestamp: timestamp('timestamp').defaultNow(),
-        steam_id: varchar('steam_id').notNull(),
-        server_id: varchar('server_id').notNull(),
-    },
-    (table) => {
-        return {
-            unique_vote: unique('unique_vote').on(table.steam_id, table.server_id),
-        };
-    },
-);
+export const map_votes = pgTable('map_votes', {
+    id: serial('id').primaryKey(),
+    map_id: integer('map_id')
+        .notNull()
+        .references(() => map_options.id),
+    timestamp: timestamp('timestamp').defaultNow(),
+    steam_id: varchar('steam_id').notNull(),
+    server_id: varchar('server_id').notNull(),
+});
 
 export type MapVotes = InferSelectModel<typeof map_votes>;
 export type InsertMapVotes = InferInsertModel<typeof map_votes>;
