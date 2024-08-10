@@ -81,7 +81,7 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
             cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
             metadata: {
                 kit_id: kit.id.toString(),
-                user_id: userId,
+                user_id: userId.toString(),
                 steam_id,
                 steam_username,
                 email,
