@@ -33,7 +33,7 @@ const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_usern
                 <Body className="h-full w-full">
                     <Container className="h-full w-full rounded-lg bg-stone-900 p-2">
                         <Heading className="h-fit w-full p-4 pb-0 text-center text-2xl font-bold text-primary">
-                            {`${kit_name} {is_subscription ? 'Subscription' : 'Purchase'} Confirmation`}
+                            {`${kit_name} ${is_subscription ? 'Subscription' : 'Purchase'} Confirmation`}
                         </Heading>
                         <Section className="flex-col space-y-0.5 px-4 text-stone-300">
                             <Text className="text-lg">Hello {steam_username},</Text>
