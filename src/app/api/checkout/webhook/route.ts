@@ -104,8 +104,8 @@ export async function POST(request: Request) {
                 is_subscription: metadata.is_subscription === 'true',
                 subscription_id: subscriptionId ? subscriptionId.toString() : null,
                 image_path: metadata.image_path,
-                image_width: parseInt(metadata.image_width, 10),
-                image_height: parseInt(metadata.image_height, 10),
+                image_width: parseInt(metadata.image_width),
+                image_height: parseInt(metadata.image_height),
                 date: currentDate.toISOString().split('T')[0],
                 end_date: endDate, // This can be null for subscriptions
                 stripe_id: stripeId,
@@ -115,8 +115,13 @@ export async function POST(request: Request) {
 
             console.log('Creating Verified Transaction with data:', verified_transaction_data);
 
-            const createOutput = await db.insert(verified_transactions_table).values(verified_transaction_data);
-            console.log('Verified Transaction Create Output:', createOutput);
+            try {
+                const createOutput = await db.insert(verified_transactions_table).values(verified_transaction_data);
+                console.log('Verified Transaction Create Output:', createOutput);
+            } catch (error) {
+                console.error('Error creating verified transaction:', error);
+                return new Response(JSON.stringify({ error: 'Error creating verified transaction' }), { status: 400 });
+            }
 
             // Fetch kit data
             const kitData = await db.select().from(kits).where(eq(kits.id, kitDbId)).limit(1);
