@@ -15,7 +15,7 @@ export async function fetchKits(): Promise<KitsWithExtraImages[]> {
         .from(kits)
         .where(eq(kits.active, true))
         .leftJoin(KitExtraImages, eq(KitExtraImages.kit_id, kits.id))
-        .orderBy(desc(kits.o_id));
+        .orderBy(asc(kits.o_id));
 
     console.log(`Captured active kits successfully`);
 
