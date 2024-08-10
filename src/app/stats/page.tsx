@@ -7,7 +7,8 @@ import PageLayout from '@/components/layout/PageLayout';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Player Stats',
     description: 'View player statistics for Rust Wipes servers, including kills, farming, and gambling stats.',
-    keywords: 'rust, rustwipes, player stats, leaderboard, kills, farming, gambling',
+    keywords:
+        'rust, rustwipes, rust wipes, server wipes, signup, sign up, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',

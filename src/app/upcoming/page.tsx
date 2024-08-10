@@ -6,7 +6,8 @@ import UpcomingWipesPage from '@/app/upcoming/UpcomingWipesPage';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Upcoming Wipes',
     description: 'See what wipes are coming up soon so you can plan your day!',
-    keywords: 'rust, rustwipes, player stats, leaderboard, kills, farming, gambling',
+    keywords:
+        'rust, rustwipes, rust wipes, server wipes, signup, sign up, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',
