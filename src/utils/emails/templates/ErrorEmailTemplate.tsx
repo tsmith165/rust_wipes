@@ -33,9 +33,9 @@ const ErrorEmailTemplate: React.FC<ErrorEmailTemplateProps> = ({ error_message, 
                         <Heading className="h-fit w-full p-4 pb-0 text-center text-2xl font-bold text-primary">
                             Error: Failed to {action_type === 'grant' ? 'Grant' : 'Revoke'} Rust Kit Access
                         </Heading>
-                        <Section className="flex-col space-y-0.5 px-4">
+                        <Section className="flex-col space-y-0.5 px-4 text-stone-300">
                             <Text className="text-lg">An error occurred while attempting to {action_type} kit access:</Text>
-                            <Text className="text-lg font-bold text-red-500">{error_message}</Text>
+                            <Text className="text-lg font-bold text-primary_light">{error_message}</Text>
                             <Text className="text-lg">Details:</Text>
                             <ul className="list-disc pl-5 text-lg">
                                 <li>Steam Username: {steam_username}</li>
