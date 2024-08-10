@@ -48,33 +48,26 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
         }
 
         // Create Stripe session
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        unit_amount: Number(kit.price || 5) * 100,
-                        product_data: {
-                            name: kit.name,
-                            images: [kit.image_path],
+        if (is_subscription) {
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'usd',
+                            unit_amount: Number(kit.price || 5) * 100,
+                            product_data: {
+                                name: kit.name,
+                                images: [kit.image_path],
+                            },
+                            recurring: is_subscription ? { interval: 'month' } : undefined,
                         },
-                        recurring: is_subscription ? { interval: 'month' } : undefined,
+                        quantity: 1,
                     },
-                    quantity: 1,
-                },
-            ],
-            mode: is_subscription ? 'subscription' : 'payment',
-            success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
-            cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
-            metadata: {
-                kit_id: kit.id.toString(),
-                steam_id,
-                steam_username,
-                email,
-                is_subscription: is_subscription.toString(),
-            },
-            payment_intent_data: {
+                ],
+                mode: is_subscription ? 'subscription' : 'payment',
+                success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
+                cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
                 metadata: {
                     kit_id: kit.id.toString(),
                     steam_id,
@@ -82,13 +75,48 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
                     email,
                     is_subscription: is_subscription.toString(),
                 },
-            },
-        });
+            });
 
-        console.log(`Stripe Session Created:`, session);
-        console.log(`Session ID: ${session.id}`);
+            console.log(`Stripe Session Created:`, session);
+            console.log(`Session ID: ${session.id}`);
 
-        return { sessionId: session.id };
+            return { sessionId: session.id };
+        } else {
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'usd',
+                            unit_amount: Number(kit.price || 5) * 100,
+                            product_data: {
+                                name: kit.name,
+                                images: [kit.image_path],
+                            },
+                            recurring: is_subscription ? { interval: 'month' } : undefined,
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: is_subscription ? 'subscription' : 'payment',
+                success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
+                cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
+                payment_intent_data: {
+                    metadata: {
+                        kit_id: kit.id.toString(),
+                        steam_id,
+                        steam_username,
+                        email,
+                        is_subscription: is_subscription.toString(),
+                    },
+                },
+            });
+
+            console.log(`Stripe Session Created:`, session);
+            console.log(`Session ID: ${session.id}`);
+
+            return { sessionId: session.id };
+        }
     } catch (error) {
         console.error('Error creating Stripe session:', error);
         return {
