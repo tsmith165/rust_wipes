@@ -106,23 +106,26 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
 
         return (
             <div className="flex flex-wrap gap-2 overflow-y-auto">
-                {Object.entries(parsedContents).map(([category, items]) => (
-                    <div key={category} className="">
-                        <button
-                            onClick={() => toggleCategory(category)}
-                            className={`group flex items-center space-x-2 rounded-full bg-gradient-to-b ${category !== selectedCategory ? 'from-stone-300 to-stone-500 text-stone-950' : 'from-primary_light to-primary text-stone-300'} px-3 py-1 text-sm hover:from-primary_light hover:to-primary hover:text-stone-300`}
-                        >
-                            {getCategoryIcon(category)}
-                            {
-                                <span
-                                    className={`text-xs leading-[14px] text-stone-300 ${category !== selectedCategory ? 'hidden group-hover:!flex' : 'flex'}`}
-                                >
-                                    {category}
-                                </span>
-                            }
-                        </button>
-                    </div>
-                ))}
+                {Object.entries(parsedContents).map(([category, items]) => {
+                    console.log(`selectedkitview cateegory: ${category} | Items: ${items}`);
+                    return (
+                        <div key={category} className="">
+                            <button
+                                onClick={() => toggleCategory(category)}
+                                className={`group flex items-center space-x-2 rounded-full bg-gradient-to-b ${category !== selectedCategory ? 'from-stone-300 to-stone-500 text-stone-950' : 'from-primary_light to-primary text-stone-300'} px-3 py-1 text-sm hover:from-primary_light hover:to-primary hover:text-stone-300`}
+                            >
+                                {getCategoryIcon(category)}
+                                {
+                                    <span
+                                        className={`text-xs leading-[14px] text-stone-300 ${category !== selectedCategory ? 'hidden group-hover:!flex' : 'flex'}`}
+                                    >
+                                        {category}
+                                    </span>
+                                }
+                            </button>
+                        </div>
+                    );
+                })}
             </div>
         );
     };
@@ -276,7 +279,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                                                     step={100}
                                                     value={speed}
                                                     onChange={handleSpeedChange}
-                                                    className="xs:w-20 w-16 cursor-pointer appearance-none rounded-lg bg-stone-600 md:w-24 [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-lg [&::-webkit-slider-runnable-track]:bg-stone-600 [&::-webkit-slider-thumb]:mt-[-4px] [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                                                    className="w-16 cursor-pointer appearance-none rounded-lg bg-stone-600 xs:w-20 md:w-24 [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-lg [&::-webkit-slider-runnable-track]:bg-stone-600 [&::-webkit-slider-thumb]:mt-[-4px] [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
                                                 />
                                             </div>
                                         </div>
