@@ -153,7 +153,7 @@ export async function POST(request: Request) {
                 await sendEmail({
                     from: 'noreply@rustwipes.net',
                     to: PROJECT_CONSTANTS.CONTACT_EMAIL,
-                    subject: `Error Granting Kit Access - ${kitData[0].name}`,
+                    subject: `Error Granting ${kitData[0].name} Kit Access`,
                     html: errorEmailHtml,
                 });
             }
@@ -169,7 +169,7 @@ export async function POST(request: Request) {
             await sendEmail({
                 from: 'noreply@rustwipes.net',
                 to: [metadata.email, PROJECT_CONSTANTS.CONTACT_EMAIL],
-                subject: `Purchase Confirmation - ${kitData[0].name}`,
+                subject: `${kitData[0].name} Purchase Confirmation`,
                 html: emailHtml,
             });
         } else if (event.type === 'customer.subscription.deleted') {
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
                 await sendEmail({
                     from: 'noreply@rustwipes.net',
                     to: [verifiedTransaction[0].email, PROJECT_CONSTANTS.CONTACT_EMAIL],
-                    subject: `Subscription Cancellation - ${verifiedTransaction[0].kit_name}`,
+                    subject: `${verifiedTransaction[0].kit_name} Subscription Cancellation`,
                     html: cancelEmailHtml,
                 });
             }
