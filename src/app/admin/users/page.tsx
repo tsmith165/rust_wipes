@@ -13,7 +13,20 @@ export const metadata: Metadata = {
         shortcut: '/rust_hazmat_icon.png',
     },
     openGraph: {
-        images: '/og-image.png',
+        title: 'Rust Wipes - Manage Users',
+        description: 'Manage Users page for Rust Wipes',
+        siteName: 'Rust Wipes',
+        url: 'https://www.rustwipes.com',
+        images: [
+            {
+                url: '/og-image.png',
+                width: 1200,
+                height: 630,
+                alt: 'Rust Wipes',
+            },
+        ],
+        locale: 'en_US',
+        type: 'website',
     },
 };
 

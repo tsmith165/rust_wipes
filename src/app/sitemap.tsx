@@ -14,6 +14,24 @@ export default function sitemap(): SitemapEntry[] {
             priority: 1,
         },
         {
+            url: 'https://www.rustwipes.net/kits',
+            lastModified: new Date(),
+            changeFrequency: 'daily',
+            priority: 1,
+        },
+        {
+            url: 'https://www.rustwipes.net/servers',
+            lastModified: new Date(),
+            changeFrequency: 'hourly',
+            priority: 1,
+        },
+        {
+            url: 'https://www.rustwipes.net/stats',
+            lastModified: new Date(),
+            changeFrequency: 'hourly',
+            priority: 1,
+        },
+        {
             url: 'https://www.rustwipes.net/recent',
             lastModified: new Date(),
             changeFrequency: 'always',
@@ -32,10 +50,10 @@ export default function sitemap(): SitemapEntry[] {
             priority: 1,
         },
         {
-            url: 'https://www.rustwipes.net/scrapper/stats',
+            url: 'https://www.rustwipes.net/checkout',
             lastModified: new Date(),
             changeFrequency: 'hourly',
-            priority: 0.5,
+            priority: 1,
         },
     ];
 }
