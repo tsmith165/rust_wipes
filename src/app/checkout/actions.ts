@@ -65,8 +65,8 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
                 },
             ],
             mode: is_subscription ? 'subscription' : 'payment',
-            success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/${kit_id}?canceled=true`,
+            success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
+            cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
             metadata: {
                 kit_id: kit.id.toString(),
                 steam_id,
