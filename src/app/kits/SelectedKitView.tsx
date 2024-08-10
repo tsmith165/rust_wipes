@@ -107,7 +107,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
         return (
             <div className="flex flex-wrap gap-2 overflow-y-auto">
                 {Object.entries(parsedContents).map(([category, items]) => {
-                    console.log(`selectedkitview cateegory: ${category} | Items: ${items}`);
+                    console.log(`selectedkitview cateegory: ${category} | Items:`, items);
                     return (
                         <div key={category} className="">
                             <button
