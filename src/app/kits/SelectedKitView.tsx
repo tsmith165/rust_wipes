@@ -107,8 +107,8 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
         return (
             <div className="flex flex-wrap gap-2 overflow-y-auto">
                 {Object.entries(parsedContents).map(([category, items]) => {
-                    // if not items or items.length < 1, return null
-                    if (!Array.isArray(items) || items.length === 0) return null;
+                    // if is not an object or the object is empty, return null
+                    if (typeof items !== 'object' || items === null || Object.keys(items).length === 0) return null;
 
                     return (
                         <div key={category} className="">
