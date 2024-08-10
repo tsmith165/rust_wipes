@@ -14,7 +14,7 @@ import PROJECT_CONSTANTS from '@/lib/constants';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' });
 
 interface WebhookEventMetadata {
-    product_id: string;
+    kit_id: string;
     user_id: string;
     steam_username: string;
     email: string;
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
         console.log('Stripe Event:', event);
 
-        if ((event.type === 'payment_intent.succeeded' || event.type === 'checkout.session.completed') && hasMetadata(event)) {
+        if (event.type === 'checkout.session.completed' && hasMetadata(event)) {
             const stripeEvent = event.data.object;
             console.log('Stripe Event:', stripeEvent);
             const metadata = stripeEvent.metadata;
@@ -59,12 +59,12 @@ export async function POST(request: Request) {
             console.log(`ID: ${stripeId}`);
             console.log(`Metadata:`, metadata);
 
-            if (!metadata.product_id || !metadata.user_id || !metadata.steam_username || !metadata.email) {
+            if (!metadata.kit_id || !metadata.user_id || !metadata.steam_username || !metadata.email) {
                 throw new Error('Missing required metadata');
             }
 
             const userId = parseInt(metadata.user_id, 10);
-            const kitDbId = parseInt(metadata.product_id, 10);
+            const kitDbId = parseInt(metadata.kit_id, 10);
 
             console.log(`Querying pending transactions for Kit DB ID: ${kitDbId} | User ID: ${userId}`);
 
