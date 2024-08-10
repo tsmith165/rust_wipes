@@ -13,7 +13,8 @@
         "prettier": "prettier --write \"**/*.{js,jsx,json,md,ts,tsx}\""
     },
     "dependencies": {
-        "@clerk/nextjs": "^5.2.1",
+        "@clerk/nextjs": "^5.2.8",
+        "@clerk/types": "^4.13.0",
         "@emotion/react": "^11.11.3",
         "@emotion/styled": "^11.10.5",
         "@neondatabase/serverless": "^0.9.1",

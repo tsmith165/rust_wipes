@@ -1,18 +1,18 @@
 import { useUser } from '@clerk/nextjs';
+import { useState, useEffect } from 'react';
 
 export function useIsAdmin() {
-  const { user } = useUser();
+    const { user, isLoaded: isUserLoaded } = useUser();
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-  if ( !user) {
-    return false;
-  }
+    useEffect(() => {
+        if (isUserLoaded && user) {
+            const adminMembership = user.organizationMemberships.find((membership) => membership.role === 'org:admin');
+            setIsAdmin(!!adminMembership);
+        }
+        setIsLoaded(isUserLoaded);
+    }, [user, isUserLoaded]);
 
-  for (const role of user.organizationMemberships) {
-    //console.log('Checking role:', role);
-    if (role.role === 'org:admin') {
-      return true;
-    }
-  }
-
-  return false;
+    return { isAdmin, isLoaded };
 }

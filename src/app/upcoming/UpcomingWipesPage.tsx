@@ -103,7 +103,11 @@ export default async function UpcomingWipesPage({ searchParams }: { searchParams
             <div className="flex h-full w-full flex-wrap">
                 <UpcomingWipesSidebar />
                 <div className="h-full min-w-full flex-grow bg-secondary_light md:min-w-[461px]" style={{ flex: '1 1 65%' }}>
-                    {Object.keys(serverList).length < 1 ? <div>No servers found</div> : serversJsxArray}
+                    {Object.keys(serverList).length < 1 ? (
+                        <div className="p-2">Upcoming wipes displayed here when found!</div>
+                    ) : (
+                        serversJsxArray
+                    )}
                 </div>
             </div>
         </div>

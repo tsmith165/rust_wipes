@@ -1,46 +1,30 @@
-async function captureClerkUserOrganizationMemberships(userId: string) {
+import { clerkClient } from '@clerk/nextjs/server';
+import type { OrganizationMembership } from '@clerk/nextjs/server';
+
+async function captureClerkUserOrganizationMemberships(userId: string): Promise<OrganizationMembership[]> {
     console.log("Capturing user's organization memberships...");
     try {
-        const response = await fetch(`https://api.clerk.com/v1/users/${userId}/organization_memberships?limit=100`, {
-            headers: {
-                Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}`);
-            return [];
-        }
-
-        const memberships = await response.json();
-
-        // console.log('User Memberships:', memberships.data);
-        return memberships;
+        const paginatedMemberships = await clerkClient().users.getOrganizationMembershipList({ userId });
+        return paginatedMemberships.data;
     } catch (error) {
         console.error('Error fetching organization memberships:', error);
         return [];
     }
 }
 
-export async function isClerkUserIdAdmin(userId: string) {
+export async function isClerkUserIdAdmin(userId: string): Promise<boolean> {
     if (userId) {
-        const user_organization_memberships = await captureClerkUserOrganizationMemberships(userId);
-        // console.log('User Organization Memberships:', user_organization_memberships);
-        if (user_organization_memberships.length < 1) {
+        const memberships = await captureClerkUserOrganizationMemberships(userId);
+        if (memberships.length < 1) {
             console.log('No memberships found for user');
         } else {
-            let membership_data = user_organization_memberships.data[0];
-            console.log('Membership Role:', membership_data.role);
-            console.log('Membership Permissions:', membership_data.permissions);
-            if (membership_data.role === 'org:admin') {
-                return true;
-            }
-            if (membership_data.role === 'org:admin' || membership_data.permissions.includes('org:sys_domains:manage')) {
+            const adminMembership = memberships.find(
+                (membership: OrganizationMembership) => membership.role === 'admin' || membership.role === 'org:admin',
+            );
+            if (adminMembership) {
                 return true;
             }
         }
     }
-    // console.log('Is user admin:', isAdmin);
     return false;
 }
