@@ -50,7 +50,9 @@ export async function POST(request: Request) {
 
         if ((event.type === 'payment_intent.succeeded' || event.type === 'checkout.session.completed') && hasMetadata(event)) {
             const stripeEvent = event.data.object;
+            console.log('Stripe Event:', stripeEvent);
             const metadata = stripeEvent.metadata;
+            console.log('Metadata:', metadata);
             const stripeId = stripeEvent.id;
             const subscriptionId = 'subscription' in stripeEvent ? stripeEvent.subscription : null;
 
