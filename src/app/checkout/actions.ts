@@ -42,81 +42,57 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
         const kit = kit_data[0];
 
         // Create pending transaction
-        const pending_response = await create_pending_transaction(kit.id, kit.name, steam_id, steam_username, email, is_subscription);
+        const { response: pending_response, user_id: userId } = await create_pending_transaction(
+            kit.id,
+            kit.name,
+            steam_id,
+            steam_username,
+            email,
+            is_subscription,
+        );
         if (!pending_response) {
-            return { error: 'Failed to create pending transaction', sessionId: '' };
+            return { error: 'Failed to create pending transaction as kit not found', sessionId: '' };
         }
+        if (!userId) {
+            return { error: 'Failed to create pending transaction as user not found', sessionId: '' };
+        }
+
+        console.log(`Created pending transaction with kit ${kit.id} for user ${userId} and steam_id ${steam_id}`);
 
         // Create Stripe session
-        if (is_subscription) {
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [
-                    {
-                        price_data: {
-                            currency: 'usd',
-                            unit_amount: Number(kit.price || 5) * 100,
-                            product_data: {
-                                name: kit.name,
-                                images: [kit.image_path],
-                            },
-                            recurring: is_subscription ? { interval: 'month' } : undefined,
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        unit_amount: Number(kit.price || 5) * 100,
+                        product_data: {
+                            name: kit.name,
+                            images: [kit.image_path],
                         },
-                        quantity: 1,
+                        recurring: is_subscription ? { interval: 'month' } : undefined,
                     },
-                ],
-                mode: is_subscription ? 'subscription' : 'payment',
-                success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
-                cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
-                metadata: {
-                    kit_id: kit.id.toString(),
-                    steam_id,
-                    steam_username,
-                    email,
-                    is_subscription: is_subscription.toString(),
+                    quantity: 1,
                 },
-            });
+            ],
+            mode: is_subscription ? 'subscription' : 'payment',
+            success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
+            cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
+            metadata: {
+                kit_id: kit.id.toString(),
+                user_id: userId,
+                steam_id,
+                steam_username,
+                email,
+                is_subscription: is_subscription.toString(),
+            },
+        });
 
-            console.log(`Stripe Session Created:`, session);
-            console.log(`Session ID: ${session.id}`);
+        console.log(`Stripe Session Created:`, session);
+        console.log(`Session ID: ${session.id}`);
 
-            return { sessionId: session.id };
-        } else {
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [
-                    {
-                        price_data: {
-                            currency: 'usd',
-                            unit_amount: Number(kit.price || 5) * 100,
-                            product_data: {
-                                name: kit.name,
-                                images: [kit.image_path],
-                            },
-                            recurring: is_subscription ? { interval: 'month' } : undefined,
-                        },
-                        quantity: 1,
-                    },
-                ],
-                mode: is_subscription ? 'subscription' : 'payment',
-                success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
-                cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
-                payment_intent_data: {
-                    metadata: {
-                        kit_id: kit.id.toString(),
-                        steam_id,
-                        steam_username,
-                        email,
-                        is_subscription: is_subscription.toString(),
-                    },
-                },
-            });
-
-            console.log(`Stripe Session Created:`, session);
-            console.log(`Session ID: ${session.id}`);
-
-            return { sessionId: session.id };
-        }
+        return { sessionId: session.id };
     } catch (error) {
         console.error('Error creating Stripe session:', error);
         return {
@@ -167,7 +143,7 @@ async function create_pending_transaction(
         email,
         is_subscription,
     });
-    return pending_transaction_output;
+    return { response: pending_transaction_output, user_id: user[0].id };
 }
 
 // Function to verify Steam profile
