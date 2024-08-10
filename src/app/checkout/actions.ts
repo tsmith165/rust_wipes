@@ -59,6 +59,21 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
 
         console.log(`Created pending transaction with kit ${kit.id} for user ${userId} and steam_id ${steam_id}`);
 
+        const session_metadata = {
+            kit_id: kit.id.toString(),
+            user_id: userId.toString(),
+            steam_id: steam_id,
+            steam_username: steam_username,
+            email: email,
+            image_path: kit.image_path,
+            image_width: kit.width.toString(),
+            image_height: kit.height.toString(),
+            price_id: kit.price?.toString() || '10',
+            is_subscription: is_subscription.toString(),
+        };
+
+        console.log('Creating Stripe session with metadata:', session_metadata);
+
         // Create Stripe session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -79,18 +94,7 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
             mode: is_subscription ? 'subscription' : 'payment',
             success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
             cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
-            metadata: {
-                kit_id: kit.id.toString(),
-                user_id: userId.toString(),
-                steam_id,
-                steam_username,
-                email,
-                image_path: kit.image_path,
-                image_width: kit.width,
-                image_height: kit.height,
-                price_id: kit.price?.toString() || '10',
-                is_subscription: is_subscription.toString(),
-            },
+            metadata: {},
         });
 
         console.log(`Stripe Session Created:`, session);
