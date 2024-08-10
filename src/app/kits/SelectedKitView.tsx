@@ -301,6 +301,14 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                 <p className={`pt-0 text-stone-300 ${selectedKit.type === 'monthly' ? '' : 'hidden'}`}>
                     Kits are locked for 4 hours after wipe, then available every 8 hours.
                 </p>
+                <div className={`mt-2 ${selectedKit.type === 'single' ? '' : 'hidden'}`}>
+                    <div className={`font-sans text-stone-300`}>
+                        <span>{`Use `}</span>
+                        <span className="text-primary_light">{`/redeem`}</span>
+                        <span>{` on any of our servers after purchase to redeem.`}</span>
+                    </div>
+                    <div className={`font-sans text-stone-300`}>{`Kits are locked and cannot be redeemed for 4 hours after wipe.`}</div>
+                </div>
                 {/*<p className={`pt-0 text-stone-300`}>If you have any questions, feel free to reach out on discord!</p>*/}
                 <div className="w-full pt-2">{renderContentsButtons()}</div>
                 <div className="w-full overflow-y-auto">{renderContents()}</div>

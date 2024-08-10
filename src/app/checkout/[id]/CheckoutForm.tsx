@@ -58,8 +58,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
         }
     };
 
-    console.log('Current kit:', current_kit);
-
     const handleSteamProfileVerification = async () => {
         setSteamError(null);
         if (steamProfileUrl.length > 0) {
