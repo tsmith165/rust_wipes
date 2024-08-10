@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Rust Wipes - Edit Kit Images',
         description: 'Edit images for Rust Wipes kits. Manage and update kit images efficiently.',
-        url: 'https://rustwipes.com',
+        url: 'https://rustwipes.com/admin/edit/images',
         siteName: 'Rust Wipes',
         images: [
             {

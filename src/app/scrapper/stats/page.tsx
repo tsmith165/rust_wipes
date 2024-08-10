@@ -14,10 +14,10 @@ export const metadata: Metadata = {
         shortcut: '/rust_hazmat_icon.png',
     },
     openGraph: {
-        title: 'Rust Wipes - Stats',
+        title: 'Rust Wipes - Scrapper Stats',
         description: 'Stats page for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/scrapper/stats',
         images: [
             {
                 url: '/og-image.png',

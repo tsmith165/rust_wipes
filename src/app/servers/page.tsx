@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         title: 'Rust Wipes - Our Servers',
         description: 'Our Rust Wipes Servers page',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/servers',
         images: [
             {
                 url: '/og-image.png',

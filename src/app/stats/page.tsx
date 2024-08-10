@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         title: 'Rust Wipes - Player Stats',
         description: 'Player Stats page for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/stats',
         images: [
             {
                 url: '/og-image.png',

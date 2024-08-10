@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         title: 'Rust Wipes - Create Kit',
         description: 'Create Kit page for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/admin/edit/new',
         images: [
             {
                 url: '/og-image.png',

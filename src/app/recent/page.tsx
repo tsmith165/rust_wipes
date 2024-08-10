@@ -19,7 +19,7 @@ export const metadata: Metadata = {
         title: 'Rust Wipes - Recent Wipes',
         description: 'Recent Wipes page for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/recent',
         images: [
             {
                 url: '/og-image.png',

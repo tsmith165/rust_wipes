@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         title: 'Rust Wipes - Sign In',
         description: 'Sign In page for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/signin',
         images: [
             {
                 url: '/og-image.png',

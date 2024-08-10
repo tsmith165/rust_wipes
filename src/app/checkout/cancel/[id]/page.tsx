@@ -13,7 +13,7 @@ export const metadata: Metadata = {
         title: 'Rust Wipes - Cancel Checkout',
         description: 'Cancel Checkout for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/checkout/cancel',
         images: [
             {
                 url: '/og-image.png',

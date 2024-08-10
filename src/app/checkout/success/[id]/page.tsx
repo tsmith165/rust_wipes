@@ -10,10 +10,10 @@ export const metadata: Metadata = {
         shortcut: '/rust_hazmat_icon.png',
     },
     openGraph: {
-        title: 'Rust Wipes - Successful Checkout',
+        title: 'Rust Wipes - Checkout',
         description: 'Successful Checkout for Rust Wipes',
         siteName: 'Rust Wipes',
-        url: 'https://www.rustwipes.com',
+        url: 'https://www.rustwipes.com/checkout',
         images: [
             {
                 url: '/og-image.png',
