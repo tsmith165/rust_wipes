@@ -59,12 +59,6 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
 
         console.log(`Created pending transaction with kit ${kit.id} for user ${userId} and steam_id ${steam_id}`);
 
-        // Calculate the end date for the subscription, 30 days from now
-        const currentDate = new Date();
-        const end_date = new Date(currentDate.getTime() + 31 * 24 * 60 * 60 * 1000);
-
-        console.log('Setting end_date to:', end_date.toISOString());
-
         // Create Stripe session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -91,11 +85,11 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
                 steam_id,
                 steam_username,
                 email,
-                is_subscription: is_subscription.toString(),
                 image_path: kit.image_path,
                 image_width: kit.width,
                 image_height: kit.height,
-                end_date: is_subscription ? end_date.toISOString() : null,
+                price_id: kit.price?.toString() || '10',
+                is_subscription: is_subscription.toString(),
             },
         });
 

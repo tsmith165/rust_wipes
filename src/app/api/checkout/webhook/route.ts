@@ -17,6 +17,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04
 interface WebhookEventMetadata {
     kit_id: string;
     user_id: string;
+    steam_id: string;
     steam_username: string;
     email: string;
     image_path: string;
@@ -90,10 +91,7 @@ export async function POST(request: Request) {
 
             const currentDate = new Date();
             let endDate: Date | null = null;
-
-            if (metadata.is_subscription !== 'true') {
-                endDate = new Date(currentDate.getTime() + 31 * 24 * 60 * 60 * 1000); // 31 days from now for non-subscription purchases
-            }
+            endDate = new Date(currentDate.getTime() + 31 * 24 * 60 * 60 * 1000); // 31 days from now for non-subscription purchases
 
             const verified_transaction_data = {
                 kit_db_id: kitDbId,
@@ -107,7 +105,7 @@ export async function POST(request: Request) {
                 image_width: parseInt(metadata.image_width),
                 image_height: parseInt(metadata.image_height),
                 date: currentDate.toISOString().split('T')[0],
-                end_date: endDate, // This can be null for subscriptions
+                end_date: endDate, // This can be null for non-subscriptions
                 stripe_id: stripeId,
                 price: parseInt(metadata.price_id, 10),
                 redeemed: false,
