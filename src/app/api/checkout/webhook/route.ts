@@ -10,6 +10,7 @@ import ErrorEmailTemplate from '@/utils/emails/templates/ErrorEmailTemplate';
 import { grantKitAccess, revokeKitAccess } from '@/utils/rust/rustServerCommands';
 
 import PROJECT_CONSTANTS from '@/lib/constants';
+import { parse } from 'path';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' });
 
@@ -63,8 +64,8 @@ export async function POST(request: Request) {
                 throw new Error('Missing required metadata');
             }
 
-            const userId = parseInt(metadata.user_id, 10);
-            const kitDbId = parseInt(metadata.kit_id, 10);
+            const userId = parseInt(metadata.user_id);
+            const kitDbId = parseInt(metadata.kit_id);
 
             console.log(`Querying pending transactions for Kit DB ID: ${kitDbId} | User ID: ${userId}`);
 
@@ -94,11 +95,10 @@ export async function POST(request: Request) {
                 endDate = new Date(currentDate.getTime() + 31 * 24 * 60 * 60 * 1000); // 31 days from now for non-subscription purchases
             }
 
-            console.log('Creating Verified Transaction...');
-            const createOutput = await db.insert(verified_transactions_table).values({
+            const verified_transaction_data = {
                 kit_db_id: kitDbId,
                 kit_name: pendingTransactionData[0].kit_name,
-                user_id: userId,
+                user_id: typeof userId === 'number' ? userId : parseInt(userId),
                 steam_id: userData[0].steam_id,
                 email: metadata.email,
                 is_subscription: metadata.is_subscription === 'true',
@@ -111,7 +111,11 @@ export async function POST(request: Request) {
                 stripe_id: stripeId,
                 price: parseInt(metadata.price_id, 10),
                 redeemed: false,
-            });
+            };
+
+            console.log('Creating Verified Transaction with data:', verified_transaction_data);
+
+            const createOutput = await db.insert(verified_transactions_table).values(verified_transaction_data);
             console.log('Verified Transaction Create Output:', createOutput);
 
             // Fetch kit data
