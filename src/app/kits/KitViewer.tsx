@@ -212,7 +212,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                 >
                     <Masonry
                         breakpointCols={{
-                            default: 5,
+                            default: 4,
                             1500: 4,
                             1100: 3,
                             700: 2,
