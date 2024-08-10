@@ -94,7 +94,7 @@ export async function createStripeSession(data: FormData): Promise<StripeRespons
             mode: is_subscription ? 'subscription' : 'payment',
             success_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/success/${kit.id}`,
             cancel_url: `https://${PROJECT_CONSTANTS.SITE_URL}/checkout/cancel/${kit.id}`,
-            metadata: {},
+            metadata: session_metadata,
         });
 
         console.log(`Stripe Session Created:`, session);
