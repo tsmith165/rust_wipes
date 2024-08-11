@@ -114,7 +114,22 @@ export default async function RecentConfirmedWipesPage({ searchParams }: RecentC
         <div className="h-full w-full overflow-hidden bg-secondary">
             <div className="flex h-full w-full flex-wrap">
                 <RecentWipesSidebar searchParams={searchParams} />
-                <RecentWipesTable searchParams={searchParams} server_list={new_server_list} />
+                <RecentWipesTable
+                    searchParams={searchParams}
+                    server_list={new_server_list.map((server) => ({
+                        ...server,
+                        attributes: {
+                            ...server.attributes,
+                            details: {
+                                ...server.attributes.details,
+                                rust_last_wipe:
+                                    server.attributes.details.rust_last_wipe instanceof Date
+                                        ? server.attributes.details.rust_last_wipe.toISOString()
+                                        : server.attributes.details.rust_last_wipe,
+                            },
+                        },
+                    }))}
+                />
             </div>
         </div>
     );

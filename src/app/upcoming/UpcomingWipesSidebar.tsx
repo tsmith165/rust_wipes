@@ -3,7 +3,19 @@ import InputTextbox from '@/components/inputs/InputTextbox';
 import InputSelect from '@/components/inputs/InputSelect';
 import InputDatePicker from '@/components/inputs/InputDatePicker';
 
-const UpcomingWipesSidebar = () => {
+interface UpcomingWipesSidebarProps {
+    searchParams: {
+        date?: string;
+        min_rank?: string;
+        time_zone?: string;
+        region?: string;
+        resource_rate?: string;
+        group_limit?: string;
+        game_mode?: string;
+    };
+}
+
+const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParams }) => {
     // Define select options
     const timeSelectOptions: [string, string][] = [
         ['-10', 'Hawaii (UTC-10:00)'],
@@ -28,7 +40,11 @@ const UpcomingWipesSidebar = () => {
         ['12', 'UTC+12:00'],
         ['13', 'UTC+13:00'],
     ];
-    const regionSelectOptions: [string, string][] = [['US', 'US']];
+    const regionSelectOptions: [string, string][] = [
+        ['US', 'US'],
+        ['EU', 'EU'],
+        ['AS', 'AS'],
+    ];
     const rateSelectOptions: [string, string][] = [
         ['any', 'Any Resource Rate'],
         ['1x', '1x'],
@@ -57,25 +73,22 @@ const UpcomingWipesSidebar = () => {
     ];
 
     return (
-        <form
-            action="/upcoming"
-            method="GET"
-            className="h-fit space-y-2 bg-secondary p-2.5 md-nav:h-full"
-            style={{ flex: '1 1 35%', minHeight: '20px' }}
-        >
-            {/* Filter Row 1 */}
+        <form action="/upcoming" method="GET" className="h-fit w-full space-y-2 p-2.5 md:h-full">
             <div className="flex">
-                <InputDatePicker idName="date" name="date" defaultValue={new Date()} />
+                <InputDatePicker idName="date" name="date" defaultValue={searchParams.date ? new Date(searchParams.date) : new Date()} />
             </div>
             <div className="flex">
-                <InputTextbox idName="min_rank" name="min_rank" placeholder="Min Rank" />
+                <InputTextbox idName="min_rank" name="min_rank" placeholder="Min Rank" value={searchParams.min_rank || '5000'} />
             </div>
             <div className="flex">
                 <InputSelect
                     idName="time_zone"
                     name="time_zone"
                     select_options={timeSelectOptions}
-                    defaultValue={{ value: timeSelectOptions[2][0], label: timeSelectOptions[2][1] }}
+                    defaultValue={{
+                        value: searchParams.time_zone || timeSelectOptions[2][0],
+                        label: timeSelectOptions.find((option) => option[0] === searchParams.time_zone)?.[1] || timeSelectOptions[2][1],
+                    }}
                 />
             </div>
             <div className="flex">
@@ -83,15 +96,21 @@ const UpcomingWipesSidebar = () => {
                     idName="region"
                     name="region"
                     select_options={regionSelectOptions}
-                    defaultValue={{ value: regionSelectOptions[0][0], label: regionSelectOptions[0][1] }}
+                    defaultValue={{
+                        value: searchParams.region || regionSelectOptions[0][0],
+                        label: regionSelectOptions.find((option) => option[0] === searchParams.region)?.[1] || regionSelectOptions[0][1],
+                    }}
                 />
             </div>
             <div className="flex">
                 <InputSelect
-                    idName="resources"
+                    idName="resource_rate"
                     name="resources"
                     select_options={rateSelectOptions}
-                    defaultValue={{ value: rateSelectOptions[0][0], label: rateSelectOptions[0][1] }}
+                    defaultValue={{
+                        value: searchParams.resource_rate || rateSelectOptions[0][0],
+                        label: rateSelectOptions.find((option) => option[0] === searchParams.resource_rate)?.[1] || rateSelectOptions[0][1],
+                    }}
                 />
             </div>
             <div className="flex">
@@ -99,7 +118,10 @@ const UpcomingWipesSidebar = () => {
                     idName="group_limit"
                     name="group_limit"
                     select_options={groupSelectOptions}
-                    defaultValue={{ value: groupSelectOptions[0][0], label: groupSelectOptions[0][1] }}
+                    defaultValue={{
+                        value: searchParams.group_limit || groupSelectOptions[0][0],
+                        label: groupSelectOptions.find((option) => option[0] === searchParams.group_limit)?.[1] || groupSelectOptions[0][1],
+                    }}
                 />
             </div>
             <div className="flex">
@@ -107,7 +129,10 @@ const UpcomingWipesSidebar = () => {
                     idName="game_mode"
                     name="game_mode"
                     select_options={modeSelectOptions}
-                    defaultValue={{ value: modeSelectOptions[0][0], label: modeSelectOptions[0][1] }}
+                    defaultValue={{
+                        value: searchParams.game_mode || modeSelectOptions[0][0],
+                        label: modeSelectOptions.find((option) => option[0] === searchParams.game_mode)?.[1] || modeSelectOptions[0][1],
+                    }}
                 />
             </div>
             <button type="submit" className="mt-2 rounded bg-primary px-2.5 py-2 font-bold text-white hover:bg-primary_light">

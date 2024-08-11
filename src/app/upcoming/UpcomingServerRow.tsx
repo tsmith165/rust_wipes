@@ -8,7 +8,9 @@ interface server {
     rank: number;
     title: string;
     wipe_hour: number;
-    last_wipe_date: string;
+    last_wipe: string;
+    next_wipe: string;
+    is_full_wipe: boolean;
 }
 
 interface UpcomingServerRowProps {
@@ -16,26 +18,32 @@ interface UpcomingServerRowProps {
     server: server;
 }
 
+const col_1_width =
+    'w-[calc(calc(100%-16px)*0.20)] xs:w-[calc(calc(100%-16px)*0.12)] sm:w-[calc(calc(100%-16px)*0.10)] md:w-[calc(calc(100%-16px)*0.12)] lg:!w-[calc(calc(100%-16px)*0.10)]';
+const col_2_width = 'hidden lg:!block lg:!w-[calc(calc(100%-16px)*0.175)]';
+const col_3_width =
+    'w-[calc(calc(100%-16px)*0.35)] xs:w-[calc(calc(100%-16px)*0.18)] sm:w-[calc(calc(100%-16px)*0.20)] md:w-[calc(calc(100%-16px)*0.23)] lg:!w-[calc(calc(100%-16px)*0.175)]';
+const col_4_width =
+    'w-[calc(calc(100%-16px)*0.40)] xs:w-[calc(calc(100%-16px)*0.70)] sm:w-[calc(calc(100%-16px)*0.70)] md:w-[calc(calc(100%-16px)*0.65)] lg:!w-[calc(calc(100%-16px)*0.55)]';
+
 export default function UpcomingServerRow({ id, server }: UpcomingServerRowProps) {
-    console.log(`Creating server row for server ${id}:`);
-    console.log(server);
-
-    // Format the server's last wipe date and other properties for display
-    let last_wipe_date_str = 'N/A';
-    if (server.last_wipe_date !== null) {
-        const d = new Date(server.last_wipe_date);
-        let hour_str = d.getHours() < 12 ? `${d.getHours()}AM` : `${d.getHours() % 12}PM`;
-        hour_str = hour_str === '0AM' ? '12AM' : hour_str === '0PM' ? '12PM' : hour_str;
-
-        last_wipe_date_str = `${d.getMonth()}/${d.getDate()} ${hour_str}`;
-    }
-
     return (
-        <div className="flex h-10 flex-row border-b border-secondary_dark bg-secondary font-bold leading-6 text-primary">
-            <div className="w-16 overflow-hidden whitespace-nowrap px-2.5">{`#${server.rank}`}</div>
-            <div className="w-24 overflow-hidden whitespace-nowrap px-2.5">{last_wipe_date_str}</div>
-            <div className="flex-grow overflow-x-auto overflow-y-hidden px-2.5 sm:w-[calc(100vw-175px)] lg:w-[calc(65vw-175px)]">
-                <Link href={`${BM_SERVER_BASE_URL}/${server.id}`} className="text-current">
+        <div className="flex h-10 flex-row items-center space-x-2 border-b border-stone-500 bg-stone-400 px-4 text-stone-950 last-of-type:rounded-b-lg last-of-type:shadow-xl hover:bg-primary hover:text-stone-300">
+            <div className={`overflow-hidden whitespace-nowrap ${col_1_width}`} title={`#${server.rank}`}>
+                {`#${server.rank}`}
+            </div>
+            <div className={`overflow-hidden whitespace-nowrap ${col_2_width}`} title={server.last_wipe}>
+                {server.last_wipe}
+            </div>
+            <div
+                className={`overflow-hidden whitespace-nowrap ${col_3_width}`}
+                title={`${server.next_wipe}${server.is_full_wipe ? ' (Full)' : ''}`}
+            >
+                {server.next_wipe}
+                {server.is_full_wipe && <span className="ml-1 text-xs font-bold text-red-500">(Full)</span>}
+            </div>
+            <div className={`overflow-hidden whitespace-nowrap ${col_4_width}`} title={server.title}>
+                <Link href={`${BM_SERVER_BASE_URL}/${server.id}`} className="text-current hover:underline">
                     {server.title}
                 </Link>
             </div>

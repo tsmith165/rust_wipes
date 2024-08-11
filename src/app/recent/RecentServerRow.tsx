@@ -2,9 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import CopyToClipboardButton from './CopyToClipboardButton';
 
-const HOT_WIPE = 5;
-const COOL_WIPE = 15;
-const COLD_WIPE = 60;
+const HOT_WIPE = 5 * 60; // 5 minutes in seconds
+const COOL_WIPE = 15 * 60; // 15 minutes in seconds
+const COLD_WIPE = 60 * 60; // 1 hour in seconds
+
+// For testing purposes
+// const HOT_WIPE = 120 * 60; // 2 hours in seconds
+// const COOL_WIPE = 480 * 60; // 8 hours in seconds
+// const COLD_WIPE = 960 * 60; // 16 hours in seconds
 
 interface RecentServerRowProps {
     id: number;
@@ -26,20 +31,16 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
     let heat_class: string | null = null;
 
     if (wipe_date != null) {
-        let diff = Math.floor((today.getTime() - new Date(wipe_date).getTime()) / 1000);
+        let totalDiffSeconds = Math.floor((today.getTime() - new Date(wipe_date).getTime()) / 1000);
 
-        let days = Math.floor(diff / (60 * 60 * 24));
-        diff -= days * (60 * 60 * 24);
+        let days = Math.floor(totalDiffSeconds / (60 * 60 * 24));
+        let hrs = Math.floor((totalDiffSeconds % (60 * 60 * 24)) / (60 * 60));
+        let mins = Math.floor((totalDiffSeconds % (60 * 60)) / 60);
 
-        let hrs = Math.floor(diff / (60 * 60));
-        diff -= hrs * (60 * 60);
-
-        if (diff < HOT_WIPE) heat_class = 'text-hot_wipe';
-        else if (diff < COOL_WIPE) heat_class = 'text-cool_wipe';
-        else if (diff < COLD_WIPE) heat_class = 'text-cold_wipe';
+        if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-hot_wipe';
+        else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-cool_wipe';
+        else if (totalDiffSeconds < COLD_WIPE) heat_class = 'text-cold_wipe';
         else heat_class = 'text-secondary_light';
-
-        let mins = Math.floor(diff / 60);
 
         if (days > 0) {
             final_date = `${days}d ${hrs}h`;
@@ -48,7 +49,7 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
         } else if (mins > 0) {
             final_date = `${mins}mins`;
         } else {
-            final_date = `${diff}secs`;
+            final_date = `${totalDiffSeconds}secs`;
         }
     }
 
