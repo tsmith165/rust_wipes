@@ -107,15 +107,15 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     const incrementPage = page + 1;
 
     const pagination_container = (
-        <div className="flex items-center space-x-2 rounded-lg bg-primary_dark p-1">
-            <form method="GET" action="/recent" className="flex items-center">
+        <div className="flex items-center space-x-2 rounded-lg bg-primary_dark">
+            <form method="GET" action="/recent" className="flex items-center ">
                 <input type="hidden" name="page" value={decrementPage} />
                 <input type="hidden" name="numServers" value={numServers} />
                 <input type="hidden" name="minPlayers" value={minPlayers} />
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
-                <button type="submit" className="flex items-center justify-center px-0 py-1">
-                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-secondary_dark text-2xl hover:fill-primary_light" />
+                <button type="submit" className="group flex items-center justify-center rounded-l-lg p-1 hover:!bg-primary">
+                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
                 </button>
             </form>
             <span className="flex items-center justify-center text-lg font-bold">{page}</span>
@@ -125,8 +125,8 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
                 <input type="hidden" name="minPlayers" value={minPlayers} />
                 <input type="hidden" name="maxDist" value={maxDist} />
                 <input type="hidden" name="country" value={country} />
-                <button type="submit" className="flex items-center justify-center px-0 py-1">
-                    <IoIosArrowForward className="cursor-pointer fill-secondary_dark text-2xl hover:fill-primary_light" />
+                <button type="submit" className="group flex items-center justify-center rounded-r-lg p-1 hover:!bg-primary">
+                    <IoIosArrowForward className="cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
                 </button>
             </form>
         </div>
@@ -151,7 +151,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     );
 
     const server_list_table_menu = (
-        <div className="flex w-full items-center justify-between bg-secondary_dark py-2 pl-2 md:pl-0">
+        <div className="flex w-full items-center justify-between bg-secondary_dark px-2 py-2">
             {pagination_container /* Pagination */}
             <div className="flex-grow"></div>
             {num_servers_select /* Number of servers selector */}

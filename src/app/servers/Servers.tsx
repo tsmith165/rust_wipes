@@ -126,7 +126,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
                 </div>
             );
         return (
-            <div className="flex h-full max-h-[230px] flex-col items-center justify-center">
+            <div className="flex h-[230px] max-h-[230px] flex-col items-center justify-center">
                 <b className="mb-1 h-fit bg-gradient-to-t from-stone-300 to-stone-500 bg-clip-text text-lg text-transparent">
                     Current Selected Next Map
                 </b>
@@ -235,7 +235,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
     };
 
     const renderButtons = () => {
-        const buttonClass = 'absolute top-0 bg-stone-700 p-2 text-stone-300 hover:bg-primary_light hover:text-stone-950';
+        const buttonClass = 'absolute top-0 p-2 text-stone-300 hover:bg-primary_light hover:text-stone-950';
         return (
             <>
                 {activePanel !== 'nextWipe' && (
