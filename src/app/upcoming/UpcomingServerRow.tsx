@@ -28,7 +28,7 @@ const col_4_width =
 
 export default function UpcomingServerRow({ id, server }: UpcomingServerRowProps) {
     return (
-        <div className="flex h-10 flex-row items-center space-x-2 border-b border-stone-500 bg-stone-400 px-4 text-stone-950 last-of-type:rounded-b-lg last-of-type:shadow-xl hover:bg-primary hover:text-stone-300">
+        <div className="flex h-10 flex-row items-center space-x-2 border-b border-stone-500 bg-stone-400 px-4 text-stone-950 last:rounded-b-lg last:shadow-xl hover:bg-primary hover:text-stone-300">
             <div className={`overflow-hidden whitespace-nowrap ${col_1_width}`} title={`#${server.rank}`}>
                 {`#${server.rank}`}
             </div>
