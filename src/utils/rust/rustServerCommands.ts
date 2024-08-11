@@ -118,12 +118,13 @@ async function sendCommandToAllServers(
 export async function grantKitAccess(
     steamId: string,
     kitName: string,
+    permissionString: string,
 ): Promise<{
     success: boolean;
     message: string;
     serverResults: { serverName: string; response: string; success: boolean; command: string }[];
 }> {
-    const command = `oxide.grant user ${steamId} kits.${kitName.toLowerCase()}`;
+    const command = `oxide.grant user ${steamId} ${permissionString}`;
     console.log(`Granting access for Steam ID: ${steamId} to kit: ${kitName}`);
     const results = await sendCommandToAllServers(command);
 

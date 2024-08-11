@@ -130,7 +130,7 @@ export async function POST(request: Request) {
 
             // Grant kit access in Rust servers
             try {
-                await grantKitAccess(userData[0].steam_id, kitData[0].name);
+                await grantKitAccess(userData[0].steam_id, kitData[0].name, kitData[0].permission_string || '');
                 console.log(`Kit access granted for user ${userData[0].steam_id} to kit ${kitData[0].name}`);
 
                 // Update the redeemed status for monthly and priority kits

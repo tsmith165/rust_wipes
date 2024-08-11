@@ -275,7 +275,7 @@ export async function redeemSingleUseKit(kitId: number, userId: number): Promise
         }
 
         // Grant kit access in Rust servers
-        const grantResult = await grantKitAccess(userData[0].steam_id, kitData[0].name);
+        const grantResult = await grantKitAccess(userData[0].steam_id, kitData[0].name, kitData[0].permission_string || '');
         console.log(`Attempt to grant kit access: ${grantResult.message}`);
 
         if (grantResult.success) {

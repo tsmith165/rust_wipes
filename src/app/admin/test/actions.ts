@@ -121,7 +121,7 @@ export async function grantKitAccess(
     if (kit.length === 0) {
         return { success: false, message: 'Kit not found', serverResults: [] };
     }
-    const result = await grantKitAccessRust(steamId, kit[0].name);
+    const result = await grantKitAccessRust(steamId, kit[0].name, kit[0].permission_string || '');
     console.log(`Attempt to grant access for ${steamId} to kit ${kit[0].name}: ${result.message}`);
     return result;
 }
