@@ -67,8 +67,6 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
 
     const servers = await query;
 
-    console.log(`Found ${servers.length} servers matching the criteria`);
-
     const grouped_wipe_dict: GroupedWipeDict = {};
     servers.forEach((server) => {
         const fullWipeDate = server.next_full_wipe;
@@ -86,12 +84,11 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
         }
 
         if (wipeDate) {
-            const localWipeDate = moment.utc(wipeDate).add(time_zone, 'hours');
-            const wipe_hour = localWipeDate.hour();
+            const utcWipeDate = moment.utc(wipeDate);
+            const wipe_hour = utcWipeDate.hour(); // Use UTC hour for grouping
 
             const last_wipe = server.last_wipe ? moment.utc(server.last_wipe).add(time_zone, 'hours').format('M/D h:mmA') : 'N/A';
-
-            const next_wipe = localWipeDate.format('M/D h:mmA');
+            const next_wipe = utcWipeDate.add(time_zone, 'hours').format('M/D h:mmA');
 
             const server_data: ServerData = {
                 id: server.id,
@@ -110,8 +107,6 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
             }
         }
     });
-
-    console.log('Grouped wipe dictionary:', grouped_wipe_dict);
 
     return grouped_wipe_dict;
 }

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import UpcomingServerRow from './UpcomingServerRow';
 import { IoIosArrowForward } from 'react-icons/io';
 
+import moment from 'moment-timezone';
+
 interface ServerData {
     id: number;
     rank: number;
@@ -35,10 +37,10 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour, time_zon
         setIsWipeContainerHidden(!isWipeContainerHidden);
     };
 
-    // Adjust the wipe hour based on the time zone
-    const adjustedWipeHour = (wipe_hour + time_zone + 24) % 24;
+    // Convert UTC wipe hour to local time
+    const localWipeHour = moment.utc().hour(wipe_hour).add(time_zone, 'hours').hour();
 
-    let hour_str = adjustedWipeHour < 12 ? `${adjustedWipeHour}AM` : `${adjustedWipeHour - 12}PM`;
+    let hour_str = localWipeHour < 12 ? `${localWipeHour}AM` : `${localWipeHour - 12}PM`;
     hour_str = hour_str === '0AM' ? '12AM' : hour_str === '0PM' ? '12PM' : hour_str;
 
     return (

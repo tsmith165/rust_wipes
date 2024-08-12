@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
@@ -20,7 +20,6 @@ export default async function UpcomingWipesPage({ searchParams }: { searchParams
     console.log('Selected date: ', selectedDate.format('YYYY-MM-DD'), 'Time Zone:', timeZone);
 
     const serverList = await fetchFilteredServers(searchParams);
-    console.log(`Found following servers for date ${selectedDate.format('YYYY-MM-DD')}: `, serverList);
 
     const serversJsxArray =
         Object.keys(serverList).length > 0
