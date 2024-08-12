@@ -19,6 +19,10 @@ const faqData = [
         question: 'How can I cancel my subscription?',
         answer: 'You can cancel your subscription at any time by finding your purchase confirmation email from Stripe.  In that email you will find a link to cancel your subscription.  If you have any problems please contact us on our Discord and we will resolve the issue immediately.',
     },
+    {
+        question: 'How can I vote for the next map?',
+        answer: 'Use the /vote command in game to see the available map seeds for the next wipe and then use /vote <id> to vote for a map.  You can also view the current map votes at www.rustwipes.net/servers.',
+    },
 ];
 
 export default faqData;
