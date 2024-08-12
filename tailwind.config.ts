@@ -35,6 +35,7 @@ export default withUt({
             screens: {
                 'md-nav': '841px',
                 xs: '400px',
+                xxs: '315px',
             },
             keyframes: {
                 fadeIn: {
