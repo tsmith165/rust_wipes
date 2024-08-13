@@ -75,19 +75,20 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
     return (
         <form action="/upcoming" method="GET" className="h-fit w-full space-y-2 p-2.5 md:h-full">
             <div className="flex">
-                <InputDatePicker idName="date" name="date" defaultValue={searchParams.date ? new Date(searchParams.date) : new Date()} />
+                <InputDatePicker idName="date" name="date" defaultValue={new Date(searchParams.date || '')} />
             </div>
             <div className="flex">
-                <InputTextbox idName="min_rank" name="min_rank" placeholder="Min Rank" value={searchParams.min_rank || '5000'} />
+                <InputTextbox idName="min_rank" name="min_rank" placeholder="Min Rank" value={searchParams.min_rank} />
             </div>
+            {/* Update other InputSelect components similarly */}
             <div className="flex">
                 <InputSelect
                     idName="time_zone"
                     name="time_zone"
                     select_options={timeSelectOptions}
                     defaultValue={{
-                        value: searchParams.time_zone || timeSelectOptions[2][0],
-                        label: timeSelectOptions.find((option) => option[0] === searchParams.time_zone)?.[1] || timeSelectOptions[2][1],
+                        value: searchParams.time_zone!,
+                        label: timeSelectOptions.find((option) => option[0] === searchParams.time_zone)?.[1] || '',
                     }}
                 />
             </div>
