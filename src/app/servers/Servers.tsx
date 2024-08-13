@@ -92,8 +92,8 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
     );
 
     const NextWipePanel = () => (
-        <>
-            <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-2 ">
                 <ServerInfoRow label="Group Size" value={server.group_size || 'N/A'} />
                 <ServerInfoRow label="Drop Rate" value={server.rate} />
                 <ServerInfoRow
@@ -105,13 +105,13 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
                 />
                 <ServerInfoRow label="Wipe Time" value={`${server.wipe_time}:00AM PST`} />
             </div>
-            <div className="my-4 rounded bg-gradient-to-b from-stone-500 to-stone-300 p-3">
+            <div className="rounded bg-gradient-to-b from-stone-500 to-stone-300 p-3">
                 <p className="text-lg font-semibold">Next Wipe In:</p>
                 <p className="text-2xl font-bold text-primary_light">
                     <Countdown server={server} />
                 </p>
             </div>
-        </>
+        </div>
     );
 
     const MapDisplayPanel = () => {
@@ -126,7 +126,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
                 </div>
             );
         return (
-            <div className="flex h-[230px] max-h-[230px] flex-col items-center justify-center">
+            <div className="flex h-full flex-col items-center justify-center">
                 <b className="mb-1 h-fit bg-gradient-to-t from-stone-300 to-stone-500 bg-clip-text text-lg text-transparent">
                     Current Selected Next Map
                 </b>
@@ -134,7 +134,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
                     href={currentMap.rust_maps_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-[calc(100%-30px)] w-full items-center justify-center"
+                    className="flex h-[calc(100%-32px)] w-full items-center justify-center"
                 >
                     <img src={currentMap.rust_maps_image} alt={currentMap.map_name} className="h-full w-fit rounded-lg object-contain" />
                 </a>
@@ -214,7 +214,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
         return (
             <div className="flex h-full flex-col">
                 <h3 className="mb-2 text-center text-lg font-semibold text-stone-300">Map Voting</h3>
-                <div style={{ height: '200px' }}>
+                <div className="h-[184px] max-h-[184px]">
                     <Bar data={chartData} options={options} />
                 </div>
             </div>
@@ -235,7 +235,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
     };
 
     const renderButtons = () => {
-        const buttonClass = 'absolute top-0 p-2 text-stone-300 hover:bg-primary_light hover:text-stone-950';
+        const buttonClass = 'absolute top-0 p-4 text-stone-300 hover:bg-primary_light hover:text-stone-950';
         return (
             <>
                 {activePanel !== 'nextWipe' && (
@@ -277,14 +277,14 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
 
     return (
         <div className="radial-gradient-stone-600 relative flex flex-col rounded-lg bg-stone-950 p-4 shadow-md">
-            <div className="mb-1 flex w-full items-center justify-center">
+            <div className="mb-4 flex w-full items-center justify-center">
                 <h2 className="radial-gradient-stone-300 w-fit bg-primary_light bg-clip-text text-center text-2xl font-semibold text-transparent">
                     {server.short_title || server.name}
                 </h2>
             </div>
             {renderButtons()}
-            <div className="max-h-[230px] overflow-y-auto">{renderPanel()}</div>
-            <div className="mt-2 flex flex-row items-center justify-between space-x-2">
+            <div className="mb-4 h-fit max-h-[220px] overflow-y-auto">{renderPanel()}</div>
+            <div className="flex flex-row items-center justify-between space-x-2">
                 <a
                     href={`steam://connect/${server.connection_url}`}
                     className="flex-grow rounded-lg bg-gradient-to-t from-stone-300 to-stone-500 px-2 py-2 text-center font-bold text-stone-950 transition duration-300 hover:bg-gradient-to-b hover:from-primary_light hover:to-primary_dark hover:text-stone-300"
