@@ -82,7 +82,7 @@ export default function HomePage() {
                 transition={{ duration: 2 }}
                 className="absolute inset-0 bg-stone-900"
             ></motion.div>
-            <div className="absolute inset-0 flex items-center justify-center pt-[50%]">
+            <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-fit w-5/6 rounded-full bg-stone-950 bg-opacity-70 px-8 md:w-fit md:p-16">
                     <h1 className="radial-gradient-stone-300 bg-stone-500 bg-clip-text px-4 pb-4 pt-8 text-center text-4xl font-bold text-transparent md:pt-4 md:text-6xl">
                         {`Find Your `}
