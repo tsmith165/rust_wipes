@@ -63,6 +63,14 @@ a {
     background-image: radial-gradient(circle at top center, #0c0a09 30%, transparent 95%);
 }
 
+.radial-gradient-stone-900 {
+    background-image: radial-gradient(circle at top center, #1c1917 0%, transparent 70%);
+}
+
+.radial-gradient-stone-900-large {
+    background-image: radial-gradient(circle at top center, #1c1917 30%, transparent 95%);
+}
+
 .radial-gradient-stone-600 {
     background-image: radial-gradient(circle at top center, #57534e 0%, transparent 70%);
 }

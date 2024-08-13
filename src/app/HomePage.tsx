@@ -83,18 +83,18 @@ export default function HomePage() {
                 className="absolute inset-0 bg-stone-900"
             ></motion.div>
             <div className="absolute inset-0 flex justify-center">
-                <div className="rounded-b-12xl radial-gradient-stone-950-large h-fit w-full bg-stone-950 bg-opacity-15 shadow-xl">
-                    <h1 className="radial-gradient-stone-300 bg-stone-500 bg-clip-text px-4 py-4 text-center text-4xl font-bold text-transparent md:pt-4 md:text-5xl">
+                <div className="rounded-b-12xl radial-gradient-stone-900-large h-fit w-full  bg-stone-900 bg-opacity-15 shadow-xl">
+                    <h1 className="radial-gradient-stone-300 bg-stone-500 bg-clip-text px-4 py-4 text-center text-3xl font-bold text-transparent sm:text-4xl md:pt-4">
                         {`Find Your `}
                         <span className="radial-gradient-primary_dark-large w-fit bg-primary_light bg-clip-text text-transparent">
                             Perfect
                         </span>
                         {` Wipe`}
                     </h1>
-                    <div className="flex flex-wrap justify-center space-x-2 pb-8 md:pb-4">
+                    <div className="flex flex-wrap justify-center space-x-2 px-8 pb-8 xs:px-4">
                         {linkData.map((link, index) => (
                             <Link key={index} href={link.href}>
-                                <button className="mb-2 rounded-md bg-gradient-to-b from-stone-300 to-stone-600 p-2 text-stone-950 hover:from-primary_light hover:to-primary_dark hover:text-stone-300">
+                                <button className="mb-2 rounded-md bg-gradient-to-b from-stone-300 to-stone-600 p-2 text-xs text-stone-950 hover:from-primary_light hover:to-primary_dark hover:text-stone-300 sm:text-base">
                                     {link.label}
                                 </button>
                             </Link>
