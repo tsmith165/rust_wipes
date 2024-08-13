@@ -278,7 +278,7 @@ const ServerPanel: React.FC<ServerPanelProps> = ({ server, copiedState, onCopy, 
     return (
         <div className="radial-gradient-stone-600 relative flex flex-col rounded-lg bg-stone-950 p-4 shadow-md">
             <div className="mb-4 flex w-full items-center justify-center">
-                <h2 className="radial-gradient-stone-300 w-fit bg-primary_light bg-clip-text text-center text-2xl font-semibold text-transparent">
+                <h2 className="w-fit bg-gradient-to-b from-primary_light to-primary bg-clip-text text-center text-2xl font-semibold text-transparent">
                     {server.short_title || server.name}
                 </h2>
             </div>
@@ -339,7 +339,7 @@ const Servers: React.FC = () => {
 
     return (
         <div className="radial-gradient-stone-950 container flex max-h-full min-h-full w-full min-w-full flex-col items-center overflow-y-auto bg-primary_dark px-4 py-8">
-            <h1 className="radial-gradient-primary_dark mb-8 w-fit bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">
+            <h1 className="mb-8 w-fit bg-gradient-to-b from-primary_dark to-primary_light bg-clip-text text-center text-4xl font-bold text-transparent">
                 Our Servers
             </h1>
             <div className="mx-auto grid w-4/5 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
