@@ -46,6 +46,10 @@ export default withUt({
             animation: {
                 fadeIn: 'fadeIn 1s forwards',
             },
+            borderRadius: {
+                '6xl': '3rem', // rounded-b-6xl
+                '12xl': '6rem', // rounded-b-12xl
+            },
         },
     },
     mode: 'jit',
