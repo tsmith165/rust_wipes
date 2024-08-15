@@ -46,6 +46,7 @@ export default function UpcomingWipesPage() {
     const searchParams = useSearchParams();
     const [serverList, setServerList] = useState<GroupedWipeDict>({});
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const currentParams = Object.fromEntries(searchParams.entries());
@@ -64,9 +65,11 @@ export default function UpcomingWipesPage() {
 
         const fetchServers = async () => {
             try {
+                setLoading(true);
                 const servers = await fetchFilteredServers(mergedParams);
                 setServerList(servers);
                 setError(null);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching servers:', error);
                 setServerList({});
@@ -87,13 +90,15 @@ export default function UpcomingWipesPage() {
                 <div className="h-fit w-full bg-stone-800 md:h-full md:w-[35%] md:min-w-[35%] md:max-w-[35%]">
                     <UpcomingWipesSidebar searchParams={Object.fromEntries(searchParams.entries())} />
                 </div>
-                <div className="h-full min-w-full flex-grow overflow-y-auto bg-stone-900 md:w-[65%] md:min-w-[65%]">
+                <div className="h-full min-w-full flex-grow overflow-y-auto bg-stone-400 md:w-[65%] md:min-w-[65%]">
                     {error ? (
                         <div className="p-2 text-red-500">{error}</div>
+                    ) : loading ? (
+                        <div className="p-2 text-stone-950">Loading...</div>
                     ) : serversJsxArray.length > 0 ? (
                         serversJsxArray
                     ) : (
-                        <div className="p-2">No upcoming wipes found for the selected date and filters.</div>
+                        <div className="p-2 text-stone-950">No servers found for the selected filters.</div>
                     )}
                 </div>
             </div>

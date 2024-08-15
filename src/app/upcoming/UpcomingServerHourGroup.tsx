@@ -37,7 +37,7 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }: Upcomi
     let hour_str = wipe_hour < 12 ? `${wipe_hour === 0 ? 12 : wipe_hour}AM` : `${wipe_hour === 12 ? 12 : wipe_hour - 12}PM`;
 
     return (
-        <div className="w-full cursor-pointer border-b border-stone-700 bg-stone-400 p-4">
+        <div className={`${isWipeContainerHidden ? 'bg-stone-400' : 'bg-stone-500'} w-full cursor-pointer border-b border-stone-700 p-4`}>
             <div className="flex items-center text-primary" onClick={headerClicked}>
                 <div className="mr-2 transform transition-transform duration-500">
                     <IoIosArrowForward className={`${isWipeContainerHidden ? '' : 'rotate-90'}`} />

@@ -86,8 +86,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ kitId }) => {
         [],
     );
 
-    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedOption(e.target.value);
+    const handleSelectChange = (value: string) => {
+        setSelectedOption(value);
     };
 
     const handleSubmit = async (shouldNavigate: boolean) => {

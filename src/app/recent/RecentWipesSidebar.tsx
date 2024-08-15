@@ -120,7 +120,7 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams, o
                                     (option) => option[0] === ((localSearchParams?.groupLimit as string) || 'any'),
                                 )?.[1] || 'Any Group Limit',
                         }}
-                        onChange={(e) => updateSearchParams('groupLimit', e.target.value)} // Pass only the value
+                        onChange={(value) => updateSearchParams('groupLimit', value)} // Pass only the value
                     />
                     <InputSelect
                         idName="resourceRate"
@@ -133,7 +133,7 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams, o
                                     (option) => option[0] === ((localSearchParams?.resourceRate as string) || 'any'),
                                 )?.[1] || 'Any Resource Rate',
                         }}
-                        onChange={(e) => updateSearchParams('resourceRate', e.target.value)} // Pass only the value
+                        onChange={(value) => updateSearchParams('resourceRate', value)} // Pass only the value
                     />
                     <div className="flex w-full flex-row space-x-2">
                         <InputSelect
@@ -146,7 +146,7 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams, o
                                     countryOptions.find((option) => option[0] === ((localSearchParams?.country as string) || 'US'))?.[1] ||
                                     'United States',
                             }}
-                            onChange={(e) => updateSearchParams('country', e.target.value)} // Pass only the value
+                            onChange={(value) => updateSearchParams('country', value)} // Pass only the value
                         />
                         <button
                             type="button"
