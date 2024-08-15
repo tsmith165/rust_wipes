@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import UpcomingServerRow from './UpcomingServerRow';
 import { IoIosArrowForward } from 'react-icons/io';
 
-import moment from 'moment-timezone';
-
 interface ServerData {
     id: number;
     rank: number;
@@ -19,7 +17,6 @@ interface ServerData {
 interface UpcomingServerHourGroupProps {
     wipe_dict: ServerData[];
     wipe_hour: number;
-    time_zone: number;
 }
 
 const col_1_width =
@@ -30,21 +27,17 @@ const col_3_width =
 const col_4_width =
     'w-[calc(calc(100%-16px)*0.40)] xs:w-[calc(calc(100%-16px)*0.70)] sm:w-[calc(calc(100%-16px)*0.70)] md:w-[calc(calc(100%-16px)*0.65)] lg:!w-[calc(calc(100%-16px)*0.55)]';
 
-export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour, time_zone }: UpcomingServerHourGroupProps) {
+export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }: UpcomingServerHourGroupProps) {
     const [isWipeContainerHidden, setIsWipeContainerHidden] = useState(true);
 
     const headerClicked = () => {
         setIsWipeContainerHidden(!isWipeContainerHidden);
     };
 
-    // Convert UTC wipe hour to local time
-    const localWipeHour = moment.utc().hour(wipe_hour).add(time_zone, 'hours').hour();
-
-    let hour_str = localWipeHour < 12 ? `${localWipeHour}AM` : `${localWipeHour - 12}PM`;
-    hour_str = hour_str === '0AM' ? '12AM' : hour_str === '0PM' ? '12PM' : hour_str;
+    let hour_str = wipe_hour < 12 ? `${wipe_hour === 0 ? 12 : wipe_hour}AM` : `${wipe_hour === 12 ? 12 : wipe_hour - 12}PM`;
 
     return (
-        <div className="w-full cursor-pointer border-b border-stone-700 bg-stone-400 p-4">
+        <div className="w-full cursor-pointer border-b border-l-2 border-r-2 border-stone-700 bg-stone-400 p-4">
             <div className="flex items-center text-primary" onClick={headerClicked}>
                 <div className="mr-2 transform transition-transform duration-500">
                     <IoIosArrowForward className={`${isWipeContainerHidden ? '' : 'rotate-90'}`} />

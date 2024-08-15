@@ -1,7 +1,11 @@
-import React from 'react';
+'use client';
+
+import React, { useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import InputSelect from '@/components/inputs/InputSelect';
 import InputDatePicker from '@/components/inputs/InputDatePicker';
+import moment from 'moment-timezone';
 
 interface UpcomingWipesSidebarProps {
     searchParams: {
@@ -16,30 +20,70 @@ interface UpcomingWipesSidebarProps {
 }
 
 const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParams }) => {
-    // Define select options
-    const timeSelectOptions: [string, string][] = [
-        ['-10', 'Hawaii (UTC-10:00)'],
-        ['-9', 'Alaska (UTC-09:00)'],
-        ['-7', 'Pacific (UTC-07:00)'],
-        ['-6', 'Mountain (UTC-06:00)'],
-        ['-5', 'Central (UTC-05:00)'],
-        ['-4', 'Eastern (UTC-04:00)'],
-        ['-3', 'Atlantic (UTC-03:00)'],
+    const router = useRouter();
+    const currentSearchParams = useSearchParams();
+
+    const updateSearchParams = (key: string, value: string) => {
+        const params = new URLSearchParams(currentSearchParams.toString());
+        params.set(key, value);
+        router.push(`/upcoming?${params.toString()}`);
+    };
+
+    const standardTimeOptions: [string, string][] = [
+        ['-10', 'Hawaii-Aleutian Standard Time (UTC-10:00)'],
+        ['-9', 'Alaska Standard Time (UTC-09:00)'],
+        ['-8', 'Pacific Standard Time (UTC-08:00)'],
+        ['-7', 'Mountain Standard Time (UTC-07:00)'],
+        ['-6', 'Central Standard Time (UTC-06:00)'],
+        ['-5', 'Eastern Standard Time (UTC-05:00)'],
+        ['-4', 'Atlantic Standard Time (UTC-04:00)'],
         ['0', 'Coordinated Universal Time (UTC)'],
-        ['1', 'UTC+1:00'],
-        ['2', 'UTC+2:00'],
-        ['3', 'UTC+3:00'],
-        ['4', 'UTC+4:00'],
-        ['5', 'UTC+5:00'],
-        ['6', 'UTC+6:00'],
-        ['7', 'UTC+7:00'],
-        ['8', 'UTC+8:00'],
-        ['9', 'UTC+9:00'],
-        ['10', 'UTC+10:00'],
-        ['11', 'UTC+11:00'],
-        ['12', 'UTC+12:00'],
-        ['13', 'UTC+13:00'],
+        ['1', 'Central European Time (UTC+01:00)'],
+        ['2', 'Eastern European Time (UTC+02:00)'],
+        ['3', 'Moscow Standard Time (UTC+03:00)'],
+        ['4', 'Gulf Standard Time (UTC+04:00)'],
+        ['5', 'Pakistan Standard Time (UTC+05:00)'],
+        ['6', 'Bangladesh Standard Time (UTC+06:00)'],
+        ['7', 'Indochina Time (UTC+07:00)'],
+        ['8', 'China Standard Time (UTC+08:00)'],
+        ['9', 'Japan Standard Time (UTC+09:00)'],
+        ['10', 'Australian Eastern Standard Time (UTC+10:00)'],
+        ['11', 'Solomon Islands Time (UTC+11:00)'],
+        ['12', 'New Zealand Standard Time (UTC+12:00)'],
+        ['13', 'Samoa Standard Time (UTC+13:00)'],
     ];
+
+    const daylightTimeOptions: [string, string][] = [
+        ['-9', 'Hawaii-Aleutian Daylight Time (UTC-09:00)'],
+        ['-8', 'Alaska Daylight Time (UTC-08:00)'],
+        ['-7', 'Pacific Daylight Time (UTC-07:00)'],
+        ['-6', 'Mountain Daylight Time (UTC-06:00)'],
+        ['-5', 'Central Daylight Time (UTC-05:00)'],
+        ['-4', 'Eastern Daylight Time (UTC-04:00)'],
+        ['-3', 'Atlantic Daylight Time (UTC-03:00)'],
+        ['0', 'Coordinated Universal Time (UTC)'],
+        ['2', 'Central European Summer Time (UTC+02:00)'],
+        ['3', 'Eastern European Summer Time (UTC+03:00)'],
+        ['4', 'Moscow Daylight Time (UTC+04:00)'],
+        ['5', 'Gulf Daylight Time (UTC+05:00)'],
+        ['6', 'Pakistan Daylight Time (UTC+06:00)'],
+        ['7', 'Bangladesh Daylight Time (UTC+07:00)'],
+        ['8', 'Indochina Daylight Time (UTC+08:00)'],
+        ['9', 'China Daylight Time (UTC+09:00)'],
+        ['10', 'Japan Daylight Time (UTC+10:00)'],
+        ['11', 'Australian Eastern Daylight Time (UTC+11:00)'],
+        ['12', 'Solomon Islands Daylight Time (UTC+12:00)'],
+        ['13', 'New Zealand Daylight Time (UTC+13:00)'],
+        ['14', 'Samoa Daylight Time (UTC+14:00)'],
+    ];
+
+    const isDST = useMemo(() => {
+        const now = moment();
+        return now.isDST();
+    }, []);
+
+    const timeSelectOptions = isDST ? daylightTimeOptions : standardTimeOptions;
+
     const regionSelectOptions: [string, string][] = [
         ['US', 'US'],
         ['EU', 'EU'],
@@ -73,23 +117,36 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
     ];
 
     return (
-        <form action="/upcoming" method="GET" className="h-fit w-full space-y-2 p-2.5 md:h-full">
+        <div className="h-fit w-full space-y-2 p-2.5 md:h-full">
             <div className="flex">
-                <InputDatePicker idName="date" name="date" defaultValue={new Date(searchParams.date || '')} />
+                <InputDatePicker
+                    idName="date"
+                    name="date"
+                    defaultValue={searchParams.date || moment().format('YYYY-MM-DD')}
+                    onChange={(date) => updateSearchParams('date', moment(date).format('YYYY-MM-DD'))}
+                />
             </div>
             <div className="flex">
-                <InputTextbox idName="min_rank" name="min_rank" placeholder="Min Rank" value={searchParams.min_rank} />
+                <InputTextbox
+                    idName="min_rank"
+                    name="min_rank"
+                    placeholder="Min Rank"
+                    value={searchParams.min_rank}
+                    onChange={(e) => updateSearchParams('min_rank', e.target.value)}
+                />
             </div>
-            {/* Update other InputSelect components similarly */}
             <div className="flex">
                 <InputSelect
                     idName="time_zone"
                     name="time_zone"
                     select_options={timeSelectOptions}
                     defaultValue={{
-                        value: searchParams.time_zone!,
-                        label: timeSelectOptions.find((option) => option[0] === searchParams.time_zone)?.[1] || '',
+                        value: searchParams.time_zone || '-7',
+                        label:
+                            timeSelectOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] ||
+                            (isDST ? 'Pacific Daylight Time (UTC-07:00)' : 'Pacific Standard Time (UTC-08:00)'),
                     }}
+                    onChange={(value) => updateSearchParams('time_zone', value)}
                 />
             </div>
             <div className="flex">
@@ -98,9 +155,10 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     name="region"
                     select_options={regionSelectOptions}
                     defaultValue={{
-                        value: searchParams.region || regionSelectOptions[0][0],
-                        label: regionSelectOptions.find((option) => option[0] === searchParams.region)?.[1] || regionSelectOptions[0][1],
+                        value: searchParams.region || 'US',
+                        label: regionSelectOptions.find((option) => option[0] === (searchParams.region || 'US'))?.[1] || 'US',
                     }}
+                    onChange={(value) => updateSearchParams('region', value)}
                 />
             </div>
             <div className="flex">
@@ -109,9 +167,12 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     name="resources"
                     select_options={rateSelectOptions}
                     defaultValue={{
-                        value: searchParams.resource_rate || rateSelectOptions[0][0],
-                        label: rateSelectOptions.find((option) => option[0] === searchParams.resource_rate)?.[1] || rateSelectOptions[0][1],
+                        value: searchParams.resource_rate || 'any',
+                        label:
+                            rateSelectOptions.find((option) => option[0] === (searchParams.resource_rate || 'any'))?.[1] ||
+                            'Any Resource Rate',
                     }}
+                    onChange={(value) => updateSearchParams('resource_rate', value)}
                 />
             </div>
             <div className="flex">
@@ -120,9 +181,12 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     name="group_limit"
                     select_options={groupSelectOptions}
                     defaultValue={{
-                        value: searchParams.group_limit || groupSelectOptions[0][0],
-                        label: groupSelectOptions.find((option) => option[0] === searchParams.group_limit)?.[1] || groupSelectOptions[0][1],
+                        value: searchParams.group_limit || 'any',
+                        label:
+                            groupSelectOptions.find((option) => option[0] === (searchParams.group_limit || 'any'))?.[1] ||
+                            'Any Group Limit',
                     }}
+                    onChange={(value) => updateSearchParams('group_limit', value)}
                 />
             </div>
             <div className="flex">
@@ -131,15 +195,13 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     name="game_mode"
                     select_options={modeSelectOptions}
                     defaultValue={{
-                        value: searchParams.game_mode || modeSelectOptions[0][0],
-                        label: modeSelectOptions.find((option) => option[0] === searchParams.game_mode)?.[1] || modeSelectOptions[0][1],
+                        value: searchParams.game_mode || 'any',
+                        label: modeSelectOptions.find((option) => option[0] === (searchParams.game_mode || 'any'))?.[1] || 'Any Game Mode',
                     }}
+                    onChange={(value) => updateSearchParams('game_mode', value)}
                 />
             </div>
-            <button type="submit" className="mt-2 rounded bg-primary px-2.5 py-2 font-bold text-white hover:bg-primary_light">
-                Update Filters
-            </button>
-        </form>
+        </div>
     );
 };
 

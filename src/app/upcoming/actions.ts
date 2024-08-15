@@ -1,3 +1,5 @@
+'use server';
+
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
 import { eq, and, or, between, lte } from 'drizzle-orm';
@@ -30,12 +32,27 @@ interface SearchParams {
 export async function fetchFilteredServers(searchParams: SearchParams): Promise<GroupedWipeDict> {
     const { region, resource_rate, group_limit, game_mode, min_rank, time_zone, date } = searchParams;
 
-    const selectedDate = date ? moment.utc(date).subtract(Number(time_zone), 'hours') : moment.utc().subtract(Number(time_zone), 'hours');
-    const startOfDay = selectedDate.clone().startOf('day');
-    const endOfDay = selectedDate.clone().endOf('day');
+    // Parse the selected date and time zone
+    const timeZoneOffset = Number(time_zone) || 0;
+
+    // Determine the timezone name based on the offset and whether it's currently DST
+    const now = moment();
+    const isDST = now.isDST();
+    const timeZoneName =
+        moment.tz.names().find((tz) => {
+            const tzOffset = moment.tz(tz).utcOffset() / 60;
+            return isDST ? tzOffset === timeZoneOffset : tzOffset === timeZoneOffset;
+        }) || 'UTC';
+
+    // Create a moment object in the selected timezone
+    const selectedDate = date ? moment.tz(date, timeZoneName).startOf('day') : moment.tz(timeZoneName).startOf('day');
+
+    // Calculate the start and end of the day in UTC
+    const startOfDay = selectedDate.clone().utc();
+    const endOfDay = startOfDay.clone().add(1, 'day');
 
     console.log(`Filtering servers for UTC date range: ${startOfDay.format()} to ${endOfDay.format()}`);
-    console.log(`Filters: ${region}, ${resource_rate}, ${group_limit}, ${game_mode}, Min Rank: ${min_rank}`);
+    console.log(`Filters: ${region}, ${resource_rate}, ${group_limit}, ${game_mode}, Min Rank: ${min_rank}, Time Zone: ${timeZoneName}`);
 
     const query = db
         .select()
@@ -47,7 +64,7 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
                     between(rw_parsed_server.next_wipe, startOfDay.toDate(), endOfDay.toDate()),
                     between(rw_parsed_server.next_full_wipe, startOfDay.toDate(), endOfDay.toDate()),
                 ),
-                lte(rw_parsed_server.rank, Number(min_rank)),
+                lte(rw_parsed_server.rank, Number(min_rank) || 10000),
                 resource_rate !== 'any' ? eq(rw_parsed_server.resource_rate, String(resource_rate)) : undefined,
                 group_limit !== 'any' ? eq(rw_parsed_server.group_limit, String(group_limit)) : undefined,
                 game_mode !== 'any' ? eq(rw_parsed_server.game_mode, String(game_mode)) : undefined,
@@ -60,26 +77,27 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
 
     const grouped_wipe_dict: GroupedWipeDict = {};
     servers.forEach((server) => {
-        const fullWipeDate = server.next_full_wipe;
-        const regularWipeDate = server.next_wipe;
+        const fullWipeDate = server.next_full_wipe ? moment.utc(server.next_full_wipe) : null;
+        const regularWipeDate = server.next_wipe ? moment.utc(server.next_wipe) : null;
 
-        let wipeDate: Date | null = null;
+        let wipeDate: moment.Moment | null = null;
         let isFullWipe = false;
 
         if (fullWipeDate && regularWipeDate) {
-            wipeDate = fullWipeDate < regularWipeDate ? fullWipeDate : regularWipeDate;
-            isFullWipe = fullWipeDate <= regularWipeDate;
+            wipeDate = fullWipeDate.isBefore(regularWipeDate) ? fullWipeDate : regularWipeDate;
+            isFullWipe = fullWipeDate.isSameOrBefore(regularWipeDate);
         } else {
             wipeDate = fullWipeDate || regularWipeDate;
             isFullWipe = !!fullWipeDate;
         }
 
         if (wipeDate) {
-            const utcWipeDate = moment.utc(wipeDate);
-            const wipe_hour = utcWipeDate.hour(); // Use UTC hour for grouping
+            // Convert wipe time to the selected time zone, considering DST
+            const localWipeDate = wipeDate.clone().tz(timeZoneName);
+            const wipe_hour = localWipeDate.hour();
 
-            const last_wipe = server.last_wipe ? moment.utc(server.last_wipe).add(time_zone, 'hours').format('M/D h:mmA') : 'N/A';
-            const next_wipe = utcWipeDate.add(time_zone, 'hours').format('M/D h:mmA');
+            const last_wipe = server.last_wipe ? moment.utc(server.last_wipe).tz(timeZoneName).format('M/D h:mmA') : 'N/A';
+            const next_wipe = localWipeDate.format('M/D h:mmA');
 
             const server_data: ServerData = {
                 id: server.id,
@@ -97,6 +115,11 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
                 grouped_wipe_dict[wipe_hour].push(server_data);
             }
         }
+    });
+
+    // Sort servers within each hour group by rank
+    Object.keys(grouped_wipe_dict).forEach((hour) => {
+        grouped_wipe_dict[parseInt(hour)].sort((a, b) => a.rank - b.rank);
     });
 
     return grouped_wipe_dict;

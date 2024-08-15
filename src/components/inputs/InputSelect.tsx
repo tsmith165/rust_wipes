@@ -19,7 +19,7 @@ interface InputSelectProps {
     name: string;
     select_options: [string, string][];
     value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    onChange?: (value: string) => void;
 }
 
 const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, select_options, value, onChange }) => {
@@ -58,9 +58,7 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
                     }),
                 }}
                 options={react_select_options}
-                onChange={(selectedOption) =>
-                    onChange?.({ target: { value: selectedOption?.value, name: idName } } as React.ChangeEvent<HTMLSelectElement>)
-                }
+                onChange={(selectedOption) => onChange && onChange(selectedOption?.value || '')}
             />
         </div>
     );

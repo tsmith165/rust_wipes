@@ -1,8 +1,11 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import moment from 'moment-timezone';
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
+import { useSearchParams } from 'next/navigation';
 
 interface SearchParams {
     region?: string;
@@ -12,6 +15,20 @@ interface SearchParams {
     min_rank?: string;
     time_zone?: string;
     date?: string;
+}
+
+interface ServerData {
+    id: number;
+    rank: number;
+    title: string;
+    wipe_hour: number;
+    last_wipe: string;
+    next_wipe: string;
+    is_full_wipe: boolean;
+}
+
+interface GroupedWipeDict {
+    [key: number]: ServerData[];
 }
 
 const defaultParams: SearchParams = {
@@ -24,33 +41,54 @@ const defaultParams: SearchParams = {
     date: moment().format('YYYY-MM-DD'),
 };
 
-export default async function UpcomingWipesPage({ searchParams }: { searchParams: SearchParams }) {
-    // Merge default params with provided search params
-    const mergedParams: SearchParams = { ...defaultParams, ...searchParams };
+export default function UpcomingWipesPage() {
+    const searchParams = useSearchParams();
+    const [serverList, setServerList] = useState<GroupedWipeDict>({});
+    const [error, setError] = useState<string | null>(null);
 
-    const selectedDate = mergedParams.date ? moment(mergedParams.date) : moment();
-    const timeZone = Number(mergedParams.time_zone);
-    console.log('Selected date: ', selectedDate.format('YYYY-MM-DD'), 'Time Zone:', timeZone);
+    useEffect(() => {
+        const mergedParams: SearchParams = { ...defaultParams };
+        for (const [key, value] of searchParams.entries()) {
+            mergedParams[key as keyof SearchParams] = value;
+        }
 
-    const serverList = await fetchFilteredServers(mergedParams);
+        // Validate date
+        if (mergedParams.date) {
+            const parsedDate = moment(mergedParams.date, 'YYYY-MM-DD', true);
+            if (!parsedDate.isValid()) {
+                mergedParams.date = defaultParams.date;
+            }
+        }
 
-    const serversJsxArray =
-        Object.keys(serverList).length > 0
-            ? Object.entries(serverList)
-                  .sort(([hourA], [hourB]) => parseInt(hourA) - parseInt(hourB))
-                  .map(([wipeHour, servers]) => (
-                      <UpcomingServerHourGroup key={wipeHour} wipe_dict={servers} wipe_hour={parseInt(wipeHour)} time_zone={timeZone} />
-                  ))
-            : [];
+        const fetchServers = async () => {
+            try {
+                const servers = await fetchFilteredServers(mergedParams);
+                setServerList(servers);
+                setError(null);
+            } catch (error) {
+                console.error('Error fetching servers:', error);
+                setServerList({});
+                setError('An error occurred while fetching server data. Please try again later.');
+            }
+        };
+
+        fetchServers();
+    }, [searchParams]);
+
+    const serversJsxArray = Object.entries(serverList)
+        .sort(([hourA], [hourB]) => parseInt(hourA) - parseInt(hourB))
+        .map(([wipeHour, servers]) => <UpcomingServerHourGroup key={wipeHour} wipe_dict={servers} wipe_hour={parseInt(wipeHour)} />);
 
     return (
         <div className="h-full w-full overflow-hidden">
             <div className="flex h-full w-full flex-col md:flex-row">
                 <div className="h-full w-full bg-stone-800 md:w-[35%] md:min-w-[35%] md:max-w-[35%]">
-                    <UpcomingWipesSidebar searchParams={mergedParams} />
+                    <UpcomingWipesSidebar searchParams={Object.fromEntries(searchParams.entries())} />
                 </div>
                 <div className="h-full min-w-full flex-grow overflow-y-auto bg-stone-900 md:w-[65%] md:min-w-[65%]">
-                    {serversJsxArray.length > 0 ? (
+                    {error ? (
+                        <div className="p-2 text-red-500">{error}</div>
+                    ) : serversJsxArray.length > 0 ? (
                         serversJsxArray
                     ) : (
                         <div className="p-2">No upcoming wipes found for the selected date and filters.</div>
