@@ -10,7 +10,7 @@ export default function sitemap(): SitemapEntry[] {
         {
             url: 'https://www.rustwipes.net',
             lastModified: new Date(),
-            changeFrequency: 'always',
+            changeFrequency: 'daily',
             priority: 1,
         },
         {
@@ -22,7 +22,7 @@ export default function sitemap(): SitemapEntry[] {
         {
             url: 'https://www.rustwipes.net/servers',
             lastModified: new Date(),
-            changeFrequency: 'hourly',
+            changeFrequency: 'daily',
             priority: 1,
         },
         {
@@ -46,7 +46,13 @@ export default function sitemap(): SitemapEntry[] {
         {
             url: 'https://www.rustwipes.net/checkout',
             lastModified: new Date(),
-            changeFrequency: 'hourly',
+            changeFrequency: 'daily',
+            priority: 1,
+        },
+        {
+            url: 'https://www.rustwipes.net/faq',
+            lastModified: new Date(),
+            changeFrequency: 'daily',
             priority: 1,
         },
     ];
