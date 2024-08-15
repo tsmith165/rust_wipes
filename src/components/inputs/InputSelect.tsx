@@ -19,7 +19,7 @@ interface InputSelectProps {
     name: string;
     select_options: [string, string][];
     value?: string;
-    onChange?: (value: string) => void;
+    onChange?: (value: string) => void; // Expecting just a string value
 }
 
 const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, select_options, value, onChange }) => {
@@ -31,6 +31,12 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
     const react_select_options = select_options.map((option) => ({ value: option[0], label: option[1] }));
+
+    const handleSelectChange = (selectedOption: { value: string }) => {
+        if (onChange) {
+            onChange(selectedOption.value); // Pass only the string value
+        }
+    };
 
     return (
         <div className="m-0 flex w-full p-0">
@@ -62,7 +68,7 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
                     }),
                 }}
                 options={react_select_options}
-                onChange={(selectedOption) => onChange && onChange(selectedOption?.value || '')}
+                onChange={(selectedOption) => handleSelectChange(selectedOption as { value: string })}
             />
         </div>
     );

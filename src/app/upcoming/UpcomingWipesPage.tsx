@@ -84,7 +84,7 @@ export default function UpcomingWipesPage() {
     return (
         <div className="h-full w-full overflow-hidden">
             <div className="flex h-full w-full flex-col md:flex-row">
-                <div className="h-full w-full bg-stone-800 md:w-[35%] md:min-w-[35%] md:max-w-[35%]">
+                <div className="h-fit w-full bg-stone-800 md:h-full md:w-[35%] md:min-w-[35%] md:max-w-[35%]">
                     <UpcomingWipesSidebar searchParams={Object.fromEntries(searchParams.entries())} />
                 </div>
                 <div className="h-full min-w-full flex-grow overflow-y-auto bg-stone-900 md:w-[65%] md:min-w-[65%]">

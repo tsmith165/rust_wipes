@@ -135,6 +135,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                         ['priority', 'Priority'],
                     ]}
                 />
+
                 <InputTextArea idName="description" name="Description" value={formData.description} rows={5} onChange={handleChange} />
                 <InputTextArea idName="contents" name="Contents (JSON)" value={formData.contents} rows={10} onChange={handleChange} />
 

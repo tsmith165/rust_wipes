@@ -135,72 +135,59 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     onChange={(e) => updateSearchParams('min_rank', e.target.value)}
                 />
             </div>
-            <div className="flex">
-                <InputSelect
-                    idName="time_zone"
-                    name="time_zone"
-                    select_options={timeSelectOptions}
-                    defaultValue={{
-                        value: searchParams.time_zone || '-7',
-                        label:
-                            timeSelectOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] ||
-                            (isDST ? 'Pacific Daylight Time (UTC-07:00)' : 'Pacific Standard Time (UTC-08:00)'),
-                    }}
-                    onChange={(value) => updateSearchParams('time_zone', value)}
-                />
-            </div>
-            <div className="flex">
-                <InputSelect
-                    idName="region"
-                    name="region"
-                    select_options={regionSelectOptions}
-                    defaultValue={{
-                        value: searchParams.region || 'US',
-                        label: regionSelectOptions.find((option) => option[0] === (searchParams.region || 'US'))?.[1] || 'US',
-                    }}
-                    onChange={(value) => updateSearchParams('region', value)}
-                />
-            </div>
-            <div className="flex">
-                <InputSelect
-                    idName="resource_rate"
-                    name="resources"
-                    select_options={rateSelectOptions}
-                    defaultValue={{
-                        value: searchParams.resource_rate || 'any',
-                        label:
-                            rateSelectOptions.find((option) => option[0] === (searchParams.resource_rate || 'any'))?.[1] ||
-                            'Any Resource Rate',
-                    }}
-                    onChange={(value) => updateSearchParams('resource_rate', value)}
-                />
-            </div>
-            <div className="flex">
-                <InputSelect
-                    idName="group_limit"
-                    name="group_limit"
-                    select_options={groupSelectOptions}
-                    defaultValue={{
-                        value: searchParams.group_limit || 'any',
-                        label:
-                            groupSelectOptions.find((option) => option[0] === (searchParams.group_limit || 'any'))?.[1] ||
-                            'Any Group Limit',
-                    }}
-                    onChange={(value) => updateSearchParams('group_limit', value)}
-                />
-            </div>
-            <div className="flex">
-                <InputSelect
-                    idName="game_mode"
-                    name="game_mode"
-                    select_options={modeSelectOptions}
-                    defaultValue={{
-                        value: searchParams.game_mode || 'any',
-                        label: modeSelectOptions.find((option) => option[0] === (searchParams.game_mode || 'any'))?.[1] || 'Any Game Mode',
-                    }}
-                    onChange={(value) => updateSearchParams('game_mode', value)}
-                />
-            </div>
+            <InputSelect
+                idName="time_zone"
+                name="time_zone"
+                select_options={timeSelectOptions}
+                defaultValue={{
+                    value: searchParams.time_zone || '-7',
+                    label:
+                        timeSelectOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] ||
+                        (isDST ? 'Pacific Daylight Time (UTC-07:00)' : 'Pacific Standard Time (UTC-08:00)'),
+                }}
+                onChange={(value) => updateSearchParams('time_zone', value)} // Now passing a string value
+            />
+            <InputSelect
+                idName="region"
+                name="region"
+                select_options={regionSelectOptions}
+                defaultValue={{
+                    value: searchParams.region || 'US',
+                    label: regionSelectOptions.find((option) => option[0] === (searchParams.region || 'US'))?.[1] || 'US',
+                }}
+                onChange={(value) => updateSearchParams('region', value)}
+            />
+            <InputSelect
+                idName="resource_rate"
+                name="resources"
+                select_options={rateSelectOptions}
+                defaultValue={{
+                    value: searchParams.resource_rate || 'any',
+                    label:
+                        rateSelectOptions.find((option) => option[0] === (searchParams.resource_rate || 'any'))?.[1] || 'Any Resource Rate',
+                }}
+                onChange={(value) => updateSearchParams('resource_rate', value)}
+            />
+            <InputSelect
+                idName="group_limit"
+                name="group_limit"
+                select_options={groupSelectOptions}
+                defaultValue={{
+                    value: searchParams.group_limit || 'any',
+                    label: groupSelectOptions.find((option) => option[0] === (searchParams.group_limit || 'any'))?.[1] || 'Any Group Limit',
+                }}
+                onChange={(value) => updateSearchParams('group_limit', value)}
+            />
+            <InputSelect
+                idName="game_mode"
+                name="game_mode"
+                select_options={modeSelectOptions}
+                defaultValue={{
+                    value: searchParams.game_mode || 'any',
+                    label: modeSelectOptions.find((option) => option[0] === (searchParams.game_mode || 'any'))?.[1] || 'Any Game Mode',
+                }}
+                onChange={(value) => updateSearchParams('game_mode', value)}
+            />
         </div>
     );
 };
