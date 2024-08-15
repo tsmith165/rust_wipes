@@ -19,7 +19,7 @@ const CopyToClipboardButton: React.FC<CopyToClipboardButtonProps> = ({ textToCop
     };
 
     return (
-        <div onClick={handleCopy} className={`cursor-pointer ${isCopied ? 'text-success-2' : ''}`}>
+        <div onClick={handleCopy} className={`cursor-pointer hover:text-red-600 ${isCopied ? 'text-green-600' : ''}`}>
             <MdFileCopy />
         </div>
     );

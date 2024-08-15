@@ -29,11 +29,24 @@ interface SearchParams {
     date?: string;
 }
 
+const defaultParams: Required<SearchParams> = {
+    region: 'US',
+    resource_rate: 'any',
+    group_limit: 'any',
+    game_mode: 'any',
+    min_rank: '5000',
+    time_zone: '-7', // Pacific Time
+    date: moment().format('YYYY-MM-DD'),
+};
+
 export async function fetchFilteredServers(searchParams: SearchParams): Promise<GroupedWipeDict> {
-    const { region, resource_rate, group_limit, game_mode, min_rank, time_zone, date } = searchParams;
+    // Merge provided search params with default params
+    const mergedParams: Required<SearchParams> = { ...defaultParams, ...searchParams };
+
+    const { region, resource_rate, group_limit, game_mode, min_rank, time_zone, date } = mergedParams;
 
     // Parse the selected date and time zone
-    const timeZoneOffset = Number(time_zone) || 0;
+    const timeZoneOffset = Number(time_zone);
 
     // Determine the timezone name based on the offset and whether it's currently DST
     const now = moment();
@@ -45,7 +58,7 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
         }) || 'UTC';
 
     // Create a moment object in the selected timezone
-    const selectedDate = date ? moment.tz(date, timeZoneName).startOf('day') : moment.tz(timeZoneName).startOf('day');
+    const selectedDate = moment.tz(date, timeZoneName).startOf('day');
 
     // Calculate the start and end of the day in UTC
     const startOfDay = selectedDate.clone().utc();
@@ -59,15 +72,15 @@ export async function fetchFilteredServers(searchParams: SearchParams): Promise<
         .from(rw_parsed_server)
         .where(
             and(
-                eq(rw_parsed_server.region, String(region)),
+                eq(rw_parsed_server.region, region),
                 or(
                     between(rw_parsed_server.next_wipe, startOfDay.toDate(), endOfDay.toDate()),
                     between(rw_parsed_server.next_full_wipe, startOfDay.toDate(), endOfDay.toDate()),
                 ),
-                lte(rw_parsed_server.rank, Number(min_rank) || 10000),
-                resource_rate !== 'any' ? eq(rw_parsed_server.resource_rate, String(resource_rate)) : undefined,
-                group_limit !== 'any' ? eq(rw_parsed_server.group_limit, String(group_limit)) : undefined,
-                game_mode !== 'any' ? eq(rw_parsed_server.game_mode, String(game_mode)) : undefined,
+                lte(rw_parsed_server.rank, Number(min_rank)),
+                resource_rate !== 'any' ? eq(rw_parsed_server.resource_rate, resource_rate) : undefined,
+                group_limit !== 'any' ? eq(rw_parsed_server.group_limit, group_limit) : undefined,
+                game_mode !== 'any' ? eq(rw_parsed_server.game_mode, game_mode) : undefined,
             ),
         );
 

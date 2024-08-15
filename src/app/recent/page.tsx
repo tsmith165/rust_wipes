@@ -33,17 +33,10 @@ export const metadata: Metadata = {
     },
 };
 
-interface PageProps {
-    params?: object;
-    searchParams?: {
-        [key: string]: string | string[] | undefined;
-    };
-}
-
-export default function Page({ params, searchParams }: PageProps) {
+export default function Page() {
     return (
         <PageLayout page="recent">
-            <RecentConfirmedWipesPage searchParams={searchParams} />
+            <RecentConfirmedWipesPage />
         </PageLayout>
     );
 }

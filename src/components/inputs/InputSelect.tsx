@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 import Select, { components } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
@@ -23,6 +23,9 @@ interface InputSelectProps {
 }
 
 const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, select_options, value, onChange }) => {
+    const uniqueId = useId();
+    const selectId = `react-select-${idName}-${uniqueId}`;
+
     const formatted_name = name
         .split('_')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -40,10 +43,11 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
             </div>
             <Tooltip id={`tooltip-${idName}`} place="top" />
             <Select
+                inputId={selectId}
+                instanceId={selectId}
                 defaultValue={defaultValue}
                 value={react_select_options.find((option) => option.value === value)}
                 isMulti={false}
-                id={idName}
                 name={idName}
                 className="h-full flex-grow rounded-r-md border-none bg-stone-400 text-sm font-bold text-stone-950"
                 classNamePrefix="select"

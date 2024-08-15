@@ -32,8 +32,13 @@ const onChange = (e: React.ChangeEvent<HTMLSelectElement>, searchParams?: NumSer
     const page = parseInt((searchParams?.page as string) || '1');
     const minPlayers = parseInt((searchParams?.minPlayers as string) || '2');
     const maxDist = parseInt((searchParams?.maxDist as string) || '5000');
-    const country = (searchParams?.country as string) || 'NA';
-    window.location.href = `/recent?page=${page}&numServers=${numServers}&minPlayers=${minPlayers}&maxDist=${maxDist}&country=${country}`;
+    const minRank = parseInt((searchParams?.minRank as string) || '0');
+    const maxRank = parseInt((searchParams?.maxRank as string) || '10000');
+    const country = (searchParams?.country as string) || 'US';
+    const groupLimit = (searchParams?.groupLimit as string) || 'any';
+    const resourceRate = (searchParams?.resourceRate as string) || 'any';
+
+    window.location.href = `/recent?page=${page}&numServers=${numServers}&minPlayers=${minPlayers}&maxDist=${maxDist}&minRank=${minRank}&maxRank=${maxRank}&country=${country}&groupLimit=${groupLimit}&resourceRate=${resourceRate}`;
 };
 
 export default NumServersSelect;

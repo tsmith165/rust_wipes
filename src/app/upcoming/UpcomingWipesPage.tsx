@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import moment from 'moment-timezone';
+import { useRouter, useSearchParams } from 'next/navigation';
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
-import { useSearchParams } from 'next/navigation';
 
 interface SearchParams {
     region?: string;
@@ -31,7 +31,7 @@ interface GroupedWipeDict {
     [key: number]: ServerData[];
 }
 
-const defaultParams: SearchParams = {
+const defaultParams: Required<SearchParams> = {
     region: 'US',
     resource_rate: 'any',
     group_limit: 'any',
@@ -42,22 +42,24 @@ const defaultParams: SearchParams = {
 };
 
 export default function UpcomingWipesPage() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const [serverList, setServerList] = useState<GroupedWipeDict>({});
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const mergedParams: SearchParams = { ...defaultParams };
-        for (const [key, value] of searchParams.entries()) {
-            mergedParams[key as keyof SearchParams] = value;
-        }
+        const currentParams = Object.fromEntries(searchParams.entries());
+        const mergedParams: Required<SearchParams> = { ...defaultParams, ...currentParams };
 
-        // Validate date
-        if (mergedParams.date) {
-            const parsedDate = moment(mergedParams.date, 'YYYY-MM-DD', true);
-            if (!parsedDate.isValid()) {
-                mergedParams.date = defaultParams.date;
-            }
+        // Check if we need to update the URL with default params
+        const shouldUpdateUrl = Object.keys(defaultParams).some((key) => !(key in currentParams));
+
+        if (shouldUpdateUrl) {
+            const newSearchParams = new URLSearchParams(searchParams.toString());
+            Object.entries(mergedParams).forEach(([key, value]) => {
+                newSearchParams.set(key, value);
+            });
+            router.replace(`/upcoming?${newSearchParams.toString()}`, { scroll: false });
         }
 
         const fetchServers = async () => {
@@ -73,7 +75,7 @@ export default function UpcomingWipesPage() {
         };
 
         fetchServers();
-    }, [searchParams]);
+    }, [searchParams, router]);
 
     const serversJsxArray = Object.entries(serverList)
         .sort(([hourA], [hourB]) => parseInt(hourA) - parseInt(hourB))

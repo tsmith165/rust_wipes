@@ -1,9 +1,161 @@
 'use server';
 
-import { eq, desc, asc, gt, lt, and, inArray, like } from 'drizzle-orm';
-import { db, kits, KitExtraImages, rw_servers, player_stats, next_wipe_info, map_options, map_votes } from '@/db/db';
-import { KitsWithExtraImages, RwServer, PlayerStats, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
-import { SQL } from 'drizzle-orm';
+import axios from 'axios';
+import { eq, gte, and, between, desc, asc, gt, lt, inArray, like } from 'drizzle-orm';
+import { db } from '@/db/db';
+import { rw_parsed_server, rw_servers, kits, KitExtraImages, player_stats, next_wipe_info, map_options, map_votes } from '@/db/schema';
+import type { KitsWithExtraImages, RwServer, PlayerStats, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
+import type { SQL } from 'drizzle-orm';
+
+interface BattleMetricsServer {
+    id: string;
+    attributes: {
+        ip: string | null;
+        port: number | null;
+        name: string | null;
+        rank: number | null;
+        details: {
+            rust_last_wipe: string | null;
+        };
+        players: number | null;
+        maxPlayers: number | null;
+    };
+}
+
+export async function fetchBattleMetricsServers(serverIds: number[], pageSize: number): Promise<BattleMetricsServer[]> {
+    const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(
+        ',',
+    )}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
+    const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
+    try {
+        const response = await axios.get(url);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching data from BattleMetrics:', error);
+        return [];
+    }
+}
+
+export async function fetchRecentWipesFromDB(searchParams: {
+    country: string;
+    minPlayers: number;
+    maxDist: number;
+    minRank: number;
+    maxRank: number;
+    groupLimit: string;
+    resourceRate: string;
+    numServers: number;
+    page: number;
+}) {
+    const { country, minPlayers, maxDist, minRank, maxRank, groupLimit, resourceRate, numServers, page } = searchParams;
+    const itemsPerPage = numServers;
+    const skip = (page - 1) * itemsPerPage;
+
+    console.log(`Fetching recent wipes with filters:`, searchParams);
+    try {
+        const recentWipes = await db
+            .select()
+            .from(rw_parsed_server)
+            .where(
+                and(
+                    eq(rw_parsed_server.region, country),
+                    gte(rw_parsed_server.players, minPlayers),
+                    between(rw_parsed_server.rank, minRank, maxRank),
+                    groupLimit !== 'any' ? eq(rw_parsed_server.group_limit, groupLimit) : undefined,
+                    resourceRate !== 'any' ? eq(rw_parsed_server.resource_rate, resourceRate) : undefined,
+                ),
+            )
+            .orderBy(desc(rw_parsed_server.last_wipe))
+            .offset(skip)
+            .limit(itemsPerPage);
+
+        return recentWipes;
+    } catch (error) {
+        console.error('Error fetching recent wipes from DB:', error);
+        throw error;
+    }
+}
+
+export async function fetchServers(): Promise<RwServer[]> {
+    console.log('Fetching servers with Drizzle');
+    const servers = await db.select().from(rw_servers).orderBy(asc(rw_servers.o_id));
+
+    console.log('Captured servers successfully');
+    return servers;
+}
+
+export async function fetchNextWipeInfo(): Promise<NextWipeInfo[]> {
+    console.log('Fetching next wipe info with Drizzle');
+    const wipeInfo = await db.select().from(next_wipe_info);
+
+    console.log('Captured next wipe info successfully');
+    return wipeInfo;
+}
+
+export async function fetchMapOptions(): Promise<MapOptions[]> {
+    console.log('Fetching map options with Drizzle');
+    const options = await db.select().from(map_options).where(eq(map_options.enabled, true));
+
+    console.log('Captured map options successfully');
+    return options;
+}
+
+export async function fetchMapVotes(): Promise<MapVotes[]> {
+    console.log('Fetching map votes with Drizzle');
+    const votes = await db.select().from(map_votes);
+
+    console.log('Captured map votes successfully');
+    return votes;
+}
+
+export async function fetchPlayerStats(serverId?: string): Promise<(PlayerStats & { steamUsername: string; avatarUrl: string })[]> {
+    console.log('Fetching player stats with Drizzle');
+
+    let whereClause: SQL | undefined;
+    if (serverId) {
+        whereClause = eq(player_stats.server_id, serverId);
+    }
+
+    const stats = await db.select().from(player_stats).where(whereClause).orderBy(desc(player_stats.kills));
+
+    // Fetch Steam user info for all players
+    const statsWithSteamInfo = await Promise.all(
+        stats.map(async (stat) => {
+            const steamInfo = await fetchSteamUserInfo(stat.steam_id);
+            return {
+                ...stat,
+                steamUsername: steamInfo.personaname,
+                avatarUrl: steamInfo.avatarfull,
+            };
+        }),
+    );
+
+    console.log('Captured player stats with Steam info successfully');
+    return statsWithSteamInfo;
+}
+
+export async function fetchServerInfo(): Promise<{ id: string; name: string }[]> {
+    console.log('Fetching server information');
+    const serverIds = await db.select({ server_id: player_stats.server_id }).from(player_stats).groupBy(player_stats.server_id);
+
+    const serverInfo = await Promise.all(
+        serverIds.map(async ({ server_id }) => {
+            const server = await db
+                .select({ name: rw_servers.name, connection_url: rw_servers.connection_url })
+                .from(rw_servers)
+                .where(like(rw_servers.connection_url, `%:${server_id}`))
+                .limit(1);
+
+            return {
+                id: server_id,
+                name: server[0]?.name || `Unknown Server (${server_id})`,
+            };
+        }),
+    );
+
+    console.log('Captured server information successfully');
+    return serverInfo;
+}
 
 export async function fetchKits(): Promise<KitsWithExtraImages[]> {
     console.log(`Fetching active kits with Drizzle`);
@@ -163,38 +315,6 @@ export async function fetchKitImageById(id: number) {
     return kit[0] || null;
 }
 
-export async function fetchServers(): Promise<RwServer[]> {
-    console.log('Fetching servers with Drizzle');
-    const servers = await db.select().from(rw_servers).orderBy(asc(rw_servers.o_id));
-
-    console.log('Captured servers successfully');
-    return servers;
-}
-
-export async function fetchNextWipeInfo(): Promise<NextWipeInfo[]> {
-    console.log('Fetching next wipe info with Drizzle');
-    const wipeInfo = await db.select().from(next_wipe_info);
-
-    console.log('Captured next wipe info successfully');
-    return wipeInfo;
-}
-
-export async function fetchMapOptions(): Promise<MapOptions[]> {
-    console.log('Fetching map options with Drizzle');
-    const options = await db.select().from(map_options).where(eq(map_options.enabled, true));
-
-    console.log('Captured map options successfully');
-    return options;
-}
-
-export async function fetchMapVotes(): Promise<MapVotes[]> {
-    console.log('Fetching map votes with Drizzle');
-    const votes = await db.select().from(map_votes);
-
-    console.log('Captured map votes successfully');
-    return votes;
-}
-
 async function fetchSteamUserInfo(steamId: string) {
     const STEAM_API_KEY = process.env.STEAM_API_KEY;
     if (!STEAM_API_KEY) {
@@ -233,53 +353,4 @@ async function fetchSteamUserInfo(steamId: string) {
             steamid: steamId,
         };
     }
-}
-
-export async function fetchPlayerStats(serverId?: string): Promise<(PlayerStats & { steamUsername: string; avatarUrl: string })[]> {
-    console.log('Fetching player stats with Drizzle');
-
-    let whereClause: SQL | undefined;
-    if (serverId) {
-        whereClause = eq(player_stats.server_id, serverId);
-    }
-
-    const stats = await db.select().from(player_stats).where(whereClause).orderBy(desc(player_stats.kills));
-
-    // Fetch Steam user info for all players
-    const statsWithSteamInfo = await Promise.all(
-        stats.map(async (stat) => {
-            const steamInfo = await fetchSteamUserInfo(stat.steam_id);
-            return {
-                ...stat,
-                steamUsername: steamInfo.personaname,
-                avatarUrl: steamInfo.avatarfull,
-            };
-        }),
-    );
-
-    console.log('Captured player stats with Steam info successfully');
-    return statsWithSteamInfo;
-}
-
-export async function fetchServerInfo(): Promise<{ id: string; name: string }[]> {
-    console.log('Fetching server information');
-    const serverIds = await db.select({ server_id: player_stats.server_id }).from(player_stats).groupBy(player_stats.server_id);
-
-    const serverInfo = await Promise.all(
-        serverIds.map(async ({ server_id }) => {
-            const server = await db
-                .select({ name: rw_servers.name, connection_url: rw_servers.connection_url })
-                .from(rw_servers)
-                .where(like(rw_servers.connection_url, `%:${server_id}`))
-                .limit(1);
-
-            return {
-                id: server_id,
-                name: server[0]?.name || `Unknown Server (${server_id})`,
-            };
-        }),
-    );
-
-    console.log('Captured server information successfully');
-    return serverInfo;
 }

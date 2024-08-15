@@ -36,7 +36,11 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     const numServers = parseInt((searchParams?.numServers as string) || '25');
     const minPlayers = parseInt((searchParams?.minPlayers as string) || '2');
     const maxDist = parseInt((searchParams?.maxDist as string) || '5000');
-    const country = (searchParams?.country as string) || 'NA';
+    const minRank = parseInt((searchParams?.minRank as string) || '0');
+    const maxRank = parseInt((searchParams?.maxRank as string) || '10000');
+    const country = (searchParams?.country as string) || 'US';
+    const groupLimit = (searchParams?.groupLimit as string) || 'any';
+    const resourceRate = (searchParams?.resourceRate as string) || 'any';
 
     const base_url = '/recent';
     const current_query_string = queryString.stringify({
@@ -44,7 +48,11 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
         numServers,
         minPlayers,
         maxDist,
+        minRank,
+        maxRank,
         country,
+        groupLimit,
+        resourceRate,
     });
 
     const form_action_url = `${base_url}?${current_query_string}`;
@@ -97,7 +105,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     if (server_list == null || server_list.length === 0) {
         return (
-            <div className="max-h-full min-w-full bg-secondary md:min-w-[461px]" style={{ flex: '1 1 60%' }}>
+            <div className="max-h-full w-full min-w-full bg-secondary md:min-w-[461px]">
                 {/* Loader can be implemented with Tailwind CSS or any other library */}
             </div>
         );
@@ -113,7 +121,11 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
                 <input type="hidden" name="numServers" value={numServers} />
                 <input type="hidden" name="minPlayers" value={minPlayers} />
                 <input type="hidden" name="maxDist" value={maxDist} />
+                <input type="hidden" name="minRank" value={minRank} />
+                <input type="hidden" name="maxRank" value={maxRank} />
                 <input type="hidden" name="country" value={country} />
+                <input type="hidden" name="groupLimit" value={groupLimit} />
+                <input type="hidden" name="resourceRate" value={resourceRate} />
                 <button type="submit" className="group flex items-center justify-center rounded-l-lg p-1 hover:!bg-primary">
                     <IoIosArrowForward className="rotate-180 cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
                 </button>
@@ -124,7 +136,11 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
                 <input type="hidden" name="numServers" value={numServers} />
                 <input type="hidden" name="minPlayers" value={minPlayers} />
                 <input type="hidden" name="maxDist" value={maxDist} />
+                <input type="hidden" name="minRank" value={minRank} />
+                <input type="hidden" name="maxRank" value={maxRank} />
                 <input type="hidden" name="country" value={country} />
+                <input type="hidden" name="groupLimit" value={groupLimit} />
+                <input type="hidden" name="resourceRate" value={resourceRate} />
                 <button type="submit" className="group flex items-center justify-center rounded-r-lg p-1 hover:!bg-primary">
                     <IoIosArrowForward className="cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
                 </button>
@@ -135,23 +151,23 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     const num_servers_select = <NumServersSelect defaultValue={numServers} searchParams={searchParams} />;
 
     const server_list_table_header = (
-        <div className="flex bg-secondary_light pr-2 font-bold text-primary">
+        <div className="flex bg-stone-500 pr-2 font-bold text-primary">
             <div className="w-16 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
             <div className="w-20 p-1.5 text-center">Wiped</div>
-            <div className={`${numServers > 10 ? 'mr-2' : ''} w-12 p-1.5 text-center`}>Copy</div>
+            <div className={`${numServers > 10 ? 'mr-1' : ''} w-12 p-1.5 text-center`}>Copy</div>
         </div>
     );
 
     const server_list_table_row_container = (
         <div className="grow overflow-y-auto">
-            <div className="flex-1 bg-secondary">{servers_jsx_array}</div>
+            <div className="flex-1 bg-stone-300">{servers_jsx_array}</div>
         </div>
     );
 
     const server_list_table_menu = (
-        <div className="flex w-full items-center justify-between bg-secondary_dark px-2 py-2">
+        <div className="flex w-full items-center justify-between bg-stone-800 px-2 py-2">
             {pagination_container /* Pagination */}
             <div className="flex-grow"></div>
             {num_servers_select /* Number of servers selector */}
@@ -160,11 +176,11 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     console.log('Returning Recent Wipes Table...');
     return (
-        <div className="max-h-full w-full bg-secondary md:min-w-[461px]" style={{ flex: '1 1 65%' }}>
-            <div className="flex h-[calc(100%-99px)] w-full flex-col overflow-y-hidden md:h-full">
-                {server_list_table_header /* Server List Table Header */}
-                {server_list_table_row_container /* Server List Table */}
-                {server_list_table_menu /* Server List Table Menu */}
+        <div className="flex h-[calc(100%-254px)] w-full flex-grow bg-stone-300 md:h-full md:min-w-[461px]">
+            <div className="flex w-full flex-col overflow-y-hidden">
+                {server_list_table_header}
+                {server_list_table_row_container}
+                {server_list_table_menu}
             </div>
         </div>
     );

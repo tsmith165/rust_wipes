@@ -1,10 +1,10 @@
-import React from 'react';
-import axios from 'axios';
-import { db } from '@/db/db';
-import { rw_parsed_server } from '@/db/schema';
-import { eq, gte, desc, and } from 'drizzle-orm';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
+import { fetchRecentWipesFromDB, fetchBattleMetricsServers } from '@/app/actions';
 
 interface BattleMetricsServer {
     id: string;
@@ -21,115 +21,112 @@ interface BattleMetricsServer {
     };
 }
 
-async function fetchBattleMetricsServers(serverIds: number[], pageSize: number): Promise<BattleMetricsServer[]> {
-    const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(
-        ',',
-    )}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
-    const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
-    try {
-        const response = await axios.get(url);
-        return response.data.data;
-    } catch (error) {
-        console.error('Error fetching data from BattleMetrics:', error);
-        return [];
-    }
-}
-
-async function fetchRecentWipesFromDB(country: string, minPlayers: number, numServers: number, page: number) {
-    page = parseInt(page.toString()) || 1;
-    const itemsPerPage = parseInt(numServers.toString(), 10) || 25;
-    const skip = (page - 1) * itemsPerPage;
-
-    console.log(`Fetching recent wipes with region: ${country} | min players: ${minPlayers}`);
-    try {
-        const recentWipes = await db
-            .select()
-            .from(rw_parsed_server)
-            .where(and(eq(rw_parsed_server.region, country), gte(rw_parsed_server.players, minPlayers)))
-            .orderBy(desc(rw_parsed_server.last_wipe))
-            .offset(skip)
-            .limit(itemsPerPage);
-
-        return recentWipes;
-    } catch (error) {
-        console.error('Error fetching recent wipes from DB:', error);
-        throw error;
-    }
-}
-
-interface RecentConfirmedWipesPageProps {
-    searchParams?: {
-        [key: string]: string | string[] | undefined;
+interface Server {
+    id: number;
+    attributes: {
+        players: number | null;
+        maxPlayers: number | null;
+        ip: string | null;
+        port: number | null;
+        name: string | null;
+        rank: number | null;
+        details: {
+            rust_last_wipe: string | null;
+        };
     };
+    offline: boolean;
 }
 
-export default async function RecentConfirmedWipesPage({ searchParams }: RecentConfirmedWipesPageProps) {
-    const country = (searchParams?.country as string) || 'US';
-    const minPlayers = 0;
-    const numServers = parseInt((searchParams?.numServers as string) || '25');
-    const page = parseInt((searchParams?.page as string) || '1');
+export default function RecentConfirmedWipesPage() {
+    const searchParams = useSearchParams();
+    const [serverList, setServerList] = useState<Server[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const our_db_recent_wipes = await fetchRecentWipesFromDB(country, minPlayers, numServers, page);
+    const fetchData = async () => {
+        setIsLoading(true);
+        const country = (searchParams.get('country') as string) || 'US';
+        const minPlayers = parseInt((searchParams.get('minPlayers') as string) || '0');
+        const maxDist = parseInt((searchParams.get('maxDist') as string) || '5000');
+        const minRank = parseInt((searchParams.get('minRank') as string) || '0');
+        const maxRank = parseInt((searchParams.get('maxRank') as string) || '10000');
+        const groupLimit = (searchParams.get('groupLimit') as string) || 'any';
+        const resourceRate = (searchParams.get('resourceRate') as string) || 'any';
+        const numServers = parseInt((searchParams.get('numServers') as string) || '25');
+        const page = parseInt((searchParams.get('page') as string) || '1');
 
-    const serverIds = our_db_recent_wipes.map((server) => server.id);
+        try {
+            const our_db_recent_wipes = await fetchRecentWipesFromDB({
+                country,
+                minPlayers,
+                maxDist,
+                minRank,
+                maxRank,
+                groupLimit,
+                resourceRate,
+                numServers,
+                page,
+            });
 
-    console.log('Fetching server data from BattleMetrics API: ', serverIds.join(','));
-    const bm_api_recent_wipes = await fetchBattleMetricsServers(serverIds, numServers);
+            const serverIds = our_db_recent_wipes.map((server) => server.id);
+            console.log('Fetching server data from BattleMetrics API: ', serverIds.join(','));
+            const bm_api_recent_wipes = await fetchBattleMetricsServers(serverIds, numServers);
 
-    const new_server_list = our_db_recent_wipes.map((our_db_recent_wipe_data) => {
-        const matched_server_data = bm_api_recent_wipes.find(
-            (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === our_db_recent_wipe_data.id,
-        );
+            const new_server_list = our_db_recent_wipes.map((our_db_recent_wipe_data) => {
+                const matched_server_data = bm_api_recent_wipes.find(
+                    (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === our_db_recent_wipe_data.id,
+                );
 
-        if (matched_server_data) {
-            return {
-                ...our_db_recent_wipe_data,
-                attributes: {
-                    ...matched_server_data.attributes,
-                    players: matched_server_data.attributes.players || null,
-                    maxPlayers: matched_server_data.attributes.maxPlayers || null,
-                },
-                offline: false,
-            };
-        } else {
-            return {
-                ...our_db_recent_wipe_data,
-                attributes: {
-                    ip: our_db_recent_wipe_data.ip,
-                    port: null,
-                    name: our_db_recent_wipe_data.title,
-                    rank: our_db_recent_wipe_data.rank,
-                    players: our_db_recent_wipe_data.players,
-                    maxPlayers: null,
-                    details: {
-                        rust_last_wipe: our_db_recent_wipe_data.last_wipe,
-                    },
-                },
-                offline: true,
-            };
-        }
-    });
-
-    return (
-        <div className="h-full w-full overflow-hidden bg-secondary">
-            <div className="flex h-full w-full flex-wrap">
-                <RecentWipesSidebar searchParams={searchParams} />
-                <RecentWipesTable
-                    searchParams={searchParams}
-                    server_list={new_server_list.map((server) => ({
-                        ...server,
+                if (matched_server_data) {
+                    return {
+                        ...our_db_recent_wipe_data,
                         attributes: {
-                            ...server.attributes,
+                            ...matched_server_data.attributes,
+                            players: matched_server_data.attributes.players || null,
+                            maxPlayers: matched_server_data.attributes.maxPlayers || null,
                             details: {
-                                ...server.attributes.details,
-                                rust_last_wipe:
-                                    server.attributes.details.rust_last_wipe instanceof Date
-                                        ? server.attributes.details.rust_last_wipe.toISOString()
-                                        : server.attributes.details.rust_last_wipe,
+                                rust_last_wipe: matched_server_data.attributes.details.rust_last_wipe || null,
                             },
                         },
-                    }))}
-                />
+                        offline: false,
+                    };
+                } else {
+                    return {
+                        ...our_db_recent_wipe_data,
+                        attributes: {
+                            ip: our_db_recent_wipe_data.ip,
+                            port: null,
+                            name: our_db_recent_wipe_data.title,
+                            rank: our_db_recent_wipe_data.rank,
+                            players: our_db_recent_wipe_data.players,
+                            maxPlayers: null,
+                            details: {
+                                rust_last_wipe:
+                                    our_db_recent_wipe_data.last_wipe instanceof Date
+                                        ? our_db_recent_wipe_data.last_wipe.toISOString()
+                                        : our_db_recent_wipe_data.last_wipe,
+                            },
+                        },
+                        offline: true,
+                    };
+                }
+            });
+
+            setServerList(new_server_list);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [searchParams]);
+
+    return (
+        <div className="h-full w-full overflow-hidden">
+            <div className="flex h-full w-full flex-col md:flex-row">
+                <RecentWipesSidebar searchParams={Object.fromEntries(searchParams.entries())} onRefresh={fetchData} isLoading={isLoading} />
+                <RecentWipesTable searchParams={Object.fromEntries(searchParams.entries())} server_list={serverList} />
             </div>
         </div>
     );

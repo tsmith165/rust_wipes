@@ -37,10 +37,10 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
         let hrs = Math.floor((totalDiffSeconds % (60 * 60 * 24)) / (60 * 60));
         let mins = Math.floor((totalDiffSeconds % (60 * 60)) / 60);
 
-        if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-hot_wipe';
-        else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-cool_wipe';
-        else if (totalDiffSeconds < COLD_WIPE) heat_class = 'text-cold_wipe';
-        else heat_class = 'text-secondary_light';
+        if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-green-600';
+        else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-blue-600';
+        else if (totalDiffSeconds < COLD_WIPE) heat_class = 'text-purple-600';
+        else heat_class = 'text-stone-950';
 
         if (days > 0) {
             final_date = `${days}d ${hrs}h`;
@@ -54,11 +54,11 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
     }
 
     return (
-        <Link href={`/server/${bm_id}`}>
+        <Link href={`/server/${bm_id}`} className={`${offline ? 'hidden' : 'flex w-full'}`}>
             <div
-                className={`flex h-9 items-center border-b border-secondary_dark ${heat_class} ${
-                    offline ? 'bg-red-500 opacity-80' : 'bg-secondary'
-                } hover:bg-primary_light hover:text-white`}
+                className={`flex h-9 w-full items-center border-b border-secondary_dark pr-2 ${heat_class} ${
+                    offline ? 'bg-primary_light opacity-80' : 'bg-stone-300'
+                } hover:bg-stone-400`}
             >
                 <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank || 'N/A'}</div>
                 <div className="flex-1 overflow-hidden whitespace-nowrap p-1.5 text-left">
