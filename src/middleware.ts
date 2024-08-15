@@ -6,16 +6,15 @@ const isPrivateRoute = createRouteMatcher(['/admin(/.*)', '/api/uploadthing']);
 
 export default clerkMiddleware(async (auth, req) => {
     const currentPath = req.nextUrl.pathname;
-    console.log('Current path:', currentPath);
+    const route_is_private = isPrivateRoute(req);
+    console.log('Current route: ' + req.url);
+    console.log('Route is private? ' + route_is_private);
 
     const isUploadthingRoute = currentPath === '/api/uploadthing';
     if (isUploadthingRoute) {
         console.log('Uploadthing route, proceeding...');
         return NextResponse.next();
     }
-
-    const route_is_private = isPrivateRoute(req);
-    console.log('Route is private?', route_is_private);
 
     if (route_is_private) {
         console.log('Route is private. Protecting with admin role.');
@@ -43,5 +42,5 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-    matcher: ['/admin(.*)', '/api/uploadthing'],
+    matcher: ['/admin(.*)', '/api/uploadthing', '/'],
 };
