@@ -6,7 +6,8 @@ import { Tests } from '@/app/admin/test/Tests';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Admin Test Tools',
     description: 'Test tools for Rust Wipes administration.',
-    keywords: 'rust, rustwipes, admin, test tools',
+    keywords:
+        'rust wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',

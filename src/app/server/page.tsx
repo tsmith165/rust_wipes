@@ -5,7 +5,8 @@ import { fetchServers } from '@/app/actions';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Servers',
     description: 'View detailed information about Rust servers, including player count, wipe schedules, and more.',
-    keywords: 'rust, servers, wipes, player count, rust wipes, server details',
+    keywords:
+        'rust wipes, Rust Wipes, rustwipes, rust, wipes, rustwipes.net, details, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',

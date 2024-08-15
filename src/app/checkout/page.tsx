@@ -5,7 +5,8 @@ import { getMostRecentKitId } from '@/app/actions';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Checkout',
     description: 'Purchase kits and items for Rust servers. Enhance your gameplay with our selection of Rust items.',
-    keywords: 'rust, checkout, kits, items, purchase, rust wipes',
+    keywords:
+        'rust wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',

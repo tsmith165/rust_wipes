@@ -7,7 +7,8 @@ export const metadata: Metadata = {
     title: 'Rust Wipes - Homepage',
     description:
         'Rust Wipes helps gamers find servers based on their wipe schedules. Discover recent wipes, upcoming wipes, and scrapper statistics.',
-    keywords: 'rust, rustwipes, player stats, leaderboard, kills, farming, gambling',
+    keywords:
+        'rust wipes, Rust Wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',

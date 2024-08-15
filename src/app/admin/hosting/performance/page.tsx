@@ -7,7 +7,8 @@ import { redirect } from 'next/navigation';
 export const metadata: Metadata = {
     title: 'Rust Wipes - Server Performance',
     description: 'Monitor dedicated server performance for Rust Wipes.',
-    keywords: 'rust, rustwipes, server performance, hosting',
+    keywords:
+        'rust wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',
