@@ -41,6 +41,7 @@ export default function RecentConfirmedWipesPage() {
     const searchParams = useSearchParams();
     const [serverList, setServerList] = useState<Server[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [autoRefreshActive, setAutoRefreshActive] = useState(true);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -122,10 +123,26 @@ export default function RecentConfirmedWipesPage() {
         fetchData();
     }, [searchParams]);
 
+    // if autoRefreshActive is true, fetch data every 5 seconds
+    useEffect(() => {
+        if (autoRefreshActive) {
+            const interval = setInterval(() => {
+                fetchData();
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [autoRefreshActive]);
+
     return (
         <div className="h-full w-full overflow-hidden">
             <div className="flex h-full w-full flex-col md:flex-row">
-                <RecentWipesSidebar searchParams={Object.fromEntries(searchParams.entries())} onRefresh={fetchData} isLoading={isLoading} />
+                <RecentWipesSidebar
+                    searchParams={Object.fromEntries(searchParams.entries())}
+                    onRefresh={fetchData}
+                    isLoading={isLoading}
+                    autoRefreshActive={autoRefreshActive}
+                    setAutoRefreshActive={setAutoRefreshActive}
+                />
                 <RecentWipesTable searchParams={Object.fromEntries(searchParams.entries())} server_list={serverList} />
             </div>
         </div>

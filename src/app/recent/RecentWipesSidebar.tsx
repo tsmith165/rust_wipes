@@ -7,6 +7,7 @@ import InputSelect from '@/components/inputs/InputSelect';
 import { HiRefresh } from 'react-icons/hi';
 import { FaRegThumbsUp } from 'react-icons/fa';
 import HeatIndexKeyMap from './HeatIndexKeyMap';
+import { Tooltip } from 'react-tooltip';
 
 const RENDER_ADS = false;
 
@@ -16,9 +17,17 @@ interface RecentWipesSidebarProps {
     };
     onRefresh: () => void;
     isLoading: boolean;
+    autoRefreshActive: boolean;
+    setAutoRefreshActive: (active: boolean) => void;
 }
 
-const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams, onRefresh, isLoading }) => {
+const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
+    searchParams,
+    onRefresh,
+    isLoading,
+    autoRefreshActive,
+    setAutoRefreshActive,
+}) => {
     const router = useRouter();
     const [localSearchParams, setLocalSearchParams] = React.useState(searchParams);
 
@@ -44,9 +53,12 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams, o
         });
     };
 
-    const handleRefresh = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleRefreshclick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        onRefresh(); // Trigger the refresh
+        setAutoRefreshActive(!autoRefreshActive);
+        if (!autoRefreshActive) {
+            onRefresh(); // Trigger the first refresh right away
+        }
     };
 
     const countryOptions: [string, string][] = [
@@ -146,18 +158,22 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({ searchParams, o
                                     countryOptions.find((option) => option[0] === ((localSearchParams?.country as string) || 'US'))?.[1] ||
                                     'United States',
                             }}
-                            onChange={(value) => updateSearchParams('country', value)} // Pass only the value
+                            onChange={(value) => updateSearchParams('country', value)}
                         />
                         <button
                             type="button"
-                            onClick={handleRefresh}
+                            onClick={handleRefreshclick}
                             className={`h-[38px] w-[38px] rounded-md bg-primary p-1.5 hover:bg-primary_dark ${
                                 isLoading ? 'cursor-not-allowed opacity-50' : ''
                             }`}
                             disabled={isLoading}
+                            data-tooltip-id="refresh-tooltip"
+                            data-tooltip-place="left"
+                            data-tooltip-content={autoRefreshActive ? 'Turn Auto-Refresh Off' : 'Turn Auto-Refresh On'}
                         >
                             <HiRefresh className={`mx-auto h-full w-full ${isLoading ? 'animate-spin' : ''}`} />
                         </button>
+                        <Tooltip id="refresh-tooltip" />
                     </div>
                 </div>
                 <HeatIndexKeyMap />
