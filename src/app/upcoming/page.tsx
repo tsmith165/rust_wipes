@@ -31,17 +31,10 @@ export const metadata: Metadata = {
     },
 };
 
-interface PageProps {
-    params?: object;
-    searchParams?: {
-        [key: string]: string | string[];
-    };
-}
-
-export default async function Page({ params, searchParams }: PageProps) {
+export default async function Page() {
     return (
         <PageLayout page={'upcoming'}>
-            <UpcomingWipesPage searchParams={searchParams || {}} />
+            <UpcomingWipesPage />
         </PageLayout>
     );
 }
