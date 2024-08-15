@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     title: 'Rust Wipes - Upcoming Wipes',
     description: 'See what wipes are coming up soon so you can plan your day!',
     keywords:
-        'rust, rustwipes, rust wipes, server wipes, signup, sign up, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
+        'rust, Rust Wipes, Upcoming Wipes, Rust Upcomig Wipes, rust upcoming wipes, rust wipes soon, soon, rust soon, rustwipes, rust wipes, server wipes, signup, sign up, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',

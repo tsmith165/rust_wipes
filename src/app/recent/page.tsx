@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description:
         'Keep track of the servers that just wiped so you can find a fresh server to play on! We offer free auto-refresh, sound notifications, and filtering!',
     keywords:
-        'rust wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
+        'rust wipes, rustwipes, recent rust wipes, recent wipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
     applicationName: 'Rust Wipes',
     icons: {
         icon: '/rust_hazmat_icon.png',
