@@ -78,13 +78,24 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
         return changesArray;
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => {
-            const newData = { ...prevData, [name]: value };
-            setChanges(getChanges(newData));
-            return newData;
-        });
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | string) => {
+        if (typeof e === 'string') {
+            // If the input is a string, handle it accordingly
+            const { name, value } = e as unknown as { name: string; value: string }; // Cast to match the expected object shape
+            setFormData((prevData) => {
+                const newData = { ...prevData, [name]: value };
+                setChanges(getChanges(newData));
+                return newData;
+            });
+        } else {
+            // If the input is an event, handle it as before
+            const { name, value } = e.target;
+            setFormData((prevData) => {
+                const newData = { ...prevData, [name]: value };
+                setChanges(getChanges(newData));
+                return newData;
+            });
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
