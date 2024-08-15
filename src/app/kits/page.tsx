@@ -1,4 +1,9 @@
 import type { Metadata } from 'next';
+import React, { Suspense } from 'react';
+import { fetchKits } from '@/app/actions';
+import PageLayout from '@/components/layout/PageLayout';
+import dynamic from 'next/dynamic';
+
 export const metadata: Metadata = {
     title: 'Rust Wipes - Kits',
     description:
@@ -28,11 +33,9 @@ export const metadata: Metadata = {
     },
 };
 
-import { fetchKits } from '@/app/actions';
-import React from 'react';
-import KitViewer from './KitViewer';
-import PageLayout from '@/components/layout/PageLayout';
-import { redirect } from 'next/navigation';
+const DynamicKitViewer = dynamic(() => import('./KitViewer'), {
+    loading: () => <div className="h-full w-full bg-stone-800">Loading...</div>,
+});
 
 interface PageProps {
     searchParams?: {
@@ -41,29 +44,31 @@ interface PageProps {
     };
 }
 
-export default async function KitPage({ searchParams }: PageProps) {
+async function KitData({
+    initialSelectedKitId,
+    initialSelectedType,
+}: {
+    initialSelectedKitId: number | null;
+    initialSelectedType: string;
+}) {
     const kitData = await fetchKits();
 
     if (kitData.length === 0) {
         return <div>No kits available.</div>;
     }
 
+    return <DynamicKitViewer kits={kitData} initialSelectedKitId={initialSelectedKitId} initialSelectedType={initialSelectedType} />;
+}
+
+export default function KitPage({ searchParams }: PageProps) {
     const selectedKitId = searchParams?.kit ? parseInt(searchParams.kit, 10) : null;
     const selectedType = searchParams?.type || 'monthly';
 
-    if (!selectedKitId) {
-        // Redirect to the first kit of the selected type if no kit is selected
-        const firstKitOfType = kitData.find((kit) => kit.type === selectedType);
-        if (firstKitOfType) {
-            redirect(`/kits?type=${selectedType}&kit=${firstKitOfType.id}`);
-        }
-    }
-
     return (
         <PageLayout page="/kits">
-            <KitViewer kits={kitData} initialSelectedKitId={selectedKitId} initialSelectedType={selectedType} />
+            <Suspense fallback={<div className="h-full w-full bg-stone-800">Loading...</div>}>
+                <KitData initialSelectedKitId={selectedKitId} initialSelectedType={selectedType} />
+            </Suspense>
         </PageLayout>
     );
 }
-
-export const revalidate = 60; // Revalidate this page every 60 seconds
