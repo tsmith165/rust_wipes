@@ -48,7 +48,11 @@ export default function Navbar({ page }: { page: string }) {
     );
 
     const admin_full_menu = (
-        <div className="group absolute right-0 top-0" onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
+        <div
+            className="group absolute right-0 top-0 h-[50px] w-fit"
+            onMouseEnter={() => setShowMenu(true)}
+            onMouseLeave={() => setShowMenu(false)}
+        >
             {discord_component_admin}
             <IoIosMenu className="h-[50px] w-[50px] fill-primary_dark py-[5px] group-hover:fill-primary" />
             {showMenu && (
