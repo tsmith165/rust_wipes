@@ -4,43 +4,34 @@ import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 
 const isPrivateRoute = createRouteMatcher(['/admin(/.*)', '/api/uploadthing']);
 
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware((auth, req) => {
     const currentPath = req.nextUrl.pathname;
-    const route_is_private = isPrivateRoute(req);
-    console.log('Current route: ' + req.url);
-    console.log('Route is private? ' + route_is_private);
+    console.log('Current route:', req.url);
 
-    const isUploadthingRoute = currentPath === '/api/uploadthing';
-    if (isUploadthingRoute) {
-        console.log('Uploadthing route, proceeding...');
-        return NextResponse.next();
-    }
-
-    if (route_is_private) {
+    if (isPrivateRoute(req)) {
         console.log('Route is private. Protecting with admin role.');
         const { userId } = auth();
-        console.log('User ID:', userId);
 
         if (!userId) {
             console.log('User ID is null. Redirecting to sign in page.');
             return NextResponse.redirect(new URL('/signin', req.url));
         }
 
-        const hasAdminRole = await isClerkUserIdAdmin(userId);
-        console.log('User hasAdminRole:', hasAdminRole);
-
-        if (!hasAdminRole) {
-            console.log('User does not have admin role. Returning 403.');
-            return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-        }
-        console.log('User has admin role. Continuing...');
-    } else {
-        console.log('Public route. Proceeding...');
+        return isClerkUserIdAdmin(userId).then((hasAdminRole) => {
+            if (!hasAdminRole) {
+                console.log('User does not have admin role. Returning 403.');
+                return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+            }
+            console.log('User has admin role. Continuing...');
+            return NextResponse.next();
+        });
     }
 
+    // For public routes, just continue without any additional checks
+    console.log('Public route. Proceeding...');
     return NextResponse.next();
 });
 
 export const config = {
-    matcher: ['/admin(.*)', '/api/uploadthing', '/'],
+    matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 };
