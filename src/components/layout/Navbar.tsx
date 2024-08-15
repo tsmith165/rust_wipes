@@ -21,18 +21,18 @@ export default function Navbar({ page }: { page: string }) {
     const [showMenu, setShowMenu] = useState(false);
 
     const discord_component = (
-        <Link href={PROJECT_CONSTANTS.CONTACT_DISCORD}>
+        <a href={PROJECT_CONSTANTS.CONTACT_DISCORD} aria-label="Rust Wipes Discord">
             <div className="group absolute right-[0px] top-0">
                 <FaDiscord className="h-[50px] w-[50px] fill-[#5865F2] p-3 group-hover:brightness-125" />
             </div>
-        </Link>
+        </a>
     );
     const discord_component_admin = (
-        <Link href={PROJECT_CONSTANTS.CONTACT_DISCORD}>
+        <a href={PROJECT_CONSTANTS.CONTACT_DISCORD} aria-label="Rust Wipes Discord">
             <div className="group absolute right-[50px] top-0">
                 <FaDiscord className="h-[50px] w-[50px] fill-[#5865F2] py-3 pl-3 group-hover:brightness-125" />
             </div>
-        </Link>
+        </a>
     );
 
     const full_menu = (
