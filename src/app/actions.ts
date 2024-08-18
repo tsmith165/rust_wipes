@@ -7,6 +7,22 @@ import { rw_parsed_server, rw_servers, kits, KitExtraImages, player_stats, next_
 import type { KitsWithExtraImages, RwServer, PlayerStats, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
 import type { SQL } from 'drizzle-orm';
 
+interface Server {
+    id: number;
+    attributes: {
+        players: number | null;
+        maxPlayers: number | null;
+        ip: string | null;
+        port: number | null;
+        name: string | null;
+        rank: number | null;
+        details: {
+            rust_last_wipe: string | null;
+        };
+    };
+    offline: boolean;
+}
+
 interface BattleMetricsServer {
     id: string;
     attributes: {
@@ -22,21 +38,80 @@ interface BattleMetricsServer {
     };
 }
 
-export async function fetchBattleMetricsServers(serverIds: number[], pageSize: number): Promise<BattleMetricsServer[]> {
-    const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(
-        ',',
-    )}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
-    const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
-    try {
-        const response = await axios.get(url);
-        return response.data.data;
-    } catch (error) {
-        console.error('Error fetching data from BattleMetrics:', error);
-        return [];
+interface DbWipe {
+    id: number;
+    timestamp: Date;
+    rank: number | null;
+    ip: string | null;
+    title: string | null;
+    region: string | null;
+    players: number | null;
+    wipe_schedule: string | null;
+    game_mode: string | null;
+    resource_rate: string | null;
+    group_limit: string | null;
+    last_wipe: Date;
+    next_wipe: Date | null;
+    next_full_wipe: Date | null;
+}
+
+interface CacheItem<T> {
+    data: T;
+    timestamp: number;
+}
+
+class TimedCache<T> {
+    private cache: Map<string, CacheItem<T>> = new Map();
+    private ttl: number;
+
+    constructor(ttl: number) {
+        this.ttl = ttl;
+    }
+
+    async get(key: string, fetchFunction: () => Promise<T>, forceRefresh: boolean = false): Promise<T> {
+        const now = Date.now();
+        const cached = this.cache.get(key);
+
+        if (!cached || now - cached.timestamp > this.ttl || forceRefresh) {
+            const data = await fetchFunction();
+            this.cache.set(key, { data, timestamp: now });
+            return data;
+        }
+
+        return cached.data;
     }
 }
 
-export async function fetchRecentWipesFromDB(searchParams: {
+const battleMetricsCache = new TimedCache<BattleMetricsServer[]>(5000); // 5000 ms = 5 seconds
+
+export async function fetchBattleMetricsServers(
+    serverIds: number[],
+    pageSize: number,
+    forceRefresh: boolean = false,
+): Promise<BattleMetricsServer[]> {
+    const cacheKey = `${serverIds.join(',')}-${pageSize}`;
+
+    return battleMetricsCache.get(
+        cacheKey,
+        async () => {
+            const query_params_string = `filter[game]=rust&filter[status]=online&filter[ids][whitelist]=${serverIds.join(
+                ',',
+            )}&sort=-details.rust_last_wipe&page[size]=${pageSize}`;
+            const url = `https://api.battlemetrics.com/servers?${query_params_string}`;
+
+            try {
+                const response = await axios.get(url);
+                return response.data.data;
+            } catch (error) {
+                console.error('Error fetching data from BattleMetrics:', error);
+                return [];
+            }
+        },
+        forceRefresh,
+    );
+}
+
+export async function fetchRecentWipesFromDB(params: {
     country: string;
     minPlayers: number;
     maxDist: number;
@@ -46,12 +121,12 @@ export async function fetchRecentWipesFromDB(searchParams: {
     resourceRate: string;
     numServers: number;
     page: number;
-}) {
-    const { country, minPlayers, maxDist, minRank, maxRank, groupLimit, resourceRate, numServers, page } = searchParams;
+}): Promise<DbWipe[]> {
+    const { country, minPlayers, maxDist, minRank, maxRank, groupLimit, resourceRate, numServers, page } = params;
     const itemsPerPage = numServers;
     const skip = (page - 1) * itemsPerPage;
 
-    console.log(`Fetching recent wipes with filters:`, searchParams);
+    console.log(`Fetching recent wipes with filters:`, params);
     try {
         const recentWipes = await db
             .select()
@@ -69,11 +144,50 @@ export async function fetchRecentWipesFromDB(searchParams: {
             .offset(skip)
             .limit(itemsPerPage);
 
-        return recentWipes;
+        return recentWipes as DbWipe[];
     } catch (error) {
         console.error('Error fetching recent wipes from DB:', error);
         throw error;
     }
+}
+
+export async function getRecentWipesData(searchParams: {
+    country: string;
+    minPlayers: number;
+    maxDist: number;
+    minRank: number;
+    maxRank: number;
+    groupLimit: string;
+    resourceRate: string;
+    numServers: number;
+    page: number;
+    forceRefresh: boolean;
+}): Promise<Server[]> {
+    const { forceRefresh, ...dbParams } = searchParams;
+    const dbWipes = await fetchRecentWipesFromDB(dbParams);
+    const serverIds = dbWipes.map((server: DbWipe) => server.id);
+    const bmServers = await fetchBattleMetricsServers(serverIds, searchParams.numServers, forceRefresh);
+
+    const combinedData: Server[] = dbWipes.map((dbServer: DbWipe) => {
+        const bmServer = bmServers.find((bm) => bm.id === dbServer.id.toString());
+        return {
+            id: dbServer.id,
+            attributes: {
+                players: bmServer?.attributes.players || dbServer.players,
+                maxPlayers: bmServer?.attributes.maxPlayers || null,
+                ip: dbServer.ip,
+                port: bmServer?.attributes.port || null,
+                name: bmServer?.attributes.name || dbServer.title,
+                rank: bmServer?.attributes.rank || dbServer.rank,
+                details: {
+                    rust_last_wipe: bmServer?.attributes.details?.rust_last_wipe || dbServer.last_wipe.toISOString(),
+                },
+            },
+            offline: !bmServer,
+        };
+    });
+
+    return combinedData;
 }
 
 export async function fetchServers(): Promise<RwServer[]> {

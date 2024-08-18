@@ -62,7 +62,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     if (server_list == undefined) {
         console.log('NO SERVERS FOUND.  Returning empty table...');
-        return <div className="max-h-full min-w-full bg-secondary md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
+        return <div className="max-h-full min-w-full bg-stone-500 md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
     }
 
     const server_list_length = server_list.length;
@@ -90,7 +90,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
         servers_jsx_array.push(
             <RecentServerRow
                 key={i}
-                ip={`${ip}:${port}`}
+                ip={`${ip}  `}
                 offline={offline}
                 id={id}
                 className={name || ''}
@@ -105,7 +105,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     if (server_list == null || server_list.length === 0) {
         return (
-            <div className="max-h-full w-full min-w-full bg-secondary md:min-w-[461px]">
+            <div className="max-h-full w-full min-w-full bg-stone-500 md:min-w-[461px]">
                 {/* Loader can be implemented with Tailwind CSS or any other library */}
             </div>
         );
@@ -151,7 +151,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     const num_servers_select = <NumServersSelect defaultValue={numServers} searchParams={searchParams} />;
 
     const server_list_table_header = (
-        <div className="flex bg-stone-500 pr-2 font-bold text-primary">
+        <div className="flex bg-stone-600 pr-2 font-bold text-stone-300">
             <div className="w-16 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
@@ -162,7 +162,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     const server_list_table_row_container = (
         <div className="grow overflow-y-auto">
-            <div className="flex-1 bg-stone-300">{servers_jsx_array}</div>
+            <div className="flex-1 bg-stone-400">{servers_jsx_array}</div>
         </div>
     );
 
@@ -176,7 +176,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     console.log('Returning Recent Wipes Table...');
     return (
-        <div className="flex h-[calc(100%-254px)] w-full flex-grow bg-stone-300 md:h-full md:min-w-[461px]">
+        <div className="flex h-[calc(100%-254px)] w-full flex-grow bg-stone-400 md:h-full md:min-w-[461px]">
             <div className="flex w-full flex-col overflow-y-hidden">
                 {server_list_table_header}
                 {server_list_table_row_container}

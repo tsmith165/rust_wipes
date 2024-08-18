@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
-import { fetchRecentWipesFromDB, fetchBattleMetricsServers } from '@/app/actions';
+import { getRecentWipesData } from '@/app/actions';
 
 interface BattleMetricsServer {
     id: string;
@@ -43,7 +43,7 @@ export default function RecentConfirmedWipesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [autoRefreshActive, setAutoRefreshActive] = useState(true);
 
-    const fetchData = async () => {
+    const fetchData = async (forceRefresh: boolean = false) => {
         setIsLoading(true);
         const country = (searchParams.get('country') as string) || 'US';
         const minPlayers = parseInt((searchParams.get('minPlayers') as string) || '0');
@@ -56,7 +56,7 @@ export default function RecentConfirmedWipesPage() {
         const page = parseInt((searchParams.get('page') as string) || '1');
 
         try {
-            const our_db_recent_wipes = await fetchRecentWipesFromDB({
+            const combinedData = await getRecentWipesData({
                 country,
                 minPlayers,
                 maxDist,
@@ -66,53 +66,10 @@ export default function RecentConfirmedWipesPage() {
                 resourceRate,
                 numServers,
                 page,
+                forceRefresh,
             });
 
-            const serverIds = our_db_recent_wipes.map((server) => server.id);
-            console.log('Fetching server data from BattleMetrics API: ', serverIds.join(','));
-            const bm_api_recent_wipes = await fetchBattleMetricsServers(serverIds, numServers);
-
-            const new_server_list = our_db_recent_wipes.map((our_db_recent_wipe_data) => {
-                const matched_server_data = bm_api_recent_wipes.find(
-                    (bm_api_recent_wipe_data) => parseInt(bm_api_recent_wipe_data.id) === our_db_recent_wipe_data.id,
-                );
-
-                if (matched_server_data) {
-                    return {
-                        ...our_db_recent_wipe_data,
-                        attributes: {
-                            ...matched_server_data.attributes,
-                            players: matched_server_data.attributes.players || null,
-                            maxPlayers: matched_server_data.attributes.maxPlayers || null,
-                            details: {
-                                rust_last_wipe: matched_server_data.attributes.details.rust_last_wipe || null,
-                            },
-                        },
-                        offline: false,
-                    };
-                } else {
-                    return {
-                        ...our_db_recent_wipe_data,
-                        attributes: {
-                            ip: our_db_recent_wipe_data.ip,
-                            port: null,
-                            name: our_db_recent_wipe_data.title,
-                            rank: our_db_recent_wipe_data.rank,
-                            players: our_db_recent_wipe_data.players,
-                            maxPlayers: null,
-                            details: {
-                                rust_last_wipe:
-                                    our_db_recent_wipe_data.last_wipe instanceof Date
-                                        ? our_db_recent_wipe_data.last_wipe.toISOString()
-                                        : our_db_recent_wipe_data.last_wipe,
-                            },
-                        },
-                        offline: true,
-                    };
-                }
-            });
-
-            setServerList(new_server_list);
+            setServerList(combinedData);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -123,22 +80,28 @@ export default function RecentConfirmedWipesPage() {
         fetchData();
     }, [searchParams]);
 
-    // if autoRefreshActive is true, fetch data every 5 seconds
     useEffect(() => {
+        let intervalId: NodeJS.Timeout | null = null;
         if (autoRefreshActive) {
-            const interval = setInterval(() => {
-                fetchData();
+            intervalId = setInterval(() => {
+                fetchData(true); // Force refresh when auto-refresh is active
             }, 5000);
-            return () => clearInterval(interval);
         }
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
     }, [autoRefreshActive]);
+
+    const handleRefresh = () => {
+        fetchData(true); // Force refresh for manual refresh
+    };
 
     return (
         <div className="h-full w-full overflow-hidden">
             <div className="flex h-full w-full flex-col md:flex-row">
                 <RecentWipesSidebar
                     searchParams={Object.fromEntries(searchParams.entries())}
-                    onRefresh={fetchData}
+                    onRefresh={handleRefresh}
                     isLoading={isLoading}
                     autoRefreshActive={autoRefreshActive}
                     setAutoRefreshActive={setAutoRefreshActive}
