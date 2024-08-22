@@ -2,14 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import CopyToClipboardButton from './CopyToClipboardButton';
 
-// const HOT_WIPE = 5 * 60; // 5 minutes in seconds
-// const COOL_WIPE = 15 * 60; // 15 minutes in seconds
-// const COLD_WIPE = 60 * 60; // 1 hour in seconds
+const HOT_WIPE = 5 * 60; // 5 minutes in seconds
+const COOL_WIPE = 15 * 60; // 15 minutes in seconds
+const COLD_WIPE = 60 * 60; // 1 hour in seconds
 
 // For testing purposes
-const HOT_WIPE = 120 * 60; // 2 hours in seconds
-const COOL_WIPE = 480 * 60; // 8 hours in seconds
-const COLD_WIPE = 960 * 60; // 16 hours in seconds
+// const HOT_WIPE = 120 * 60; // 2 hours in seconds
+// const COOL_WIPE = 480 * 60; // 8 hours in seconds
+// const COLD_WIPE = 960 * 60; // 16 hours in seconds
 
 interface RecentServerRowProps {
     id: number;

@@ -84,7 +84,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
         if (DEBUG) {
             console.log(`Server ID: ${id} | Name: ${name} | Rank: ${rank}`);
             console.log(`Wipe Date: ${players}`);
-            console.log('--------------------------------------------------------------------');
+            console.log('----------------------------------------------------   ');
         }
 
         servers_jsx_array.push(

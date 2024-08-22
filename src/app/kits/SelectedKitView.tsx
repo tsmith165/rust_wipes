@@ -105,7 +105,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
         if (!parsedContents) return null;
 
         return (
-            <div className="flex flex-wrap gap-2 overflow-y-auto">
+            <div className="flex flex-wrap gap-2">
                 {Object.entries(parsedContents).map(([category, items]) => {
                     // if is not an object or the object is empty, return null
                     if (typeof items !== 'object' || items === null || Object.keys(items).length === 0) return null;
@@ -172,7 +172,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.75 }}
         >
-            <div className="relative flex h-full min-h-full w-full cursor-pointer flex-col space-y-2 sm:w-1/2 md:h-full md:w-1/2">
+            <div className="relative flex h-fit w-full cursor-pointer flex-col space-y-2 sm:w-1/2 md:h-full md:min-h-full md:w-1/2">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={`${selectedKitIndex}-${currentImageIndex}`}
@@ -292,26 +292,27 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
                     </div>
                 </div>
             </div>
-            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start sm:w-1/2 md:w-1/2 md:items-start">
+            <div className="m-auto flex h-full max-h-full w-4/5 flex-col items-start justify-start overflow-hidden sm:w-1/2 md:w-1/2 md:items-start">
                 <h1 className="font-cinzel radial-gradient-primary flex bg-primary bg-clip-text text-center text-4xl font-bold text-transparent">{`${selectedKit.full_name || selectedKit.name}`}</h1>
                 <div className="pt-2">
                     <StripeBrandedButton url={'/checkout/' + selectedKit.id} price={`${selectedKit.price}`} text="checkout" />
                 </div>
-                <p className="pt-2 text-stone-300">{selectedKit.description}</p>
-                <p className={`pt-0 text-stone-300 ${selectedKit.type === 'monthly' ? '' : 'hidden'}`}>
-                    Kits are locked for 4 hours after wipe, then available every 8 hours.
-                </p>
-                <div className={`mt-2 ${selectedKit.type === 'single' ? '' : 'hidden'}`}>
-                    <div className={`font-sans text-stone-300`}>
-                        <span>{`Use `}</span>
-                        <span className="text-primary_light">{`/redeem`}</span>
-                        <span>{` on any of our servers after purchase to redeem.`}</span>
+                <div className="flex-grow overflow-y-auto">
+                    <p className="pt-2 text-stone-300">{selectedKit.description}</p>
+                    <p className={`pt-0 text-stone-300 ${selectedKit.type === 'monthly' ? '' : 'hidden'}`}>
+                        Kits are locked for 4 hours after wipe, then available every 8 hours.
+                    </p>
+                    <div className={`mt-2 ${selectedKit.type === 'single' ? '' : 'hidden'}`}>
+                        <div className={`font-sans text-stone-300`}>
+                            <span>{`Use `}</span>
+                            <span className="text-primary_light">{`/redeem`}</span>
+                            <span>{` on any of our servers after purchase to redeem.`}</span>
+                        </div>
+                        <div className={`font-sans text-stone-300`}>{`Kits are locked and cannot be redeemed for 4 hours after wipe.`}</div>
                     </div>
-                    <div className={`font-sans text-stone-300`}>{`Kits are locked and cannot be redeemed for 4 hours after wipe.`}</div>
+                    <div className="w-full pt-2">{renderContentsButtons()}</div>
+                    <div className="w-full">{renderContents()}</div>
                 </div>
-                {/*<p className={`pt-0 text-stone-300`}>If you have any questions, feel free to reach out on discord!</p>*/}
-                <div className="w-full pt-2">{renderContentsButtons()}</div>
-                <div className="w-full overflow-y-auto">{renderContents()}</div>
             </div>
         </motion.div>
     );

@@ -155,6 +155,7 @@ export const player_stats = pgTable('player_stats', {
     stone_gathered: integer('stone_gathered').notNull().default(0),
     wood_gathered: integer('wood_gathered').notNull().default(0),
     metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
+    sulfur_ore_gathered: integer('sulfur_ore_gathered').notNull().default(0),
     scrap_wagered: integer('scrap_wagered').notNull().default(0),
     scrap_won: integer('scrap_won').notNull().default(0),
     last_updated: timestamp('last_updated').defaultNow(),
