@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult } from './wheelActions';
-import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, WheelColor, WheelPayout } from './wheelConstants';
+import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelPayout } from './wheelConstants';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import RecentWinners from './RecentWinners';
@@ -111,10 +111,8 @@ export default function GamblingWheel() {
                                     className="h-[80dvh] w-[80dvh] rounded-full"
                                     style={{
                                         background: `conic-gradient(${WHEEL_SLOTS.map(
-                                            (slot, index) =>
-                                                `${COLOR_CODES[slot.color]} ${index * DEGREES_PER_SLOT}deg ${
-                                                    (index + 1) * DEGREES_PER_SLOT
-                                                }deg`,
+                                            (color, index) =>
+                                                `${COLOR_CODES[color]} ${index * DEGREES_PER_SLOT}deg ${(index + 1) * DEGREES_PER_SLOT}deg`,
                                         ).join(', ')})`,
                                     }}
                                     animate={{ rotate: rotation }}
@@ -129,7 +127,7 @@ export default function GamblingWheel() {
                             {Object.entries(COLOR_CODES).map(([color, code]) => (
                                 <div key={color} className="flex items-center">
                                     <div className="mr-2 h-4 w-4" style={{ backgroundColor: code }}></div>
-                                    <span>{WHEEL_SLOTS.find((slot) => slot.color === color)?.payout}</span>
+                                    <span>{PAYOUTS[color as WheelColor]}</span>
                                 </div>
                             ))}
                         </div>

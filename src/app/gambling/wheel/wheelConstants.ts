@@ -1,39 +1,32 @@
-// File: /src/app/gambling/wheel/wheelConstants.ts
-
 export type WheelColor = 'Yellow' | 'Green' | 'Purple' | 'Blue' | 'Red';
-export type WheelPayout = 'P2 Pistol' | 'Tommy Gun' | 'M249' | 'AK47 Rifle' | 'Commander Kit';
+export type WheelPayout = 'P2 Pistol' | 'M92 Pistol' | 'Thompson' | 'M39 Rifle' | 'AK47 Rifle';
 
-export interface WheelSlot {
-    color: WheelColor;
-    payout: WheelPayout;
-}
-
-export const WHEEL_SLOTS: WheelSlot[] = [
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Green', payout: 'Tommy Gun' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Purple', payout: 'M249' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Green', payout: 'Tommy Gun' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Blue', payout: 'AK47 Rifle' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Blue', payout: 'AK47 Rifle' },
-    { color: 'Green', payout: 'Tommy Gun' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Purple', payout: 'M249' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Green', payout: 'Tommy Gun' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Blue', payout: 'AK47 Rifle' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Green', payout: 'Tommy Gun' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Red', payout: 'Commander Kit' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Green', payout: 'Tommy Gun' },
-    { color: 'Yellow', payout: 'P2 Pistol' },
-    { color: 'Blue', payout: 'AK47 Rifle' },
+export const WHEEL_SLOTS: WheelColor[] = [
+    'Yellow',
+    'Green',
+    'Yellow',
+    'Purple',
+    'Yellow',
+    'Green',
+    'Yellow',
+    'Blue',
+    'Yellow',
+    'Blue',
+    'Green',
+    'Yellow',
+    'Purple',
+    'Yellow',
+    'Green',
+    'Yellow',
+    'Blue',
+    'Yellow',
+    'Green',
+    'Yellow',
+    'Red',
+    'Yellow',
+    'Green',
+    'Yellow',
+    'Blue',
 ];
 
 export const COLOR_CODES: Record<WheelColor, string> = {
@@ -44,15 +37,23 @@ export const COLOR_CODES: Record<WheelColor, string> = {
     Red: '#FF4136',
 };
 
+export const PAYOUTS: Record<WheelColor, WheelPayout> = {
+    Yellow: 'P2 Pistol',
+    Green: 'M92 Pistol',
+    Purple: 'Thompson',
+    Blue: 'M39 Rifle',
+    Red: 'AK47 Rifle',
+};
+
 export const TOTAL_SLOTS = WHEEL_SLOTS.length;
 export const DEGREES_PER_SLOT = 360 / TOTAL_SLOTS;
 
 export function calculateSlotBoundaries() {
-    return WHEEL_SLOTS.map((slot, index) => ({
+    return WHEEL_SLOTS.map((color, index) => ({
         start: index * DEGREES_PER_SLOT,
         end: (index + 1) * DEGREES_PER_SLOT,
-        color: slot.color,
-        payout: slot.payout,
+        color: color,
+        payout: PAYOUTS[color],
     }));
 }
 
