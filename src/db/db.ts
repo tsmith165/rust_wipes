@@ -14,6 +14,8 @@ import {
     next_wipe_info,
     map_options,
     map_votes,
+    user_playtime,
+    wheel_spins,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -33,4 +35,6 @@ export {
     next_wipe_info,
     map_options,
     map_votes,
+    user_playtime,
+    wheel_spins,
 };

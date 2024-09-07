@@ -227,3 +227,26 @@ export const server_backend_info = pgTable('server_backend_info', {
 
 export type ServerBackendInfo = InferSelectModel<typeof server_backend_info>;
 export type InsertServerBackendInfo = InferInsertModel<typeof server_backend_info>;
+
+export const user_playtime = pgTable('user_playtime', {
+    id: serial('id').primaryKey(),
+    steam_id: varchar('steam_id').notNull().unique(),
+    credits: integer('credits').notNull().default(0),
+    player_name: varchar('player_name'),
+    hoursPlayed: integer('hours_played').default(0),
+});
+
+export type UserPlaytime = InferSelectModel<typeof user_playtime>;
+export type InsertUserPlaytime = InferInsertModel<typeof user_playtime>;
+
+export const wheel_spins = pgTable('wheel_spins', {
+    id: serial('id').primaryKey(),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => user_playtime.id),
+    result: varchar('result').notNull(),
+    timestamp: timestamp('timestamp').defaultNow(),
+});
+
+export type WheelSpins = InferSelectModel<typeof wheel_spins>;
+export type InsertWheelSpings = InferInsertModel<typeof wheel_spins>;
