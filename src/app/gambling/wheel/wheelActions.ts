@@ -3,7 +3,7 @@ import 'server-only';
 
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { determineWinningSlot } from './wheelConstants';
 
 export async function spinWheel(steamId: string, code: string, currentRotation: number) {
@@ -52,10 +52,14 @@ export async function getRecentWinners() {
         })
         .from(wheel_spins)
         .innerJoin(user_playtime, eq(user_playtime.id, wheel_spins.user_id))
-        .orderBy(wheel_spins.timestamp)
+        .orderBy(desc(wheel_spins.timestamp))
         .limit(10);
 
-    return winners;
+    return winners.map((winner) => ({
+        ...winner,
+        player_name: winner.player_name || 'Unknown Player',
+        timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
+    }));
 }
 
 export async function getUserCredits(steamId: string, code: string) {
