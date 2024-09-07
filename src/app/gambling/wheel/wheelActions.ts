@@ -4,7 +4,7 @@ import 'server-only';
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { determineWinningSlot } from './wheelConstants';
+import { determineWinningSlot, WHEEL_SLOTS, WheelColor } from './wheelConstants';
 
 export async function spinWheel(steamId: string, code: string, currentRotation: number) {
     if (code !== '99999') {
@@ -58,11 +58,15 @@ export async function getRecentWinners() {
         .orderBy(desc(wheel_spins.timestamp))
         .limit(10);
 
-    return winners.map((winner) => ({
-        ...winner,
-        player_name: winner.player_name || 'Unknown Player',
-        timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
-    }));
+    return winners.map((winner) => {
+        const wheelSlot = WHEEL_SLOTS.find((slot) => slot.payout === winner.result);
+        return {
+            ...winner,
+            player_name: winner.player_name || 'Unknown Player',
+            timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
+            color: wheelSlot ? wheelSlot.color : 'Yellow', // Default to Yellow if not found
+        };
+    });
 }
 
 export async function getUserCredits(steamId: string, code: string) {

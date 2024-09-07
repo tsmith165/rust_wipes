@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { getRecentWinners } from './wheelActions';
+import { COLOR_CODES, WheelColor } from './wheelConstants';
 
 interface Winner {
     player_name: string;
     result: string;
     timestamp: string;
+    color: WheelColor;
 }
 
 interface RecentWinnersProps {
@@ -45,7 +47,8 @@ export default function RecentWinners({ shouldRefetch, onRefetchComplete }: Rece
             <ul className="space-y-1">
                 {winners.map((winner, index) => (
                     <li key={index} className="text-sm">
-                        <span className="font-semibold">{winner.player_name}</span> won {winner.result}
+                        <span className="font-semibold">{winner.player_name}</span> won{' '}
+                        <span style={{ color: COLOR_CODES[winner.color] }}>{winner.result}</span>
                     </li>
                 ))}
             </ul>
