@@ -1,5 +1,5 @@
 import GamblingWheel from './GamblingWheel';
-import RecentWinners from './RecentWinners';
+import PageLayout from '@/components/layout/PageLayout';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         shortcut: '/rust_hazmat_icon.png',
     },
     openGraph: {
-        title: 'Rust Wipes - Gambline Wheel',
+        title: 'Rust Wipes - Gambling Wheel',
         description: 'Gambling Wheel for Rust Wipes',
         siteName: 'Rust Wipes',
         url: 'https://www.rustwipes.com',
@@ -33,13 +33,12 @@ export const metadata: Metadata = {
 
 export default function GamblingWheelPage() {
     return (
-        <div className="flex flex-col md:flex-row">
-            <div className="w-full md:w-3/4">
-                <GamblingWheel />
+        <PageLayout page="/gambling/wheel">
+            <div className="flex flex-col md:flex-row">
+                <div className="h-full w-full">
+                    <GamblingWheel />
+                </div>
             </div>
-            <div className="w-full md:w-1/4">
-                <RecentWinners />
-            </div>
-        </div>
+        </PageLayout>
     );
 }

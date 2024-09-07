@@ -9,51 +9,43 @@ interface Winner {
     timestamp: string;
 }
 
-export default function RecentWinners() {
+interface RecentWinnersProps {
+    shouldRefetch: boolean;
+    onRefetchComplete: () => void;
+}
+
+export default function RecentWinners({ shouldRefetch, onRefetchComplete }: RecentWinnersProps) {
     const [winners, setWinners] = useState<Winner[]>([]);
 
     const fetchWinners = async () => {
         try {
             const newWinners = await getRecentWinners();
-            setWinners((prevWinners) => {
-                // Check if there are any new winners
-                const hasNewWinners = newWinners.some(
-                    (newWinner) =>
-                        !prevWinners.some(
-                            (prevWinner) =>
-                                prevWinner.player_name === newWinner.player_name &&
-                                prevWinner.result === newWinner.result &&
-                                prevWinner.timestamp === newWinner.timestamp,
-                        ),
-                );
-
-                // Only update state if there are new winners
-                return hasNewWinners ? newWinners : prevWinners;
-            });
+            setWinners(newWinners);
         } catch (error) {
             console.error('Error fetching recent winners:', error);
         }
     };
 
     useEffect(() => {
-        fetchWinners(); // Fetch winners immediately on mount
-
-        const interval = setInterval(fetchWinners, 5000); // Then every 5 seconds
-
-        return () => clearInterval(interval); // Clean up on unmount
+        fetchWinners();
+        const interval = setInterval(fetchWinners, 5000);
+        return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        if (shouldRefetch) {
+            fetchWinners();
+            onRefetchComplete();
+        }
+    }, [shouldRefetch, onRefetchComplete]);
+
     return (
-        <div className="rounded bg-white p-4 shadow">
-            <h2 className="mb-4 text-xl font-bold">Recent Winners</h2>
-            <ul>
+        <div className="rounded-lg bg-stone-600 p-4 shadow">
+            <h2 className="mb-2 text-lg font-bold">Recent Winners</h2>
+            <ul className="space-y-1">
                 {winners.map((winner, index) => (
-                    <li key={index} className="mb-2">
+                    <li key={index} className="text-sm">
                         <span className="font-semibold">{winner.player_name}</span> won {winner.result}
-                        {/* Display the timestamp 
-                        <br />
-                        <small>{new Date(winner.timestamp).toLocaleString()}</small>
-                        */}
                     </li>
                 ))}
             </ul>
