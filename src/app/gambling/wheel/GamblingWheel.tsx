@@ -78,7 +78,7 @@ export default function GamblingWheel() {
     };
 
     return (
-        <div className="flex h-[calc(100dvh-50px)] w-full flex-col bg-stone-800 text-white md:flex-row">
+        <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-y-hidden bg-stone-800 text-white md:flex-row">
             <div className="w-full p-4 md:w-3/4">
                 {!isVerified ? (
                     <div className="mb-4 flex h-fit w-full flex-col space-y-2">
@@ -87,7 +87,7 @@ export default function GamblingWheel() {
                             name="Steam Profile"
                             value={steamInput}
                             onChange={(e) => setSteamInput(e.target.value)}
-                            placeholder="Enter your Steam ID or Profile URL"
+                            placeholder="Enter your Steam Profile URL"
                             labelWidth="lg"
                         />
                         <InputTextbox
