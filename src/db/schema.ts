@@ -234,6 +234,8 @@ export const user_playtime = pgTable('user_playtime', {
     credits: integer('credits').notNull().default(0),
     player_name: varchar('player_name'),
     hoursPlayed: integer('hours_played').default(0),
+    auth_code: varchar('auth_code', { length: 6 }),
+    profile_picture_url: text('profile_picture_url'),
 });
 
 export type UserPlaytime = InferSelectModel<typeof user_playtime>;
@@ -246,7 +248,8 @@ export const wheel_spins = pgTable('wheel_spins', {
         .references(() => user_playtime.id),
     result: varchar('result').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
+    redeemed: boolean('redeemed').notNull().default(false),
 });
 
 export type WheelSpins = InferSelectModel<typeof wheel_spins>;
-export type InsertWheelSpings = InferInsertModel<typeof wheel_spins>;
+export type InsertWheelSpins = InferInsertModel<typeof wheel_spins>;

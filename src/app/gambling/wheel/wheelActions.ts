@@ -50,23 +50,68 @@ export async function getRecentWinners() {
     const winners = await db
         .select({
             player_name: user_playtime.player_name,
+            steam_id: user_playtime.steam_id,
             result: wheel_spins.result,
             timestamp: wheel_spins.timestamp,
+            profile_picture_url: user_playtime.profile_picture_url,
         })
         .from(wheel_spins)
         .innerJoin(user_playtime, eq(user_playtime.id, wheel_spins.user_id))
         .orderBy(desc(wheel_spins.timestamp))
         .limit(25);
 
-    return winners.map((winner) => {
-        const wheelColor = Object.entries(PAYOUTS).find(([_, payout]) => payout === winner.result)?.[0] as WheelColor;
-        return {
-            ...winner,
-            player_name: winner.player_name || 'Unknown Player',
-            timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
-            color: wheelColor || 'Yellow', // Default to Yellow if not found
-        };
-    });
+    const winnersWithPictures = await Promise.all(
+        winners.map(async (winner) => {
+            let profilePictureUrl = winner.profile_picture_url;
+            if (!profilePictureUrl) {
+                profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
+            }
+            const wheelColor = Object.entries(PAYOUTS).find(([_, payout]) => payout === winner.result)?.[0] as WheelColor;
+            return {
+                ...winner,
+                player_name: winner.player_name || 'Unknown Player',
+                timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
+                color: wheelColor || 'Yellow',
+                profile_picture_url: profilePictureUrl,
+            };
+        }),
+    );
+
+    return winnersWithPictures;
+}
+
+async function fetchAndStoreProfilePicture(steamId: string): Promise<string | null> {
+    const STEAM_API_KEY = process.env.STEAM_API_KEY;
+    if (!STEAM_API_KEY) {
+        console.error('Steam API key is not set');
+        return null;
+    }
+
+    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+    try {
+        const response = await fetch(steamApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.response && data.response.players && data.response.players.length > 0) {
+            const player = data.response.players[0];
+            const profilePictureUrl = player.avatarfull;
+
+            // Store the profile picture URL in the database
+            await db.update(user_playtime).set({ profile_picture_url: profilePictureUrl }).where(eq(user_playtime.steam_id, steamId));
+
+            return profilePictureUrl;
+        } else {
+            console.error('Steam user not found in API response:', data);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching Steam profile picture:', error);
+        return null;
+    }
 }
 
 export async function getUserCredits(steamId: string, code: string) {

@@ -105,8 +105,8 @@ export default function GamblingWheel() {
     };
 
     return (
-        <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-x-hidden overflow-y-hidden bg-stone-800 text-white md:flex-row  ">
-            <div className="w-full p-4 md:w-3/4">
+        <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-x-hidden overflow-y-hidden bg-stone-800 text-white lg:flex-row  ">
+            <div className="w-full p-4 lg:w-3/4">
                 {!isVerified ? (
                     <div className="mb-4 flex h-fit w-full flex-col space-y-2">
                         <InputTextbox
@@ -131,11 +131,11 @@ export default function GamblingWheel() {
                         {error && <p className="mt-2 text-red-500">{error}</p>}
                     </div>
                 ) : (
-                    <div className="flex h-full flex-col items-center space-y-2 md:space-y-4">
+                    <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
                         <div className="relative flex h-full w-full items-center justify-center">
-                            <div className="relative h-[90dvw] min-h-full w-[3/4] md:h-[75dvh]">
+                            <div className="relative h-[90dvw] min-h-full w-[3/4] lg:!h-[75dvh]">
                                 <motion.div
-                                    className="h-[90dvw] w-[90dvw] rounded-full md:h-[80dvh] md:w-[80dvh]"
+                                    className="relative h-[90dvw] w-[90dvw] rounded-full lg:h-[75dvw] lg:max-h-[75dvh] lg:w-[75dvw] lg:max-w-[75dvh]"
                                     style={{
                                         background: `conic-gradient(${WHEEL_SLOTS.map(
                                             (color, index) =>
@@ -148,43 +148,47 @@ export default function GamblingWheel() {
                                     {WHEEL_SLOTS.map((color, index) => (
                                         <div
                                             key={index}
-                                            className="invisible md:visible md:absolute"
+                                            className="invisible absolute lg:visible"
                                             style={{
-                                                top: '39dvh',
-                                                left: '39dvh',
-                                                transform: `rotate(${index * DEGREES_PER_SLOT + DEGREES_PER_SLOT / 2}deg) translateY(-37dvh)`,
+                                                width: '100%',
+                                                height: '100%',
+                                                transform: `rotate(${index * DEGREES_PER_SLOT + DEGREES_PER_SLOT / 2}deg)`,
                                             }}
                                         >
-                                            <Image src={ICON_PATHS[PAYOUTS[color]]} alt={PAYOUTS[color]} width={32} height={32} />
+                                            <div className="absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 transform">
+                                                <Image src={ICON_PATHS[PAYOUTS[color]]} alt={PAYOUTS[color]} width={32} height={32} />
+                                            </div>
                                         </div>
                                     ))}
                                 </motion.div>
-                                <div className="absolute left-1/2 top-0 -translate-x-1/2 transform text-stone-800">
+                                <div className="absolute left-1/2 top-[-15px] -translate-x-1/2 transform text-primary_light">
                                     <BiSolidDownArrow size={32} />
                                 </div>
-                                <AnimatePresence>
-                                    {showOverlay && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.8 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.8 }}
-                                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70"
-                                        >
-                                            <div className="text-center">
-                                                <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                                                <div className="flex items-center justify-center">
-                                                    <Image
-                                                        src={ICON_PATHS[result?.payout || 'P2 Pistol']}
-                                                        alt={result?.payout || ''}
-                                                        width={64}
-                                                        height={64}
-                                                    />
-                                                    <span className="ml-4 text-3xl font-bold">{result?.payout}</span>
+                                <div className="absolute left-1/2 top-0 flex h-full w-full -translate-x-1/2 transform items-center justify-center lg:top-[-10%]">
+                                    <AnimatePresence>
+                                        {showOverlay && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                className="flex h-[70%] w-[70%] items-center justify-center rounded-lg bg-black bg-opacity-70 lg:!h-[30dvw] lg:!w-[30dvw]"
+                                            >
+                                                <div className="text-center">
+                                                    <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
+                                                    <div className="flex items-center justify-center">
+                                                        <Image
+                                                            src={ICON_PATHS[result?.payout || 'P2 Pistol']}
+                                                            alt={result?.payout || ''}
+                                                            width={64}
+                                                            height={64}
+                                                        />
+                                                        <span className="ml-4 text-3xl font-bold">{result?.payout}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                                 {showConfetti && windowSize.width > 0 && windowSize.height > 0 && (
                                     <Confetti
                                         width={windowSize.width}
@@ -204,9 +208,9 @@ export default function GamblingWheel() {
                                 )}
                             </div>
                         </div>
-                        <div className="grid w-full grid-cols-2 gap-2 md:flex md:flex-row md:justify-center md:space-x-2">
+                        <div className="grid w-full grid-cols-2 gap-2 lg:flex lg:flex-row lg:justify-center lg:space-x-2">
                             {LEGEND_ORDER.map((color) => (
-                                <div key={color} className="flex items-center justify-center space-x-2 md:w-auto">
+                                <div key={color} className="flex items-center justify-center space-x-2 lg:w-auto">
                                     <div
                                         className="flex h-8 w-8 items-center justify-center rounded-md"
                                         style={{ backgroundColor: COLOR_CODES[color] }}
@@ -220,8 +224,8 @@ export default function GamblingWheel() {
                     </div>
                 )}
             </div>
-            <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 md:w-1/4 md:space-y-4 md:p-4">
-                <div className="flex flex-row items-center justify-between space-y-2 md:flex-col md:space-y-4">
+            <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 lg:w-1/4 lg:space-y-4 lg:p-4">
+                <div className="flex flex-row items-center justify-between space-y-2 lg:flex-col lg:space-y-4">
                     {!isVerified ? (
                         <p className="text-center text-primary_light">Type '/auth' in game to get your code</p>
                     ) : steamProfile ? (
