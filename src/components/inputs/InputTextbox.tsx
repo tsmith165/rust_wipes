@@ -46,7 +46,7 @@ const InputTextbox: React.FC<InputTextboxProps> = ({
     };
 
     return (
-        <div className="m-0 flex h-full w-full max-w-full flex-row overflow-hidden p-0">
+        <div className="m-0 flex w-full max-w-full flex-row overflow-hidden p-0">
             <div
                 className={`flex h-8 ${labelWidthClasses[labelWidth]} items-center justify-center rounded-l-md bg-gradient-to-r from-primary_light to-primary_dark px-2.5 py-1.5`}
                 data-tooltip-id={`tooltip-${idName}`}

@@ -106,9 +106,9 @@ export default function GamblingWheel() {
 
     return (
         <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-x-hidden overflow-y-hidden bg-stone-800 text-white lg:flex-row  ">
-            <div className="w-full p-4 lg:w-3/4">
+            <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
                 {!isVerified ? (
-                    <div className="mb-4 flex h-fit w-full flex-col space-y-2">
+                    <div className="mb-4 flex h-full w-full flex-col items-center justify-center space-y-2 md:w-3/4">
                         <InputTextbox
                             idName="steam_input"
                             name="Steam Profile"
@@ -189,25 +189,24 @@ export default function GamblingWheel() {
                                         )}
                                     </AnimatePresence>
                                 </div>
-                                {showConfetti && windowSize.width > 0 && windowSize.height > 0 && (
-                                    <Confetti
-                                        width={windowSize.width}
-                                        height={windowSize.height}
-                                        recycle={false}
-                                        numberOfPieces={200}
-                                        gravity={0.2}
-                                        initialVelocityX={5}
-                                        initialVelocityY={20}
-                                        confettiSource={{
-                                            x: 0,
-                                            y: 0,
-                                            w: windowSize.width,
-                                            h: 0,
-                                        }}
-                                    />
-                                )}
                             </div>
                         </div>
+                        {showConfetti && (
+                            <Confetti
+                                className="absolute left-0 top-12 h-[calc(100dvh-50px)] w-[100dvw] lg:w-[75dvw]"
+                                recycle={false}
+                                numberOfPieces={200}
+                                gravity={0.2}
+                                initialVelocityX={5}
+                                initialVelocityY={20}
+                                confettiSource={{
+                                    x: 0,
+                                    y: 0,
+                                    w: windowSize.width,
+                                    h: 0,
+                                }}
+                            />
+                        )}
                         <div className="grid w-full grid-cols-2 gap-2 lg:flex lg:flex-row lg:justify-center lg:space-x-2">
                             {LEGEND_ORDER.map((color) => (
                                 <div key={color} className="flex items-center justify-center space-x-2 lg:w-auto">
