@@ -125,6 +125,7 @@ export default function GamblingWheel() {
                             placeholder="Enter your code"
                             labelWidth="lg"
                         />
+                        <p className="text-center text-primary_light">Type '/auth' in game to get your code</p>
                         <button onClick={handleVerify} className="mt-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light">
                             Verify
                         </button>
@@ -133,9 +134,9 @@ export default function GamblingWheel() {
                 ) : (
                     <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
                         <div className="relative flex h-full w-full items-center justify-center">
-                            <div className="relative h-[90dvw] min-h-full w-[3/4] lg:!h-[75dvh]">
+                            <div className="relative h-[90dvw] max-h-[60dvh] min-h-full w-[3/4] lg:!h-[75dvh]">
                                 <motion.div
-                                    className="relative h-[90dvw] w-[90dvw] rounded-full lg:h-[75dvw] lg:max-h-[75dvh] lg:w-[75dvw] lg:max-w-[75dvh]"
+                                    className="relative h-[90dvw] max-h-[60dvh] w-[90dvw] max-w-[60dvh] rounded-full lg:h-[75dvw] lg:w-[75dvw]"
                                     style={{
                                         background: `conic-gradient(${WHEEL_SLOTS.map(
                                             (color, index) =>
@@ -234,16 +235,18 @@ export default function GamblingWheel() {
                 )}
             </div>
             <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 lg:w-1/4 lg:space-y-4 lg:p-4">
-                <div className="flex flex-row items-center justify-between space-y-2 lg:flex-col lg:space-y-4">
-                    {!isVerified ? (
-                        <p className="text-center text-primary_light">Type '/auth' in game to get your code</p>
-                    ) : steamProfile ? (
-                        <div className="flex items-center">
-                            <Image src={steamProfile.avatarUrl} alt="Steam Avatar" width={40} height={40} className="mr-2 rounded-full" />
-                            <span className="text-lg font-bold">{steamProfile.name}</span>
-                        </div>
-                    ) : null}
-                    {credits !== null && <p className="mb-4 text-center text-lg font-bold text-white">Credits: {credits}</p>}
+                <div className="flex flex-row items-center justify-between lg:flex-col lg:space-y-4">
+                    <div className="fit flex items-start lg:w-full">
+                        <Image
+                            src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
+                            alt="Steam Avatar"
+                            width={32}
+                            height={32}
+                            className="mr-2 rounded-full"
+                        />
+                        <span className="text-lg font-bold">{steamProfile?.name || 'Enter Steam Profile URL'}</span>
+                    </div>
+                    <p className="flex w-fit items-start text-center text-lg font-bold text-white lg:w-full">Credits: {credits || '0'}</p>
                 </div>
                 {isVerified && (
                     <button
