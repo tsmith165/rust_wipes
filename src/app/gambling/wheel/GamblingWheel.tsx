@@ -148,7 +148,7 @@ export default function GamblingWheel() {
                                     {WHEEL_SLOTS.map((color, index) => (
                                         <div
                                             key={index}
-                                            className="hidden md:absolute"
+                                            className="invisible md:visible md:absolute"
                                             style={{
                                                 top: '39dvh',
                                                 left: '39dvh',
@@ -204,9 +204,9 @@ export default function GamblingWheel() {
                                 )}
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 justify-end space-y-2 md:flex md:flex-row md:space-x-2 md:space-y-0">
+                        <div className="grid w-full grid-cols-2 gap-2 md:flex md:flex-row md:justify-center md:space-x-2">
                             {LEGEND_ORDER.map((color) => (
-                                <div key={color} className="flex w-[45dvw] items-center justify-center space-x-2">
+                                <div key={color} className="flex items-center justify-center space-x-2 md:w-auto">
                                     <div
                                         className="flex h-8 w-8 items-center justify-center rounded-md"
                                         style={{ backgroundColor: COLOR_CODES[color] }}

@@ -56,7 +56,7 @@ export async function getRecentWinners() {
         .from(wheel_spins)
         .innerJoin(user_playtime, eq(user_playtime.id, wheel_spins.user_id))
         .orderBy(desc(wheel_spins.timestamp))
-        .limit(10);
+        .limit(25);
 
     return winners.map((winner) => {
         const wheelColor = Object.entries(PAYOUTS).find(([_, payout]) => payout === winner.result)?.[0] as WheelColor;
