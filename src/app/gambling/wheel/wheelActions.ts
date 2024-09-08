@@ -3,12 +3,22 @@ import 'server-only';
 
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { determineWinningSlot, PAYOUTS, WheelColor } from './wheelConstants';
 
+async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
+    const user = await db
+        .select()
+        .from(user_playtime)
+        .where(and(eq(user_playtime.steam_id, steamId), eq(user_playtime.auth_code, code)))
+        .limit(1);
+
+    return user.length > 0;
+}
+
 export async function spinWheel(steamId: string, code: string, currentRotation: number) {
-    if (code !== '99999') {
-        throw new Error('Invalid code');
+    if (!(await verifyAuthCode(steamId, code))) {
+        throw new Error('Invalid auth code');
     }
 
     const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
@@ -115,8 +125,8 @@ async function fetchAndStoreProfilePicture(steamId: string): Promise<string | nu
 }
 
 export async function getUserCredits(steamId: string, code: string) {
-    if (code !== '99999') {
-        throw new Error('Invalid code');
+    if (!(await verifyAuthCode(steamId, code))) {
+        throw new Error('Invalid auth code');
     }
 
     const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
