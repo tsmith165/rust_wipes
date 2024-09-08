@@ -1,6 +1,8 @@
 export type WheelColor = 'Yellow' | 'Green' | 'Purple' | 'Blue' | 'Red';
 export type WheelPayout = 'P2 Pistol' | 'M92 Pistol' | 'Thompson' | 'M39 Rifle' | 'AK47 Rifle';
 
+export const LEGEND_ORDER: WheelColor[] = ['Yellow', 'Green', 'Blue', 'Purple', 'Red'];
+
 export const WHEEL_SLOTS: WheelColor[] = [
     'Yellow',
     'Green',
@@ -32,16 +34,16 @@ export const WHEEL_SLOTS: WheelColor[] = [
 export const COLOR_CODES: Record<WheelColor, string> = {
     Yellow: '#FFDC00',
     Green: '#2ECC40',
-    Purple: '#B10DC9',
     Blue: '#0074D9',
+    Purple: '#B10DC9',
     Red: '#FF4136',
 };
 
 export const PAYOUTS: Record<WheelColor, WheelPayout> = {
     Yellow: 'P2 Pistol',
     Green: 'M92 Pistol',
-    Purple: 'Thompson',
-    Blue: 'M39 Rifle',
+    Blue: 'Thompson',
+    Purple: 'M39 Rifle',
     Red: 'AK47 Rifle',
 };
 

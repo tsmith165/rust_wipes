@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult } from './wheelActions';
-import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelPayout } from './wheelConstants';
+import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelPayout, LEGEND_ORDER } from './wheelConstants';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import RecentWinners from './RecentWinners';
@@ -124,10 +124,10 @@ export default function GamblingWheel() {
                             </div>
                         </div>
                         <div className="flex flex-row justify-end space-x-2">
-                            {Object.entries(COLOR_CODES).map(([color, code]) => (
+                            {LEGEND_ORDER.map((color) => (
                                 <div key={color} className="flex items-center">
-                                    <div className="mr-2 h-4 w-4" style={{ backgroundColor: code }}></div>
-                                    <span>{PAYOUTS[color as WheelColor]}</span>
+                                    <div className="mr-2 h-4 w-4" style={{ backgroundColor: COLOR_CODES[color] }}></div>
+                                    <span>{PAYOUTS[color]}</span>
                                 </div>
                             ))}
                         </div>
