@@ -48,11 +48,13 @@ export async function spinWheel(steamId: string, code: string, currentRotation: 
     return { result, totalRotation, finalDegree, credits: user[0].credits - 5, userId: user[0].id };
 }
 
-export async function recordSpinResult(userId: number, result: string) {
+export async function recordSpinResult(userId: number, result: WheelColor) {
+    const payout = PAYOUTS[result];
     // Insert wheel spin result
     await db.insert(wheel_spins).values({
         user_id: userId,
-        result: result,
+        result: payout.displayName,
+        in_game_item_name: payout.inGameName,
     });
 }
 
@@ -76,7 +78,7 @@ export async function getRecentWinners() {
             if (!profilePictureUrl) {
                 profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
             }
-            const wheelColor = Object.entries(PAYOUTS).find(([_, payout]) => payout === winner.result)?.[0] as WheelColor;
+            const wheelColor = Object.entries(PAYOUTS).find(([_, payout]) => payout.displayName === winner.result)?.[0] as WheelColor;
             return {
                 ...winner,
                 player_name: winner.player_name || 'Unknown Player',

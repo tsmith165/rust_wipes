@@ -39,12 +39,12 @@ export const COLOR_CODES: Record<WheelColor, string> = {
     Red: '#FF4136',
 };
 
-export const PAYOUTS: Record<WheelColor, WheelPayout> = {
-    Yellow: 'P2 Pistol',
-    Green: 'M92 Pistol',
-    Blue: 'Thompson',
-    Purple: 'M39 Rifle',
-    Red: 'AK47 Rifle',
+export const PAYOUTS: Record<WheelColor, { displayName: WheelPayout; inGameName: string }> = {
+    Yellow: { displayName: 'P2 Pistol', inGameName: 'pistol.semiauto' },
+    Green: { displayName: 'M92 Pistol', inGameName: 'pistol.m92' },
+    Blue: { displayName: 'Thompson', inGameName: 'smg.thompson' },
+    Purple: { displayName: 'M39 Rifle', inGameName: 'rifle.m39' },
+    Red: { displayName: 'AK47 Rifle', inGameName: 'rifle.ak' },
 };
 
 export const TOTAL_SLOTS = WHEEL_SLOTS.length;

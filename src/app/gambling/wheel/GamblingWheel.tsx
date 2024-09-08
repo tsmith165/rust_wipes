@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult } from './wheelActions';
-import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelPayout, LEGEND_ORDER } from './wheelConstants';
+import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, LEGEND_ORDER } from './wheelConstants';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import RecentWinners from './RecentWinners';
@@ -12,7 +12,7 @@ import { BiSolidDownArrow } from 'react-icons/bi';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
-const ICON_PATHS: Record<WheelPayout, string> = {
+const ICON_PATHS: Record<string, string> = {
     'AK47 Rifle': '/rust_icons/ak47_icon.png',
     'M39 Rifle': '/rust_icons/m39_icon.png',
     Thompson: '/rust_icons/thompson_icon.png',
@@ -24,7 +24,7 @@ interface WheelResult {
     start: number;
     end: number;
     color: WheelColor;
-    payout: WheelPayout;
+    payout: { displayName: string; inGameName: string };
 }
 
 interface SteamProfile {
@@ -90,7 +90,7 @@ export default function GamblingWheel() {
                 setSpinning(false);
                 setShowOverlay(true);
                 setShowConfetti(true);
-                await recordSpinResult(userId, result.payout);
+                await recordSpinResult(userId, result.color);
                 setShouldRefetchWinners(true);
                 setTimeout(() => {
                     setShowOverlay(false);
@@ -156,7 +156,12 @@ export default function GamblingWheel() {
                                             }}
                                         >
                                             <div className="absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 transform">
-                                                <Image src={ICON_PATHS[PAYOUTS[color]]} alt={PAYOUTS[color]} width={32} height={32} />
+                                                <Image
+                                                    src={ICON_PATHS[PAYOUTS[color].displayName]}
+                                                    alt={PAYOUTS[color].displayName}
+                                                    width={32}
+                                                    height={32}
+                                                />
                                             </div>
                                         </div>
                                     ))}
@@ -177,12 +182,12 @@ export default function GamblingWheel() {
                                                     <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
                                                     <div className="flex items-center justify-center">
                                                         <Image
-                                                            src={ICON_PATHS[result?.payout || 'P2 Pistol']}
-                                                            alt={result?.payout || ''}
+                                                            src={ICON_PATHS[result?.payout.displayName || 'P2 Pistol']}
+                                                            alt={result?.payout.displayName || ''}
                                                             width={64}
                                                             height={64}
                                                         />
-                                                        <span className="ml-4 text-3xl font-bold">{result?.payout}</span>
+                                                        <span className="ml-4 text-3xl font-bold">{result?.payout.displayName}</span>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -214,9 +219,14 @@ export default function GamblingWheel() {
                                         className="flex h-8 w-8 items-center justify-center rounded-md"
                                         style={{ backgroundColor: COLOR_CODES[color] }}
                                     >
-                                        <Image src={ICON_PATHS[PAYOUTS[color]]} alt={PAYOUTS[color]} width={24} height={24} />
+                                        <Image
+                                            src={ICON_PATHS[PAYOUTS[color].displayName]}
+                                            alt={PAYOUTS[color].displayName}
+                                            width={24}
+                                            height={24}
+                                        />
                                     </div>
-                                    <span className="w-[90px] text-left text-sm font-bold">{PAYOUTS[color]}</span>
+                                    <span className="w-[90px] text-left text-sm font-bold">{PAYOUTS[color].displayName}</span>
                                 </div>
                             ))}
                         </div>

@@ -247,6 +247,7 @@ export const wheel_spins = pgTable('wheel_spins', {
         .notNull()
         .references(() => user_playtime.id),
     result: varchar('result').notNull(),
+    in_game_item_name: varchar('in_game_item_name').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
     redeemed: boolean('redeemed').notNull().default(false),
 });
