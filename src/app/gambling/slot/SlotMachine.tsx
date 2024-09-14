@@ -42,6 +42,7 @@ interface SteamProfile {
     steamId: string;
 }
 
+const WINDOW_SIZE_SMALL_THRESHOLD = 400;
 const WINDOW_SIZE_LARGE_THRESHOLD = 600;
 const WINDOW_SIZE_EXTRA_LARGE_THRESHOLD = 1000;
 
@@ -51,6 +52,8 @@ const ITEM_HEIGHT_LARGE = 100;
 const ITEM_WIDTH_LARGE = 100;
 const ITEM_WIDTH_SMALL = 60;
 const ITEM_HEIGHT_SMALL = 60;
+const ITEM_WIDTH_EXTRA_SMALL = 50;
+const ITEM_HEIGHT_EXTRA_SMALL = 50;
 
 const VISIBLE_ITEMS = 5;
 const GAP = 2; // Adjusted gap
@@ -77,8 +80,8 @@ export default function SlotMachine() {
     const [spinAmounts, setSpinAmounts] = useState<number[]>([]);
     const [spinKey, setSpinKey] = useState(0);
 
-    const [ITEM_HEIGHT, setItemHeight] = useState(ITEM_HEIGHT_LARGE);
-    const [ITEM_WIDTH, setItemWidth] = useState(ITEM_WIDTH_LARGE);
+    const [ITEM_HEIGHT, setItemHeight] = useState(ITEM_WIDTH_EXTRA_SMALL);
+    const [ITEM_WIDTH, setItemWidth] = useState(ITEM_HEIGHT_EXTRA_SMALL);
 
     // Add state variables for "Show Lines" functionality
     const [lineType, setLineType] = useState<'horizontal' | 'zigzag' | 'diagonal' | null>(null);
@@ -100,26 +103,29 @@ export default function SlotMachine() {
         const updateWindowSize = () => {
             setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             if (
-                window.innerWidth < WINDOW_SIZE_LARGE_THRESHOLD &&
-                window.innerHeight < WINDOW_SIZE_LARGE_THRESHOLD &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
+                (window.innerWidth < WINDOW_SIZE_SMALL_THRESHOLD || window.innerHeight < WINDOW_SIZE_SMALL_THRESHOLD) &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
+            ) {
+                setItemHeight(ITEM_HEIGHT_EXTRA_SMALL);
+                setItemWidth(ITEM_WIDTH_EXTRA_SMALL);
+            } else if (
+                (window.innerWidth < WINDOW_SIZE_LARGE_THRESHOLD || window.innerHeight < WINDOW_SIZE_LARGE_THRESHOLD) &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
             ) {
                 setItemHeight(ITEM_HEIGHT_SMALL);
                 setItemWidth(ITEM_WIDTH_SMALL);
             } else if (
-                window.innerWidth < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
-                window.innerHeight < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_SMALL)
+                (window.innerWidth < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD || window.innerHeight < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD) &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
             ) {
                 setItemHeight(ITEM_HEIGHT_LARGE);
                 setItemWidth(ITEM_WIDTH_LARGE);
             } else if (
-                window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
-                window.innerHeight >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE)
+                (window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD || window.innerHeight >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD) &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE)
             ) {
                 setItemHeight(ITEM_HEIGHT_EXTRA_LARGE);
-                setItemWidth(ITEM_HEIGHT_EXTRA_LARGE);
+                setItemWidth(ITEM_WIDTH_EXTRA_LARGE);
             }
         };
         updateWindowSize();
@@ -154,6 +160,7 @@ export default function SlotMachine() {
             setCredits(credits);
             setFreeSpins(freeSpins);
             setIsVerified(true);
+            setError('');
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -408,7 +415,7 @@ export default function SlotMachine() {
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.8 }}
-                                        className="absolute m-8 flex h-fit w-fit items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
+                                        className="absolute m-8 flex h-fit w-[200px] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
                                     >
                                         <div className="text-center">
                                             <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
@@ -426,15 +433,15 @@ export default function SlotMachine() {
                             </AnimatePresence>
                             {showConfetti && (
                                 <Confetti
-                                    className="absolute left-0 top-0 h-full w-full"
+                                    className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8"
                                     recycle={false}
                                     numberOfPieces={200}
                                     gravity={0.2}
                                     initialVelocityX={5}
                                     initialVelocityY={20}
                                     confettiSource={{
-                                        x: windowSize.width / 2,
-                                        y: windowSize.height / 2,
+                                        x: windowSize.width > 1222 ? (windowSize.width * 0.75) / 2 + 100 : windowSize.width / 2,
+                                        y: 120,
                                         w: 0,
                                         h: 0,
                                     }}

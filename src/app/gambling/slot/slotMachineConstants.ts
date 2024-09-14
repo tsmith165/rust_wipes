@@ -4,13 +4,13 @@ export const BONUS_SYMBOL = 'bonus';
 
 // Define probabilities for each symbol (must sum to 1)
 export const SYMBOL_PROBABILITIES: Record<string, number> = {
-    scrap: 0.22,
+    scrap: 0.23,
     metal_fragments: 0.18,
     high_quality_metal: 0.18,
     thompson: 0.14,
     m39_rifle: 0.12,
-    ak47: 0.08,
-    bonus: 0.08,
+    ak47: 0.11,
+    bonus: 0.04,
 };
 
 // Define base payouts
