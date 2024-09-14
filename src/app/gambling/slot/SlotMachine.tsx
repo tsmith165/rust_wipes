@@ -395,7 +395,7 @@ export default function SlotMachine() {
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.8 }}
-                                        className="absolute m-8 flex h-full w-full items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
+                                        className="absolute m-8 flex h-fit w-fit items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
                                     >
                                         <div className="text-center">
                                             <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
