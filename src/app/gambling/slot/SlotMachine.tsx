@@ -42,9 +42,12 @@ interface SteamProfile {
 }
 
 const VISIBLE_ITEMS = 5;
-const ITEM_HEIGHT = 80;
-const ITEM_WIDTH = 80;
+const ITEM_HEIGHT_LARGE = 100;
+const ITEM_WIDTH_LARGE = 100;
+const ITEM_WIDTH_SMALL = 60;
+const ITEM_HEIGHT_SMALL = 60;
 const GAP = 2; // Adjusted gap
+const WINDOW_SIZE_THRESHOLD = 600;
 
 export default function SlotMachine() {
     const [showOverlay, setShowOverlay] = useState(false);
@@ -68,6 +71,9 @@ export default function SlotMachine() {
     const [spinAmounts, setSpinAmounts] = useState<number[]>([]);
     const [spinKey, setSpinKey] = useState(0);
 
+    const [ITEM_HEIGHT, setItemHeight] = useState(ITEM_HEIGHT_LARGE);
+    const [ITEM_WIDTH, setItemWidth] = useState(ITEM_WIDTH_LARGE);
+
     // Add state variables for "Show Lines" functionality
     const [lineType, setLineType] = useState<'horizontal' | 'zigzag' | 'diagonal' | null>(null);
     const [lineFlashCount, setLineFlashCount] = useState(0);
@@ -87,6 +93,20 @@ export default function SlotMachine() {
     useEffect(() => {
         const updateWindowSize = () => {
             setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+            if (
+                (window.innerWidth < WINDOW_SIZE_THRESHOLD || window.innerHeight < WINDOW_SIZE_THRESHOLD) &&
+                ITEM_HEIGHT === ITEM_HEIGHT_LARGE
+            ) {
+                setItemHeight(ITEM_HEIGHT_SMALL);
+                setItemWidth(ITEM_WIDTH_SMALL);
+            } else if (
+                window.innerWidth >= WINDOW_SIZE_THRESHOLD &&
+                window.innerHeight >= WINDOW_SIZE_THRESHOLD &&
+                ITEM_HEIGHT === ITEM_HEIGHT_SMALL
+            ) {
+                setItemHeight(ITEM_HEIGHT_LARGE);
+                setItemWidth(ITEM_WIDTH_LARGE);
+            }
         };
         updateWindowSize();
         window.addEventListener('resize', updateWindowSize);
@@ -174,7 +194,7 @@ export default function SlotMachine() {
             setSpinning(true);
 
             // Wait for the animations to complete
-            const maxDuration = 2 + 4 * 0.5; // For the last reel
+            const maxDuration = 2 + 4 * 0.6; // For the last reel
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
 
             // Update credits and other states
@@ -214,9 +234,9 @@ export default function SlotMachine() {
     };
 
     return (
-        <div className="flex h-[calc(100vh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
+        <div className="flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
             {!isVerified ? (
-                <div className="mb-4 flex w-full flex-col items-center justify-center space-y-2 md:w-1/2">
+                <div className="mb-4 flex w-full flex-col items-center justify-center space-y-2 px-8 md:w-1/2">
                     {/* Verification inputs */}
                     <InputTextbox
                         idName="steam_input"
@@ -241,14 +261,14 @@ export default function SlotMachine() {
                     {error && <p className="mt-2 text-red-500">{error}</p>}
                 </div>
             ) : (
-                <div className="flex w-full flex-col lg:flex-row">
+                <div className="flex h-full w-full flex-col lg:flex-row">
                     <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
                         <div className="relative flex h-full flex-col items-center space-y-2 lg:space-y-4">
                             <div
                                 className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
                                 style={{
-                                    height: `${VISIBLE_ITEMS * ITEM_HEIGHT + (VISIBLE_ITEMS - 1) * GAP + 4}px`, // Added 4px to account for padding
-                                    width: `${5 * ITEM_WIDTH + 4 * GAP + 4}px`, // Added 4px to account for padding
+                                    height: `${VISIBLE_ITEMS * ITEM_HEIGHT + (VISIBLE_ITEMS - 1) * GAP + 4 + 8}px`, // Added 4px to account for padding
+                                    width: `${5 * ITEM_WIDTH + 4 * GAP + 4 + 8}px`, // Added 4px to account for padding
                                 }}
                             >
                                 <AnimatePresence mode="wait">
@@ -375,7 +395,7 @@ export default function SlotMachine() {
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.8 }}
-                                        className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
+                                        className="absolute m-8 flex h-full w-full items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
                                     >
                                         <div className="text-center">
                                             <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
@@ -428,15 +448,14 @@ export default function SlotMachine() {
                         <button
                             onClick={handleSpin}
                             disabled={spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                            className="mt-4 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light disabled:bg-gray-400"
+                            className="mt-4 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                         >
-                            {spinning ? 'Spinning...' : freeSpins > 0 ? 'Free Spin' : 'Spin (5 credits)'}
+                            {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
                         </button>
-                        <p className="text-lg font-bold">Free Spins: {freeSpins}</p>
                         {/* Add the "Show Lines" button */}
                         <button
                             onClick={handleShowLines}
-                            className="mt-2 rounded bg-secondary px-4 py-2 text-white hover:bg-secondary_light"
+                            className="mt-2 rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light"
                         >
                             Show Lines
                         </button>

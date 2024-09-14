@@ -6,13 +6,23 @@ export const BONUS_SYMBOL = 'bonus';
 export const SYMBOL_PROBABILITIES: Record<string, number> = {
     scrap: 0.25,
     metal_fragments: 0.2,
-    high_quality_metal: 0.15,
-    p2_pistol: 0.1,
-    m92_pistol: 0.08,
-    thompson: 0.09,
-    m39_rifle: 0.06,
-    ak47: 0.04,
+    high_quality_metal: 0.18,
+    thompson: 0.14,
+    m39_rifle: 0.12,
+    ak47: 0.08,
     bonus: 0.03,
+};
+
+// Define base payouts
+export const BASE_PAYOUTS: Record<string, { item: string; baseQuantity: number }> = {
+    scrap: { item: 'scrap', baseQuantity: 100 },
+    metal_fragments: { item: 'metal_fragments', baseQuantity: 500 },
+    high_quality_metal: { item: 'high_quality_metal', baseQuantity: 50 },
+    p2_pistol: { item: 'pistol.semiauto', baseQuantity: 1 },
+    m92_pistol: { item: 'pistol.m92', baseQuantity: 1 },
+    thompson: { item: 'smg.thompson', baseQuantity: 1 },
+    m39_rifle: { item: 'rifle.m39', baseQuantity: 1 },
+    ak47: { item: 'rifle.ak', baseQuantity: 1 },
 };
 
 // Ensure the sum of probabilities is 1

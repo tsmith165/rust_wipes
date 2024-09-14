@@ -3,7 +3,7 @@
 import { db } from '@/db/db';
 import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { SLOT_ITEMS, BONUS_SYMBOL, SYMBOL_PROBABILITIES, WINNING_LINES } from './slotMachineConstants';
+import { SLOT_ITEMS, BONUS_SYMBOL, BASE_PAYOUTS, SYMBOL_PROBABILITIES, WINNING_LINES } from './slotMachineConstants';
 
 const REEL_SIZE = 20;
 const VISIBLE_ITEMS = 5;
@@ -214,19 +214,7 @@ function calculatePayout(grid: string[][]): {
 }
 
 function getSymbolPayout(symbol: string, consecutiveCount: number): { item: string; quantity: number } | null {
-    // Define base payouts
-    const basePayouts: Record<string, { item: string; baseQuantity: number }> = {
-        scrap: { item: 'scrap', baseQuantity: 100 },
-        metal_fragments: { item: 'metal_fragments', baseQuantity: 200 },
-        high_quality_metal: { item: 'high_quality_metal', baseQuantity: 50 },
-        p2_pistol: { item: 'pistol.semiauto', baseQuantity: 1 },
-        m92_pistol: { item: 'pistol.m92', baseQuantity: 1 },
-        thompson: { item: 'smg.thompson', baseQuantity: 1 },
-        m39_rifle: { item: 'rifle.m39', baseQuantity: 1 },
-        ak47: { item: 'rifle.ak', baseQuantity: 1 },
-    };
-
-    const payoutInfo = basePayouts[symbol];
+    const payoutInfo = BASE_PAYOUTS[symbol];
     if (!payoutInfo) return null;
 
     let quantity = payoutInfo.baseQuantity;
