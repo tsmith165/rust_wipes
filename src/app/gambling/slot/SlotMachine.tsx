@@ -99,7 +99,7 @@ export default function SlotMachine() {
     }, [ITEM_WIDTH]);
 
     // Add state variables for "Show Lines" functionality
-    const [lineType, setLineType] = useState<'horizontal' | 'zigzag' | 'diagonal' | null>(null);
+    const [lineType, setLineType] = useState<'horizontal' | 'diagonal' | 'zigzag_downwards' | 'zigzag_upwards' | null>(null);
     const [lineFlashCount, setLineFlashCount] = useState(0);
 
     useEffect(() => {
@@ -154,8 +154,9 @@ export default function SlotMachine() {
                 } else {
                     setLineFlashCount(0);
                     setLineType((prev) => {
-                        if (prev === 'horizontal') return 'zigzag';
-                        if (prev === 'zigzag') return 'diagonal';
+                        if (prev === 'horizontal') return 'zigzag_downwards';
+                        if (prev === 'zigzag_downwards') return 'zigzag_upwards';
+                        if (prev === 'zigzag_upwards') return 'diagonal';
                         return null;
                     });
                 }
@@ -414,7 +415,7 @@ export default function SlotMachine() {
                                 {/* Cycle through each winning line */}
                                 {!spinning && winningLines && winningLines.length > 0 && (
                                     <div className="absolute inset-0">
-                                        <svg key={`winning-line`} className="absolute inset-0 h-full w-full">
+                                        <svg key={`winning-line`} className="absolute inset-0 z-50 h-full w-full">
                                             <polyline
                                                 points={currentWinningLinePoints.join(' ')}
                                                 fill="none"
@@ -429,7 +430,7 @@ export default function SlotMachine() {
                                 {lineType && (
                                     <div className="absolute inset-0">
                                         {WINNING_LINES[lineType].map((line, index) => (
-                                            <svg key={`${lineType}-${index}`} className="absolute inset-0 h-full w-full">
+                                            <svg key={`${lineType}-${index}`} className="absolute inset-0 z-50 h-full w-full">
                                                 <polyline
                                                     points={line
                                                         .map(

@@ -205,7 +205,8 @@ function calculatePayout(grid: string[][]): {
 
     WINNING_LINES.horizontal.forEach(checkLine);
     WINNING_LINES.diagonal.forEach(checkLine);
-    WINNING_LINES.zigzag.forEach(checkLine);
+    WINNING_LINES.zigzag_downwards.forEach(checkLine);
+    WINNING_LINES.zigzag_upwards.forEach(checkLine);
 
     // Count the number of bonus symbols in the final grid
     let bonusCount = 0;
