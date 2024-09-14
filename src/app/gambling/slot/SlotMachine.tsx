@@ -335,8 +335,9 @@ export default function SlotMachine() {
             setReels(newReels);
             setSpinning(true);
 
-            // Play spin start sound once when spinning starts
-            playSpinStart();
+            // Play spin start sound for each reel when spinning starts
+            // Since we are handling spin start and end per reel via onAnimationStart and onAnimationComplete,
+            // we don't need to play spinStartSound here.
 
             // Wait for the animations to complete
             const maxDuration = 2 + 4 * 0.6; // For the last reel
@@ -347,9 +348,6 @@ export default function SlotMachine() {
             setFreeSpins(freeSpinsAvailable);
             setResult(spinResult);
             setSpinning(false); // Spin is now complete
-
-            // Play spin end sound once when spinning ends
-            playSpinEnd();
 
             // Update winning cells, bonus cells, and winning lines
             setWinningCells(currWinningCells);
@@ -474,6 +472,10 @@ export default function SlotMachine() {
                                                         ? 0
                                                         : -(calculateReelHeight(reel.length) - calculateReelHeight(VISIBLE_ITEMS)),
                                                 }}
+                                                // Play spin start sound when animation starts
+                                                onAnimationStart={() => playSpinStart()}
+                                                // Play spin end sound when animation completes
+                                                onAnimationComplete={() => playSpinEnd()}
                                             >
                                                 {reel.map((item, j) => {
                                                     const displayedIndex = j - (reel.length - VISIBLE_ITEMS);
