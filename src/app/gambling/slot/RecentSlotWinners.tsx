@@ -14,6 +14,7 @@ interface Winner {
 interface RecentWinnersProps {
     shouldRefetch: boolean;
     onRefetchComplete: () => void;
+    spinning: boolean; // Add spinning prop
 }
 
 const ITEM_ICON_PATHS: Record<string, string> = {
@@ -28,7 +29,7 @@ const ITEM_ICON_PATHS: Record<string, string> = {
     free_spin: '/rust_icons/bonus_icon.png',
 };
 
-export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete }: RecentWinnersProps) {
+export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete, spinning }: RecentWinnersProps) {
     const [winners, setWinners] = useState<Winner[]>([]);
 
     const fetchWinners = async () => {
@@ -52,17 +53,27 @@ export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete }: 
     };
 
     useEffect(() => {
-        fetchWinners();
-        const interval = setInterval(fetchWinners, 5000);
+        if (!spinning) {
+            fetchWinners();
+        }
+
+        const interval = setInterval(() => {
+            if (!spinning) {
+                // Only fetch if not spinning
+                fetchWinners();
+            }
+        }, 5000);
+
         return () => clearInterval(interval);
-    }, []);
+    }, [spinning]);
 
     useEffect(() => {
-        if (shouldRefetch) {
+        if (shouldRefetch && !spinning) {
+            // Only refetch if not spinning
             fetchWinners();
             onRefetchComplete();
         }
-    }, [shouldRefetch, onRefetchComplete]);
+    }, [shouldRefetch, onRefetchComplete, spinning]);
 
     return (
         <div className="rounded-lg bg-stone-600 p-4 shadow">

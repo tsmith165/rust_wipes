@@ -259,7 +259,7 @@ export default function SlotMachine() {
             setCredits(credits);
             setFreeSpins(freeSpinsAvailable);
             setResult(spinResult);
-            setSpinning(false);
+            setSpinning(false); // Spin is now complete
 
             // Update winning cells, bonus cells, and winning lines
             setWinningCells(currWinningCells);
@@ -267,7 +267,7 @@ export default function SlotMachine() {
             setWinningLines(currWinningLines);
             setCurrentWinningLine(currWinningLines[0]);
             setCurrentWinningLineIndex(0);
-            setShouldRefetchWinners(true);
+            setShouldRefetchWinners(true); // Trigger refetch after spin is complete
 
             if (spinResult.payout.length > 0 || spinResult.bonusTriggered) {
                 setShowOverlay(true);
@@ -523,7 +523,11 @@ export default function SlotMachine() {
                             Show Lines
                         </button>
                         {error && <p className="mt-2 text-red-500">{error}</p>}
-                        <RecentSlotWinners shouldRefetch={shouldRefetchWinners} onRefetchComplete={() => setShouldRefetchWinners(false)} />
+                        <RecentSlotWinners
+                            shouldRefetch={shouldRefetchWinners}
+                            onRefetchComplete={() => setShouldRefetchWinners(false)}
+                            spinning={spinning}
+                        />
                     </div>
                 </div>
             )}
