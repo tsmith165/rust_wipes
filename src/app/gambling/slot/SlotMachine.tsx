@@ -132,13 +132,13 @@ export default function SlotMachine() {
     }, []);
 
     function getScreenSize() {
-        if (window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD) {
+        if (window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD && window.innerHeight > ITEM_SIZE_EXTRA_LARGE * 5 + 100) {
             return ITEM_SIZE_EXTRA_LARGE;
-        } else if (window.innerWidth >= WINDOW_SIZE_LARGE_THRESHOLD) {
+        } else if (window.innerWidth >= WINDOW_SIZE_LARGE_THRESHOLD && window.innerHeight > ITEM_SIZE_LARGE * 5 + 100) {
             return ITEM_SIZE_LARGE;
-        } else if (window.innerWidth >= WINDOW_SIZE_MEDIUM_THRESHOLD) {
+        } else if (window.innerWidth >= WINDOW_SIZE_MEDIUM_THRESHOLD && window.innerHeight > ITEM_SIZE_MEDIUM * 5 + 100) {
             return ITEM_SIZE_MEDIUM;
-        } else if (window.innerWidth >= WINDOW_SIZE_SMALL_THRESHOLD) {
+        } else if (window.innerWidth >= WINDOW_SIZE_SMALL_THRESHOLD && window.innerHeight > ITEM_SIZE_SMALL * 5 + 100) {
             return ITEM_SIZE_SMALL;
         } else {
             return ITEM_SIZE_EXTRA_SMALL;
