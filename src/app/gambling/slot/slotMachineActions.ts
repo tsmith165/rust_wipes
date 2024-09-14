@@ -13,8 +13,9 @@ const MAX_SPIN = 120;
 interface SpinResult {
     finalVisibleGrid: string[][];
     spinAmounts: number[];
-    payout: { item: string; quantity: number }[];
+    payout: { item: string; full_name: string; quantity: number }[];
     bonusTriggered: boolean;
+    bonusSpinsAwarded: number; // Add this line
     credits: number;
     freeSpinsAvailable: number;
     winningCells: number[][]; // [x, y]
@@ -82,7 +83,7 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
     });
 
     // Calculate winning cells and bonus cells
-    const { payout, bonusTriggered, winningLines } = calculatePayout(finalVisibleGrid);
+    const { payout, bonusCount, winningLines } = calculatePayout(finalVisibleGrid);
 
     const winningCells: number[][] = [];
     winningLines.forEach((line) => {
@@ -111,8 +112,16 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
         updatedCredits -= 5;
     }
 
-    if (bonusTriggered) {
-        freeSpinsAvailable += 10;
+    let spinsAwarded = 0;
+    if (bonusCount >= 3) {
+        if (bonusCount === 3) {
+            spinsAwarded = 10;
+        } else if (bonusCount === 4) {
+            spinsAwarded = 15;
+        } else if (bonusCount >= 5) {
+            spinsAwarded = 20;
+        }
+        freeSpinsAvailable += spinsAwarded;
     }
 
     await db.update(user_playtime).set({ credits: updatedCredits }).where(eq(user_playtime.id, user[0].id));
@@ -134,7 +143,7 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
         user_id: user[0].id,
         result: JSON.stringify(finalVisibleGrid),
         payout: JSON.stringify(payout),
-        free_spins_won: bonusTriggered ? 10 : 0,
+        free_spins_won: spinsAwarded,
         free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
         redeemed: payout.length === 0,
     });
@@ -143,7 +152,8 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
         finalVisibleGrid,
         spinAmounts,
         payout,
-        bonusTriggered,
+        bonusTriggered: bonusCount >= 3,
+        bonusSpinsAwarded: spinsAwarded,
         credits: updatedCredits,
         freeSpinsAvailable,
         winningCells,
@@ -162,17 +172,16 @@ function getWrappedSlice(arr: string[], startIndex: number, count: number): stri
 }
 
 function calculatePayout(grid: string[][]): {
-    payout: { item: string; quantity: number }[];
-    bonusTriggered: boolean;
+    payout: { item: string; full_name: string; quantity: number }[];
+    bonusCount: number;
     winningLines: number[][][]; // [[x, y]]
 } {
-    let payout: { item: string; quantity: number }[] = [];
+    let payout: { item: string; full_name: string; quantity: number }[] = [];
     const winningLines: number[][][] = [];
 
     const checkLine = (line: number[][]) => {
-        const symbols = line.map(([x, y]) => grid[x][y]); // Access grid[x][y]
+        const symbols = line.map(([x, y]) => grid[x][y]);
 
-        // Start checking from the first symbol
         let consecutiveCount = 1;
         for (let i = 1; i < symbols.length; i++) {
             if (symbols[i] === symbols[i - 1]) {
@@ -182,14 +191,12 @@ function calculatePayout(grid: string[][]): {
             }
         }
 
-        // Only consider sequences starting from the first reel
         if (consecutiveCount >= 3) {
             const winningSymbols = symbols.slice(0, consecutiveCount);
             const symbol = winningSymbols[0];
             const item = getSymbolPayout(symbol, consecutiveCount);
             if (item) {
                 payout.push(item);
-                // Include the winning part of the line
                 const winningPartOfLine = line.slice(0, consecutiveCount);
                 winningLines.push(winningPartOfLine);
             }
@@ -200,24 +207,24 @@ function calculatePayout(grid: string[][]): {
     WINNING_LINES.diagonal.forEach(checkLine);
     WINNING_LINES.zigzag.forEach(checkLine);
 
-    // Check for bonus symbols in at least 3 separate columns
-    const columnsWithBonus = new Set<number>();
+    // Count the number of bonus symbols in the final grid
+    let bonusCount = 0;
     grid.forEach((column, x) => {
-        if (column.some((symbol) => symbol === BONUS_SYMBOL)) {
-            columnsWithBonus.add(x);
-        }
+        column.forEach((symbol, y) => {
+            if (symbol === BONUS_SYMBOL) {
+                bonusCount++;
+            }
+        });
     });
 
-    const bonusTriggered = columnsWithBonus.size >= 3;
-
-    return { payout, bonusTriggered, winningLines };
+    return { payout, bonusCount, winningLines };
 }
 
-function getSymbolPayout(symbol: string, consecutiveCount: number): { item: string; quantity: number } | null {
+function getSymbolPayout(symbol: string, consecutiveCount: number): { item: string; full_name: string; quantity: number } | null {
     const payoutInfo = BASE_PAYOUTS[symbol];
     if (!payoutInfo) return null;
 
-    let quantity = payoutInfo.baseQuantity;
+    let quantity = payoutInfo.base_quantity;
 
     if (['scrap', 'metal_fragments', 'high_quality_metal'].includes(symbol)) {
         // Apply multipliers for resources
@@ -236,10 +243,10 @@ function getSymbolPayout(symbol: string, consecutiveCount: number): { item: stri
         }
     } else {
         // For weapons, the quantity is the number of matching symbols minus 2
-        quantity = payoutInfo.baseQuantity * (consecutiveCount - 2);
+        quantity = payoutInfo.base_quantity * (consecutiveCount - 2);
     }
 
-    return { item: payoutInfo.item, quantity };
+    return { item: payoutInfo.item, full_name: payoutInfo.full_name, quantity };
 }
 
 // Helper functions to get random symbols based on probabilities

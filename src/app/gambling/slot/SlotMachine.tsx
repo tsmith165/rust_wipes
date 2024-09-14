@@ -26,8 +26,9 @@ const SYMBOL_IMAGE_PATHS: Record<string, string> = {
 interface SlotResult {
     finalVisibleGrid: string[][];
     spinAmounts: number[];
-    payout: { item: string; quantity: number }[];
+    payout: { item: string; full_name: string; quantity: number }[];
     bonusTriggered: boolean;
+    bonusSpinsAwarded: number; // Add this line
     credits: number;
     freeSpinsAvailable: number;
     winningCells: number[][]; // [x, y]
@@ -41,13 +42,18 @@ interface SteamProfile {
     steamId: string;
 }
 
-const VISIBLE_ITEMS = 5;
+const WINDOW_SIZE_LARGE_THRESHOLD = 600;
+const WINDOW_SIZE_EXTRA_LARGE_THRESHOLD = 1000;
+
+const ITEM_HEIGHT_EXTRA_LARGE = 160;
+const ITEM_WIDTH_EXTRA_LARGE = 160;
 const ITEM_HEIGHT_LARGE = 100;
 const ITEM_WIDTH_LARGE = 100;
 const ITEM_WIDTH_SMALL = 60;
 const ITEM_HEIGHT_SMALL = 60;
+
+const VISIBLE_ITEMS = 5;
 const GAP = 2; // Adjusted gap
-const WINDOW_SIZE_THRESHOLD = 600;
 
 export default function SlotMachine() {
     const [showOverlay, setShowOverlay] = useState(false);
@@ -94,18 +100,26 @@ export default function SlotMachine() {
         const updateWindowSize = () => {
             setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             if (
-                (window.innerWidth < WINDOW_SIZE_THRESHOLD || window.innerHeight < WINDOW_SIZE_THRESHOLD) &&
-                ITEM_HEIGHT === ITEM_HEIGHT_LARGE
+                window.innerWidth < WINDOW_SIZE_LARGE_THRESHOLD &&
+                window.innerHeight < WINDOW_SIZE_LARGE_THRESHOLD &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
             ) {
                 setItemHeight(ITEM_HEIGHT_SMALL);
                 setItemWidth(ITEM_WIDTH_SMALL);
             } else if (
-                window.innerWidth >= WINDOW_SIZE_THRESHOLD &&
-                window.innerHeight >= WINDOW_SIZE_THRESHOLD &&
-                ITEM_HEIGHT === ITEM_HEIGHT_SMALL
+                window.innerWidth < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
+                window.innerHeight < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_SMALL)
             ) {
                 setItemHeight(ITEM_HEIGHT_LARGE);
                 setItemWidth(ITEM_WIDTH_LARGE);
+            } else if (
+                window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
+                window.innerHeight >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD &&
+                (ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE)
+            ) {
+                setItemHeight(ITEM_HEIGHT_EXTRA_LARGE);
+                setItemWidth(ITEM_HEIGHT_EXTRA_LARGE);
             }
         };
         updateWindowSize();
@@ -388,7 +402,6 @@ export default function SlotMachine() {
                                     </div>
                                 )}
                             </div>
-                            {/* Overlay and Confetti */}
                             <AnimatePresence>
                                 {showOverlay && result && (
                                     <motion.div
@@ -401,10 +414,12 @@ export default function SlotMachine() {
                                             <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
                                             {result.payout.map((item, index) => (
                                                 <p key={index} className="text-2xl">
-                                                    {item.quantity}x {item.item}
+                                                    {item.quantity} {item.full_name}
                                                 </p>
                                             ))}
-                                            {result.bonusTriggered && <p className="mt-4 text-2xl text-yellow-400">+10 Free Spins!</p>}
+                                            {result.bonusSpinsAwarded > 0 && (
+                                                <p className="mt-4 text-2xl text-yellow-400">+{result.bonusSpinsAwarded} Free Spins!</p>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}

@@ -4,25 +4,25 @@ export const BONUS_SYMBOL = 'bonus';
 
 // Define probabilities for each symbol (must sum to 1)
 export const SYMBOL_PROBABILITIES: Record<string, number> = {
-    scrap: 0.25,
-    metal_fragments: 0.2,
+    scrap: 0.22,
+    metal_fragments: 0.18,
     high_quality_metal: 0.18,
     thompson: 0.14,
     m39_rifle: 0.12,
     ak47: 0.08,
-    bonus: 0.03,
+    bonus: 0.08,
 };
 
 // Define base payouts
-export const BASE_PAYOUTS: Record<string, { item: string; baseQuantity: number }> = {
-    scrap: { item: 'scrap', baseQuantity: 100 },
-    metal_fragments: { item: 'metal_fragments', baseQuantity: 500 },
-    high_quality_metal: { item: 'high_quality_metal', baseQuantity: 50 },
-    p2_pistol: { item: 'pistol.semiauto', baseQuantity: 1 },
-    m92_pistol: { item: 'pistol.m92', baseQuantity: 1 },
-    thompson: { item: 'smg.thompson', baseQuantity: 1 },
-    m39_rifle: { item: 'rifle.m39', baseQuantity: 1 },
-    ak47: { item: 'rifle.ak', baseQuantity: 1 },
+export const BASE_PAYOUTS: Record<string, { item: string; full_name: string; base_quantity: number }> = {
+    scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 100 },
+    metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 500 },
+    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 50 },
+    p2_pistol: { item: 'pistol.semiauto', full_name: 'P2 Pistol', base_quantity: 1 },
+    m92_pistol: { item: 'pistol.m92', full_name: 'M92 Pistol', base_quantity: 1 },
+    thompson: { item: 'smg.thompson', full_name: 'Thompson', base_quantity: 1 },
+    m39_rifle: { item: 'rifle.m39', full_name: 'M39 Rifle', base_quantity: 1 },
+    ak47: { item: 'rifle.ak', full_name: 'AK47 Rifle', base_quantity: 1 },
 };
 
 // Ensure the sum of probabilities is 1
