@@ -2,7 +2,7 @@
 
 import { db } from '@/db/db';
 import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc, sql, or } from 'drizzle-orm';
 import { SLOT_ITEMS, BONUS_SYMBOL, BASE_PAYOUTS, SYMBOL_PROBABILITIES, WINNING_LINES } from './slotMachineConstants';
 
 const REEL_SIZE = 20;
@@ -141,8 +141,8 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
     // Record spin result
     await db.insert(slot_machine_spins).values({
         user_id: user[0].id,
-        result: JSON.stringify(finalVisibleGrid),
-        payout: JSON.stringify(payout),
+        result: finalVisibleGrid, // Store as JSON
+        payout: payout, // Store as JSON
         free_spins_won: spinsAwarded,
         free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
         redeemed: payout.length === 0,
@@ -398,4 +398,87 @@ async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
         .limit(1);
 
     return user.length > 0;
+}
+
+export async function getRecentSlotWinners() {
+    const winners = await db
+        .select({
+            player_name: user_playtime.player_name,
+            steam_id: user_playtime.steam_id,
+            payout: slot_machine_spins.payout,
+            timestamp: slot_machine_spins.timestamp,
+            profile_picture_url: user_playtime.profile_picture_url,
+            free_spins_won: slot_machine_spins.free_spins_won,
+        })
+        .from(slot_machine_spins)
+        .innerJoin(user_playtime, eq(user_playtime.id, slot_machine_spins.user_id))
+        .where(or(sql`${slot_machine_spins.payout} != '[]'`, sql`${slot_machine_spins.free_spins_won} > 0`))
+        .orderBy(desc(slot_machine_spins.timestamp))
+        .limit(25);
+
+    const winnersWithPictures = await Promise.all(
+        winners.map(async (winner) => {
+            let profilePictureUrl = winner.profile_picture_url;
+            if (!profilePictureUrl) {
+                profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
+            }
+
+            let payoutData = winner.payout;
+            if (Array.isArray(payoutData)) {
+                // It's already an array
+            } else if (payoutData && typeof payoutData === 'object') {
+                // It's an object, wrap it in an array
+                payoutData = [payoutData];
+            } else {
+                // Unexpected type, set to empty array
+                payoutData = [];
+            }
+
+            return {
+                player_name: winner.player_name || 'Unknown Player',
+                timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
+                payout: payoutData as { item: string; full_name: string; quantity: number }[],
+                free_spins_won: winner.free_spins_won,
+                profile_picture_url: profilePictureUrl,
+                steam_id: winner.steam_id,
+            };
+        }),
+    );
+
+    return winnersWithPictures;
+}
+
+// Helper function to fetch and store profile picture (reuse from wheelActions.ts)
+async function fetchAndStoreProfilePicture(steamId: string): Promise<string | null> {
+    const STEAM_API_KEY = process.env.STEAM_API_KEY;
+    if (!STEAM_API_KEY) {
+        console.error('Steam API key is not set');
+        return null;
+    }
+
+    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+    try {
+        const response = await fetch(steamApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.response && data.response.players && data.response.players.length > 0) {
+            const player = data.response.players[0];
+            const profilePictureUrl = player.avatarfull;
+
+            // Store the profile picture URL in the database
+            await db.update(user_playtime).set({ profile_picture_url: profilePictureUrl }).where(eq(user_playtime.steam_id, steamId));
+
+            return profilePictureUrl;
+        } else {
+            console.error('Steam user not found in API response:', data);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching Steam profile picture:', error);
+        return null;
+    }
 }

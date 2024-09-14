@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { spinSlotMachine, getUserCredits, verifySteamProfile } from './slotMachineActions';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
+import RecentSlotWinners from './RecentSlotWinners';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -43,17 +44,15 @@ interface SteamProfile {
 }
 
 const WINDOW_SIZE_SMALL_THRESHOLD = 400;
-const WINDOW_SIZE_LARGE_THRESHOLD = 600;
-const WINDOW_SIZE_EXTRA_LARGE_THRESHOLD = 1000;
+const WINDOW_SIZE_MEDIUM_THRESHOLD = 600;
+const WINDOW_SIZE_LARGE_THRESHOLD = 800;
+const WINDOW_SIZE_EXTRA_LARGE_THRESHOLD = 1300;
 
-const ITEM_HEIGHT_EXTRA_LARGE = 160;
-const ITEM_WIDTH_EXTRA_LARGE = 160;
-const ITEM_HEIGHT_LARGE = 100;
-const ITEM_WIDTH_LARGE = 100;
-const ITEM_WIDTH_SMALL = 60;
-const ITEM_HEIGHT_SMALL = 60;
-const ITEM_WIDTH_EXTRA_SMALL = 50;
-const ITEM_HEIGHT_EXTRA_SMALL = 50;
+const ITEM_SIZE_EXTRA_LARGE = 180;
+const ITEM_SIZE_LARGE = 140;
+const ITEM_SIZE_MEDIUM = 100;
+const ITEM_SIZE_SMALL = 60;
+const ITEM_SIZE_EXTRA_SMALL = 50;
 
 const VISIBLE_ITEMS = 5;
 const GAP = 2; // Adjusted gap
@@ -62,6 +61,7 @@ export default function SlotMachine() {
     const [showOverlay, setShowOverlay] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+    const [shouldRefetchWinners, setShouldRefetchWinners] = useState(false);
 
     const [spinning, setSpinning] = useState(false);
     const [result, setResult] = useState<SlotResult | null>(null);
@@ -80,8 +80,19 @@ export default function SlotMachine() {
     const [spinAmounts, setSpinAmounts] = useState<number[]>([]);
     const [spinKey, setSpinKey] = useState(0);
 
-    const [ITEM_HEIGHT, setItemHeight] = useState(ITEM_WIDTH_EXTRA_SMALL);
-    const [ITEM_WIDTH, setItemWidth] = useState(ITEM_HEIGHT_EXTRA_SMALL);
+    const [ITEM_HEIGHT, setItemHeight] = useState(ITEM_SIZE_EXTRA_SMALL);
+    const [ITEM_WIDTH, setItemWidth] = useState(ITEM_SIZE_EXTRA_SMALL);
+
+    const itemHeightRef = useRef(ITEM_HEIGHT);
+    const itemWidthRef = useRef(ITEM_WIDTH);
+
+    useEffect(() => {
+        itemHeightRef.current = ITEM_HEIGHT;
+    }, [ITEM_HEIGHT]);
+
+    useEffect(() => {
+        itemWidthRef.current = ITEM_WIDTH;
+    }, [ITEM_WIDTH]);
 
     // Add state variables for "Show Lines" functionality
     const [lineType, setLineType] = useState<'horizontal' | 'zigzag' | 'diagonal' | null>(null);
@@ -102,36 +113,33 @@ export default function SlotMachine() {
     useEffect(() => {
         const updateWindowSize = () => {
             setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-            if (
-                (window.innerWidth < WINDOW_SIZE_SMALL_THRESHOLD || window.innerHeight < WINDOW_SIZE_SMALL_THRESHOLD) &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
-            ) {
-                setItemHeight(ITEM_HEIGHT_EXTRA_SMALL);
-                setItemWidth(ITEM_WIDTH_EXTRA_SMALL);
-            } else if (
-                (window.innerWidth < WINDOW_SIZE_LARGE_THRESHOLD || window.innerHeight < WINDOW_SIZE_LARGE_THRESHOLD) &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
-            ) {
-                setItemHeight(ITEM_HEIGHT_SMALL);
-                setItemWidth(ITEM_WIDTH_SMALL);
-            } else if (
-                (window.innerWidth < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD || window.innerHeight < WINDOW_SIZE_EXTRA_LARGE_THRESHOLD) &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_LARGE)
-            ) {
-                setItemHeight(ITEM_HEIGHT_LARGE);
-                setItemWidth(ITEM_WIDTH_LARGE);
-            } else if (
-                (window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD || window.innerHeight >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD) &&
-                (ITEM_HEIGHT === ITEM_HEIGHT_EXTRA_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_SMALL || ITEM_HEIGHT === ITEM_HEIGHT_LARGE)
-            ) {
-                setItemHeight(ITEM_HEIGHT_EXTRA_LARGE);
-                setItemWidth(ITEM_WIDTH_EXTRA_LARGE);
+
+            const CurrentItemSize = getScreenSize();
+
+            if (CurrentItemSize !== itemHeightRef.current || CurrentItemSize !== itemWidthRef.current) {
+                console.log(`Current Item Size: ${CurrentItemSize} | Setting to: ${itemHeightRef.current}`);
+                setItemHeight(CurrentItemSize);
+                setItemWidth(CurrentItemSize);
             }
         };
         updateWindowSize();
         window.addEventListener('resize', updateWindowSize);
         return () => window.removeEventListener('resize', updateWindowSize);
     }, []);
+
+    function getScreenSize() {
+        if (window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD) {
+            return ITEM_SIZE_EXTRA_LARGE;
+        } else if (window.innerWidth >= WINDOW_SIZE_LARGE_THRESHOLD) {
+            return ITEM_SIZE_LARGE;
+        } else if (window.innerWidth >= WINDOW_SIZE_MEDIUM_THRESHOLD) {
+            return ITEM_SIZE_MEDIUM;
+        } else if (window.innerWidth >= WINDOW_SIZE_SMALL_THRESHOLD) {
+            return ITEM_SIZE_SMALL;
+        } else {
+            return ITEM_SIZE_EXTRA_SMALL;
+        }
+    }
 
     // Handle line flashing for "Show Lines" functionality
     useEffect(() => {
@@ -228,6 +236,7 @@ export default function SlotMachine() {
             setWinningCells(currWinningCells);
             setBonusCells(currentBonusCells);
             setWinningLines(currWinningLines);
+            setShouldRefetchWinners(true);
 
             if (spinResult.payout.length > 0 || spinResult.bonusTriggered) {
                 setShowOverlay(true);
@@ -400,8 +409,8 @@ export default function SlotMachine() {
                                                         )
                                                         .join(' ')}
                                                     fill="none"
-                                                    stroke={lineType === 'horizontal' ? 'yellow' : lineType === 'zigzag' ? 'green' : 'blue'}
-                                                    strokeWidth="2"
+                                                    stroke={'red'}
+                                                    strokeWidth="4"
                                                     opacity={lineFlashCount % 2 === 0 ? 1 : 0}
                                                 />
                                             </svg>
@@ -415,17 +424,17 @@ export default function SlotMachine() {
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.8 }}
-                                        className="absolute m-8 flex h-fit w-[200px] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8"
+                                        className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
                                     >
                                         <div className="text-center">
                                             <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
                                             {result.payout.map((item, index) => (
                                                 <p key={index} className="text-2xl">
-                                                    {item.quantity} {item.full_name}
+                                                    {item.quantity}x {item.full_name}
                                                 </p>
                                             ))}
                                             {result.bonusSpinsAwarded > 0 && (
-                                                <p className="mt-4 text-2xl text-yellow-400">+{result.bonusSpinsAwarded} Free Spins!</p>
+                                                <p className="text-2xl text-yellow-400">+{result.bonusSpinsAwarded} Free Spins!</p>
                                             )}
                                         </div>
                                     </motion.div>
@@ -482,6 +491,7 @@ export default function SlotMachine() {
                             Show Lines
                         </button>
                         {error && <p className="mt-2 text-red-500">{error}</p>}
+                        <RecentSlotWinners shouldRefetch={shouldRefetchWinners} onRefetchComplete={() => setShouldRefetchWinners(false)} />
                     </div>
                 </div>
             )}

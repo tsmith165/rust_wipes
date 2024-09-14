@@ -15,9 +15,9 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
 
 // Define base payouts
 export const BASE_PAYOUTS: Record<string, { item: string; full_name: string; base_quantity: number }> = {
-    scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 100 },
-    metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 500 },
-    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 50 },
+    scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 200 },
+    metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 1000 },
+    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 100 },
     p2_pistol: { item: 'pistol.semiauto', full_name: 'P2 Pistol', base_quantity: 1 },
     m92_pistol: { item: 'pistol.m92', full_name: 'M92 Pistol', base_quantity: 1 },
     thompson: { item: 'smg.thompson', full_name: 'Thompson', base_quantity: 1 },
