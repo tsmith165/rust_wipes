@@ -293,6 +293,14 @@ export default function SlotMachine() {
         return reelLength * ITEM_HEIGHT + (reelLength - 1) * GAP;
     };
 
+    let currentWinningLinePoints = [];
+    if (currentWinningLine && currentWinningLine.length > 0) {
+        for (let i = 0; i < currentWinningLine.length; i++) {
+            const [x, y] = currentWinningLine[i];
+            currentWinningLinePoints.push(`${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2}`);
+        }
+    }
+
     return (
         <div className="flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
             {!isVerified ? (
@@ -408,14 +416,7 @@ export default function SlotMachine() {
                                     <div className="absolute inset-0">
                                         <svg key={`winning-line`} className="absolute inset-0 h-full w-full">
                                             <polyline
-                                                points={currentWinningLine
-                                                    .map(
-                                                        ([x, y]) =>
-                                                            `${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${
-                                                                y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2
-                                                            }`,
-                                                    )
-                                                    .join(' ')}
+                                                points={currentWinningLinePoints.join(' ')}
                                                 fill="none"
                                                 stroke={'#32CD32'}
                                                 strokeWidth="4"
