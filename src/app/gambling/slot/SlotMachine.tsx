@@ -1,3 +1,5 @@
+// File 3: /src/app/gambling/slot/SlotMachine.tsx
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -89,6 +91,82 @@ export default function SlotMachine() {
 
     const itemHeightRef = useRef(ITEM_HEIGHT);
     const itemWidthRef = useRef(ITEM_WIDTH);
+
+    // Sound References
+    const handlePullSoundRef = useRef<HTMLAudioElement | null>(null);
+    const spinStartSoundRef = useRef<HTMLAudioElement | null>(null);
+    const spinEndSoundRef = useRef<HTMLAudioElement | null>(null);
+    const win1SoundRef = useRef<HTMLAudioElement | null>(null);
+    const win2SoundRef = useRef<HTMLAudioElement | null>(null);
+    const win3SoundRef = useRef<HTMLAudioElement | null>(null);
+    const bonusWonSoundRef = useRef<HTMLAudioElement | null>(null);
+
+    // Initialize Audio Elements
+    useEffect(() => {
+        handlePullSoundRef.current = new Audio('/sounds/slot-handle_pull-1.mp3');
+        spinStartSoundRef.current = new Audio('/sounds/slot-spin_start-1.mp3');
+        spinEndSoundRef.current = new Audio('/sounds/slot-spin_end-1.mp3');
+        win1SoundRef.current = new Audio('/sounds/slot-win-1.mp3');
+        win2SoundRef.current = new Audio('/sounds/slot-win-2.mp3');
+        win3SoundRef.current = new Audio('/sounds/slot-win-3.mp3');
+        bonusWonSoundRef.current = new Audio('/sounds/slot-bonus_won-1.mp3');
+    }, []);
+
+    // Function to stop all sounds
+    const stopAllSounds = () => {
+        const sounds = [
+            handlePullSoundRef.current,
+            spinStartSoundRef.current,
+            spinEndSoundRef.current,
+            win1SoundRef.current,
+            win2SoundRef.current,
+            win3SoundRef.current,
+            bonusWonSoundRef.current,
+        ];
+        sounds.forEach((sound) => {
+            if (sound && !sound.paused) {
+                sound.pause();
+                sound.currentTime = 0;
+            }
+        });
+    };
+
+    // Function to play a sound with resetting to allow replay
+    const playSound = (audioRef: React.MutableRefObject<HTMLAudioElement | null>) => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch((error) => {
+                console.error('Error playing sound:', error);
+            });
+        }
+    };
+
+    // Specific Sound Functions
+    const playHandlePull = () => {
+        playSound(handlePullSoundRef);
+    };
+
+    const playSpinStart = () => {
+        playSound(spinStartSoundRef);
+    };
+
+    const playSpinEnd = () => {
+        playSound(spinEndSoundRef);
+    };
+
+    const playWinSound = (numWins: number) => {
+        if (numWins === 1) {
+            playSound(win1SoundRef);
+        } else if (numWins === 2) {
+            playSound(win2SoundRef);
+        } else if (numWins >= 3) {
+            playSound(win3SoundRef);
+        }
+    };
+
+    const playBonusWonSound = () => {
+        playSound(bonusWonSoundRef);
+    };
 
     useEffect(() => {
         itemHeightRef.current = ITEM_HEIGHT;
@@ -206,6 +284,12 @@ export default function SlotMachine() {
     const handleSpin = async () => {
         if (!steamProfile) return;
 
+        // Stop all currently playing sounds before starting a new spin
+        stopAllSounds();
+
+        // Play handle pull sound when user clicks spin
+        playHandlePull();
+
         // Start fade out
         setSpinning(false);
         setSpinKey((prev) => prev + 1);
@@ -251,6 +335,9 @@ export default function SlotMachine() {
             setReels(newReels);
             setSpinning(true);
 
+            // Play spin start sound once when spinning starts
+            playSpinStart();
+
             // Wait for the animations to complete
             const maxDuration = 2 + 4 * 0.6; // For the last reel
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
@@ -261,6 +348,9 @@ export default function SlotMachine() {
             setResult(spinResult);
             setSpinning(false); // Spin is now complete
 
+            // Play spin end sound once when spinning ends
+            playSpinEnd();
+
             // Update winning cells, bonus cells, and winning lines
             setWinningCells(currWinningCells);
             setBonusCells(currentBonusCells);
@@ -269,7 +359,21 @@ export default function SlotMachine() {
             setCurrentWinningLineIndex(0);
             setShouldRefetchWinners(true); // Trigger refetch after spin is complete
 
-            if (spinResult.payout.length > 0 || spinResult.bonusTriggered) {
+            // Determine which sounds to play
+            const hasNormalWin = spinResult.payout.length > 0;
+            const hasBonusWin = spinResult.bonusSpinsAwarded > 0;
+
+            if (hasNormalWin) {
+                // Play win sound based on number of wins
+                playWinSound(spinResult.payout.length);
+            }
+
+            if (hasBonusWin && !hasNormalWin) {
+                // Play bonus sound only if there is no normal win
+                playBonusWonSound();
+            }
+
+            if (hasNormalWin || hasBonusWin) {
                 setShowOverlay(true);
                 setShowConfetti(true);
                 setTimeout(() => {
