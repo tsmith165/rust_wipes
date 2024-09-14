@@ -13,7 +13,8 @@ export const navbar_menu_list: [string, string, string][] = [
 export const menu_list: [string, string, string][] = [
     ['servers', 'Servers', '/servers'],
     ['kits', 'Kits', '/kits?type=monthly&kit=2'],
-    ['gambling', 'Gambling', '/gambling/wheel'],
+    ['wheel', 'Wheel', '/gambling/wheel'],
+    ['slot', 'Slot', '/gambling/slot'],
     ['stats', 'Stats', '/stats'],
     ['networks', 'Networks', '/networks'],
     ['recent', 'Recent', '/recent?page=1&numServers=25&minPlayers=2&maxDist=5000&country=US'],
