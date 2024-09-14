@@ -183,6 +183,7 @@ export default function SlotMachine() {
     useEffect(() => {
         if (winningLines.length > 0) {
             setCurrentWinningLineIndex(0);
+            console.log('Setting current winning line to:', winningLines[0]);
             setCurrentWinningLine(winningLines[0]);
         }
     }, [winningLines]);
@@ -471,7 +472,7 @@ export default function SlotMachine() {
                             </AnimatePresence>
                             {showConfetti && (
                                 <Confetti
-                                    className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8"
+                                    className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8 md:!w-[calc(75dvw-50px)]"
                                     recycle={false}
                                     numberOfPieces={200}
                                     gravity={0.2}
@@ -479,7 +480,7 @@ export default function SlotMachine() {
                                     initialVelocityY={20}
                                     confettiSource={{
                                         x: windowSize.width > 1222 ? (windowSize.width * 0.75) / 2 + 100 : windowSize.width / 2,
-                                        y: 120,
+                                        y: windowSize.width > 1222 ? windowSize.height / 2 : windowSize.width / 2 + 100,
                                         w: 0,
                                         h: 0,
                                     }}
