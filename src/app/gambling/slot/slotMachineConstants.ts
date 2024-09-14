@@ -9,8 +9,8 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
     high_quality_metal: 0.16,
     thompson: 0.15,
     m39_rifle: 0.12,
-    ak47: 0.1,
-    bonus: 0.03,
+    ak47: 0.09,
+    bonus: 0.04,
 };
 
 // Define base payouts
