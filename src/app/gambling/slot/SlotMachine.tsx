@@ -74,7 +74,11 @@ export default function SlotMachine() {
     const [freeSpins, setFreeSpins] = useState(0);
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
+
     const [winningLines, setWinningLines] = useState<number[][][]>([]);
+    const [currentWinningLine, setCurrentWinningLine] = useState<number[][]>([]);
+    const [currentWinningLineIndex, setCurrentWinningLineIndex] = useState(0);
+    const [currentWinningLineFlashCount, setCurrentWinningLineFlashCount] = useState(0);
 
     const [reels, setReels] = useState<string[][]>([]);
     const [spinAmounts, setSpinAmounts] = useState<number[]>([]);
@@ -160,6 +164,29 @@ export default function SlotMachine() {
         }
     }, [lineType, lineFlashCount]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (currentWinningLineFlashCount < 3) {
+                setCurrentWinningLineFlashCount((prev) => prev + 1);
+            } else {
+                setCurrentWinningLineFlashCount(0);
+                setCurrentWinningLineIndex((prev) => {
+                    const nextIndex = winningLines.length > 1 ? (prev + 1) % winningLines.length : 0;
+                    setCurrentWinningLine(winningLines[nextIndex]);
+                    return nextIndex;
+                });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [currentWinningLineFlashCount]);
+
+    useEffect(() => {
+        if (winningLines.length > 0) {
+            setCurrentWinningLineIndex(0);
+            setCurrentWinningLine(winningLines[0]);
+        }
+    }, [winningLines]);
+
     const handleVerify = async () => {
         try {
             const profile = await verifySteamProfile(steamInput);
@@ -236,6 +263,8 @@ export default function SlotMachine() {
             setWinningCells(currWinningCells);
             setBonusCells(currentBonusCells);
             setWinningLines(currWinningLines);
+            setCurrentWinningLine(currWinningLines[0]);
+            setCurrentWinningLineIndex(0);
             setShouldRefetchWinners(true);
 
             if (spinResult.payout.length > 0 || spinResult.bonusTriggered) {
@@ -293,7 +322,7 @@ export default function SlotMachine() {
             ) : (
                 <div className="flex h-full w-full flex-col lg:flex-row">
                     <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
-                        <div className="relative flex h-full flex-col items-center space-y-2 lg:space-y-4">
+                        <div className="relative flex h-full flex-col items-center justify-center space-y-2 lg:space-y-4">
                             <div
                                 className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
                                 style={{
@@ -346,25 +375,26 @@ export default function SlotMachine() {
                                                                 marginBottom: j < reel.length - 1 ? `${GAP}px` : '0px',
                                                             }}
                                                         >
+                                                            {/* Highlight for winning and bonus cells */}
+                                                            {isDisplayed &&
+                                                                winningCells.some(
+                                                                    (cell) => cell[0] === i && cell[1] === displayedIndex,
+                                                                ) && <div className="absolute inset-0 z-10 bg-red-500 opacity-50" />}
+                                                            {isDisplayed &&
+                                                                bonusCells.some((cell) => cell[0] === i && cell[1] === displayedIndex) && (
+                                                                    <div className="absolute inset-0 z-10 bg-green-500 opacity-50" />
+                                                                )}
                                                             {SYMBOL_IMAGE_PATHS[item] ? (
                                                                 <Image
                                                                     src={SYMBOL_IMAGE_PATHS[item]}
                                                                     alt={item}
                                                                     width={ITEM_WIDTH - 10}
                                                                     height={ITEM_HEIGHT - 10}
+                                                                    className="z-50"
                                                                 />
                                                             ) : (
-                                                                <span className="text-4xl">{item}</span>
+                                                                <span className="z-50 text-4xl">{item}</span>
                                                             )}
-                                                            {/* Highlight for winning and bonus cells */}
-                                                            {isDisplayed &&
-                                                                winningCells.some(
-                                                                    (cell) => cell[0] === i && cell[1] === displayedIndex,
-                                                                ) && <div className="absolute inset-0 bg-red-500 opacity-50" />}
-                                                            {isDisplayed &&
-                                                                bonusCells.some((cell) => cell[0] === i && cell[1] === displayedIndex) && (
-                                                                    <div className="absolute inset-0 bg-green-500 opacity-50" />
-                                                                )}
                                                         </div>
                                                     );
                                                 })}
@@ -372,26 +402,25 @@ export default function SlotMachine() {
                                         ))}
                                     </motion.div>
                                 </AnimatePresence>
-                                {/* Render lines for each winning line */}
+                                {/* Cycle through each winning line */}
                                 {!spinning && winningLines && winningLines.length > 0 && (
                                     <div className="absolute inset-0">
-                                        {winningLines.map((line, index) => (
-                                            <svg key={`winning-line-${index}`} className="absolute inset-0 h-full w-full">
-                                                <polyline
-                                                    points={line
-                                                        .map(([x, y]) => {
-                                                            // Adjust y coordinate based on displayed items
-                                                            const yPos =
-                                                                y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2 + GAP * (VISIBLE_ITEMS - 1 - y);
-                                                            return `${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${yPos}`;
-                                                        })
-                                                        .join(' ')}
-                                                    fill="none"
-                                                    stroke="red"
-                                                    strokeWidth="2"
-                                                />
-                                            </svg>
-                                        ))}
+                                        <svg key={`winning-line`} className="absolute inset-0 h-full w-full">
+                                            <polyline
+                                                points={currentWinningLine
+                                                    .map(
+                                                        ([x, y]) =>
+                                                            `${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${
+                                                                y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2
+                                                            }`,
+                                                    )
+                                                    .join(' ')}
+                                                fill="none"
+                                                stroke={'#32CD32'}
+                                                strokeWidth="4"
+                                                opacity={currentWinningLineFlashCount % 2 === 0 ? 1 : 0}
+                                            />
+                                        </svg>
                                     </div>
                                 )}
                                 {/* Render the lines when lineType is set */}
@@ -409,7 +438,7 @@ export default function SlotMachine() {
                                                         )
                                                         .join(' ')}
                                                     fill="none"
-                                                    stroke={'red'}
+                                                    stroke={'#32CD32'}
                                                     strokeWidth="4"
                                                     opacity={lineFlashCount % 2 === 0 ? 1 : 0}
                                                 />
