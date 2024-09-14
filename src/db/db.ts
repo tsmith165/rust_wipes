@@ -16,6 +16,8 @@ import {
     map_votes,
     user_playtime,
     wheel_spins,
+    slot_machine_spins,
+    bonus_spins,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -37,4 +39,6 @@ export {
     map_votes,
     user_playtime,
     wheel_spins,
+    slot_machine_spins,
+    bonus_spins,
 };

@@ -254,3 +254,31 @@ export const wheel_spins = pgTable('wheel_spins', {
 
 export type WheelSpins = InferSelectModel<typeof wheel_spins>;
 export type InsertWheelSpins = InferInsertModel<typeof wheel_spins>;
+
+export const slot_machine_spins = pgTable('slot_machine_spins', {
+    id: serial('id').primaryKey(),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => user_playtime.id),
+    result: jsonb('result').notNull(),
+    payout: jsonb('payout').notNull(),
+    free_spins_won: integer('free_spins_won').notNull().default(0),
+    free_spins_used: integer('free_spins_used').notNull().default(0),
+    redeemed: boolean('redeemed').notNull().default(false),
+    timestamp: timestamp('timestamp').defaultNow(),
+});
+
+export type SlotMachineSpins = InferSelectModel<typeof slot_machine_spins>;
+export type InsertSlotMachineSpins = InferInsertModel<typeof slot_machine_spins>;
+
+export const bonus_spins = pgTable('bonus_spins', {
+    id: serial('id').primaryKey(),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => user_playtime.id),
+    spins_remaining: integer('spins_remaining').notNull().default(0),
+    last_updated: timestamp('last_updated').defaultNow(),
+});
+
+export type BonusSpins = InferSelectModel<typeof bonus_spins>;
+export type InsertBonusSpins = InferInsertModel<typeof bonus_spins>;

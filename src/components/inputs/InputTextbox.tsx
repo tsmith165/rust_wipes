@@ -64,6 +64,7 @@ const InputTextbox: React.FC<InputTextboxProps> = ({
                 defaultValue={!onChange ? value : undefined}
                 placeholder={placeholder || ''}
                 onChange={onChange}
+                autoComplete="on"
             />
         </div>
     );
