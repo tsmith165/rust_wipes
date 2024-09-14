@@ -11,6 +11,9 @@ import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
 import RecentSlotWinners from './RecentSlotWinners';
 
+import { FaVolumeMute } from 'react-icons/fa';
+import { FaVolumeHigh } from 'react-icons/fa6';
+
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 // Map symbols to image paths
@@ -31,7 +34,7 @@ interface SlotResult {
     spinAmounts: number[];
     payout: { item: string; full_name: string; quantity: number }[];
     bonusTriggered: boolean;
-    bonusSpinsAwarded: number; // Add this line
+    bonusSpinsAwarded: number;
     credits: number;
     freeSpinsAvailable: number;
     winningCells: number[][]; // [x, y]
@@ -132,7 +135,8 @@ export default function SlotMachine() {
     };
 
     // Function to play a sound with resetting to allow replay
-    const playSound = (audioRef: React.MutableRefObject<HTMLAudioElement | null>) => {
+    const playSound = (audioRef: React.MutableRefObject<HTMLAudioElement | null>, isMuted: boolean) => {
+        if (isMuted) return; // Do not play if muted
         if (audioRef.current) {
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch((error) => {
@@ -142,30 +146,30 @@ export default function SlotMachine() {
     };
 
     // Specific Sound Functions
-    const playHandlePull = () => {
-        playSound(handlePullSoundRef);
+    const playHandlePull = (isMuted: boolean) => {
+        playSound(handlePullSoundRef, isMuted);
     };
 
-    const playSpinStart = () => {
-        playSound(spinStartSoundRef);
+    const playSpinStart = (isMuted: boolean) => {
+        playSound(spinStartSoundRef, isMuted);
     };
 
-    const playSpinEnd = () => {
-        playSound(spinEndSoundRef);
+    const playSpinEnd = (isMuted: boolean) => {
+        playSound(spinEndSoundRef, isMuted);
     };
 
-    const playWinSound = (numWins: number) => {
+    const playWinSound = (numWins: number, isMuted: boolean) => {
         if (numWins === 1) {
-            playSound(win1SoundRef);
+            playSound(win1SoundRef, isMuted);
         } else if (numWins === 2) {
-            playSound(win2SoundRef);
+            playSound(win2SoundRef, isMuted);
         } else if (numWins >= 3) {
-            playSound(win3SoundRef);
+            playSound(win3SoundRef, isMuted);
         }
     };
 
-    const playBonusWonSound = () => {
-        playSound(bonusWonSoundRef);
+    const playBonusWonSound = (isMuted: boolean) => {
+        playSound(bonusWonSoundRef, isMuted);
     };
 
     useEffect(() => {
@@ -281,6 +285,15 @@ export default function SlotMachine() {
         }
     };
 
+    const [isMuted, setIsMuted] = useState(false); // State for mute
+
+    const handleMuteToggle = () => {
+        setIsMuted((prev) => !prev);
+        if (!isMuted) {
+            stopAllSounds();
+        }
+    };
+
     const handleSpin = async () => {
         if (!steamProfile) return;
 
@@ -288,7 +301,7 @@ export default function SlotMachine() {
         stopAllSounds();
 
         // Play handle pull sound when user clicks spin
-        playHandlePull();
+        playHandlePull(isMuted);
 
         // Start fade out
         setSpinning(false);
@@ -336,8 +349,7 @@ export default function SlotMachine() {
             setSpinning(true);
 
             // Play spin start sound for each reel when spinning starts
-            // Since we are handling spin start and end per reel via onAnimationStart and onAnimationComplete,
-            // we don't need to play spinStartSound here.
+            // This will be handled via onAnimationStart in each reel
 
             // Wait for the animations to complete
             const maxDuration = 2 + 4 * 0.6; // For the last reel
@@ -363,12 +375,12 @@ export default function SlotMachine() {
 
             if (hasNormalWin) {
                 // Play win sound based on number of wins
-                playWinSound(spinResult.payout.length);
+                playWinSound(spinResult.payout.length, isMuted);
             }
 
             if (hasBonusWin && !hasNormalWin) {
                 // Play bonus sound only if there is no normal win
-                playBonusWonSound();
+                playBonusWonSound(isMuted);
             }
 
             if (hasNormalWin || hasBonusWin) {
@@ -473,9 +485,9 @@ export default function SlotMachine() {
                                                         : -(calculateReelHeight(reel.length) - calculateReelHeight(VISIBLE_ITEMS)),
                                                 }}
                                                 // Play spin start sound when animation starts
-                                                onAnimationStart={() => playSpinStart()}
+                                                onAnimationStart={() => playSpinStart(isMuted)}
                                                 // Play spin end sound when animation completes
-                                                onAnimationComplete={() => playSpinEnd()}
+                                                onAnimationComplete={() => playSpinEnd(isMuted)}
                                             >
                                                 {reel.map((item, j) => {
                                                     const displayedIndex = j - (reel.length - VISIBLE_ITEMS);
@@ -627,6 +639,23 @@ export default function SlotMachine() {
                             className="mt-2 rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light"
                         >
                             Show Lines
+                        </button>
+                        {/* Mute Sound Button */}
+                        <button
+                            onClick={handleMuteToggle}
+                            className="mt-2 flex justify-center rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light"
+                        >
+                            {isMuted ? (
+                                <div className="flex w-fit space-x-2">
+                                    <FaVolumeMute />
+                                    <span className="text-stone-500">Sound Currently Off</span>
+                                </div>
+                            ) : (
+                                <div className="flex w-fit space-x-2">
+                                    <FaVolumeHigh />
+                                    <span className="text-stone-500">Sound Currently On</span>
+                                </div>
+                            )}
                         </button>
                         {error && <p className="mt-2 text-red-500">{error}</p>}
                         <RecentSlotWinners
