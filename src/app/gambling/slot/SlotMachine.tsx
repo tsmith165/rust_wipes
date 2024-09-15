@@ -8,6 +8,7 @@ import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
 import RecentSlotWinners from './RecentSlotWinners';
+import { getRandomSymbol } from './slotMachineUtils'; // Import the utility function
 
 import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
@@ -18,13 +19,14 @@ const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 const SYMBOL_IMAGE_PATHS: Record<string, string> = {
     ak47: '/rust_icons/ak47_icon.png',
     m39_rifle: '/rust_icons/m39_icon.png',
-    p2_pistol: '/rust_icons/p2_icon.png',
-    m92_pistol: '/rust_icons/m92_icon.png',
     thompson: '/rust_icons/thompson_icon.png',
     scrap: '/rust_icons/scrap_icon.png',
     metal_fragments: '/rust_icons/metal_fragments_icon.png',
     high_quality_metal: '/rust_icons/hqm_icon.png',
     bonus: '/rust_icons/bonus_icon.png',
+    '2x_multiplier': '/rust_icons/2x_multiplier.png',
+    '3x_multiplier': '/rust_icons/3x_multiplier.png',
+    '5x_multiplier': '/rust_icons/5x_multiplier.png',
 };
 
 interface SlotResult {
@@ -184,13 +186,14 @@ export default function SlotMachine() {
     const [lineFlashCount, setLineFlashCount] = useState(0);
 
     useEffect(() => {
-        // Initialize reels with random symbols
+        // Initialize reels with random symbols based on probabilities
         const initialReels = Array(5)
             .fill(0)
-            .map(() =>
-                Array(VISIBLE_ITEMS)
-                    .fill(0)
-                    .map(() => SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)]),
+            .map(
+                () =>
+                    Array(VISIBLE_ITEMS)
+                        .fill(0)
+                        .map(() => getRandomSymbol()), // Use the utility function
             );
         setReels(initialReels);
     }, []);
@@ -373,10 +376,10 @@ export default function SlotMachine() {
             const newReels = finalVisibleGrid.map((finalReel, i) => {
                 const spinSymbolsCount = spinAmounts[i];
 
-                // Generate random spin symbols
+                // Generate random spin symbols using the probability function
                 const spinSymbols = Array(spinSymbolsCount)
                     .fill(0)
-                    .map(() => SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)]);
+                    .map(() => getRandomSymbol()); // Use the utility function
 
                 // The new reel is spin symbols + final symbols
                 return [...spinSymbols, ...finalReel];

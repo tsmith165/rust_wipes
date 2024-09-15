@@ -1,5 +1,15 @@
 // export const SLOT_ITEMS = ['scrap', 'metal_fragments', 'high_quality_metal', 'p2_pistol', 'm92_pistol', 'thompson', 'm39_rifle', 'ak47'];
-export const SLOT_ITEMS = ['scrap', 'metal_fragments', 'high_quality_metal', 'thompson', 'm39_rifle', 'ak47'];
+export const SLOT_ITEMS = [
+    'scrap',
+    'metal_fragments',
+    'high_quality_metal',
+    'thompson',
+    'm39_rifle',
+    'ak47',
+    '2x_multiplier',
+    '3x_multiplier',
+    '5x_multiplier',
+];
 
 export const BONUS_SYMBOL = 'bonus';
 
@@ -10,8 +20,11 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
     high_quality_metal: 0.16,
     thompson: 0.15,
     m39_rifle: 0.12,
-    ak47: 0.09,
+    ak47: 0.06,
     bonus: 0.04,
+    '2x_multiplier': 0.010033, // 0.01% divided by 3
+    '3x_multiplier': 0.010033, // 0.01% divided by 3
+    '5x_multiplier': 0.010033, // 0.01% divided by 3
 };
 
 // Define base payouts

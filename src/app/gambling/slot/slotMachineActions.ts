@@ -179,30 +179,59 @@ function calculatePayout(grid: string[][]): {
     let payout: { item: string; full_name: string; quantity: number }[] = [];
     const winningLines: number[][][] = [];
 
+    // Function to validate a line considering multipliers
     const checkLine = (line: number[][]) => {
-        const symbols = line.map(([x, y]) => grid[x][y]);
+        let consecutiveCount = 0;
+        let primarySymbol = null;
+        let lineMultiplier = 1;
+        let lineMatches = [];
 
-        let consecutiveCount = 1;
-        for (let i = 1; i < symbols.length; i++) {
-            if (symbols[i] === symbols[i - 1]) {
+        for (let i = 0; i < line.length; i++) {
+            const [x, y] = line[i];
+            const symbol = grid[x][y];
+
+            // Handle multipliers as wilds
+            if (symbol === '2x_multiplier' || symbol === '3x_multiplier' || symbol === '5x_multiplier') {
+                if (symbol === '2x_multiplier') lineMultiplier *= 2;
+                if (symbol === '3x_multiplier') lineMultiplier *= 3;
+                if (symbol === '5x_multiplier') lineMultiplier *= 5;
+
+                // Add multiplier to matches and continue to the next reel
                 consecutiveCount++;
+                lineMatches.push([x, y]);
+                continue;
+            }
+
+            // If primary symbol is not set yet, set it
+            if (!primarySymbol) {
+                primarySymbol = symbol;
+                consecutiveCount = 1; // Start counting matches
+                lineMatches.push([x, y]);
+            } else if (symbol === primarySymbol || primarySymbol === null) {
+                // Continue matching with the primary symbol
+                consecutiveCount++;
+                lineMatches.push([x, y]);
             } else {
+                // Mismatch found, break the matching sequence
                 break;
             }
         }
 
-        if (consecutiveCount >= 3) {
-            const winningSymbols = symbols.slice(0, consecutiveCount);
-            const symbol = winningSymbols[0];
-            const item = getSymbolPayout(symbol, consecutiveCount);
+        // Validate line as winning if at least 3 consecutive symbols/multipliers
+        if (consecutiveCount >= 3 && primarySymbol !== null) {
+            const item = getSymbolPayout(primarySymbol, consecutiveCount);
             if (item) {
+                // Apply the cumulative multiplier to the payout
+                item.quantity *= lineMultiplier;
                 payout.push(item);
-                const winningPartOfLine = line.slice(0, consecutiveCount);
-                winningLines.push(winningPartOfLine);
+
+                // Add the winning part of the line
+                winningLines.push(lineMatches);
             }
         }
     };
 
+    // Check all types of lines (horizontal, diagonal, etc.)
     WINNING_LINES.horizontal.forEach(checkLine);
     WINNING_LINES.diagonal.forEach(checkLine);
     WINNING_LINES.zigzag_downwards.forEach(checkLine);
@@ -210,8 +239,8 @@ function calculatePayout(grid: string[][]): {
 
     // Count the number of bonus symbols in the final grid
     let bonusCount = 0;
-    grid.forEach((column, x) => {
-        column.forEach((symbol, y) => {
+    grid.forEach((column) => {
+        column.forEach((symbol) => {
             if (symbol === BONUS_SYMBOL) {
                 bonusCount++;
             }
