@@ -579,7 +579,7 @@ export default function SlotMachine() {
                                                         : {}
                                                 }
                                                 transition={{
-                                                    duration: 2 + i * 0.5,
+                                                    duration: 2 + i * 0.6,
                                                     ease: 'easeInOut',
                                                 }}
                                                 style={{
