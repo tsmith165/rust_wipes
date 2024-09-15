@@ -21,9 +21,9 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
     thompson: 0.15,
     m39_rifle: 0.12,
     ak47: 0.075,
-    bonus: 0.04,
-    '2x_multiplier': 0.008,
-    '3x_multiplier': 0.005,
+    bonus: 0.045,
+    '2x_multiplier': 0.005,
+    '3x_multiplier': 0.003,
     '5x_multiplier': 0.002,
 };
 
