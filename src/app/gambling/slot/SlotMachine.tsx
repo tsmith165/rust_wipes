@@ -212,20 +212,36 @@ export default function SlotMachine() {
         return () => window.removeEventListener('resize', updateWindowSize);
     }, []);
 
+    // Ref to store timeout ID for auto spin
+    const autoSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
-        if (!autoSpin) return;
-        handleSpin();
-        startAutoSpin();
+        if (autoSpin) {
+            handleSpin();
+            startAutoSpin();
+        } else {
+            if (autoSpinTimeoutRef.current) {
+                clearTimeout(autoSpinTimeoutRef.current);
+                autoSpinTimeoutRef.current = null;
+            }
+        }
+
+        return () => {
+            if (autoSpinTimeoutRef.current) {
+                clearTimeout(autoSpinTimeoutRef.current);
+                autoSpinTimeoutRef.current = null;
+            }
+        };
     }, [autoSpin]);
 
     function startAutoSpin() {
         if (autoSpin) {
-            setTimeout(() => {
+            autoSpinTimeoutRef.current = setTimeout(() => {
                 handleSpin();
                 if (autoSpin) {
                     startAutoSpin();
                 }
-            }, 10000);
+            }, 10000); // 10 seconds
         }
     }
 
