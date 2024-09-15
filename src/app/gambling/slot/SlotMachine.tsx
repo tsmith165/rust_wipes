@@ -663,7 +663,7 @@ export default function SlotMachine() {
                                 {autoSpin ? (
                                     <div className="flex items-center justify-center space-x-2">
                                         <FaPause className="h-6 w-6" />
-                                        <span className="leading-6">Stop Auto Spin</span>
+                                        <span className="leading-6">Stop Auto Spins</span>
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center space-x-2">
