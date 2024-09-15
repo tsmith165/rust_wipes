@@ -2,10 +2,11 @@
 
 import { db } from '@/db/db';
 import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
-import { eq, and, desc, sql, or } from 'drizzle-orm';
-import { SLOT_ITEMS, BONUS_SYMBOL, BASE_PAYOUTS, SYMBOL_PROBABILITIES, WINNING_LINES } from './slotMachineConstants';
+import { eq, and, sql, or, desc } from 'drizzle-orm';
+import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES } from './slotMachineConstants';
+import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from './slotMachineUtils';
 
-const REEL_SIZE = 20;
+const REEL_SIZE = 5;
 const VISIBLE_ITEMS = 5;
 const MIN_SPIN = 80;
 const MAX_SPIN = 120;
@@ -15,15 +16,21 @@ interface SpinResult {
     spinAmounts: number[];
     payout: { item: string; full_name: string; quantity: number }[];
     bonusTriggered: boolean;
-    bonusSpinsAwarded: number; // Add this line
+    bonusSpinsAwarded: number;
     credits: number;
     freeSpinsAvailable: number;
     winningCells: number[][]; // [x, y]
     bonusCells: number[][]; // [x, y]
     winningLines: number[][][]; // [[x, y]]
+    stickyMultipliers?: { x: number; y: number; multiplier: number }[];
+    needsBonusTypeSelection?: boolean;
 }
 
-export async function spinSlotMachine(steamId: string, code: string): Promise<SpinResult> {
+export async function spinSlotMachine(
+    steamId: string,
+    code: string,
+    bonusType?: 'normal' | 'sticky', // Optional parameter for bonus type
+): Promise<SpinResult> {
     if (!(await verifyAuthCode(steamId, code))) {
         throw new Error('Invalid auth code');
     }
@@ -37,15 +44,35 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
     const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
 
     let freeSpinsAvailable = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
+    let existingBonusType: 'normal' | 'sticky' = 'normal';
+    let existingStickyMultipliers: { x: number; y: number; multiplier: number }[] = [];
+
+    if (bonusSpinsData.length > 0) {
+        existingBonusType = bonusSpinsData[0].bonus_type as 'normal' | 'sticky';
+        existingStickyMultipliers = (bonusSpinsData[0].sticky_multipliers as { x: number; y: number; multiplier: number }[]) || [];
+
+        // Sort sticky multipliers by `y` first and then `x` to preserve order
+        existingStickyMultipliers.sort((a, b) => a.y - b.y || a.x - b.x);
+    }
 
     if (user[0].credits < 5 && freeSpinsAvailable === 0) {
         throw new Error('Not enough credits or free spins');
     }
 
-    // Generate the entire grid
-    const fullGrid = Array(5)
+    // Determine the selected bonus type
+    let selectedBonusType: 'normal' | 'sticky' | '' = '';
+    if (bonusType) {
+        selectedBonusType = bonusType;
+    } else if (existingBonusType === 'sticky') {
+        selectedBonusType = 'sticky';
+    } else if (existingBonusType === 'normal') {
+        selectedBonusType = 'normal';
+    }
+
+    // Generate the entire grid with sticky multipliers integrated
+    const finalVisibleGrid = Array(5)
         .fill(0)
-        .map(() => {
+        .map((_, reelIndex) => {
             const reelSymbols: string[] = [];
             let skipBonusUntilIndex = -1;
             let position = 0;
@@ -53,19 +80,28 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
             while (reelSymbols.length < REEL_SIZE) {
                 let symbol: string;
 
-                if (position <= skipBonusUntilIndex) {
-                    // Cannot place bonus symbol
-                    symbol = getRandomSymbolExcludingBonus();
-                } else {
-                    symbol = getRandomSymbol();
-                    if (symbol === BONUS_SYMBOL) {
-                        // After placing a bonus symbol, set skipBonusUntilIndex
-                        skipBonusUntilIndex = position + 4;
-                    }
-                }
+                // Check for sticky multiplier
+                const stickyMultiplier = checkForStickyMutliplier(reelIndex, position, existingStickyMultipliers);
+                if (stickyMultiplier) {
+                    symbol = `${stickyMultiplier.multiplier}x_multiplier`;
 
-                reelSymbols.push(symbol);
-                position++;
+                    reelSymbols.push(symbol);
+                    position++;
+                } else {
+                    if (position <= skipBonusUntilIndex) {
+                        // Cannot place bonus symbol
+                        symbol = getRandomSymbolExcludingBonus();
+                    } else {
+                        symbol = getRandomSymbol();
+                        if (symbol === BONUS_SYMBOL) {
+                            // After placing a bonus symbol, set skipBonusUntilIndex
+                            skipBonusUntilIndex = position + 4;
+                        }
+                    }
+
+                    reelSymbols.push(symbol);
+                    position++;
+                }
             }
 
             return reelSymbols;
@@ -76,32 +112,65 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
         .fill(0)
         .map(() => Math.floor(Math.random() * (MAX_SPIN - MIN_SPIN + 1)) + MIN_SPIN);
 
-    // Calculate the final visible grid
-    const finalVisibleGrid = fullGrid.map((reel) => {
-        const startIndex = Math.floor(Math.random() * REEL_SIZE);
-        return getWrappedSlice(reel, startIndex, VISIBLE_ITEMS);
-    });
-
     // Calculate winning cells and bonus cells
     const { payout, bonusCount, winningLines } = calculatePayout(finalVisibleGrid);
 
-    const winningCells: number[][] = [];
-    winningLines.forEach((line) => {
-        line.forEach(([x, y]) => {
-            if (!winningCells.some((cell) => cell[0] === x && cell[1] === y)) {
-                winningCells.push([x, y]);
+    // Identify multipliers in the spin result
+    const currentMultipliers: { x: number; y: number; multiplier: number }[] = [];
+    finalVisibleGrid.forEach((column, x) => {
+        column.forEach((symbol, y) => {
+            if (symbol.startsWith('2x_multiplier')) {
+                currentMultipliers.push({ x, y, multiplier: 2 });
+            } else if (symbol.startsWith('3x_multiplier')) {
+                currentMultipliers.push({ x, y, multiplier: 3 });
+            } else if (symbol.startsWith('5x_multiplier')) {
+                currentMultipliers.push({ x, y, multiplier: 5 });
             }
         });
     });
 
-    const bonusCells: number[][] = [];
-    finalVisibleGrid.forEach((column, x) => {
-        column.forEach((symbol, y) => {
+    // Count the number of bonus symbols in the final grid
+    let bonusCountFinal = 0;
+    finalVisibleGrid.forEach((column) => {
+        column.forEach((symbol) => {
             if (symbol === BONUS_SYMBOL) {
-                bonusCells.push([x, y]);
+                bonusCountFinal++;
             }
         });
     });
+
+    // Initialize spinsAwarded
+    let spinsAwarded = 0;
+    let needsBonusTypeSelection = false;
+
+    if (bonusCountFinal >= 3) {
+        if (selectedBonusType === '') {
+            // Bonus type not set and not provided
+            spinsAwarded = bonusCountFinal;
+            needsBonusTypeSelection = true;
+        } else {
+            // Assign spins based on the selected bonus type
+            if (selectedBonusType === 'normal') {
+                if (bonusCountFinal === 3) {
+                    spinsAwarded = 10;
+                } else if (bonusCountFinal === 4) {
+                    spinsAwarded = 15;
+                } else if (bonusCountFinal >= 5) {
+                    spinsAwarded = 20;
+                }
+            } else if (selectedBonusType === 'sticky') {
+                if (bonusCountFinal === 3) {
+                    spinsAwarded = 5;
+                } else if (bonusCountFinal === 4) {
+                    spinsAwarded = 8;
+                } else if (bonusCountFinal >= 5) {
+                    spinsAwarded = 10;
+                }
+            }
+
+            freeSpinsAvailable += spinsAwarded;
+        }
+    }
 
     // Update user credits and bonus spins
     let updatedCredits = user[0].credits;
@@ -112,30 +181,30 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
         updatedCredits -= 5;
     }
 
-    let spinsAwarded = 0;
-    if (bonusCount >= 3) {
-        if (bonusCount === 3) {
-            spinsAwarded = 10;
-        } else if (bonusCount === 4) {
-            spinsAwarded = 15;
-        } else if (bonusCount >= 5) {
-            spinsAwarded = 20;
-        }
-        freeSpinsAvailable += spinsAwarded;
-    }
-
+    // Update user credits
     await db.update(user_playtime).set({ credits: updatedCredits }).where(eq(user_playtime.id, user[0].id));
 
-    if (bonusSpinsData.length > 0) {
+    // Update existing bonus spins with new multipliers and spins_remaining
+    await db
+        .update(bonus_spins)
+        .set({
+            spins_remaining: freeSpinsAvailable,
+            bonus_type: selectedBonusType,
+            sticky_multipliers: JSON.stringify(currentMultipliers),
+            last_updated: new Date(),
+        })
+        .where(eq(bonus_spins.id, bonusSpinsData[0].id));
+
+    // Reset bonus_type and sticky_multipliers if spins_remaining is zero
+    if (freeSpinsAvailable === 0 && bonusSpinsData.length > 0) {
         await db
             .update(bonus_spins)
-            .set({ spins_remaining: freeSpinsAvailable, last_updated: new Date() })
+            .set({
+                bonus_type: '',
+                sticky_multipliers: '[]',
+                last_updated: new Date(),
+            })
             .where(eq(bonus_spins.id, bonusSpinsData[0].id));
-    } else if (freeSpinsAvailable > 0) {
-        await db.insert(bonus_spins).values({
-            user_id: user[0].id,
-            spins_remaining: freeSpinsAvailable,
-        });
     }
 
     // Record spin result
@@ -148,27 +217,35 @@ export async function spinSlotMachine(steamId: string, code: string): Promise<Sp
         redeemed: payout.length === 0,
     });
 
-    return {
+    // Prepare the SpinResult
+    const spinResult: SpinResult = {
         finalVisibleGrid,
         spinAmounts,
         payout,
-        bonusTriggered: bonusCount >= 3,
+        bonusTriggered: bonusCountFinal >= 3,
         bonusSpinsAwarded: spinsAwarded,
         credits: updatedCredits,
         freeSpinsAvailable,
-        winningCells,
-        bonusCells,
-        winningLines,
+        winningCells: [], // Update if necessary
+        bonusCells: [], // Update if necessary
+        winningLines: winningLines, // Update if necessary
+        stickyMultipliers: existingStickyMultipliers,
     };
+
+    if (needsBonusTypeSelection) {
+        spinResult.needsBonusTypeSelection = true;
+    }
+
+    return spinResult;
 }
 
-// Helper function to get a wrapped slice of the reel
-function getWrappedSlice(arr: string[], startIndex: number, count: number): string[] {
-    const result = [];
-    for (let i = 0; i < count; i++) {
-        result.push(arr[(startIndex + i) % arr.length]);
+function checkForStickyMutliplier(x: number, y: number, stickyMultipliers: { x: number; y: number; multiplier: number }[]) {
+    for (const mult of stickyMultipliers) {
+        if (mult.x === x && mult.y === y) {
+            return mult;
+        }
     }
-    return result;
+    return null;
 }
 
 function calculatePayout(grid: string[][]): {
@@ -279,41 +356,54 @@ function getSymbolPayout(symbol: string, consecutiveCount: number): { item: stri
     return { item: payoutInfo.item, full_name: payoutInfo.full_name, quantity };
 }
 
-// Helper functions to get random symbols based on probabilities
-function getRandomSymbol(): string {
-    const rand = Math.random();
-    let cumulativeProbability = 0;
-    for (const [symbol, probability] of Object.entries(SYMBOL_PROBABILITIES)) {
-        cumulativeProbability += probability;
-        if (rand < cumulativeProbability) {
-            return symbol;
-        }
-    }
-    // Fallback in case of rounding errors
-    return SLOT_ITEMS[SLOT_ITEMS.length - 1];
-}
-
-function getRandomSymbolExcludingBonus(): string {
-    const symbolsExcludingBonus = SLOT_ITEMS;
-    const adjustedProbabilities = { ...SYMBOL_PROBABILITIES };
-    delete adjustedProbabilities[BONUS_SYMBOL];
-
-    // Normalize probabilities
-    const totalProb = Object.values(adjustedProbabilities).reduce((sum, prob) => sum + prob, 0);
-    for (const symbol in adjustedProbabilities) {
-        adjustedProbabilities[symbol] = adjustedProbabilities[symbol] / totalProb;
+export async function setBonusType(steamId: string, code: string, bonusType: 'normal' | 'sticky'): Promise<number> {
+    if (!(await verifyAuthCode(steamId, code))) {
+        throw new Error('Invalid auth code');
     }
 
-    const rand = Math.random();
-    let cumulativeProbability = 0;
-    for (const [symbol, probability] of Object.entries(adjustedProbabilities)) {
-        cumulativeProbability += probability;
-        if (rand < cumulativeProbability) {
-            return symbol;
-        }
+    console.log(`Setting bonus type to ${bonusType}`);
+
+    const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+    const last_win = await db
+        .select()
+        .from(slot_machine_spins)
+        .where(eq(slot_machine_spins.user_id, user[0].id))
+        .orderBy(desc(slot_machine_spins.timestamp))
+        .limit(1);
+    if (last_win.length === 0) {
+        console.error('No previous wins found');
+        throw new Error('No previous wins found');
     }
-    // Fallback
-    return symbolsExcludingBonus[symbolsExcludingBonus.length - 1];
+    let number_of_bonus_symbols_in_last_win = 0;
+    if (typeof last_win[0].result === 'object' && last_win[0].result !== null) {
+        Object.values(last_win[0].result).forEach((reel) => {
+            for (const cell_value of reel) {
+                if (cell_value === 'bonus') {
+                    number_of_bonus_symbols_in_last_win++;
+                }
+            }
+        });
+    }
+
+    if (!user.length) {
+        throw new Error('User not found');
+    }
+
+    let bonus_spins_awarded = 0;
+    // prettier-ignore
+    if (bonusType === 'normal') {
+        bonus_spins_awarded = number_of_bonus_symbols_in_last_win == 5 ? 20 : number_of_bonus_symbols_in_last_win == 4 ? 15 : number_of_bonus_symbols_in_last_win == 3 ? 10 : 0;
+    } else if (bonusType === 'sticky') {
+        bonus_spins_awarded = number_of_bonus_symbols_in_last_win == 5 ? 10 : number_of_bonus_symbols_in_last_win == 4 ? 8 : number_of_bonus_symbols_in_last_win == 3 ? 5 : 0;
+    }
+
+    await db
+        .update(bonus_spins)
+        .set({ bonus_type: bonusType, spins_remaining: bonus_spins_awarded, last_updated: new Date() })
+        .where(eq(bonus_spins.user_id, user[0].id));
+
+    // return number of spins remaining
+    return bonus_spins_awarded;
 }
 
 export async function getUserCredits(steamId: string, code: string) {

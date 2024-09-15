@@ -1,3 +1,5 @@
+// File 7: /src/db/schema.ts
+
 import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, numeric, date } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
@@ -277,6 +279,8 @@ export const bonus_spins = pgTable('bonus_spins', {
         .notNull()
         .references(() => user_playtime.id),
     spins_remaining: integer('spins_remaining').notNull().default(0),
+    bonus_type: varchar('bonus_type').notNull().default('normal'),
+    sticky_multipliers: jsonb('sticky_multipliers').notNull().default('[]'),
     last_updated: timestamp('last_updated').defaultNow(),
 });
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, getUserCredits, verifySteamProfile } from './slotMachineActions';
+import { spinSlotMachine, getUserCredits, verifySteamProfile, setBonusType } from './slotMachineActions';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
@@ -40,6 +40,7 @@ interface SlotResult {
     winningCells: number[][]; // [x, y]
     bonusCells: number[][]; // [x, y]
     winningLines: number[][][]; // [[x, y]]
+    stickyMultipliers?: { x: number; y: number; multiplier: number }[]; // Added for sticky multipliers
 }
 
 interface SteamProfile {
@@ -85,6 +86,8 @@ export default function SlotMachine() {
     const [currentWinningLine, setCurrentWinningLine] = useState<number[][]>([]);
     const [currentWinningLineIndex, setCurrentWinningLineIndex] = useState(0);
     const [currentWinningLineFlashCount, setCurrentWinningLineFlashCount] = useState(0);
+
+    const [isBonusPending, setIsBonusPending] = useState(false);
 
     const [reels, setReels] = useState<string[][]>([]);
     const [spinAmounts, setSpinAmounts] = useState<number[]>([]);
@@ -334,23 +337,40 @@ export default function SlotMachine() {
         setAutoSpin((prev) => !prev);
     };
 
-    const handleSpin = async () => {
-        if (!steamProfile) return;
+    // New state for bonus type selection
+    const [showBonusTypeModal, setShowBonusTypeModal] = useState(false);
+    const [selectedBonusType, setSelectedBonusType] = useState<'normal' | 'sticky' | ''>('');
 
+    const handleSpin = async () => {
         // Stop all currently playing sounds before starting a new spin
         stopAllSounds();
+        setShowOverlay(false);
+        setShowConfetti(false);
+        setSpinning(false);
+
+        if (!steamProfile) return;
+        if (freeSpins < 1 && (credits === null || credits < 5)) {
+            console.log('Not enough credits or free spins');
+            if (autoSpin) {
+                console.log('Auto spin is enabled, disabling it while not enough credits or free spins');
+                setAutoSpin(false);
+            }
+            return;
+        }
+
+        setSpinning(true);
 
         // Play handle pull sound when user clicks spin
         playHandlePull(isMuted);
 
         // Start fade out
-        setSpinning(false);
         setSpinKey((prev) => prev + 1);
 
         // Wait for fade out animation
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Proceed with spinning
+
         setError('');
 
         // Clear winning and bonus cells and lines
@@ -359,6 +379,7 @@ export default function SlotMachine() {
         setWinningLines([]);
 
         try {
+            // Call spinSlotMachine without passing bonusType
             const spinResult = await spinSlotMachine(steamProfile.steamId, code);
             const {
                 finalVisibleGrid,
@@ -368,9 +389,16 @@ export default function SlotMachine() {
                 winningCells: currWinningCells,
                 bonusCells: currentBonusCells,
                 winningLines: currWinningLines,
+                bonusSpinsAwarded,
+                stickyMultipliers,
+                needsBonusTypeSelection,
+                payout,
+                bonusTriggered,
             } = spinResult;
 
             setSpinAmounts(spinAmounts);
+
+            console.log('Final Visible Grid:', finalVisibleGrid);
 
             // Prepare reels for animation
             const newReels = finalVisibleGrid.map((finalReel, i) => {
@@ -386,7 +414,6 @@ export default function SlotMachine() {
             });
 
             setReels(newReels);
-            setSpinning(true);
 
             // Play spin start sound for each reel when spinning starts
             // This will be handled via onAnimationStart in each reel
@@ -410,12 +437,12 @@ export default function SlotMachine() {
             setShouldRefetchWinners(true); // Trigger refetch after spin is complete
 
             // Determine which sounds to play
-            const hasNormalWin = spinResult.payout.length > 0;
-            const hasBonusWin = spinResult.bonusSpinsAwarded > 0;
+            const hasNormalWin = payout.length > 0;
+            const hasBonusWin = bonusSpinsAwarded > 0;
 
             if (hasNormalWin) {
                 // Play win sound based on number of wins
-                playWinSound(spinResult.payout.length, isMuted);
+                playWinSound(payout.length, isMuted);
             }
 
             if (hasBonusWin && !hasNormalWin) {
@@ -431,6 +458,17 @@ export default function SlotMachine() {
                     setShowConfetti(false);
                 }, 2500);
             }
+
+            if (bonusTriggered) {
+                if (needsBonusTypeSelection) {
+                    // Bonus type needs to be selected by the user
+                    setIsBonusPending(true);
+                    setShowBonusTypeModal(true);
+                    setAutoSpin(false);
+                } else {
+                    // Bonus type was already set and spins were assigned
+                }
+            }
         } catch (error) {
             console.error('Error spinning slot machine:', error);
             setError(error instanceof Error ? error.message : 'An error occurred while spinning the slot machine.');
@@ -443,10 +481,30 @@ export default function SlotMachine() {
         setLineType('horizontal');
     };
 
+    // Handle bonus type selection
+    const handleBonusTypeSelection = async (type: 'normal' | 'sticky') => {
+        setSelectedBonusType(type);
+        setShowBonusTypeModal(false);
+        setIsBonusPending(false);
+
+        try {
+            let spins_remaining = await setBonusType(steamProfile!.steamId, code, type);
+            if (spins_remaining > 0) {
+                setFreeSpins(spins_remaining);
+            }
+        } catch (error) {
+            console.error('Error assigning bonus spins:', error);
+            setError(error instanceof Error ? error.message : 'An error occurred while assigning bonus spins.');
+        }
+    };
+
     // Helper function to calculate the total height of the reel content
     const calculateReelHeight = (reelLength: number) => {
         return reelLength * ITEM_HEIGHT + (reelLength - 1) * GAP;
     };
+
+    // State to manage sticky multipliers in the UI
+    const [stickyMultipliers, setStickyMultipliers] = useState<{ x: number; y: number; multiplier: number }[]>([]);
 
     let currentWinningLinePoints = [];
     if (currentWinningLine && currentWinningLine.length > 0) {
@@ -506,7 +564,7 @@ export default function SlotMachine() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.5 }}
+                                        transition={{ duration: 1.2 }}
                                         className="grid grid-cols-5 gap-0" // Adjusted gap to 0
                                     >
                                         {reels.map((reel, i) => (
@@ -616,24 +674,26 @@ export default function SlotMachine() {
                             </div>
                             <AnimatePresence>
                                 {showOverlay && result && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.8 }}
-                                        className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
-                                    >
-                                        <div className="text-center">
-                                            <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                                            {result.payout.map((item, index) => (
-                                                <p key={index} className="text-2xl">
-                                                    {item.quantity}x {item.full_name}
-                                                </p>
-                                            ))}
-                                            {result.bonusSpinsAwarded > 0 && (
-                                                <p className="text-2xl text-yellow-400">+{result.bonusSpinsAwarded} Free Spins!</p>
-                                            )}
-                                        </div>
-                                    </motion.div>
+                                    <div className="absolute flex h-full w-full items-center justify-center">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
+                                        >
+                                            <div className="text-center">
+                                                <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
+                                                {result.payout.map((item, index) => (
+                                                    <p key={index} className="text-2xl">
+                                                        {item.quantity}x {item.full_name}
+                                                    </p>
+                                                ))}
+                                                {result.bonusSpinsAwarded > 0 && (
+                                                    <p className="text-2xl text-yellow-400">Free Spins Won!</p>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    </div>
                                 )}
                             </AnimatePresence>
                             {showConfetti && (
@@ -734,6 +794,41 @@ export default function SlotMachine() {
                     </div>
                 </div>
             )}
+
+            {/* Bonus Type Selection Modal */}
+            <AnimatePresence>
+                {showBonusTypeModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.8 }}
+                            className="rounded-lg bg-white p-8 text-black"
+                        >
+                            <h2 className="mb-4 text-2xl font-bold">Choose Bonus Type</h2>
+                            <div className="flex flex-col space-y-4">
+                                <button
+                                    onClick={() => handleBonusTypeSelection('normal')}
+                                    className="rounded bg-primary_light px-4 py-2 text-white hover:bg-primary"
+                                >
+                                    {`Normal Bonus (${result?.bonusSpinsAwarded === 3 ? '10' : result?.bonusSpinsAwarded === 4 ? '15' : '20'} Spins)`}
+                                </button>
+                                <button
+                                    onClick={() => handleBonusTypeSelection('sticky')}
+                                    className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                                >
+                                    {`Sticky Bonus (${result?.bonusSpinsAwarded === 3 ? '5' : result?.bonusSpinsAwarded === 4 ? '8' : '10'} Spins)`}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

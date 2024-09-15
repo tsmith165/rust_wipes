@@ -41,7 +41,7 @@ export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete, sp
                 if (winner.free_spins_won > 0) {
                     winner.payout.push({
                         item: 'free_spin',
-                        full_name: 'Free Spins',
+                        full_name: 'Bonus',
                         quantity: winner.free_spins_won,
                     });
                 }
