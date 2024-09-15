@@ -23,7 +23,7 @@ const SYMBOL_IMAGE_PATHS: Record<string, string> = {
     scrap: '/rust_icons/scrap_icon.png',
     metal_fragments: '/rust_icons/metal_fragments_icon.png',
     high_quality_metal: '/rust_icons/hqm_icon.png',
-    bonus: '/rust_icons/bonus_icon.png',
+    bonus: '/rust_icons/bonus_symbol.png',
     '2x_multiplier': '/rust_icons/2x_multi.png',
     '3x_multiplier': '/rust_icons/3x_multi.png',
     '5x_multiplier': '/rust_icons/5x_multi.png',
