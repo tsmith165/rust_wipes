@@ -159,10 +159,10 @@ export default function GamblingWheel() {
                     </div>
                 ) : (
                     <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
-                        <div className="relative flex h-full w-full items-center justify-center">
-                            <div className="relative h-[90dvw] max-h-[60dvh] w-[3/4] lg:!h-[75dvh]">
+                        <div className="relative flex h-full w-full items-center justify-start">
+                            <div className="relative h-fit w-[3/4]">
                                 <motion.div
-                                    className="relative h-[90dvw] max-h-[60dvh] w-[90dvw] max-w-[60dvh] rounded-full lg:h-[75dvw] lg:!max-h-[80dvh] lg:w-[75dvw] lg:!max-w-[80dvh]"
+                                    className="relative h-[90dvw] max-h-[60dvh] w-[90dvw] max-w-[60dvh] rounded-full lg:h-[70dvw] lg:!max-h-[80dvh] lg:w-[70dvw] lg:!max-w-[80dvh]"
                                     style={{
                                         background: `conic-gradient(${WHEEL_SLOTS.map(
                                             (color, index) =>
