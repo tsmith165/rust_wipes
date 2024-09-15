@@ -205,7 +205,7 @@ function calculatePayout(grid: string[][]): {
             // If primary symbol is not set yet, set it
             if (!primarySymbol) {
                 primarySymbol = symbol;
-                consecutiveCount = 1; // Start counting matches
+                consecutiveCount++; // Start counting matches
                 lineMatches.push([x, y]);
             } else if (symbol === primarySymbol || primarySymbol === null) {
                 // Continue matching with the primary symbol
