@@ -1,5 +1,3 @@
-// File 3: /src/app/gambling/slot/SlotMachine.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -224,7 +222,9 @@ export default function SlotMachine() {
         if (autoSpin) {
             setTimeout(() => {
                 handleSpin();
-                startAutoSpin();
+                if (autoSpin) {
+                    startAutoSpin();
+                }
             }, 10000);
         }
     }
@@ -438,9 +438,15 @@ export default function SlotMachine() {
     }
 
     return (
-        <div className="flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
+        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
+            {/* Background Image for md+ screens */}
+            <div className="absolute bottom-0 left-0 z-0 hidden w-fit transform md:!block">
+                <Image src="/rust_hazmat_icon_large.png" alt="Rust Hazmat Icon" width={512} height={512} className="h-auto w-auto" />
+            </div>
+
+            {/* Main Content Layer */}
             {!isVerified ? (
-                <div className="mb-4 flex w-full flex-col items-center justify-center space-y-2 px-8 md:w-1/2">
+                <div className="z-10 mb-4 flex w-full flex-col items-center justify-center space-y-2 px-8 md:w-1/2">
                     {/* Verification inputs */}
                     <InputTextbox
                         idName="steam_input"
@@ -465,9 +471,9 @@ export default function SlotMachine() {
                     {error && <p className="mt-2 text-red-500">{error}</p>}
                 </div>
             ) : (
-                <div className="flex h-full w-full flex-col lg:flex-row">
+                <div className="z-10 flex h-full w-full flex-col lg:flex-row">
                     <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
-                        <div className="relative flex h-full flex-col items-center justify-center space-y-2 lg:space-y-4">
+                        <div className="relative flex h-full flex-col items-end justify-center space-y-2 lg:space-y-4">
                             <div
                                 className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
                                 style={{
@@ -651,14 +657,14 @@ export default function SlotMachine() {
                             <button
                                 onClick={handleSpin}
                                 disabled={spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                className="w-1/2 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                className="h-full w-full rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400 md:w-1/2"
                             >
                                 {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
                             </button>
                             <button
                                 onClick={handleAutoSpinButton}
                                 disabled={spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                className="flex w-1/2 items-center justify-center space-x-2 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                className="flex h-full w-full items-center justify-center space-x-2 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400 md:w-1/2"
                             >
                                 {autoSpin ? (
                                     <div className="flex items-center justify-center space-x-2">
@@ -677,7 +683,7 @@ export default function SlotMachine() {
                             {/* Add the "Show Lines" button */}
                             <button
                                 onClick={handleShowLines}
-                                className="w-full rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
+                                className="h-full w-full rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
                             >
                                 Show Lines
                             </button>
@@ -688,14 +694,14 @@ export default function SlotMachine() {
                                 className="flex w-full justify-center rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
                             >
                                 {isMuted ? (
-                                    <div className="flex w-fit space-x-2">
+                                    <div className="flex w-fit items-center justify-center space-x-2">
                                         <FaVolumeMute className="h-6 w-6" />
-                                        <span className="leading-6 text-stone-500">Sound Currently Off</span>
+                                        <span className="leading-6">Turn Sound On</span>
                                     </div>
                                 ) : (
-                                    <div className="flex w-fit space-x-2">
+                                    <div className="flex w-fit items-center justify-center space-x-2">
                                         <FaVolumeHigh className="h-6 w-6" />
-                                        <span className="leading-6 text-stone-500">Sound Currently On</span>
+                                        <span className="leading-6">Turn Sound Off</span>
                                     </div>
                                 )}
                             </button>
