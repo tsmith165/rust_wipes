@@ -41,6 +41,20 @@ export async function spinSlotMachine(
         throw new Error('User not found');
     }
 
+    // Check if user has a bonus spin record in the bonus_spins table
+    const bonusSpinsExistingData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+
+    if (bonusSpinsExistingData.length === 0) {
+        // If no bonus spin record exists, create a new one
+        await db.insert(bonus_spins).values({
+            user_id: user[0].id,
+            spins_remaining: 0,
+            bonus_type: '',
+            sticky_multipliers: JSON.stringify([]),
+            last_updated: new Date(),
+        });
+    }
+
     const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
 
     let freeSpinsAvailable = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
@@ -183,20 +197,6 @@ export async function spinSlotMachine(
 
     // Update user credits
     await db.update(user_playtime).set({ credits: updatedCredits }).where(eq(user_playtime.id, user[0].id));
-
-    // Check if user has a bonus spin record in the bonus_spins table
-    const bonusSpinsExistingData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
-
-    if (bonusSpinsExistingData.length === 0) {
-        // If no bonus spin record exists, create a new one
-        await db.insert(bonus_spins).values({
-            user_id: user[0].id,
-            spins_remaining: 0,
-            bonus_type: '',
-            sticky_multipliers: JSON.stringify([]),
-            last_updated: new Date(),
-        });
-    }
 
     // Update existing bonus spins with new multipliers and spins_remaining
     await db
