@@ -26,7 +26,7 @@ const ITEM_ICON_PATHS: Record<string, string> = {
     'smg.thompson': '/rust_icons/thompson_icon.png',
     'rifle.m39': '/rust_icons/m39_icon.png',
     'rifle.ak': '/rust_icons/ak47_icon.png',
-    free_spin: '/rust_icons/bonus_icon.png',
+    free_spin: '/rust_icons/bonus_symbol.png',
 };
 
 export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete, spinning }: RecentWinnersProps) {

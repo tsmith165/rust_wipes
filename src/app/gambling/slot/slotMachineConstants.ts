@@ -22,9 +22,9 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
     m39_rifle: 0.12,
     ak47: 0.07,
     bonus: 0.04,
-    '2x_multiplier': 0.006667, // 0.01% divided by 3
-    '3x_multiplier': 0.006667, // 0.01% divided by 3
-    '5x_multiplier': 0.006666, // 0.01% divided by 3
+    '2x_multiplier': 0.01, // 0.01% divided by 3
+    '3x_multiplier': 0.0075, // 0.01% divided by 3
+    '5x_multiplier': 0.0025, // 0.01% divided by 3
 };
 
 // Define base payouts
