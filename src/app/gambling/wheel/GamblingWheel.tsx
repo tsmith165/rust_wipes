@@ -10,6 +10,8 @@ import Image from 'next/image';
 import RecentWinners from './RecentWinners';
 import { BiSolidDownArrow } from 'react-icons/bi';
 
+import Cookies from 'js-cookie';
+
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 const ICON_PATHS: Record<string, string> = {
@@ -50,6 +52,18 @@ export default function GamblingWheel() {
     const currentRotationRef = useRef(0);
 
     useEffect(() => {
+        const savedSteamInput = Cookies.get('steamInput');
+        const savedCode = Cookies.get('authCode');
+
+        if (savedSteamInput && savedCode) {
+            setSteamInput(savedSteamInput);
+            setCode(savedCode);
+            // Automatically verify credentials
+            handleVerify(savedSteamInput, savedCode);
+        }
+    }, []);
+
+    useEffect(() => {
         const updateWindowSize = () => {
             setWindowSize({ width: window.innerWidth, height: window.innerHeight });
         };
@@ -58,13 +72,21 @@ export default function GamblingWheel() {
         return () => window.removeEventListener('resize', updateWindowSize);
     }, []);
 
-    const handleVerify = async () => {
+    const handleVerify = async (inputSteamInput?: string, inputCode?: string) => {
+        const profileUrl = inputSteamInput !== undefined ? inputSteamInput : steamInput;
+        const authCode = inputCode !== undefined ? inputCode : code;
+
         try {
-            const profile = await verifySteamProfile(steamInput);
+            const profile = await verifySteamProfile(profileUrl);
             setSteamProfile(profile);
-            const { credits } = await getUserCredits(profile.steamId, code);
+            const { credits } = await getUserCredits(profile.steamId, authCode);
             setCredits(credits);
             setIsVerified(true);
+            setError('');
+
+            // **Save credentials to cookies**
+            Cookies.set('steamInput', profileUrl, { expires: 7, secure: true, sameSite: 'Lax' }); // Expires in 7 days
+            Cookies.set('authCode', authCode, { expires: 7, secure: true, sameSite: 'Lax' });
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -76,7 +98,7 @@ export default function GamblingWheel() {
         setError('');
         try {
             const {
-                result,
+                result: spinResult,
                 totalRotation,
                 finalDegree,
                 credits: updatedCredits,
@@ -86,11 +108,11 @@ export default function GamblingWheel() {
             currentRotationRef.current = finalDegree;
             setCredits(updatedCredits);
             setTimeout(async () => {
-                setResult(result);
+                setResult(spinResult);
                 setSpinning(false);
                 setShowOverlay(true);
                 setShowConfetti(true);
-                await recordSpinResult(userId, result.color);
+                await recordSpinResult(userId, spinResult.color);
                 setShouldRefetchWinners(true);
                 setTimeout(() => {
                     setShowOverlay(false);
@@ -109,6 +131,7 @@ export default function GamblingWheel() {
             <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
                 {!isVerified ? (
                     <div className="mb-4 flex h-full w-full flex-col items-center justify-center space-y-2 md:w-3/4">
+                        {/* Verification inputs */}
                         <InputTextbox
                             idName="steam_input"
                             name="Steam Profile"
@@ -126,7 +149,10 @@ export default function GamblingWheel() {
                             labelWidth="lg"
                         />
                         <p className="text-center text-primary_light">Type '/auth' in game to get your code</p>
-                        <button onClick={handleVerify} className="mt-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light">
+                        <button
+                            onClick={() => handleVerify()}
+                            className="mt-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light"
+                        >
                             Verify
                         </button>
                         {error && <p className="mt-2 text-red-500">{error}</p>}
@@ -134,7 +160,7 @@ export default function GamblingWheel() {
                 ) : (
                     <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
                         <div className="relative flex h-full w-full items-center justify-center">
-                            <div className="relative h-[90dvw] max-h-[60dvh] min-h-full w-[3/4] lg:!h-[75dvh]">
+                            <div className="relative h-[90dvw] max-h-[60dvh] w-[3/4] lg:!h-[75dvh]">
                                 <motion.div
                                     className="relative h-[90dvw] max-h-[60dvh] w-[90dvw] max-w-[60dvh] rounded-full lg:h-[75dvw] lg:!max-h-[80dvh] lg:w-[75dvw] lg:!max-w-[80dvh]"
                                     style={{
