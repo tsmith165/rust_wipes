@@ -13,6 +13,8 @@ import { getRandomSymbol } from './slotMachineUtils'; // Import the utility func
 import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 
+import Cookies from 'js-cookie'; // Import js-cookie
+
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 // Map symbols to image paths
@@ -64,6 +66,7 @@ const VISIBLE_ITEMS = 5;
 const GAP = 2; // Adjusted gap
 
 export default function SlotMachine() {
+    // State variables
     const [showOverlay, setShowOverlay] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
@@ -309,15 +312,36 @@ export default function SlotMachine() {
         }
     }, [winningLines]);
 
-    const handleVerify = async () => {
+    // **New: Load credentials from cookies on component mount**
+    useEffect(() => {
+        const savedSteamInput = Cookies.get('steamInput');
+        const savedCode = Cookies.get('authCode');
+
+        if (savedSteamInput && savedCode) {
+            setSteamInput(savedSteamInput);
+            setCode(savedCode);
+            // Automatically verify credentials
+            handleVerify(savedSteamInput, savedCode);
+        }
+    }, []);
+
+    // **Updated: Modify handleVerify to accept parameters and save to cookies**
+    const handleVerify = async (inputSteamInput?: string, inputCode?: string) => {
+        const profileUrl = inputSteamInput !== undefined ? inputSteamInput : steamInput;
+        const authCode = inputCode !== undefined ? inputCode : code;
+
         try {
-            const profile = await verifySteamProfile(steamInput);
+            const profile = await verifySteamProfile(profileUrl);
             setSteamProfile(profile);
-            const { credits, freeSpins } = await getUserCredits(profile.steamId, code);
+            const { credits, freeSpins } = await getUserCredits(profile.steamId, authCode);
             setCredits(credits);
             setFreeSpins(freeSpins);
             setIsVerified(true);
             setError('');
+
+            // **Save credentials to cookies**
+            Cookies.set('steamInput', profileUrl, { expires: 7 }); // Expires in 7 days
+            Cookies.set('authCode', authCode, { expires: 7 });
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -542,7 +566,7 @@ export default function SlotMachine() {
                         labelWidth="lg"
                     />
                     <p className="text-center text-primary_light">Type '/auth' in game to get your code</p>
-                    <button onClick={handleVerify} className="mt-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light">
+                    <button onClick={() => handleVerify()} className="mt-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light">
                         Verify
                     </button>
                     {error && <p className="mt-2 text-red-500">{error}</p>}
