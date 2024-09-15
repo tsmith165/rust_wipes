@@ -419,7 +419,7 @@ export default function SlotMachine() {
             // This will be handled via onAnimationStart in each reel
 
             // Wait for the animations to complete
-            const maxDuration = 2 + 4 * 0.6; // For the last reel
+            const maxDuration = 2 + 4 * 0.6 + 0.4; // For the last reel
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
 
             // Update credits and other states
@@ -579,7 +579,7 @@ export default function SlotMachine() {
                                                         : {}
                                                 }
                                                 transition={{
-                                                    duration: 2 + i * 0.6,
+                                                    duration: 2 + i * 0.4,
                                                     ease: 'easeInOut',
                                                 }}
                                                 style={{
