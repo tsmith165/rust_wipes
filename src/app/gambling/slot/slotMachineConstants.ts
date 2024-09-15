@@ -1,4 +1,5 @@
-export const SLOT_ITEMS = ['scrap', 'metal_fragments', 'high_quality_metal', 'p2_pistol', 'm92_pistol', 'thompson', 'm39_rifle', 'ak47'];
+// export const SLOT_ITEMS = ['scrap', 'metal_fragments', 'high_quality_metal', 'p2_pistol', 'm92_pistol', 'thompson', 'm39_rifle', 'ak47'];
+export const SLOT_ITEMS = ['scrap', 'metal_fragments', 'high_quality_metal', 'thompson', 'm39_rifle', 'ak47'];
 
 export const BONUS_SYMBOL = 'bonus';
 
@@ -18,8 +19,8 @@ export const BASE_PAYOUTS: Record<string, { item: string; full_name: string; bas
     scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 200 },
     metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 1000 },
     high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 100 },
-    p2_pistol: { item: 'pistol.semiauto', full_name: 'P2 Pistol', base_quantity: 1 },
-    m92_pistol: { item: 'pistol.m92', full_name: 'M92 Pistol', base_quantity: 1 },
+    // p2_pistol: { item: 'pistol.semiauto', full_name: 'P2 Pistol', base_quantity: 1 },
+    // m92_pistol: { item: 'pistol.m92', full_name: 'M92 Pistol', base_quantity: 1 },
     thompson: { item: 'smg.thompson', full_name: 'Thompson', base_quantity: 1 },
     m39_rifle: { item: 'rifle.m39', full_name: 'M39 Rifle', base_quantity: 1 },
     ak47: { item: 'rifle.ak', full_name: 'AK47 Rifle', base_quantity: 1 },
