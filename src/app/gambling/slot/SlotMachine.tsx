@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
 import RecentSlotWinners from './RecentSlotWinners';
 
-import { FaVolumeMute } from 'react-icons/fa';
+import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
@@ -69,6 +69,7 @@ export default function SlotMachine() {
     const [shouldRefetchWinners, setShouldRefetchWinners] = useState(false);
 
     const [spinning, setSpinning] = useState(false);
+    const [autoSpin, setAutoSpin] = useState(false);
     const [result, setResult] = useState<SlotResult | null>(null);
     const [steamInput, setSteamInput] = useState('');
     const [code, setCode] = useState('');
@@ -213,6 +214,21 @@ export default function SlotMachine() {
         return () => window.removeEventListener('resize', updateWindowSize);
     }, []);
 
+    useEffect(() => {
+        if (!autoSpin) return;
+        handleSpin();
+        startAutoSpin();
+    }, [autoSpin]);
+
+    function startAutoSpin() {
+        if (autoSpin) {
+            setTimeout(() => {
+                handleSpin();
+                startAutoSpin();
+            }, 10000);
+        }
+    }
+
     function getScreenSize() {
         if (window.innerWidth >= WINDOW_SIZE_EXTRA_LARGE_THRESHOLD && window.innerHeight > ITEM_SIZE_EXTRA_LARGE * 5 + 100) {
             return ITEM_SIZE_EXTRA_LARGE;
@@ -292,6 +308,11 @@ export default function SlotMachine() {
         if (!isMuted) {
             stopAllSounds();
         }
+    };
+
+    const handleAutoSpinButton = () => {
+        console.log('Auto spin button clicked');
+        setAutoSpin((prev) => !prev);
     };
 
     const handleSpin = async () => {
@@ -611,8 +632,8 @@ export default function SlotMachine() {
                     {/* Side panel */}
                     <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 lg:w-1/4 lg:space-y-4 lg:p-4">
                         {/* User info and controls */}
-                        <div className="flex flex-row items-center justify-between lg:flex-col lg:space-y-4">
-                            <div className="fit flex items-start lg:w-full">
+                        <div className="flex flex-row justify-between">
+                            <div className="fit flex items-start">
                                 <Image
                                     src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
                                     alt="Steam Avatar"
@@ -620,43 +641,65 @@ export default function SlotMachine() {
                                     height={32}
                                     className="mr-2 rounded-full"
                                 />
-                                <span className="text-lg font-bold">{steamProfile?.name || 'Unknown Player'}</span>
+                                <span className="items-end text-lg font-bold leading-8">{steamProfile?.name || 'Unknown Player'}</span>
                             </div>
-                            <p className="flex w-fit items-start text-center text-lg font-bold text-white lg:w-full">
+                            <p className="flex w-fit items-end overflow-hidden text-end text-lg font-bold text-white">
                                 Credits: {credits || '0'}
                             </p>
                         </div>
-                        <button
-                            onClick={handleSpin}
-                            disabled={spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                            className="mt-4 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                        >
-                            {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
-                        </button>
-                        {/* Add the "Show Lines" button */}
-                        <button
-                            onClick={handleShowLines}
-                            className="mt-2 rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light"
-                        >
-                            Show Lines
-                        </button>
-                        {/* Mute Sound Button */}
-                        <button
-                            onClick={handleMuteToggle}
-                            className="mt-2 flex justify-center rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light"
-                        >
-                            {isMuted ? (
-                                <div className="flex w-fit space-x-2">
-                                    <FaVolumeMute />
-                                    <span className="text-stone-500">Sound Currently Off</span>
-                                </div>
-                            ) : (
-                                <div className="flex w-fit space-x-2">
-                                    <FaVolumeHigh />
-                                    <span className="text-stone-500">Sound Currently On</span>
-                                </div>
-                            )}
-                        </button>
+                        <div className="flex flex-col items-center justify-between space-y-2 md:flex-row md:space-x-2 md:space-y-0">
+                            <button
+                                onClick={handleSpin}
+                                disabled={spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                className="w-1/2 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                            >
+                                {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
+                            </button>
+                            <button
+                                onClick={handleAutoSpinButton}
+                                disabled={spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                className="flex w-1/2 items-center justify-center space-x-2 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                            >
+                                {autoSpin ? (
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <FaPause className="h-6 w-6" />
+                                        <span className="leading-6">Stop Auto Spin</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <FaPlay className="h-6 w-6" />
+                                        <span className="leading-6">Start Auto Spins</span>
+                                    </div>
+                                )}
+                            </button>
+                        </div>
+                        <div className="flex flex-col items-center justify-between space-y-2 md:flex-row md:space-x-2 md:space-y-0">
+                            {/* Add the "Show Lines" button */}
+                            <button
+                                onClick={handleShowLines}
+                                className="w-full rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
+                            >
+                                Show Lines
+                            </button>
+
+                            {/* Mute Sound Button */}
+                            <button
+                                onClick={handleMuteToggle}
+                                className="flex w-full justify-center rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
+                            >
+                                {isMuted ? (
+                                    <div className="flex w-fit space-x-2">
+                                        <FaVolumeMute className="h-6 w-6" />
+                                        <span className="leading-6 text-stone-500">Sound Currently Off</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex w-fit space-x-2">
+                                        <FaVolumeHigh className="h-6 w-6" />
+                                        <span className="leading-6 text-stone-500">Sound Currently On</span>
+                                    </div>
+                                )}
+                            </button>
+                        </div>
                         {error && <p className="mt-2 text-red-500">{error}</p>}
                         <RecentSlotWinners
                             shouldRefetch={shouldRefetchWinners}
