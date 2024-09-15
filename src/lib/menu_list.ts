@@ -3,6 +3,7 @@ import PROJECT_CONSTANTS from '@/lib/constants';
 export const navbar_menu_list: [string, string, string][] = [
     ['servers', 'Servers', '/servers'],
     ['kits', 'Kits', '/kits?type=monthly&kit=2'],
+    ['slots', 'Slots', '/gambling/slot'],
     ['wheel', 'Wheel', '/gambling/wheel'],
     ['stats', 'Stats', '/stats'],
     ['networks', 'Networks', '/networks'],
