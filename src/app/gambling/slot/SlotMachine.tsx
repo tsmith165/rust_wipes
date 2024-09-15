@@ -620,7 +620,7 @@ export default function SlotMachine() {
                                     initialVelocityX={5}
                                     initialVelocityY={20}
                                     confettiSource={{
-                                        x: windowSize.width > 1222 ? (windowSize.width * 0.75) / 2 + 100 : windowSize.width / 2,
+                                        x: windowSize.width > 1222 ? (windowSize.width * 0.75) / 2 : windowSize.width / 2,
                                         y: windowSize.width > 1222 ? windowSize.height / 2 : windowSize.width / 2 + 100,
                                         w: 0,
                                         h: 0,
