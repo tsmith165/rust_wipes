@@ -826,13 +826,13 @@ export default function SlotMachine() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50"
                     >
                         <motion.div
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
-                            className="rounded-lg bg-gray-900 p-8 text-white shadow-lg"
+                            className="rounded-lg bg-stone-800 p-8 text-white shadow-lg"
                         >
                             <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
                             <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
@@ -846,7 +846,7 @@ export default function SlotMachine() {
                                         className="rounded-lg"
                                     />
                                     {/* Overlay on Hover */}
-                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-800 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
                                         <p className="px-4 text-center opacity-0 group-hover:opacity-100">
                                             More spins, lower volatility. Multipliers do not stick for all spins.
                                         </p>
@@ -863,7 +863,7 @@ export default function SlotMachine() {
                                         className="rounded-lg"
                                     />
                                     {/* Overlay on Hover */}
-                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-800 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
                                         <p className="px-4 text-center opacity-0 group-hover:opacity-100">
                                             Less spins, higher volatility. Multipliers will stay in place for all spins.
                                         </p>
