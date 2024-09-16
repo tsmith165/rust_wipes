@@ -3,7 +3,7 @@
 import { db } from '@/db/db';
 import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
 import { eq, and, sql, or, desc } from 'drizzle-orm';
-import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES } from './slotMachineConstants';
+import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES, SLOT_ITEMS_NO_MULTIPLIERS } from './slotMachineConstants';
 import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from './slotMachineUtils';
 
 const REEL_SIZE = 5;
@@ -271,49 +271,73 @@ function calculatePayout(grid: string[][]): {
     const winningLines: number[][][] = [];
 
     // Function to validate a line considering multipliers
-    const checkLine = (line: number[][]) => {
+    const checkLine = (line: number[][], line_type_string: string) => {
+        console.log(`Checking ${line_type_string} line: `, line);
+
         let consecutiveCount = 0;
         let primarySymbol = null;
-        let lineMultiplier = 1;
+        let shouldMultiply = true;
+        let lineMultipliers = [];
         let lineMatches = [];
 
         for (let i = 0; i < line.length; i++) {
             const [x, y] = line[i];
             const symbol = grid[x][y];
 
-            // Handle multipliers as wilds
-            if (symbol === '2x_multiplier' || symbol === '3x_multiplier' || symbol === '5x_multiplier') {
-                if (symbol === '2x_multiplier') lineMultiplier *= 2;
-                if (symbol === '3x_multiplier') lineMultiplier *= 3;
-                if (symbol === '5x_multiplier') lineMultiplier *= 5;
-
-                // Add multiplier to matches and continue to the next reel
-                consecutiveCount++;
-                lineMatches.push([x, y]);
-                continue;
-            }
-
             // If primary symbol is not set yet, set it
-            if (!primarySymbol) {
+            if (
+                !primarySymbol &&
+                !symbol.startsWith('2x_multiplier') &&
+                !symbol.startsWith('3x_multiplier') &&
+                !symbol.startsWith('5x_multiplier')
+            ) {
                 primarySymbol = symbol;
+                console.log(`Checking if primary symbol (${primarySymbol}) is in: ${SLOT_ITEMS_NO_MULTIPLIERS}`);
+                if (SLOT_ITEMS_NO_MULTIPLIERS.includes(primarySymbol)) {
+                    shouldMultiply = false;
+                }
+                console.log(`Found primary symbol: ${primarySymbol} with shouldMultiply: ${shouldMultiply}`);
                 consecutiveCount++; // Start counting matches
                 lineMatches.push([x, y]);
-            } else if (symbol === primarySymbol || primarySymbol === null) {
+            } else if (symbol === primarySymbol) {
                 // Continue matching with the primary symbol
+                console.log(`Found match: ${symbol} with primarySymbol: ${primarySymbol}`);
                 consecutiveCount++;
                 lineMatches.push([x, y]);
+            } else if (symbol === '2x_multiplier' || symbol === '3x_multiplier' || symbol === '5x_multiplier') {
+                // Handle multipliers as wilds
+                // Add multiplier to matches and continue to the next reel
+                console.log(`Found match: ${symbol} with primarySymbol: ${primarySymbol}`);
+                consecutiveCount++;
+                lineMultipliers.push(symbol === '2x_multiplier' ? 2 : symbol === '3x_multiplier' ? 3 : 5);
+                lineMatches.push([x, y]);
+                continue;
             } else {
                 // Mismatch found, break the matching sequence
+                console.log(`Mismatch found: ${symbol} vs ${primarySymbol}`);
                 break;
             }
         }
 
+        console.log(`Final line consecutiveCount: ${consecutiveCount} with primarySymbol: ${primarySymbol}.  Line matches: `, lineMatches);
         // Validate line as winning if at least 3 consecutive symbols/multipliers
         if (consecutiveCount >= 3 && primarySymbol !== null) {
             const item = getSymbolPayout(primarySymbol, consecutiveCount);
             if (item) {
-                // Apply the cumulative multiplier to the payout
-                item.quantity *= lineMultiplier;
+                if (shouldMultiply) {
+                    // Apply the cumulative multiplier to the payout
+                    console.log(`Applying multipliers with multiplication: ${lineMultipliers} to ${item.quantity}`);
+                    for (const multiplier of lineMultipliers) {
+                        item.quantity *= multiplier;
+                    }
+                } else {
+                    // Apply the cumulative multiplier to the payout
+                    console.log(`Applying multipliers with addition: ${lineMultipliers} to ${item.quantity}`);
+                    for (const multiplier of lineMultipliers) {
+                        const actualMultiplier = multiplier === 2 ? 1 : multiplier === 3 ? 2 : 3;
+                        item.quantity += actualMultiplier;
+                    }
+                }
                 payout.push(item);
 
                 // Add the winning part of the line
@@ -323,10 +347,9 @@ function calculatePayout(grid: string[][]): {
     };
 
     // Check all types of lines (horizontal, diagonal, etc.)
-    WINNING_LINES.horizontal.forEach(checkLine);
-    WINNING_LINES.diagonal.forEach(checkLine);
-    WINNING_LINES.zigzag_downwards.forEach(checkLine);
-    WINNING_LINES.zigzag_upwards.forEach(checkLine);
+    for (const line_type_string of ['horizontal', 'diagonal', 'zigzag_downwards', 'zigzag_upwards'] as const) {
+        WINNING_LINES[line_type_string].forEach((line) => checkLine(line, line_type_string));
+    }
 
     // Count the number of bonus symbols in the final grid
     let bonusCount = 0;

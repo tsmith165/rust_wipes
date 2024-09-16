@@ -771,12 +771,12 @@ export default function SlotMachine() {
                             >
                                 {autoSpin ? (
                                     <div className="flex items-center justify-center space-x-2">
-                                        <FaPause className="h-6 w-6" />
+                                        <FaPlay className="h-6 w-6" />
                                         <span className="leading-6">Stop Auto Spins</span>
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center space-x-2">
-                                        <FaPlay className="h-6 w-6" />
+                                        <FaPause className="h-6 w-6" />
                                         <span className="leading-6">Start Auto Spins</span>
                                     </div>
                                 )}
@@ -832,21 +832,42 @@ export default function SlotMachine() {
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
-                            className="rounded-lg bg-white p-8 text-black"
+                            className="rounded-lg bg-gray-900 p-8 text-white shadow-lg"
                         >
-                            <h2 className="mb-4 text-2xl font-bold">Choose Bonus Type</h2>
-                            <div className="flex flex-col space-y-4">
-                                <button
-                                    onClick={() => handleBonusTypeSelection('normal')}
-                                    className="rounded bg-primary_light px-4 py-2 text-white hover:bg-primary"
-                                >
-                                    {`Normal Bonus (${result?.bonusSpinsAwarded === 3 ? '10' : result?.bonusSpinsAwarded === 4 ? '15' : '20'} Spins)`}
+                            <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
+                            <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
+                                {/* Normal Bonus Button */}
+                                <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">
+                                    <Image
+                                        src="/rust_icons/normal_bonus_banner.png"
+                                        alt="Normal Bonus"
+                                        width={300}
+                                        height={100}
+                                        className="rounded-lg"
+                                    />
+                                    {/* Overlay on Hover */}
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-800 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                                        <p className="px-4 text-center opacity-0 group-hover:opacity-100">
+                                            More spins, lower volatility. Multipliers do not stick for all spins.
+                                        </p>
+                                    </div>
                                 </button>
-                                <button
-                                    onClick={() => handleBonusTypeSelection('sticky')}
-                                    className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-                                >
-                                    {`Sticky Bonus (${result?.bonusSpinsAwarded === 3 ? '5' : result?.bonusSpinsAwarded === 4 ? '8' : '10'} Spins)`}
+
+                                {/* Sticky Bonus Button */}
+                                <button onClick={() => handleBonusTypeSelection('sticky')} className="group relative">
+                                    <Image
+                                        src="/rust_icons/sticky_bonus_banner.png"
+                                        alt="Sticky Bonus"
+                                        width={300}
+                                        height={100}
+                                        className="rounded-lg"
+                                    />
+                                    {/* Overlay on Hover */}
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-800 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                                        <p className="px-4 text-center opacity-0 group-hover:opacity-100">
+                                            Less spins, higher volatility. Multipliers will stay in place for all spins.
+                                        </p>
+                                    </div>
                                 </button>
                             </div>
                         </motion.div>

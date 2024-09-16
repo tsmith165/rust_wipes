@@ -11,6 +11,8 @@ export const SLOT_ITEMS = [
     '5x_multiplier',
 ];
 
+export const SLOT_ITEMS_NO_MULTIPLIERS = ['thompson', 'm39_rifle', 'ak47'];
+
 export const BONUS_SYMBOL = 'bonus';
 
 // Define probabilities for each symbol (must sum to 1)
@@ -21,17 +23,17 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
     thompson: 0.15,
     m39_rifle: 0.12,
     ak47: 0.075,
-    bonus: 0.045,
-    '2x_multiplier': 0.005,
-    '3x_multiplier': 0.003,
-    '5x_multiplier': 0.002,
+    bonus: 0.04,
+    '2x_multiplier': 0.007,
+    '3x_multiplier': 0.005,
+    '5x_multiplier': 0.003,
 };
 
 // Define base payouts
 export const BASE_PAYOUTS: Record<string, { item: string; full_name: string; base_quantity: number }> = {
-    scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 200 },
-    metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 1000 },
-    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 100 },
+    scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 50 },
+    metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 500 },
+    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 50 },
     // p2_pistol: { item: 'pistol.semiauto', full_name: 'P2 Pistol', base_quantity: 1 },
     // m92_pistol: { item: 'pistol.m92', full_name: 'M92 Pistol', base_quantity: 1 },
     thompson: { item: 'smg.thompson', full_name: 'Thompson', base_quantity: 1 },
