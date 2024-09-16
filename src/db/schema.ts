@@ -267,6 +267,7 @@ export const slot_machine_spins = pgTable('slot_machine_spins', {
     free_spins_won: integer('free_spins_won').notNull().default(0),
     free_spins_used: integer('free_spins_used').notNull().default(0),
     redeemed: boolean('redeemed').notNull().default(false),
+    payout_redeemed: jsonb('payout_redeemed').notNull().default('{}'),
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
