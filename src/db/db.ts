@@ -18,6 +18,8 @@ import {
     wheel_spins,
     slot_machine_spins,
     bonus_spins,
+    referrals,
+    referral_rewards,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -41,4 +43,6 @@ export {
     wheel_spins,
     slot_machine_spins,
     bonus_spins,
+    referrals,
+    referral_rewards,
 };

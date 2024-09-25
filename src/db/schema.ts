@@ -287,3 +287,25 @@ export const bonus_spins = pgTable('bonus_spins', {
 
 export type BonusSpins = InferSelectModel<typeof bonus_spins>;
 export type InsertBonusSpins = InferInsertModel<typeof bonus_spins>;
+
+export const referrals = pgTable('referrals', {
+    id: serial('id').primaryKey(),
+    steam_id: varchar('steam_id').notNull().unique(),
+    referral_code: varchar('referral_code').notNull().unique(),
+    referred_by: varchar('referred_by'), // This can be null if not referred by anyone
+});
+
+export type Referrals = InferSelectModel<typeof referrals>;
+export type InsertReferrals = InferInsertModel<typeof referrals>;
+
+export const referral_rewards = pgTable('referral_rewards', {
+    id: serial('id').primaryKey(),
+    steam_id: varchar('steam_id').notNull(),
+    timestamp: timestamp('timestamp').defaultNow(),
+    reward: integer('reward').notNull(),
+    condition_met: boolean('condition_met').notNull().default(false),
+    claimed: boolean('claimed').notNull().default(false),
+});
+
+export type ReferralRewards = InferSelectModel<typeof referral_rewards>;
+export type InsertReferralRewards = InferInsertModel<typeof referral_rewards>;
