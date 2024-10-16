@@ -4,7 +4,40 @@ import 'server-only';
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import { determineWinningSlot, PAYOUTS, WheelColor } from './wheelConstants';
+import { determineWinningSlot, PAYOUTS, WheelColor, WheelPayout } from './wheelConstants';
+
+// **Define a precise type for PAYOUTS**
+type PayoutsType = {
+    [key in WheelColor]: {
+        displayName: WheelPayout;
+        inGameName: string;
+    };
+};
+
+// **Ensure PAYOUTS conforms to PayoutsType**
+const PAYOUTS_TYPED: PayoutsType = PAYOUTS as PayoutsType;
+
+// **Standardized response interface**
+interface ActionResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+}
+
+interface WinnerWithPictures {
+    player_name: string;
+    steam_id: string;
+    result: string; // Display name of the payout
+    timestamp: string;
+    color: WheelColor;
+    profile_picture_url: string | null;
+}
+
+interface SteamProfile {
+    name: string;
+    avatarUrl: string;
+    steamId: string;
+}
 
 async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
     const user = await db
@@ -16,82 +49,196 @@ async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
     return user.length > 0;
 }
 
-export async function spinWheel(steamId: string, code: string, currentRotation: number) {
-    if (!(await verifyAuthCode(steamId, code))) {
-        throw new Error('Invalid auth code');
+export async function spinWheel(
+    steamId: string,
+    code: string,
+    currentRotation: number,
+): Promise<ActionResponse<{ result: WheelColor; totalRotation: number; finalDegree: number; credits: number; userId: number }>> {
+    try {
+        if (!(await verifyAuthCode(steamId, code))) {
+            return { success: false, error: 'Invalid auth code' };
+        }
+
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+
+        if (!user.length || user[0].credits < 5) {
+            return { success: false, error: 'Not enough credits' };
+        }
+
+        const baseRotation = 5 * 360; // 5 full rotations
+        const randomExtraRotation = Math.floor(Math.random() * 360);
+        const totalRotation = baseRotation + randomExtraRotation;
+        const finalDegree = (currentRotation + totalRotation) % 360;
+
+        const result = determineWinningSlot(finalDegree);
+
+        if (!result) {
+            return { success: false, error: 'Spin failed' };
+        }
+
+        // Update user credits
+        await db
+            .update(user_playtime)
+            .set({ credits: user[0].credits - 5 })
+            .where(eq(user_playtime.id, user[0].id));
+
+        // Record the spin result in the database using `result.color` to index PAYOUTS
+        await db.insert(wheel_spins).values({
+            user_id: user[0].id,
+            result: PAYOUTS_TYPED[result.color].displayName,
+            in_game_item_name: PAYOUTS_TYPED[result.color].inGameName,
+        });
+
+        // Return the successful spin result with `result.color`
+        return {
+            success: true,
+            data: {
+                result: result.color,
+                totalRotation,
+                finalDegree,
+                credits: user[0].credits - 5,
+                userId: user[0].id,
+            },
+        };
+    } catch (error) {
+        console.error('Error in spinWheel:', error);
+        return { success: false, error: 'An unexpected error occurred. Please try again later.' };
     }
-
-    const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
-
-    if (!user.length || user[0].credits < 5) {
-        throw new Error('Not enough credits');
-    }
-
-    const baseRotation = 5 * 360; // 5 full rotations
-    const randomExtraRotation = Math.floor(Math.random() * 360);
-    const totalRotation = baseRotation + randomExtraRotation;
-    const finalDegree = (currentRotation + totalRotation) % 360;
-
-    const result = determineWinningSlot(finalDegree);
-
-    if (!result) {
-        throw new Error('Spin failed');
-    }
-
-    // Update user credits
-    await db
-        .update(user_playtime)
-        .set({ credits: user[0].credits - 5 })
-        .where(eq(user_playtime.id, user[0].id));
-
-    // Return the result without inserting into wheel_spins yet
-    return { result, totalRotation, finalDegree, credits: user[0].credits - 5, userId: user[0].id };
 }
 
-export async function recordSpinResult(userId: number, result: WheelColor) {
-    const payout = PAYOUTS[result];
-    // Insert wheel spin result
-    await db.insert(wheel_spins).values({
-        user_id: userId,
-        result: payout.displayName,
-        in_game_item_name: payout.inGameName,
-    });
+export async function recordSpinResult(userId: number, result: WheelColor): Promise<ActionResponse<null>> {
+    try {
+        const payout = PAYOUTS_TYPED[result];
+        // Insert wheel spin result
+        await db.insert(wheel_spins).values({
+            user_id: userId,
+            result: payout.displayName,
+            in_game_item_name: payout.inGameName,
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error in recordSpinResult:', error);
+        return { success: false, error: 'Failed to record spin result.' };
+    }
 }
 
-export async function getRecentWinners() {
-    const winners = await db
-        .select({
-            player_name: user_playtime.player_name,
-            steam_id: user_playtime.steam_id,
-            result: wheel_spins.result,
-            timestamp: wheel_spins.timestamp,
-            profile_picture_url: user_playtime.profile_picture_url,
-        })
-        .from(wheel_spins)
-        .innerJoin(user_playtime, eq(user_playtime.id, wheel_spins.user_id))
-        .orderBy(desc(wheel_spins.timestamp))
-        .limit(25);
+export async function getRecentWinners(): Promise<ActionResponse<WinnerWithPictures[]>> {
+    try {
+        const winners = await db
+            .select({
+                player_name: user_playtime.player_name,
+                steam_id: user_playtime.steam_id,
+                result: wheel_spins.result,
+                timestamp: wheel_spins.timestamp,
+                profile_picture_url: user_playtime.profile_picture_url,
+            })
+            .from(wheel_spins)
+            .innerJoin(user_playtime, eq(user_playtime.id, wheel_spins.user_id))
+            .orderBy(desc(wheel_spins.timestamp))
+            .limit(25);
 
-    const winnersWithPictures = await Promise.all(
-        winners.map(async (winner) => {
-            let profilePictureUrl = winner.profile_picture_url;
-            if (!profilePictureUrl) {
-                profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
-            }
-            const wheelColor = Object.entries(PAYOUTS).find(([_, payout]) => payout.displayName === winner.result)?.[0] as WheelColor;
+        const winnersWithPictures = await Promise.all(
+            winners.map(async (winner) => {
+                let profilePictureUrl = winner.profile_picture_url;
+                if (!profilePictureUrl) {
+                    profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
+                }
+
+                // Find the WheelColor based on the result's displayName
+                const wheelColorEntry = Object.entries(PAYOUTS_TYPED).find(([_, payout]) => payout.displayName === winner.result);
+
+                const wheelColor = wheelColorEntry ? (wheelColorEntry[0] as WheelColor) : 'Yellow'; // Default to 'Yellow' if not found
+
+                return {
+                    player_name: winner.player_name || 'Unknown Player',
+                    timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
+                    result: winner.result, // Include `result` as required by the interface
+                    payout: [
+                        {
+                            item: PAYOUTS_TYPED[wheelColor].inGameName,
+                            full_name: PAYOUTS_TYPED[wheelColor].displayName,
+                            quantity: 1, // Assuming quantity is 1 per spin
+                        },
+                    ],
+                    free_spins_won: 0, // Assuming wheel spins don't award free spins
+                    color: wheelColor,
+                    profile_picture_url: profilePictureUrl,
+                    steam_id: winner.steam_id,
+                };
+            }),
+        );
+
+        return { success: true, data: winnersWithPictures };
+    } catch (error) {
+        console.error('Error in getRecentWinners:', error);
+        return { success: false, error: 'Failed to fetch recent winners.' };
+    }
+}
+
+export async function getUserCredits(steamId: string, code: string): Promise<ActionResponse<{ credits: number }>> {
+    try {
+        if (!(await verifyAuthCode(steamId, code))) {
+            return { success: false, error: 'Invalid auth code' };
+        }
+
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+
+        if (!user.length) {
+            return { success: false, error: 'User not found' };
+        }
+
+        return { success: true, data: { credits: user[0].credits } };
+    } catch (error) {
+        console.error('Error in getUserCredits:', error);
+        return { success: false, error: 'An unexpected error occurred. Please try again later.' };
+    }
+}
+
+// Function to verify Steam profile
+export async function verifySteamProfile(profileUrl: string): Promise<ActionResponse<SteamProfile>> {
+    const STEAM_API_KEY = process.env.STEAM_API_KEY;
+    if (!STEAM_API_KEY) {
+        return { success: false, error: 'Steam API key is not set' };
+    }
+
+    // Extract the Steam ID from the profile URL
+    const steamId = await extractSteamIdFromUrl(profileUrl);
+    if (!steamId) {
+        return { success: false, error: 'Invalid Steam profile URL' };
+    }
+
+    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+    try {
+        const response = await fetch(steamApiUrl);
+        if (!response.ok) {
+            return { success: false, error: `HTTP error! status: ${response.status}` };
+        }
+        const data = await response.json();
+        console.log('Steam API response:', data);
+
+        if (data.response && data.response.players && data.response.players.length > 0) {
+            const player = data.response.players[0];
             return {
-                ...winner,
-                player_name: winner.player_name || 'Unknown Player',
-                timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
-                color: wheelColor || 'Yellow',
-                profile_picture_url: profilePictureUrl,
+                success: true,
+                data: {
+                    name: player.personaname,
+                    avatarUrl: player.avatarfull,
+                    steamId: player.steamid,
+                },
             };
-        }),
-    );
-
-    return winnersWithPictures;
+        } else {
+            console.error('Steam user not found in API response:', data);
+            return { success: false, error: 'Steam user not found' };
+        }
+    } catch (error) {
+        console.error('Error verifying Steam profile:', error);
+        return { success: false, error: 'Error verifying Steam profile' };
+    }
 }
 
+// Helper function to fetch and store profile picture
 async function fetchAndStoreProfilePicture(steamId: string): Promise<string | null> {
     const STEAM_API_KEY = process.env.STEAM_API_KEY;
     if (!STEAM_API_KEY) {
@@ -123,60 +270,6 @@ async function fetchAndStoreProfilePicture(steamId: string): Promise<string | nu
     } catch (error) {
         console.error('Error fetching Steam profile picture:', error);
         return null;
-    }
-}
-
-export async function getUserCredits(steamId: string, code: string) {
-    if (!(await verifyAuthCode(steamId, code))) {
-        throw new Error('Invalid auth code');
-    }
-
-    const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
-
-    if (!user.length) {
-        throw new Error('User not found');
-    }
-
-    return { credits: user[0].credits };
-}
-
-// Function to verify Steam profile
-export async function verifySteamProfile(profileUrl: string) {
-    const STEAM_API_KEY = process.env.STEAM_API_KEY;
-    if (!STEAM_API_KEY) {
-        throw new Error('Steam API key is not set');
-    }
-
-    // Extract the Steam ID from the profile URL
-    const steamId = await extractSteamIdFromUrl(profileUrl);
-    if (!steamId) {
-        throw new Error('Invalid Steam profile URL');
-    }
-
-    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
-
-    try {
-        const response = await fetch(steamApiUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('Steam API response:', data);
-
-        if (data.response && data.response.players && data.response.players.length > 0) {
-            const player = data.response.players[0];
-            return {
-                name: player.personaname,
-                avatarUrl: player.avatarfull,
-                steamId: player.steamid,
-            };
-        } else {
-            console.error('Steam user not found in API response:', data);
-            throw new Error('Steam user not found');
-        }
-    } catch (error) {
-        console.error('Error verifying Steam profile:', error);
-        throw error;
     }
 }
 

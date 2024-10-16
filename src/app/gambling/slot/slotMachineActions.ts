@@ -1,3 +1,5 @@
+// File: /src/app/gambling/slot/slotMachineActions.ts
+
 'use server';
 
 import { db } from '@/db/db';
@@ -5,6 +7,13 @@ import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
 import { eq, and, sql, or, desc } from 'drizzle-orm';
 import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES, SLOT_ITEMS_NO_MULTIPLIERS } from './slotMachineConstants';
 import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from './slotMachineUtils';
+
+// **Define a standardized response interface**
+interface ActionResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+}
 
 const REEL_SIZE = 5;
 const VISIBLE_ITEMS = 5;
@@ -26,143 +35,184 @@ interface SpinResult {
     needsBonusTypeSelection?: boolean;
 }
 
+interface WinnerWithPictures {
+    player_name: string;
+    steam_id: string;
+    payout: { item: string; full_name: string; quantity: number }[];
+    free_spins_won: number;
+    timestamp: string;
+    profile_picture_url: string | null;
+}
+
+interface SteamProfile {
+    name: string;
+    avatarUrl: string;
+    steamId: string;
+}
+
+/**
+ * Type Guard to verify if data is of type { x: number; y: number; multiplier: number }[]
+ */
+function isStickyMultipliersArray(data: any): data is { x: number; y: number; multiplier: number }[] {
+    return (
+        Array.isArray(data) &&
+        data.every(
+            (item) =>
+                typeof item === 'object' && typeof item.x === 'number' && typeof item.y === 'number' && typeof item.multiplier === 'number',
+        )
+    );
+}
+
+/**
+ * Type Guard to verify if data is of type string[][]
+ */
+function isStringDoubleArray(data: any): data is string[][] {
+    return Array.isArray(data) && data.every((row) => Array.isArray(row) && row.every((cell) => typeof cell === 'string'));
+}
+
+/**
+ * Standardized spinSlotMachine function with ActionResponse.
+ */
 export async function spinSlotMachine(
     steamId: string,
     code: string,
     bonusType?: 'normal' | 'sticky', // Optional parameter for bonus type
-): Promise<SpinResult> {
-    if (!(await verifyAuthCode(steamId, code))) {
-        throw new Error('Invalid auth code');
-    }
+): Promise<ActionResponse<SpinResult>> {
+    try {
+        // Verify authentication
+        const isAuthValid = await verifyAuthCode(steamId, code);
+        if (!isAuthValid) {
+            return { success: false, error: 'Invalid auth code' };
+        }
 
-    const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+        // Retrieve user
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+        if (!user.length) {
+            return { success: false, error: 'User not found' };
+        }
 
-    if (!user.length) {
-        throw new Error('User not found');
-    }
+        // Check if user has a bonus spin record
+        const bonusSpinsExistingData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
 
-    // Check if user has a bonus spin record in the bonus_spins table
-    const bonusSpinsExistingData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+        if (bonusSpinsExistingData.length === 0) {
+            // If no bonus spin record exists, create a new one
+            await db.insert(bonus_spins).values({
+                user_id: user[0].id,
+                spins_remaining: 0,
+                bonus_type: '',
+                sticky_multipliers: [], // Assign as an empty array
+                last_updated: new Date(),
+            });
+        }
 
-    if (bonusSpinsExistingData.length === 0) {
-        // If no bonus spin record exists, create a new one
-        await db.insert(bonus_spins).values({
-            user_id: user[0].id,
-            spins_remaining: 0,
-            bonus_type: '',
-            sticky_multipliers: JSON.stringify([]),
-            last_updated: new Date(),
-        });
-    }
+        const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
 
-    const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+        let freeSpinsAvailable = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
+        let existingBonusType: 'normal' | 'sticky' = 'normal';
+        let existingStickyMultipliers: { x: number; y: number; multiplier: number }[] = [];
 
-    let freeSpinsAvailable = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
-    let existingBonusType: 'normal' | 'sticky' = 'normal';
-    let existingStickyMultipliers: { x: number; y: number; multiplier: number }[] = [];
+        if (bonusSpinsData.length > 0) {
+            existingBonusType = bonusSpinsData[0].bonus_type as 'normal' | 'sticky';
 
-    if (bonusSpinsData.length > 0) {
-        existingBonusType = bonusSpinsData[0].bonus_type as 'normal' | 'sticky';
-        existingStickyMultipliers = (bonusSpinsData[0].sticky_multipliers as { x: number; y: number; multiplier: number }[]) || [];
-
-        // Sort sticky multipliers by `y` first and then `x` to preserve order
-        existingStickyMultipliers.sort((a, b) => a.y - b.y || a.x - b.x);
-    }
-
-    if (user[0].credits < 5 && freeSpinsAvailable === 0) {
-        throw new Error('Not enough credits or free spins');
-    }
-
-    // Determine the selected bonus type
-    let selectedBonusType: 'normal' | 'sticky' | '' = '';
-    if (bonusType) {
-        selectedBonusType = bonusType;
-    } else if (existingBonusType === 'sticky') {
-        selectedBonusType = 'sticky';
-    } else if (existingBonusType === 'normal') {
-        selectedBonusType = 'normal';
-    }
-
-    // Generate the entire grid with sticky multipliers integrated
-    const finalVisibleGrid = Array(5)
-        .fill(0)
-        .map((_, reelIndex) => {
-            const reelSymbols: string[] = [];
-            let skipBonusUntilIndex = -1;
-            let position = 0;
-
-            while (reelSymbols.length < REEL_SIZE) {
-                let symbol: string;
-
-                // Check for sticky multiplier
-                const stickyMultiplier = checkForStickyMutliplier(reelIndex, position, existingStickyMultipliers);
-                if (stickyMultiplier) {
-                    symbol = `${stickyMultiplier.multiplier}x_multiplier`;
-
-                    reelSymbols.push(symbol);
-                    position++;
-                } else {
-                    if (position <= skipBonusUntilIndex) {
-                        // Cannot place bonus symbol
-                        symbol = getRandomSymbolExcludingBonus();
-                    } else {
-                        symbol = getRandomSymbol();
-                        if (symbol === BONUS_SYMBOL) {
-                            // After placing a bonus symbol, set skipBonusUntilIndex
-                            skipBonusUntilIndex = position + 4;
-                        }
-                    }
-
-                    reelSymbols.push(symbol);
-                    position++;
-                }
+            // Use type guard to ensure correct type
+            if (isStickyMultipliersArray(bonusSpinsData[0].sticky_multipliers)) {
+                existingStickyMultipliers = bonusSpinsData[0].sticky_multipliers;
+            } else {
+                console.warn('Invalid sticky_multipliers format. Resetting to empty array.');
+                existingStickyMultipliers = [];
             }
 
-            return reelSymbols;
-        });
+            // Sort sticky multipliers by `y` first and then `x` to preserve order
+            existingStickyMultipliers.sort((a, b) => a.y - b.y || a.x - b.x);
+        }
 
-    // Generate spin amounts for each reel
-    const spinAmounts = Array(5)
-        .fill(0)
-        .map(() => Math.floor(Math.random() * (MAX_SPIN - MIN_SPIN + 1)) + MIN_SPIN);
+        if (user[0].credits < 5 && freeSpinsAvailable === 0) {
+            return { success: false, error: 'Not enough credits or free spins' };
+        }
 
-    // Calculate winning cells and bonus cells
-    const { payout, bonusCount, winningLines } = calculatePayout(finalVisibleGrid);
-
-    // Identify multipliers in the spin result
-    const currentMultipliers: { x: number; y: number; multiplier: number }[] = [];
-    finalVisibleGrid.forEach((column, x) => {
-        column.forEach((symbol, y) => {
-            if (symbol.startsWith('2x_multiplier')) {
-                currentMultipliers.push({ x, y, multiplier: 2 });
-            } else if (symbol.startsWith('3x_multiplier')) {
-                currentMultipliers.push({ x, y, multiplier: 3 });
-            } else if (symbol.startsWith('5x_multiplier')) {
-                currentMultipliers.push({ x, y, multiplier: 5 });
-            }
-        });
-    });
-
-    // Count the number of bonus symbols in the final grid
-    let bonusCountFinal = 0;
-    finalVisibleGrid.forEach((column) => {
-        column.forEach((symbol) => {
-            if (symbol === BONUS_SYMBOL) {
-                bonusCountFinal++;
-            }
-        });
-    });
-
-    // Initialize spinsAwarded
-    let spinsAwarded = 0;
-    let needsBonusTypeSelection = false;
-
-    if (bonusCountFinal >= 3) {
-        if (selectedBonusType === '') {
-            // Bonus type not set and not provided
-            spinsAwarded = bonusCountFinal;
-            needsBonusTypeSelection = true;
+        // Determine the selected bonus type
+        let selectedBonusType: 'normal' | 'sticky' | '' = '';
+        if (bonusType) {
+            selectedBonusType = bonusType;
         } else {
+            selectedBonusType = existingBonusType;
+        }
+
+        // Generate the entire grid with sticky multipliers integrated
+        const finalVisibleGrid = Array(REEL_SIZE)
+            .fill(0)
+            .map((_, reelIndex) => {
+                const reelSymbols: string[] = [];
+                let skipBonusUntilIndex = -1;
+                let position = 0;
+
+                while (reelSymbols.length < REEL_SIZE) {
+                    let symbol: string;
+
+                    // Check for sticky multiplier
+                    const stickyMultiplier = checkForStickyMultiplier(reelIndex, position, existingStickyMultipliers);
+                    if (stickyMultiplier) {
+                        symbol = `${stickyMultiplier.multiplier}x_multiplier`;
+
+                        reelSymbols.push(symbol);
+                        position++;
+                    } else {
+                        if (position <= skipBonusUntilIndex) {
+                            // Cannot place bonus symbol
+                            symbol = getRandomSymbolExcludingBonus();
+                        } else {
+                            symbol = getRandomSymbol();
+                            if (symbol === BONUS_SYMBOL) {
+                                // After placing a bonus symbol, set skipBonusUntilIndex
+                                skipBonusUntilIndex = position + 4;
+                            }
+                        }
+
+                        reelSymbols.push(symbol);
+                        position++;
+                    }
+                }
+
+                return reelSymbols;
+            });
+
+        // Generate spin amounts for each reel
+        const spinAmounts = Array(REEL_SIZE)
+            .fill(0)
+            .map(() => Math.floor(Math.random() * (MAX_SPIN - MIN_SPIN + 1)) + MIN_SPIN);
+
+        // Calculate winning cells and bonus cells
+        const { payout, bonusCount, winningLines } = calculatePayout(finalVisibleGrid);
+
+        // Identify multipliers in the spin result
+        const currentMultipliers: { x: number; y: number; multiplier: number }[] = [];
+        finalVisibleGrid.forEach((column, x) => {
+            column.forEach((symbol, y) => {
+                if (symbol.startsWith('2x_multiplier')) {
+                    currentMultipliers.push({ x, y, multiplier: 2 });
+                } else if (symbol.startsWith('3x_multiplier')) {
+                    currentMultipliers.push({ x, y, multiplier: 3 });
+                } else if (symbol.startsWith('5x_multiplier')) {
+                    currentMultipliers.push({ x, y, multiplier: 5 });
+                }
+            });
+        });
+
+        // Count the number of bonus symbols in the final grid
+        let bonusCountFinal = 0;
+        finalVisibleGrid.forEach((column) => {
+            column.forEach((symbol) => {
+                if (symbol === BONUS_SYMBOL) {
+                    bonusCountFinal++;
+                }
+            });
+        });
+
+        // Initialize spinsAwarded
+        let spinsAwarded = 0;
+        let needsBonusTypeSelection = false;
+
+        if (bonusCountFinal >= 3) {
             // Assign spins based on the selected bonus type
             if (selectedBonusType === 'normal') {
                 if (bonusCountFinal === 3) {
@@ -184,76 +234,83 @@ export async function spinSlotMachine(
 
             freeSpinsAvailable += spinsAwarded;
         }
-    }
 
-    // Update user credits and bonus spins
-    let updatedCredits = user[0].credits;
+        // Update user credits and bonus spins
+        let updatedCredits = user[0].credits;
 
-    if (freeSpinsAvailable > 0) {
-        freeSpinsAvailable--;
-    } else {
-        updatedCredits -= 5;
-    }
+        if (freeSpinsAvailable > 0) {
+            freeSpinsAvailable--;
+        } else {
+            updatedCredits -= 5;
+        }
 
-    // Update user credits
-    await db.update(user_playtime).set({ credits: updatedCredits }).where(eq(user_playtime.id, user[0].id));
+        // Update user credits
+        await db.update(user_playtime).set({ credits: updatedCredits }).where(eq(user_playtime.id, user[0].id));
 
-    // Update existing bonus spins with new multipliers and spins_remaining
-    await db
-        .update(bonus_spins)
-        .set({
-            spins_remaining: freeSpinsAvailable,
-            bonus_type: selectedBonusType,
-            sticky_multipliers: JSON.stringify(currentMultipliers),
-            last_updated: new Date(),
-        })
-        .where(eq(bonus_spins.id, bonusSpinsData[0].id));
-
-    // Reset bonus_type and sticky_multipliers if spins_remaining is zero
-    if (freeSpinsAvailable === 0 && bonusSpinsData.length > 0) {
+        // Update existing bonus spins with new multipliers and spins_remaining
         await db
             .update(bonus_spins)
             .set({
-                bonus_type: '',
-                sticky_multipliers: '[]',
+                spins_remaining: freeSpinsAvailable,
+                bonus_type: selectedBonusType,
+                sticky_multipliers: selectedBonusType === 'sticky' ? currentMultipliers : [], // Conditional assignment
                 last_updated: new Date(),
             })
             .where(eq(bonus_spins.id, bonusSpinsData[0].id));
+
+        // Reset bonus_type and sticky_multipliers if spins_remaining is zero
+        if (freeSpinsAvailable === 0 && bonusSpinsData.length > 0) {
+            await db
+                .update(bonus_spins)
+                .set({
+                    bonus_type: '',
+                    sticky_multipliers: [],
+                    last_updated: new Date(),
+                })
+                .where(eq(bonus_spins.id, bonusSpinsData[0].id));
+        }
+
+        // Record spin result
+        await db.insert(slot_machine_spins).values({
+            user_id: user[0].id,
+            result: finalVisibleGrid, // Stored as a JSON object
+            payout: payout, // Stored as a JSON object
+            free_spins_won: spinsAwarded,
+            free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
+            redeemed: payout.length === 0,
+        });
+
+        // Prepare the SpinResult
+        const spinResult: SpinResult = {
+            finalVisibleGrid,
+            spinAmounts,
+            payout,
+            bonusTriggered: bonusCountFinal >= 3,
+            bonusSpinsAwarded: spinsAwarded,
+            credits: updatedCredits,
+            freeSpinsAvailable,
+            winningCells: [], // Update if necessary
+            bonusCells: [], // Update if necessary
+            winningLines: winningLines, // Update if necessary
+            stickyMultipliers: selectedBonusType === 'sticky' ? currentMultipliers : [], // Conditional assignment
+        };
+
+        if (needsBonusTypeSelection) {
+            spinResult.needsBonusTypeSelection = true;
+        }
+
+        return { success: true, data: spinResult };
+    } catch (error) {
+        console.error('Error spin slot machine:', error);
+        return { success: false, error: 'An unexpected error occurred.' };
     }
-
-    // Record spin result
-    await db.insert(slot_machine_spins).values({
-        user_id: user[0].id,
-        result: finalVisibleGrid, // Store as JSON
-        payout: payout, // Store as JSON
-        free_spins_won: spinsAwarded,
-        free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
-        redeemed: payout.length === 0,
-    });
-
-    // Prepare the SpinResult
-    const spinResult: SpinResult = {
-        finalVisibleGrid,
-        spinAmounts,
-        payout,
-        bonusTriggered: bonusCountFinal >= 3,
-        bonusSpinsAwarded: spinsAwarded,
-        credits: updatedCredits,
-        freeSpinsAvailable,
-        winningCells: [], // Update if necessary
-        bonusCells: [], // Update if necessary
-        winningLines: winningLines, // Update if necessary
-        stickyMultipliers: existingStickyMultipliers,
-    };
-
-    if (needsBonusTypeSelection) {
-        spinResult.needsBonusTypeSelection = true;
-    }
-
-    return spinResult;
 }
 
-function checkForStickyMutliplier(x: number, y: number, stickyMultipliers: { x: number; y: number; multiplier: number }[]) {
+function checkForStickyMultiplier(
+    x: number,
+    y: number,
+    stickyMultipliers: { x: number; y: number; multiplier: number }[],
+): { x: number; y: number; multiplier: number } | null {
     for (const mult of stickyMultipliers) {
         if (mult.x === x && mult.y === y) {
             return mult;
@@ -265,7 +322,7 @@ function checkForStickyMutliplier(x: number, y: number, stickyMultipliers: { x: 
 function calculatePayout(grid: string[][]): {
     payout: { item: string; full_name: string; quantity: number }[];
     bonusCount: number;
-    winningLines: number[][][]; // [[x, y]]
+    winningLines: number[][][];
 } {
     let payout: { item: string; full_name: string; quantity: number }[] = [];
     const winningLines: number[][][] = [];
@@ -275,10 +332,10 @@ function calculatePayout(grid: string[][]): {
         console.log(`Checking ${line_type_string} line: `, line);
 
         let consecutiveCount = 0;
-        let primarySymbol = null;
+        let primarySymbol: string | null = null;
         let shouldMultiply = true;
-        let lineMultipliers = [];
-        let lineMatches = [];
+        let lineMultipliers: number[] = [];
+        let lineMatches: number[][] = [];
 
         for (let i = 0; i < line.length; i++) {
             const [x, y] = line[i];
@@ -364,6 +421,9 @@ function calculatePayout(grid: string[][]): {
     return { payout, bonusCount, winningLines };
 }
 
+/**
+ * Retrieves the payout information for a given symbol based on consecutive matches.
+ */
 function getSymbolPayout(symbol: string, consecutiveCount: number): { item: string; full_name: string; quantity: number } | null {
     const payoutInfo = BASE_PAYOUTS[symbol];
     if (!payoutInfo) return null;
@@ -393,93 +453,165 @@ function getSymbolPayout(symbol: string, consecutiveCount: number): { item: stri
     return { item: payoutInfo.item, full_name: payoutInfo.full_name, quantity };
 }
 
-export async function setBonusType(steamId: string, code: string, bonusType: 'normal' | 'sticky'): Promise<number> {
-    if (!(await verifyAuthCode(steamId, code))) {
-        throw new Error('Invalid auth code');
-    }
-
-    console.log(`Setting bonus type to ${bonusType}`);
-
-    const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
-    const last_win = await db
-        .select()
-        .from(slot_machine_spins)
-        .where(eq(slot_machine_spins.user_id, user[0].id))
-        .orderBy(desc(slot_machine_spins.timestamp))
-        .limit(1);
-    if (last_win.length === 0) {
-        console.error('No previous wins found');
-        throw new Error('No previous wins found');
-    }
-    let number_of_bonus_symbols_in_last_win = 0;
-    if (typeof last_win[0].result === 'object' && last_win[0].result !== null) {
-        Object.values(last_win[0].result).forEach((reel) => {
-            for (const cell_value of reel) {
-                if (cell_value === 'bonus') {
-                    number_of_bonus_symbols_in_last_win++;
-                }
-            }
-        });
-    }
-
-    if (!user.length) {
-        throw new Error('User not found');
-    }
-
-    let bonus_spins_awarded = 0;
-    // prettier-ignore
-    if (bonusType === 'normal') {
-        bonus_spins_awarded = number_of_bonus_symbols_in_last_win == 5 ? 20 : number_of_bonus_symbols_in_last_win == 4 ? 15 : number_of_bonus_symbols_in_last_win == 3 ? 10 : 0;
-    } else if (bonusType === 'sticky') {
-        bonus_spins_awarded = number_of_bonus_symbols_in_last_win == 5 ? 10 : number_of_bonus_symbols_in_last_win == 4 ? 8 : number_of_bonus_symbols_in_last_win == 3 ? 5 : 0;
-    }
-
-    await db
-        .update(bonus_spins)
-        .set({ bonus_type: bonusType, spins_remaining: bonus_spins_awarded, last_updated: new Date() })
-        .where(eq(bonus_spins.user_id, user[0].id));
-
-    // return number of spins remaining
-    return bonus_spins_awarded;
-}
-
-export async function getUserCredits(steamId: string, code: string) {
-    if (!(await verifyAuthCode(steamId, code))) {
-        throw new Error('Invalid auth code');
-    }
-
-    const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
-
-    if (!user.length) {
-        throw new Error('User not found');
-    }
-
-    const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
-
-    const freeSpinsAvailable = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
-
-    return { credits: user[0].credits, freeSpins: freeSpinsAvailable };
-}
-
-// Function to verify Steam profile
-export async function verifySteamProfile(profileUrl: string) {
-    const STEAM_API_KEY = process.env.STEAM_API_KEY;
-    if (!STEAM_API_KEY) {
-        throw new Error('Steam API key is not set');
-    }
-
-    // Extract the Steam ID from the profile URL
-    const steamId = await extractSteamIdFromUrl(profileUrl);
-    if (!steamId) {
-        throw new Error('Invalid Steam profile URL');
-    }
-
-    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
-
+/**
+ * Sets the bonus type for a user and awards bonus spins accordingly.
+ */
+export async function setBonusType(steamId: string, code: string, bonusType: 'normal' | 'sticky'): Promise<ActionResponse<number>> {
     try {
+        // Verify authentication
+        const isAuthValid = await verifyAuthCode(steamId, code);
+        if (!isAuthValid) {
+            return { success: false, error: 'Invalid auth code' };
+        }
+
+        console.log(`Setting bonus type to ${bonusType}`);
+
+        // Retrieve user
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+        if (!user.length) {
+            return { success: false, error: 'User not found' };
+        }
+
+        // Retrieve the last spin
+        const last_win = await db
+            .select()
+            .from(slot_machine_spins)
+            .where(eq(slot_machine_spins.user_id, user[0].id))
+            .orderBy(desc(slot_machine_spins.timestamp))
+            .limit(1);
+
+        if (last_win.length === 0) {
+            console.error('No previous wins found');
+            return { success: false, error: 'No previous wins found' };
+        }
+
+        // Count the number of bonus symbols in the last win
+        let number_of_bonus_symbols_in_last_win = 0;
+        try {
+            const lastResultGridData = last_win[0].result;
+            if (isStringDoubleArray(lastResultGridData)) {
+                const lastResultGrid: string[][] = lastResultGridData;
+                lastResultGrid.forEach((reel) => {
+                    reel.forEach((cell_value) => {
+                        if (cell_value === 'bonus') {
+                            number_of_bonus_symbols_in_last_win++;
+                        }
+                    });
+                });
+            } else {
+                console.error('Invalid format for lastResultGrid');
+                return { success: false, error: 'Invalid last spin result format' };
+            }
+        } catch (parseError) {
+            console.error('Error parsing last spin result:', parseError);
+            return { success: false, error: 'Invalid last spin result format' };
+        }
+
+        let bonus_spins_awarded = 0;
+        // Determine bonus spins based on the selected bonus type
+        if (bonusType === 'normal') {
+            bonus_spins_awarded =
+                number_of_bonus_symbols_in_last_win === 5
+                    ? 20
+                    : number_of_bonus_symbols_in_last_win === 4
+                      ? 15
+                      : number_of_bonus_symbols_in_last_win === 3
+                        ? 10
+                        : 0;
+        } else if (bonusType === 'sticky') {
+            bonus_spins_awarded =
+                number_of_bonus_symbols_in_last_win === 5
+                    ? 10
+                    : number_of_bonus_symbols_in_last_win === 4
+                      ? 8
+                      : number_of_bonus_symbols_in_last_win === 3
+                        ? 5
+                        : 0;
+        }
+
+        // Retrieve existing bonus spins data
+        const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+
+        let existingStickyMultipliers: { x: number; y: number; multiplier: number }[] = [];
+
+        if (bonusSpinsData.length > 0) {
+            if (isStickyMultipliersArray(bonusSpinsData[0].sticky_multipliers)) {
+                existingStickyMultipliers = bonusSpinsData[0].sticky_multipliers;
+            } else {
+                console.warn('Invalid sticky_multipliers format. Resetting to empty array.');
+                existingStickyMultipliers = [];
+            }
+        }
+
+        // Update the bonus_spins table with conditional sticky_multipliers
+        await db
+            .update(bonus_spins)
+            .set({
+                bonus_type: bonusType,
+                spins_remaining: bonus_spins_awarded,
+                sticky_multipliers: bonusType === 'sticky' ? existingStickyMultipliers : [], // Conditional assignment
+                last_updated: new Date(),
+            })
+            .where(eq(bonus_spins.user_id, user[0].id));
+
+        // Return the number of spins awarded
+        return { success: true, data: bonus_spins_awarded };
+    } catch (error) {
+        console.error('Error in setBonusType:', error);
+        return { success: false, error: 'An unexpected error occurred. Please try again later.' };
+    }
+}
+
+/**
+ * Retrieves the user's credits and available free spins.
+ */
+export async function getUserCredits(steamId: string, code: string): Promise<ActionResponse<{ credits: number; freeSpins: number }>> {
+    try {
+        // Verify authentication
+        const isAuthValid = await verifyAuthCode(steamId, code);
+        if (!isAuthValid) {
+            return { success: false, error: 'Invalid auth code' };
+        }
+
+        // Retrieve user
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+        if (!user.length) {
+            return { success: false, error: 'User not found' };
+        }
+
+        // Retrieve bonus spins
+        const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+
+        const freeSpinsAvailable = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
+
+        return { success: true, data: { credits: user[0].credits, freeSpins: freeSpinsAvailable } };
+    } catch (error) {
+        console.error('Error in getUserCredits:', error);
+        return { success: false, error: 'An unexpected error occurred. Please try again later.' };
+    }
+}
+
+/**
+ * Verifies the Steam profile URL and retrieves user information.
+ */
+export async function verifySteamProfile(profileUrl: string): Promise<ActionResponse<SteamProfile>> {
+    try {
+        const STEAM_API_KEY = process.env.STEAM_API_KEY;
+        if (!STEAM_API_KEY) {
+            return { success: false, error: 'Steam API key is not set' };
+        }
+
+        // Extract the Steam ID from the profile URL
+        const steamId = await extractSteamIdFromUrl(profileUrl);
+        if (!steamId) {
+            return { success: false, error: 'Invalid Steam profile URL' };
+        }
+
+        const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
         const response = await fetch(steamApiUrl);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            return { success: false, error: `HTTP error! status: ${response.status}` };
         }
         const data = await response.json();
         console.log('Steam API response:', data);
@@ -487,135 +619,93 @@ export async function verifySteamProfile(profileUrl: string) {
         if (data.response && data.response.players && data.response.players.length > 0) {
             const player = data.response.players[0];
             return {
-                name: player.personaname,
-                avatarUrl: player.avatarfull,
-                steamId: player.steamid,
+                success: true,
+                data: {
+                    name: player.personaname,
+                    avatarUrl: player.avatarfull,
+                    steamId: player.steamid,
+                },
             };
         } else {
             console.error('Steam user not found in API response:', data);
-            throw new Error('Steam user not found');
+            return { success: false, error: 'Steam user not found' };
         }
     } catch (error) {
         console.error('Error verifying Steam profile:', error);
-        throw error;
+        return { success: false, error: 'Error verifying Steam profile' };
     }
 }
 
-// Helper function to extract Steam ID from URL
-async function extractSteamIdFromUrl(url: string): Promise<string | null> {
-    // Custom ID format: https://steamcommunity.com/id/[custom_id]
-    const customIdMatch = url.match(/steamcommunity\.com\/id\/([^\/]+)/);
-    if (customIdMatch) {
-        // For custom IDs, we need to make an additional API call to get the Steam ID
-        return await resolveVanityUrl(customIdMatch[1]);
-    }
-
-    // Steam ID format: https://steamcommunity.com/profiles/[steam_id]
-    const steamIdMatch = url.match(/steamcommunity\.com\/profiles\/(\d+)/);
-    if (steamIdMatch) {
-        return steamIdMatch[1];
-    }
-
-    return null;
-}
-
-// Helper function to resolve vanity URL
-async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
-    const STEAM_API_KEY = process.env.STEAM_API_KEY;
-    if (!STEAM_API_KEY) {
-        throw new Error('Steam API key is not set');
-    }
-
-    const apiUrl = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${STEAM_API_KEY}&vanityurl=${vanityUrl}`;
-
+/**
+ * Retrieves the most recent slot machine winners.
+ */
+export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithPictures[]>> {
     try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const winners = await db
+            .select({
+                player_name: user_playtime.player_name,
+                steam_id: user_playtime.steam_id,
+                payout: slot_machine_spins.payout,
+                timestamp: slot_machine_spins.timestamp,
+                profile_picture_url: user_playtime.profile_picture_url,
+                free_spins_won: slot_machine_spins.free_spins_won,
+            })
+            .from(slot_machine_spins)
+            .innerJoin(user_playtime, eq(user_playtime.id, slot_machine_spins.user_id))
+            .where(or(sql`${slot_machine_spins.payout} != '[]'`, sql`${slot_machine_spins.free_spins_won} > 0`))
+            .orderBy(desc(slot_machine_spins.timestamp))
+            .limit(25);
 
-        if (data.response && data.response.success === 1) {
-            return data.response.steamid;
-        } else {
-            console.error('Failed to resolve vanity URL:', data);
+        const winnersWithPictures: WinnerWithPictures[] = await Promise.all(
+            winners.map(async (winner) => {
+                let profilePictureUrl = winner.profile_picture_url;
+                if (!profilePictureUrl) {
+                    const fetchResult = await fetchAndStoreProfilePicture(winner.steam_id);
+                    profilePictureUrl = fetchResult;
+                }
+
+                let payoutData: { item: string; full_name: string; quantity: number }[] = [];
+                try {
+                    if (Array.isArray(winner.payout)) {
+                        payoutData = winner.payout as { item: string; full_name: string; quantity: number }[];
+                    } else {
+                        console.warn('Payout data is not an array. Skipping payout.');
+                    }
+                } catch (parseError) {
+                    console.error('Error parsing payout data:', parseError);
+                }
+
+                return {
+                    player_name: winner.player_name || 'Unknown Player',
+                    timestamp: winner.timestamp ? new Date(winner.timestamp).toISOString() : new Date().toISOString(),
+                    payout: Array.isArray(payoutData) ? payoutData : [payoutData],
+                    free_spins_won: winner.free_spins_won,
+                    profile_picture_url: profilePictureUrl,
+                    steam_id: winner.steam_id,
+                };
+            }),
+        );
+
+        return { success: true, data: winnersWithPictures };
+    } catch (error) {
+        console.error('Error in getRecentSlotWinners:', error);
+        return { success: false, error: 'Failed to fetch recent winners.' };
+    }
+}
+
+/**
+ * Helper function to fetch and store profile picture.
+ */
+async function fetchAndStoreProfilePicture(steamId: string): Promise<string | null> {
+    try {
+        const STEAM_API_KEY = process.env.STEAM_API_KEY;
+        if (!STEAM_API_KEY) {
+            console.error('Steam API key is not set');
             return null;
         }
-    } catch (error) {
-        console.error('Error resolving vanity URL:', error);
-        return null;
-    }
-}
 
-async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
-    const user = await db
-        .select()
-        .from(user_playtime)
-        .where(and(eq(user_playtime.steam_id, steamId), eq(user_playtime.auth_code, code)))
-        .limit(1);
+        const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
 
-    return user.length > 0;
-}
-
-export async function getRecentSlotWinners() {
-    const winners = await db
-        .select({
-            player_name: user_playtime.player_name,
-            steam_id: user_playtime.steam_id,
-            payout: slot_machine_spins.payout,
-            timestamp: slot_machine_spins.timestamp,
-            profile_picture_url: user_playtime.profile_picture_url,
-            free_spins_won: slot_machine_spins.free_spins_won,
-        })
-        .from(slot_machine_spins)
-        .innerJoin(user_playtime, eq(user_playtime.id, slot_machine_spins.user_id))
-        .where(or(sql`${slot_machine_spins.payout} != '[]'`, sql`${slot_machine_spins.free_spins_won} > 0`))
-        .orderBy(desc(slot_machine_spins.timestamp))
-        .limit(25);
-
-    const winnersWithPictures = await Promise.all(
-        winners.map(async (winner) => {
-            let profilePictureUrl = winner.profile_picture_url;
-            if (!profilePictureUrl) {
-                profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
-            }
-
-            let payoutData = winner.payout;
-            if (Array.isArray(payoutData)) {
-                // It's already an array
-            } else if (payoutData && typeof payoutData === 'object') {
-                // It's an object, wrap it in an array
-                payoutData = [payoutData];
-            } else {
-                // Unexpected type, set to empty array
-                payoutData = [];
-            }
-
-            return {
-                player_name: winner.player_name || 'Unknown Player',
-                timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
-                payout: payoutData as { item: string; full_name: string; quantity: number }[],
-                free_spins_won: winner.free_spins_won,
-                profile_picture_url: profilePictureUrl,
-                steam_id: winner.steam_id,
-            };
-        }),
-    );
-
-    return winnersWithPictures;
-}
-
-// Helper function to fetch and store profile picture (reuse from wheelActions.ts)
-async function fetchAndStoreProfilePicture(steamId: string): Promise<string | null> {
-    const STEAM_API_KEY = process.env.STEAM_API_KEY;
-    if (!STEAM_API_KEY) {
-        console.error('Steam API key is not set');
-        return null;
-    }
-
-    const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
-
-    try {
         const response = await fetch(steamApiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -637,5 +727,73 @@ async function fetchAndStoreProfilePicture(steamId: string): Promise<string | nu
     } catch (error) {
         console.error('Error fetching Steam profile picture:', error);
         return null;
+    }
+}
+
+/**
+ * Helper function to extract Steam ID from URL.
+ */
+async function extractSteamIdFromUrl(url: string): Promise<string | null> {
+    // Custom ID format: https://steamcommunity.com/id/[custom_id]
+    const customIdMatch = url.match(/steamcommunity\.com\/id\/([^\/]+)/);
+    if (customIdMatch) {
+        // For custom IDs, we need to make an additional API call to get the Steam ID
+        return await resolveVanityUrl(customIdMatch[1]);
+    }
+
+    // Steam ID format: https://steamcommunity.com/profiles/[steam_id]
+    const steamIdMatch = url.match(/steamcommunity\.com\/profiles\/(\d+)/);
+    if (steamIdMatch) {
+        return steamIdMatch[1];
+    }
+
+    return null;
+}
+
+/**
+ * Helper function to resolve vanity URL to Steam ID.
+ */
+async function resolveVanityUrl(vanityUrl: string): Promise<string | null> {
+    try {
+        const STEAM_API_KEY = process.env.STEAM_API_KEY;
+        if (!STEAM_API_KEY) {
+            throw new Error('Steam API key is not set');
+        }
+
+        const apiUrl = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${STEAM_API_KEY}&vanityurl=${vanityUrl}`;
+
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.response && data.response.success === 1) {
+            return data.response.steamid;
+        } else {
+            console.error('Failed to resolve vanity URL:', data);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error resolving vanity URL:', error);
+        return null;
+    }
+}
+
+/**
+ * Verifies the authentication code for a user.
+ */
+async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
+    try {
+        const user = await db
+            .select()
+            .from(user_playtime)
+            .where(and(eq(user_playtime.steam_id, steamId), eq(user_playtime.auth_code, code)))
+            .limit(1);
+
+        return user.length > 0;
+    } catch (error) {
+        console.error('Error verifying auth code:', error);
+        return false;
     }
 }

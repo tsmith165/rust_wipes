@@ -20,13 +20,24 @@ interface RecentWinnersProps {
 
 export default function RecentWinners({ shouldRefetch, onRefetchComplete }: RecentWinnersProps) {
     const [winners, setWinners] = useState<Winner[]>([]);
+    const [error, setError] = useState<string | null>(null); // **Added: Error state**
 
     const fetchWinners = async () => {
         try {
-            const newWinners = await getRecentWinners();
-            setWinners(newWinners);
+            const response = await getRecentWinners();
+            if (response.success) {
+                if (!response.data) {
+                    setError('Failed to fetch recent winners.');
+                    return;
+                }
+                setWinners(response.data);
+                setError(null);
+            } else {
+                setError(response.error || 'Failed to fetch recent winners.');
+            }
         } catch (error) {
             console.error('Error fetching recent winners:', error);
+            setError('An unexpected error occurred.');
         }
     };
 
@@ -46,6 +57,7 @@ export default function RecentWinners({ shouldRefetch, onRefetchComplete }: Rece
     return (
         <div className="rounded-lg bg-stone-600 p-4 shadow">
             <h2 className="mb-2 text-lg font-bold">Recent Winners</h2>
+            {error && <p className="text-red-500">{error}</p>} {/* **Added: Display error message** */}
             <ul className="space-y-2">
                 {winners.map((winner, index) => (
                     <li key={index} className="flex items-center text-sm">

@@ -4,11 +4,18 @@ import { useState, useEffect } from 'react';
 import { getRecentSlotWinners } from './slotMachineActions';
 import Image from 'next/image';
 
+interface PayoutItem {
+    item: string;
+    full_name: string;
+    quantity: number;
+}
+
 interface Winner {
     player_name: string;
-    payout: { item: string; full_name: string; quantity: number }[];
+    payout: PayoutItem[];
     timestamp: string;
     profile_picture_url: string | null;
+    free_spins_won: number; // Added property
 }
 
 interface RecentWinnersProps {
@@ -35,18 +42,36 @@ export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete, sp
     const fetchWinners = async () => {
         console.log('Fetching recent slot winners...');
         try {
-            const newWinners = await getRecentSlotWinners();
-            // Add the free spins won to the payout
-            newWinners.forEach((winner) => {
+            const fetchedWinners = await getRecentSlotWinners();
+
+            if (!fetchedWinners.success) {
+                console.error('Error fetching recent slot winners:', fetchedWinners.error);
+                return;
+            }
+
+            if (!fetchedWinners.data) {
+                console.error('No winners found');
+                return;
+            }
+
+            const updatedWinners = fetchedWinners.data.map((winner) => {
                 if (winner.free_spins_won > 0) {
-                    winner.payout.push({
-                        item: 'free_spin',
-                        full_name: 'Bonus',
-                        quantity: winner.free_spins_won,
-                    });
+                    return {
+                        ...winner,
+                        payout: [
+                            ...winner.payout,
+                            {
+                                item: 'free_spin',
+                                full_name: 'Bonus',
+                                quantity: winner.free_spins_won,
+                            },
+                        ],
+                    };
                 }
+                return winner;
             });
-            setWinners(newWinners);
+
+            setWinners(updatedWinners);
         } catch (error) {
             console.error('Error fetching recent winners:', error);
         }

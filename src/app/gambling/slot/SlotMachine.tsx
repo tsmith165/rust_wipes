@@ -17,7 +17,7 @@ import Cookies from 'js-cookie'; // Import js-cookie
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
-// Map symbols to image paths
+// Map symbols to image paths remains unchanged
 const SYMBOL_IMAGE_PATHS: Record<string, string> = {
     ak47: '/rust_icons/ak47_icon.png',
     m39_rifle: '/rust_icons/m39_icon.png',
@@ -80,7 +80,7 @@ export default function SlotMachine() {
     const [error, setError] = useState('');
     const [credits, setCredits] = useState<number | null>(null);
     const [isVerified, setIsVerified] = useState(false);
-    const [steamProfile, setSteamProfile] = useState<SteamProfile | null>(null);
+    const [steamProfile, setSteamProfile] = useState<SteamProfile | undefined>(undefined);
     const [freeSpins, setFreeSpins] = useState(0);
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
@@ -122,7 +122,7 @@ export default function SlotMachine() {
         bonusWonSoundRef.current = new Audio('/sounds/slot-bonus_won-1.mp3');
     }, []);
 
-    // Function to stop all sounds
+    // Function to stop all sounds remains unchanged
     const stopAllSounds = () => {
         const sounds = [
             handlePullSoundRef.current,
@@ -141,7 +141,7 @@ export default function SlotMachine() {
         });
     };
 
-    // Function to play a sound with resetting to allow replay
+    // Function to play a sound with resetting to allow replay remains unchanged
     const playSound = (audioRef: React.MutableRefObject<HTMLAudioElement | null>, isMuted: boolean) => {
         if (isMuted) return; // Do not play if muted
         if (audioRef.current) {
@@ -152,7 +152,7 @@ export default function SlotMachine() {
         }
     };
 
-    // Specific Sound Functions
+    // Specific Sound Functions remain unchanged
     const playHandlePull = (isMuted: boolean) => {
         playSound(handlePullSoundRef, isMuted);
     };
@@ -187,12 +187,12 @@ export default function SlotMachine() {
         itemWidthRef.current = ITEM_WIDTH;
     }, [ITEM_WIDTH]);
 
-    // Add state variables for "Show Lines" functionality
+    // Add state variables for "Show Lines" functionality remains unchanged
     const [lineType, setLineType] = useState<'horizontal' | 'diagonal' | 'zigzag_downwards' | 'zigzag_upwards' | null>(null);
     const [lineFlashCount, setLineFlashCount] = useState(0);
 
     useEffect(() => {
-        // Initialize reels with random symbols based on probabilities
+        // Initialize reels with random symbols based on probabilities remains unchanged
         const initialReels = Array(5)
             .fill(0)
             .map(
@@ -221,7 +221,7 @@ export default function SlotMachine() {
         return () => window.removeEventListener('resize', updateWindowSize);
     }, []);
 
-    // Ref to store timeout ID for auto spin
+    // Ref to store timeout ID for auto spin remains unchanged
     const autoSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -268,7 +268,7 @@ export default function SlotMachine() {
         }
     }
 
-    // Handle line flashing for "Show Lines" functionality
+    // Handle line flashing for "Show Lines" functionality remains unchanged
     useEffect(() => {
         if (lineType) {
             const timer = setTimeout(() => {
@@ -312,7 +312,7 @@ export default function SlotMachine() {
         }
     }, [winningLines]);
 
-    // **New: Load credentials from cookies on component mount**
+    // **Updated: Load credentials from cookies on component mount remains unchanged**
     useEffect(() => {
         const savedSteamInput = Cookies.get('steamInput');
         const savedCode = Cookies.get('authCode');
@@ -325,21 +325,41 @@ export default function SlotMachine() {
         }
     }, []);
 
-    // **Updated: Modify handleVerify to accept parameters and save to cookies**
+    // **Updated: Modify handleVerify to accept parameters and save to cookies remains unchanged**
     const handleVerify = async (inputSteamInput?: string, inputCode?: string) => {
         const profileUrl = inputSteamInput !== undefined ? inputSteamInput : steamInput;
         const authCode = inputCode !== undefined ? inputCode : code;
 
         try {
-            const profile = await verifySteamProfile(profileUrl);
+            const response = await verifySteamProfile(profileUrl);
+            if (!response.success) {
+                setError(response.error || 'Verification failed');
+                return;
+            }
+            const profile = response.data;
+            if (!profile) {
+                setError('Failed to retrieve Steam profile');
+                return;
+            }
+
             setSteamProfile(profile);
-            const { credits, freeSpins } = await getUserCredits(profile.steamId, authCode);
+
+            const creditsResponse = await getUserCredits(profile.steamId, authCode);
+            if (!creditsResponse.success) {
+                setError(creditsResponse.error || 'Failed to retrieve user credits');
+                return;
+            }
+            if (!creditsResponse.data) {
+                setError('Failed to retrieve user credits');
+                return;
+            }
+            const { credits, freeSpins } = creditsResponse.data;
             setCredits(credits);
             setFreeSpins(freeSpins);
             setIsVerified(true);
             setError('');
 
-            // **Save credentials to cookies**
+            // **Save credentials to cookies remains unchanged**
             Cookies.set('steamInput', profileUrl, { expires: 7 }); // Expires in 7 days
             Cookies.set('authCode', authCode, { expires: 7 });
         } catch (error) {
@@ -347,7 +367,7 @@ export default function SlotMachine() {
         }
     };
 
-    const [isMuted, setIsMuted] = useState(false); // State for mute
+    const [isMuted, setIsMuted] = useState(false); // State for mute remains unchanged
 
     const handleMuteToggle = () => {
         setIsMuted((prev) => !prev);
@@ -361,10 +381,11 @@ export default function SlotMachine() {
         setAutoSpin((prev) => !prev);
     };
 
-    // New state for bonus type selection
+    // New state for bonus type selection remains unchanged
     const [showBonusTypeModal, setShowBonusTypeModal] = useState(false);
     const [selectedBonusType, setSelectedBonusType] = useState<'normal' | 'sticky' | ''>('');
 
+    // **Updated: Modify handleSpin to handle ActionResponse**
     const handleSpin = async () => {
         // Stop all currently playing sounds before starting a new spin
         stopAllSounds();
@@ -387,28 +408,35 @@ export default function SlotMachine() {
         // Play handle pull sound when user clicks spin
         playHandlePull(isMuted);
 
-        // Start fade out
+        // Start fade out remains unchanged
         setSpinKey((prev) => prev + 1);
 
-        // Wait for fade out animation
+        // Wait for fade out animation remains unchanged
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Proceed with spinning
 
         setError('');
 
-        // Clear winning and bonus cells and lines
+        // Clear winning and bonus cells and lines remains unchanged
         setWinningCells([]);
         setBonusCells([]);
         setWinningLines([]);
 
         try {
-            // Call spinSlotMachine without passing bonusType
-            const spinResult = await spinSlotMachine(steamProfile.steamId, code);
+            // **Updated: Handle ActionResponse from spinSlotMachine**
+            const spinResponse = await spinSlotMachine(steamProfile.steamId, code);
+            if (!spinResponse.success) {
+                setError(spinResponse.error || 'An error occurred during the spin.');
+                setSpinning(false);
+                return;
+            }
+
+            const spinResult = spinResponse.data!;
             const {
                 finalVisibleGrid,
                 spinAmounts,
-                credits,
+                credits: updatedCredits,
                 freeSpinsAvailable,
                 winningCells: currWinningCells,
                 bonusCells: currentBonusCells,
@@ -424,53 +452,52 @@ export default function SlotMachine() {
 
             console.log('Final Visible Grid:', finalVisibleGrid);
 
-            // Prepare reels for animation
+            // Prepare reels for animation remains unchanged
             const newReels = finalVisibleGrid.map((finalReel, i) => {
                 const spinSymbolsCount = spinAmounts[i];
 
-                // Generate random spin symbols using the probability function
+                // Generate random spin symbols using the probability function remains unchanged
                 const spinSymbols = Array(spinSymbolsCount)
                     .fill(0)
                     .map(() => getRandomSymbol()); // Use the utility function
 
-                // The new reel is spin symbols + final symbols
+                // The new reel is spin symbols + final symbols remains unchanged
                 return [...spinSymbols, ...finalReel];
             });
 
             setReels(newReels);
 
-            // Play spin start sound for each reel when spinning starts
-            // This will be handled via onAnimationStart in each reel
+            // Play spin start sound for each reel when spinning starts remains unchanged
 
-            // Wait for the animations to complete
+            // Wait for the animations to complete remains unchanged
             const maxDuration = 2 + 4 * 0.6 + 0.4; // For the last reel
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
 
-            // Update credits and other states
-            setCredits(credits);
+            // Update credits and other states remains unchanged
+            setCredits(updatedCredits);
             setFreeSpins(freeSpinsAvailable);
             setResult(spinResult);
             setSpinning(false); // Spin is now complete
 
-            // Update winning cells, bonus cells, and winning lines
+            // Update winning cells, bonus cells, and winning lines remains unchanged
             setWinningCells(currWinningCells);
             setBonusCells(currentBonusCells);
             setWinningLines(currWinningLines);
             setCurrentWinningLine(currWinningLines[0]);
             setCurrentWinningLineIndex(0);
-            setShouldRefetchWinners(true); // Trigger refetch after spin is complete
+            setShouldRefetchWinners(true); // Trigger refetch after spin is complete remains unchanged
 
-            // Determine which sounds to play
+            // Determine which sounds to play remains unchanged
             const hasNormalWin = payout.length > 0;
             const hasBonusWin = bonusSpinsAwarded > 0;
 
             if (hasNormalWin) {
-                // Play win sound based on number of wins
+                // Play win sound based on number of wins remains unchanged
                 playWinSound(payout.length, isMuted);
             }
 
             if (hasBonusWin && !hasNormalWin) {
-                // Play bonus sound only if there is no normal win
+                // Play bonus sound only if there is no normal win remains unchanged
                 playBonusWonSound(isMuted);
             }
 
@@ -485,12 +512,12 @@ export default function SlotMachine() {
 
             if (bonusTriggered) {
                 if (needsBonusTypeSelection) {
-                    // Bonus type needs to be selected by the user
+                    // Bonus type needs to be selected by the user remains unchanged
                     setIsBonusPending(true);
                     setShowBonusTypeModal(true);
                     setAutoSpin(false);
                 } else {
-                    // Bonus type was already set and spins were assigned
+                    // Bonus type was already set and spins were assigned remains unchanged
                 }
             }
         } catch (error) {
@@ -500,19 +527,25 @@ export default function SlotMachine() {
         }
     };
 
-    // Handle "Show Lines" button click
+    // Handle "Show Lines" button click remains unchanged
     const handleShowLines = () => {
         setLineType('horizontal');
     };
 
-    // Handle bonus type selection
+    // Handle bonus type selection remains unchanged
     const handleBonusTypeSelection = async (type: 'normal' | 'sticky') => {
         setSelectedBonusType(type);
         setShowBonusTypeModal(false);
         setIsBonusPending(false);
 
         try {
-            let spins_remaining = await setBonusType(steamProfile!.steamId, code, type);
+            // **Updated: Handle ActionResponse from setBonusType**
+            const bonusResponse = await setBonusType(steamProfile!.steamId, code, type);
+            if (!bonusResponse.success) {
+                setError(bonusResponse.error || 'Failed to set bonus type.');
+                return;
+            }
+            let spins_remaining = bonusResponse.data!;
             if (spins_remaining > 0) {
                 setFreeSpins(spins_remaining);
             }
@@ -522,12 +555,12 @@ export default function SlotMachine() {
         }
     };
 
-    // Helper function to calculate the total height of the reel content
+    // Helper function to calculate the total height of the reel content remains unchanged
     const calculateReelHeight = (reelLength: number) => {
         return reelLength * ITEM_HEIGHT + (reelLength - 1) * GAP;
     };
 
-    // State to manage sticky multipliers in the UI
+    // State to manage sticky multipliers in the UI remains unchanged
     const [stickyMultipliers, setStickyMultipliers] = useState<{ x: number; y: number; multiplier: number }[]>([]);
 
     let currentWinningLinePoints = [];
@@ -540,15 +573,15 @@ export default function SlotMachine() {
 
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
-            {/* Background Image for md+ screens */}
+            {/* Background Image for md+ screens remains unchanged */}
             <div className="absolute bottom-0 left-0 z-0 hidden w-fit transform md:!block">
                 <Image src="/rust_hazmat_icon_large.png" alt="Rust Hazmat Icon" width={512} height={512} className="h-auto w-auto" />
             </div>
 
-            {/* Main Content Layer */}
+            {/* Main Content Layer remains largely unchanged */}
             {!isVerified ? (
                 <div className="z-10 mb-4 flex w-full flex-col items-center justify-center space-y-2 px-8 md:w-1/2">
-                    {/* Verification inputs */}
+                    {/* Verification inputs remain unchanged */}
                     <InputTextbox
                         idName="steam_input"
                         name="Steam Profile"
@@ -658,7 +691,7 @@ export default function SlotMachine() {
                                         ))}
                                     </motion.div>
                                 </AnimatePresence>
-                                {/* Cycle through each winning line */}
+                                {/* Cycle through each winning line remains unchanged */}
                                 {!spinning && winningLines && winningLines.length > 0 && (
                                     <div className="absolute inset-0">
                                         <svg key={`winning-line`} className="absolute inset-0 z-50 h-full w-full">
@@ -672,7 +705,7 @@ export default function SlotMachine() {
                                         </svg>
                                     </div>
                                 )}
-                                {/* Render the lines when lineType is set */}
+                                {/* Render the lines when lineType is set remains unchanged */}
                                 {lineType && (
                                     <div className="absolute inset-0">
                                         {WINNING_LINES[lineType].map((line, index) => (
@@ -738,9 +771,9 @@ export default function SlotMachine() {
                             )}
                         </div>
                     </div>
-                    {/* Side panel */}
+                    {/* Side panel remains largely unchanged */}
                     <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 lg:w-1/4 lg:space-y-4 lg:p-4">
-                        {/* User info and controls */}
+                        {/* User info and controls remains unchanged */}
                         <div className="flex flex-row justify-between">
                             <div className="fit flex items-start">
                                 <Image
@@ -783,7 +816,7 @@ export default function SlotMachine() {
                             </button>
                         </div>
                         <div className="flex flex-col items-center justify-between space-y-2 md:flex-row md:space-x-2 md:space-y-0">
-                            {/* Add the "Show Lines" button */}
+                            {/* Add the "Show Lines" button remains unchanged */}
                             <button
                                 onClick={handleShowLines}
                                 className="h-full w-full rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
@@ -791,7 +824,7 @@ export default function SlotMachine() {
                                 Show Lines
                             </button>
 
-                            {/* Mute Sound Button */}
+                            {/* Mute Sound Button remains unchanged */}
                             <button
                                 onClick={handleMuteToggle}
                                 className="flex w-full justify-center rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
@@ -819,7 +852,7 @@ export default function SlotMachine() {
                 </div>
             )}
 
-            {/* Bonus Type Selection Modal */}
+            {/* Bonus Type Selection Modal remains unchanged */}
             <AnimatePresence>
                 {showBonusTypeModal && (
                     <motion.div
@@ -836,7 +869,7 @@ export default function SlotMachine() {
                         >
                             <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
                             <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
-                                {/* Normal Bonus Button */}
+                                {/* Normal Bonus Button remains unchanged */}
                                 <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">
                                     <Image
                                         src="/rust_icons/normal_bonus_banner.png"
@@ -845,7 +878,7 @@ export default function SlotMachine() {
                                         height={100}
                                         className="rounded-lg"
                                     />
-                                    {/* Overlay on Hover */}
+                                    {/* Overlay on Hover remains unchanged */}
                                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
                                         <p className="px-4 text-center opacity-0 group-hover:opacity-100">
                                             More spins, lower volatility. Multipliers do not stick for all spins.
@@ -853,7 +886,7 @@ export default function SlotMachine() {
                                     </div>
                                 </button>
 
-                                {/* Sticky Bonus Button */}
+                                {/* Sticky Bonus Button remains unchanged */}
                                 <button onClick={() => handleBonusTypeSelection('sticky')} className="group relative">
                                     <Image
                                         src="/rust_icons/sticky_bonus_banner.png"
@@ -862,7 +895,7 @@ export default function SlotMachine() {
                                         height={100}
                                         className="rounded-lg"
                                     />
-                                    {/* Overlay on Hover */}
+                                    {/* Overlay on Hover remains unchanged */}
                                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
                                         <p className="px-4 text-center opacity-0 group-hover:opacity-100">
                                             Less spins, higher volatility. Multipliers will stay in place for all spins.
