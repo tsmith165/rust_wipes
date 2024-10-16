@@ -1,3 +1,5 @@
+// File 3: /src/app/gambling/wheel/wheelConstants.ts
+
 export type WheelColor = 'Yellow' | 'Green' | 'Purple' | 'Blue' | 'Red';
 export type WheelPayout = 'P2 Pistol' | 'M92 Pistol' | 'Thompson' | 'M39 Rifle' | 'AK47 Rifle';
 
@@ -50,7 +52,19 @@ export const PAYOUTS: Record<WheelColor, { displayName: WheelPayout; inGameName:
 export const TOTAL_SLOTS = WHEEL_SLOTS.length;
 export const DEGREES_PER_SLOT = 360 / TOTAL_SLOTS;
 
-export function calculateSlotBoundaries() {
+export interface Payout {
+    displayName: string;
+    inGameName: string;
+}
+
+export interface WheelResult {
+    start: number;
+    end: number;
+    color: WheelColor;
+    payout: Payout;
+}
+
+export function calculateSlotBoundaries(): WheelResult[] {
     return WHEEL_SLOTS.map((color, index) => ({
         start: index * DEGREES_PER_SLOT,
         end: (index + 1) * DEGREES_PER_SLOT,
@@ -59,9 +73,9 @@ export function calculateSlotBoundaries() {
     }));
 }
 
-export const SLOT_BOUNDARIES = calculateSlotBoundaries();
+export const SLOT_BOUNDARIES: WheelResult[] = calculateSlotBoundaries();
 
-export function determineWinningSlot(finalDegree: number) {
+export function determineWinningSlot(finalDegree: number): WheelResult | undefined {
     const normalizedDegree = (360 - (finalDegree % 360)) % 360; // Reverse the direction
     return SLOT_BOUNDARIES.find((boundary) => normalizedDegree >= boundary.start && normalizedDegree < boundary.end);
 }

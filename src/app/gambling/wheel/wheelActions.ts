@@ -4,7 +4,7 @@ import 'server-only';
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import { determineWinningSlot, PAYOUTS, WheelColor, WheelPayout } from './wheelConstants';
+import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor, WheelPayout, LEGEND_ORDER } from './wheelConstants';
 
 // **Define a precise type for PAYOUTS**
 type PayoutsType = {
@@ -29,6 +29,12 @@ interface WinnerWithPictures {
     steam_id: string;
     result: string; // Display name of the payout
     timestamp: string;
+    payout: Array<{
+        item: string;
+        full_name: string;
+        quantity: number;
+    }>;
+    free_spins_won: number;
     color: WheelColor;
     profile_picture_url: string | null;
 }
@@ -37,6 +43,25 @@ interface SteamProfile {
     name: string;
     avatarUrl: string;
     steamId: string;
+}
+
+interface SpinWheelData {
+    result: WheelResult;
+    totalRotation: number;
+    finalDegree: number;
+    credits: number;
+    userId: number;
+}
+
+export interface SpinWheelResponse {
+    success: boolean;
+    data?: SpinWheelData;
+    error?: string;
+}
+
+interface RecordSpinResultResponse {
+    success: boolean;
+    error?: string;
 }
 
 async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
@@ -49,11 +74,7 @@ async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
     return user.length > 0;
 }
 
-export async function spinWheel(
-    steamId: string,
-    code: string,
-    currentRotation: number,
-): Promise<ActionResponse<{ result: WheelColor; totalRotation: number; finalDegree: number; credits: number; userId: number }>> {
+export async function spinWheel(steamId: string, code: string, currentRotation: number): Promise<ActionResponse<SpinWheelData>> {
     try {
         if (!(await verifyAuthCode(steamId, code))) {
             return { success: false, error: 'Invalid auth code' };
@@ -89,11 +110,11 @@ export async function spinWheel(
             in_game_item_name: PAYOUTS_TYPED[result.color].inGameName,
         });
 
-        // Return the successful spin result with `result.color`
+        // Return the successful spin result with `WheelResult`
         return {
             success: true,
             data: {
-                result: result.color,
+                result, // WheelResult object
                 totalRotation,
                 finalDegree,
                 credits: user[0].credits - 5,
