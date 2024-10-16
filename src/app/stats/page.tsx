@@ -4,8 +4,12 @@ import React from 'react';
 import StatsViewer from './StatsViewer';
 import PageLayout from '@/components/layout/PageLayout';
 
+import { captureEvent, captureDistictId } from '@/utils/posthog';
+
+const PAGE_NAME = 'Player Stats';
+
 export const metadata: Metadata = {
-    title: 'Rust Wipes - Player Stats',
+    title: `Rust Wipes - ${PAGE_NAME}`,
     description: 'View player statistics for Rust Wipes servers, including kills, farming, and gambling stats.',
     keywords:
         'rust, rustwipes, rust wipes, server wipes, signup, sign up, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
@@ -40,6 +44,9 @@ interface PageProps {
 }
 
 export default async function StatsPage({ searchParams }: PageProps) {
+    const distinctId = await captureDistictId();
+    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+
     const serverInfo = await fetchServerInfo();
     const selectedCategory = searchParams?.category || 'kills';
     const selectedServer = searchParams?.server || serverInfo[0]?.id;

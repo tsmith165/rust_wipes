@@ -3,8 +3,12 @@ import { Metadata } from 'next';
 import PageLayout from '@/components/layout/PageLayout';
 import Servers from './Servers';
 
+import { captureEvent, captureDistictId } from '@/utils/posthog';
+
+const PAGE_NAME = 'Our Servers';
+
 export const metadata: Metadata = {
-    title: 'Rust Wipes - Our Servers',
+    title: `Rust Wipes - Our ${PAGE_NAME}`,
     description: 'View all our Rust servers and their wipe schedules.',
     keywords:
         'rust wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
@@ -31,7 +35,10 @@ export const metadata: Metadata = {
     },
 };
 
-export default function Page() {
+export default async function Page() {
+    const distinctId = await captureDistictId();
+    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+
     return (
         <PageLayout page={'servers'}>
             <Servers />

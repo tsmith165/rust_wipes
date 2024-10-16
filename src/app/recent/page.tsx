@@ -3,9 +3,12 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
 
+import { captureEvent, captureDistictId } from '@/utils/posthog';
+
+const PAGE_NAME = 'Recent Wipes';
+
 export const metadata: Metadata = {
-    metadataBase: new URL('https://rustwipes.net'),
-    title: 'Rust Wipes - Recent Wipes',
+    title: `Rust Wipes - ${PAGE_NAME}`,
     description:
         'Keep track of the servers that just wiped so you can find a fresh server to play on! We offer free auto-refresh, sound notifications, and filtering!',
     keywords:
@@ -33,7 +36,10 @@ export const metadata: Metadata = {
     },
 };
 
-export default function Page() {
+export default async function Page() {
+    const distinctId = await captureDistictId();
+    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+
     return (
         <PageLayout page="recent">
             <RecentConfirmedWipesPage />

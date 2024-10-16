@@ -184,6 +184,7 @@ export type InsertServerPerformance = InferInsertModel<typeof server_performance
 export const next_wipe_info = pgTable('next_wipe_info', {
     id: serial('id').primaryKey(),
     server_id: varchar('server_id').notNull(),
+    server_uuid: varchar('server_uuid'),
     level_url: text('level_url').notNull(),
     map_seed: integer('map_seed'),
     map_size: integer('map_size'),
@@ -301,6 +302,7 @@ export type InsertReferrals = InferInsertModel<typeof referrals>;
 export const referral_rewards = pgTable('referral_rewards', {
     id: serial('id').primaryKey(),
     steam_id: varchar('steam_id').notNull(),
+    referred_user: varchar('referred_user', { length: 20 }),
     timestamp: timestamp('timestamp').defaultNow(),
     reward: integer('reward').notNull(),
     condition_met: boolean('condition_met').notNull().default(false),

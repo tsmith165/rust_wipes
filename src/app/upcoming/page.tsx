@@ -3,8 +3,12 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPage from '@/app/upcoming/UpcomingWipesPage';
 
+import { captureEvent, captureDistictId } from '@/utils/posthog';
+
+const PAGE_NAME = 'Upcoming Wipes';
+
 export const metadata: Metadata = {
-    title: 'Rust Wipes - Upcoming Wipes',
+    title: `Rust Wipes - ${PAGE_NAME}`,
     description: 'See what wipes are coming up soon so you can plan your day!',
     keywords:
         'rust, Rust Wipes, Upcoming Wipes, Rust Upcomig Wipes, rust upcoming wipes, rust wipes soon, soon, rust soon, rustwipes, rust wipes, server wipes, signup, sign up, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
@@ -32,6 +36,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+    const distinctId = await captureDistictId();
+    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+
     return (
         <PageLayout page={'upcoming'}>
             <UpcomingWipesPage />

@@ -3,8 +3,12 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import ServerInfoPage from '@/app/server/ServerInfoPage';
 
+import { captureEvent, captureDistictId } from '@/utils/posthog';
+
+const PAGE_NAME = 'Our Servers';
+
 export const metadata: Metadata = {
-    title: 'Rust Wipes - Server Details',
+    title: `Rust Wipes - ${PAGE_NAME}`,
     description: 'Detailed information about the specific Rust server',
     keywords:
         'rust wipes, rustwipes, rust, wipes, rustwipes.net, networks, server wipes, server wipe, wipe schedules, wipe schedule, wipe, servers, server, rust servers, rust server, rust servers list, rust server list, rust server list, rust server list',
@@ -40,7 +44,10 @@ interface ServerPageProps {
     };
 }
 
-export default function ServerPage({ params, searchParams }: ServerPageProps) {
+export default async function ServerPage({ params, searchParams }: ServerPageProps) {
+    const distinctId = await captureDistictId();
+    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+
     return (
         <PageLayout page={'server'}>
             <ServerInfoPage params={params} />
