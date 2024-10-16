@@ -16,13 +16,15 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
     return (
-        <html lang="en">
-            <ClerkProvider>
+        <ClerkProvider>
+            <html lang="en">
                 <PHProvider>
-                    <PostHogPageView />
-                    <body>{children}</body>
+                    <body>
+                        <PostHogPageView />
+                        {children}
+                    </body>
                 </PHProvider>
-            </ClerkProvider>
-        </html>
+            </html>
+        </ClerkProvider>
     );
 }
