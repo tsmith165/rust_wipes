@@ -1,16 +1,18 @@
+// src/app/gambling/wheel/GamblingWheel.tsx
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult, SpinWheelResponse } from './wheelActions';
+import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult } from './wheelActions';
 import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelResult, LEGEND_ORDER } from './wheelConstants';
-import InputTextbox from '@/components/inputs/InputTextbox';
 import Image from 'next/image';
 import RecentWinners from './RecentWinners';
 import { BiSolidDownArrow } from 'react-icons/bi';
 
 import Cookies from 'js-cookie';
+import SteamSignInModal from '@/components/SteamSignInModal'; // Import the new component
 
 // Dynamically import the Confetti component to avoid SSR issues
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
@@ -48,19 +50,6 @@ export default function GamblingWheel() {
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
     const currentRotationRef = useRef(0);
 
-    // Effect to load saved credentials from cookies and verify them
-    useEffect(() => {
-        const savedSteamInput = Cookies.get('steamInput');
-        const savedCode = Cookies.get('authCode');
-
-        if (savedSteamInput && savedCode) {
-            setSteamInput(savedSteamInput);
-            setCode(savedCode);
-            // Automatically verify credentials
-            handleVerify(savedSteamInput, savedCode);
-        }
-    }, []);
-
     // Effect to handle window resize for Confetti component
     useEffect(() => {
         const updateWindowSize = () => {
@@ -72,9 +61,9 @@ export default function GamblingWheel() {
     }, []);
 
     // Function to handle user verification
-    const handleVerify = async (inputSteamInput?: string, inputCode?: string) => {
-        const profileUrl = inputSteamInput !== undefined ? inputSteamInput : steamInput;
-        const authCode = inputCode !== undefined ? inputCode : code;
+    const handleVerify = async (profileUrlParam?: string, authCodeParam?: string) => {
+        const profileUrl = profileUrlParam ?? steamInput;
+        const authCode = authCodeParam ?? code;
 
         try {
             const profile = await verifySteamProfile(profileUrl);
@@ -103,13 +92,26 @@ export default function GamblingWheel() {
             setIsVerified(true);
             setError('');
 
-            // **Save credentials to cookies**
-            Cookies.set('steamInput', profileUrl, { expires: 7, secure: true, sameSite: 'Lax' }); // Expires in 7 days
+            // Save credentials to cookies
+            Cookies.set('steamInput', profileUrl, { expires: 7, secure: true, sameSite: 'Lax' });
             Cookies.set('authCode', authCode, { expires: 7, secure: true, sameSite: 'Lax' });
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
     };
+
+    // Load credentials from cookies on component mount
+    useEffect(() => {
+        const savedSteamInput = Cookies.get('steamInput');
+        const savedCode = Cookies.get('authCode');
+
+        if (savedSteamInput && savedCode) {
+            setSteamInput(savedSteamInput);
+            setCode(savedCode);
+            // Automatically verify credentials using the values from cookies
+            handleVerify(savedSteamInput, savedCode);
+        }
+    }, []);
 
     // Function to handle spinning the wheel
     const handleSpin = async () => {
@@ -117,7 +119,7 @@ export default function GamblingWheel() {
         setSpinning(true);
         setError('');
         try {
-            const spinResponse: SpinWheelResponse = await spinWheel(steamProfile.steamId, code, currentRotationRef.current);
+            const spinResponse = await spinWheel(steamProfile.steamId, code, currentRotationRef.current);
 
             if (!spinResponse.success) {
                 setError(spinResponse.error || 'An error occurred during the spin.');
@@ -137,11 +139,11 @@ export default function GamblingWheel() {
             currentRotationRef.current = finalDegree;
             setCredits(updatedCredits);
             setTimeout(async () => {
-                setResult(spinResult); // Now correctly typed as WheelResult
+                setResult(spinResult);
                 setSpinning(false);
                 setShowOverlay(true);
                 setShowConfetti(true);
-                await recordSpinResult(userId, spinResult.color); // Accessing color is now valid
+                await recordSpinResult(userId, spinResult.color);
                 setShouldRefetchWinners(true);
                 setTimeout(() => {
                     setShowOverlay(false);
@@ -159,147 +161,124 @@ export default function GamblingWheel() {
         <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-x-hidden overflow-y-hidden bg-stone-800 text-white lg:flex-row">
             {/* Main Wheel and Spin Area */}
             <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
-                {!isVerified ? (
-                    // Verification Form
-                    <div className="mb-4 flex h-full w-full flex-col items-center justify-center space-y-2 md:w-3/4">
-                        {/* Steam Profile Input */}
-                        <InputTextbox
-                            idName="steam_input"
-                            name="Steam Profile"
-                            value={steamInput}
-                            onChange={(e) => setSteamInput(e.target.value)}
-                            placeholder="Enter your Steam Profile URL"
-                            labelWidth="lg"
-                        />
-                        {/* Auth Code Input */}
-                        <InputTextbox
-                            idName="auth_code"
-                            name="Auth Code"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            placeholder="Enter your code"
-                            labelWidth="lg"
-                        />
-                        <p className="text-center text-primary_light">Type '/auth' in game to get your code</p>
-                        {/* Verify Button */}
-                        <button
-                            onClick={() => handleVerify()}
-                            className="mt-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light"
-                        >
-                            Verify
-                        </button>
-                        {/* Error Message */}
-                        {error && <p className="mt-2 text-red-500">{error}</p>}
-                    </div>
-                ) : (
-                    // Wheel Display and Result
-                    <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
-                        {/* Wheel and Overlay */}
-                        <div className="relative flex h-full w-full items-center justify-start">
-                            <div className="relative h-fit w-[3/4]">
-                                {/* Wheel */}
-                                <motion.div
-                                    className="relative h-[90dvw] max-h-[60dvh] w-[90dvw] max-w-[60dvh] rounded-full lg:h-[70dvw] lg:!max-h-[80dvh] lg:w-[70dvw] lg:!max-w-[80dvh]"
-                                    style={{
-                                        background: `conic-gradient(${WHEEL_SLOTS.map(
-                                            (color, index) =>
-                                                `${COLOR_CODES[color]} ${index * DEGREES_PER_SLOT}deg ${(index + 1) * DEGREES_PER_SLOT}deg`,
-                                        ).join(', ')})`,
-                                    }}
-                                    animate={{ rotate: rotation }}
-                                    transition={{ duration: 5, ease: 'easeInOut' }}
-                                >
-                                    {/* Wheel Segments with Icons */}
-                                    {WHEEL_SLOTS.map((color, index) => (
-                                        <div
-                                            key={index}
-                                            className="invisible absolute lg:visible"
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                transform: `rotate(${index * DEGREES_PER_SLOT + DEGREES_PER_SLOT / 2}deg)`,
-                                            }}
-                                        >
-                                            <div className="absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 transform">
-                                                <Image
-                                                    src={ICON_PATHS[PAYOUTS[color].displayName]}
-                                                    alt={PAYOUTS[color].displayName}
-                                                    width={32}
-                                                    height={32}
-                                                />
-                                            </div>
+                {/* Wheel Display and Result */}
+                <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
+                    {/* Wheel and Overlay */}
+                    <div className="relative flex h-full w-full items-center justify-start">
+                        <div className="relative h-fit w-[3/4]">
+                            {/* Wheel */}
+                            <motion.div
+                                className="relative h-[90dvw] max-h-[60dvh] w-[90dvw] max-w-[60dvh] rounded-full lg:h-[70dvw] lg:!max-h-[80dvh] lg:w-[70dvw] lg:!max-w-[80dvh]"
+                                style={{
+                                    background: `conic-gradient(${WHEEL_SLOTS.map(
+                                        (color, index) =>
+                                            `${COLOR_CODES[color]} ${index * DEGREES_PER_SLOT}deg ${(index + 1) * DEGREES_PER_SLOT}deg`,
+                                    ).join(', ')})`,
+                                }}
+                                animate={{ rotate: rotation }}
+                                transition={{ duration: 5, ease: 'easeInOut' }}
+                            >
+                                {/* Wheel Segments with Icons */}
+                                {WHEEL_SLOTS.map((color, index) => (
+                                    <div
+                                        key={index}
+                                        className="invisible absolute lg:visible"
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            transform: `rotate(${index * DEGREES_PER_SLOT + DEGREES_PER_SLOT / 2}deg)`,
+                                        }}
+                                    >
+                                        <div className="absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 transform">
+                                            <Image
+                                                src={ICON_PATHS[PAYOUTS[color].displayName]}
+                                                alt={PAYOUTS[color].displayName}
+                                                width={32}
+                                                height={32}
+                                            />
                                         </div>
-                                    ))}
-                                </motion.div>
-                                {/* Down Arrow Indicator */}
-                                <div className="absolute left-1/2 top-[-15px] -translate-x-1/2 transform text-primary_light">
-                                    <BiSolidDownArrow size={32} />
-                                </div>
-                                {/* Overlay for Spin Result */}
-                                <div className="absolute left-1/2 top-0 flex h-full w-full -translate-x-1/2 transform items-center justify-center lg:top-[-10%]">
-                                    <AnimatePresence>
-                                        {showOverlay && result && (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0, scale: 0.8 }}
-                                                className="flex h-[70%] w-[70%] items-center justify-center rounded-lg bg-black bg-opacity-70 lg:!h-[30dvw] lg:!w-[30dvw]"
-                                            >
-                                                <div className="text-center">
-                                                    <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                                                    <div className="flex items-center justify-center">
-                                                        <Image
-                                                            src={ICON_PATHS[result.payout.displayName]}
-                                                            alt={result.payout.displayName}
-                                                            width={64}
-                                                            height={64}
-                                                        />
-                                                        <span className="ml-4 text-3xl font-bold">{result.payout.displayName}</span>
-                                                    </div>
+                                    </div>
+                                ))}
+                            </motion.div>
+                            {/* Down Arrow Indicator */}
+                            <div className="absolute left-1/2 top-[-15px] -translate-x-1/2 transform text-primary_light">
+                                <BiSolidDownArrow size={32} />
+                            </div>
+                            {/* Overlay for Spin Result */}
+                            <div className="absolute left-1/2 top-0 flex h-full w-full -translate-x-1/2 transform items-center justify-center lg:top-[-10%]">
+                                <AnimatePresence>
+                                    {showOverlay && result && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            className="flex h-[70%] w-[70%] items-center justify-center rounded-lg bg-black bg-opacity-70 lg:!h-[30dvw] lg:!w-[30dvw]"
+                                        >
+                                            <div className="text-center">
+                                                <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
+                                                <div className="flex items-center justify-center">
+                                                    <Image
+                                                        src={ICON_PATHS[result.payout.displayName]}
+                                                        alt={result.payout.displayName}
+                                                        width={64}
+                                                        height={64}
+                                                    />
+                                                    <span className="ml-4 text-3xl font-bold">{result.payout.displayName}</span>
                                                 </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </div>
-                        {/* Confetti Effect */}
-                        {showConfetti && (
-                            <Confetti
-                                className="absolute left-0 top-12 h-[calc(100dvh-50px)] w-[100dvw] lg:w-3/4"
-                                recycle={false}
-                                numberOfPieces={200}
-                                gravity={0.2}
-                                initialVelocityX={5}
-                                initialVelocityY={20}
-                                confettiSource={{
-                                    x: 0,
-                                    y: 0,
-                                    w: windowSize.width,
-                                    h: 0,
-                                }}
-                            />
-                        )}
-                        {/* Legend Display */}
-                        <div className="grid w-full grid-cols-2 gap-2 lg:flex lg:flex-row lg:justify-center lg:space-x-2">
-                            {LEGEND_ORDER.map((color) => (
-                                <div key={color} className="flex items-center justify-center space-x-2 lg:w-auto">
-                                    <div
-                                        className="flex h-8 w-8 items-center justify-center rounded-md"
-                                        style={{ backgroundColor: COLOR_CODES[color] }}
-                                    >
-                                        <Image
-                                            src={ICON_PATHS[PAYOUTS[color].displayName]}
-                                            alt={PAYOUTS[color].displayName}
-                                            width={24}
-                                            height={24}
-                                        />
-                                    </div>
-                                    <span className="w-[90px] text-left text-sm font-bold">{PAYOUTS[color].displayName}</span>
-                                </div>
-                            ))}
-                        </div>
                     </div>
+                    {/* Confetti Effect */}
+                    {showConfetti && (
+                        <Confetti
+                            className="absolute left-0 top-12 h-[calc(100dvh-50px)] w-[100dvw] lg:w-3/4"
+                            recycle={false}
+                            numberOfPieces={200}
+                            gravity={0.2}
+                            initialVelocityX={5}
+                            initialVelocityY={20}
+                            confettiSource={{
+                                x: 0,
+                                y: 0,
+                                w: windowSize.width,
+                                h: 0,
+                            }}
+                        />
+                    )}
+                    {/* Legend Display */}
+                    <div className="grid w-full grid-cols-2 gap-2 lg:flex lg:flex-row lg:justify-center lg:space-x-2">
+                        {LEGEND_ORDER.map((color) => (
+                            <div key={color} className="flex items-center justify-center space-x-2 lg:w-auto">
+                                <div
+                                    className="flex h-8 w-8 items-center justify-center rounded-md"
+                                    style={{ backgroundColor: COLOR_CODES[color] }}
+                                >
+                                    <Image
+                                        src={ICON_PATHS[PAYOUTS[color].displayName]}
+                                        alt={PAYOUTS[color].displayName}
+                                        width={24}
+                                        height={24}
+                                    />
+                                </div>
+                                <span className="w-[90px] text-left text-sm font-bold">{PAYOUTS[color].displayName}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                {/* Sign-In Modal */}
+                {!isVerified && (
+                    <SteamSignInModal
+                        steamInput={steamInput}
+                        setSteamInput={setSteamInput}
+                        code={code}
+                        setCode={setCode}
+                        onVerify={handleVerify}
+                        error={error}
+                    />
                 )}
             </div>
             {/* Sidebar: User Info and Recent Winners */}
@@ -321,15 +300,13 @@ export default function GamblingWheel() {
                     </p>
                 </div>
                 {/* Spin Button */}
-                {isVerified && (
-                    <button
-                        onClick={handleSpin}
-                        disabled={spinning || credits === null || credits < 5}
-                        className="mb-4 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light disabled:bg-gray-400"
-                    >
-                        {spinning ? 'Spinning...' : 'Spin (5 credits)'}
-                    </button>
-                )}
+                <button
+                    onClick={handleSpin}
+                    disabled={!isVerified || spinning || credits === null || credits < 5}
+                    className="mb-4 rounded bg-primary px-4 py-2 text-white hover:bg-primary_light disabled:bg-gray-400"
+                >
+                    {spinning ? 'Spinning...' : 'Spin (5 credits)'}
+                </button>
                 {/* Recent Winners */}
                 <RecentWinners shouldRefetch={shouldRefetchWinners} onRefetchComplete={() => setShouldRefetchWinners(false)} />
             </div>
