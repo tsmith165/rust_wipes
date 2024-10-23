@@ -55,5 +55,11 @@ export default function sitemap(): SitemapEntry[] {
             changeFrequency: 'daily',
             priority: 1,
         },
+        {
+            url: 'https://www.rustwipes.net/info/when-do-rust-servers-wipe',
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 1,
+        },
     ];
 }
