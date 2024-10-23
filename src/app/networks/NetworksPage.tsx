@@ -18,7 +18,7 @@ interface ServerNetwork {
     servers: ParsedServer[];
 }
 
-const NetworksPage: React.FC = async (): Promise<JSX.Element> => {
+const NetworksPage = async (): Promise<JSX.Element> => {
     console.log('Fetching server networks data...');
     let dbNetworks: {
         id: number;

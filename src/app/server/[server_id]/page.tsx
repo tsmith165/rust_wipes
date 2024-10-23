@@ -4,6 +4,10 @@ import PageLayout from '@/components/layout/PageLayout';
 import ServerInfoPage from '@/app/server/ServerInfoPage';
 
 import { captureEvent, captureDistictId } from '@/utils/posthog';
+import axios from 'axios';
+import { db } from '@/db/db';
+import { rw_parsed_server } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 const PAGE_NAME = 'Our Servers';
 
@@ -44,13 +48,52 @@ interface ServerPageProps {
     };
 }
 
+interface BattleMetricsServerData {
+    data: {
+        attributes: {
+            players: number;
+            maxPlayers: number;
+            name: string;
+            ip: string;
+            port: number;
+            details?: {
+                rust_maps: any;
+                rust_description: string;
+            };
+        };
+    };
+}
+
 export default async function ServerPage({ params, searchParams }: ServerPageProps) {
     const distinctId = await captureDistictId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
+    const server_id = params?.server_id || '1';
+
+    // Fetch data here
+    const database_data = await db
+        .select()
+        .from(rw_parsed_server)
+        .where(eq(rw_parsed_server.id, parseInt(server_id)))
+        .limit(1);
+
+    // Handle case when server is not found
+    if (database_data.length === 0) {
+        return (
+            <PageLayout page={'server'}>
+                <p className="text-xl text-red-500">Server not found.</p>
+            </PageLayout>
+        );
+    }
+
+    // Fetch BattleMetrics API data
+    const bmApiUrl = `https://api.battlemetrics.com/servers/${server_id}`;
+    const bm_api_server_data_response = await axios.get<BattleMetricsServerData>(bmApiUrl);
+    const bm_api_server_data = bm_api_server_data_response.data.data;
+
     return (
         <PageLayout page={'server'}>
-            <ServerInfoPage params={params} />
+            <ServerInfoPage database_data={database_data} bm_api_server_data={bm_api_server_data} params={params} />
         </PageLayout>
     );
 }
