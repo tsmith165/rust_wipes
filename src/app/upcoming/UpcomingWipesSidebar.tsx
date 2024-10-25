@@ -121,7 +121,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
     };
 
     if (!mounted) {
-        return <div className="h-fit w-full space-y-2 p-2.5 md:h-full"></div>;
+        return <div className="h-fit w-full space-y-2 p-2.5 md:h-full">Loading...</div>;
     }
 
     return (
