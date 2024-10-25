@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import InputSelect from '@/components/inputs/InputSelect';
 import { HiRefresh } from 'react-icons/hi';
@@ -12,13 +11,14 @@ import { Tooltip } from 'react-tooltip';
 const RENDER_ADS = false;
 
 interface RecentWipesSidebarProps {
-    searchParams?: {
+    searchParams: {
         [key: string]: string | string[] | undefined;
     };
     onRefresh: () => void;
     isLoading: boolean;
     autoRefreshActive: boolean;
     setAutoRefreshActive: (active: boolean) => void;
+    onUpdateSearchParams: (updates: Record<string, string>) => void;
 }
 
 const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
@@ -27,10 +27,8 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
     isLoading,
     autoRefreshActive,
     setAutoRefreshActive,
+    onUpdateSearchParams,
 }) => {
-    const router = useRouter();
-    const [localSearchParams, setLocalSearchParams] = React.useState(searchParams);
-
     let filterColumnAdContainer = null;
     if (RENDER_ADS) {
         filterColumnAdContainer = (
@@ -44,20 +42,11 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
         );
     }
 
-    const updateSearchParams = (key: string, value: string) => {
-        setLocalSearchParams((prev) => {
-            const newParams = { ...prev, [key]: value };
-            const queryString = new URLSearchParams(newParams as Record<string, string>).toString();
-            router.push(`/recent?${queryString}`);
-            return newParams;
-        });
-    };
-
     const handleRefreshclick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setAutoRefreshActive(!autoRefreshActive);
         if (!autoRefreshActive) {
-            onRefresh(); // Trigger the first refresh right away
+            onRefresh();
         }
     };
 
@@ -93,32 +82,32 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
                         <InputTextbox
                             idName="minPlayers"
                             name="Min Players"
-                            value={(localSearchParams?.minPlayers as string) || '0'}
+                            value={(searchParams?.minPlayers as string) || '0'}
                             placeholder="Min Players"
-                            onChange={(e) => updateSearchParams('minPlayers', e.target.value)}
+                            onChange={(e) => onUpdateSearchParams({ minPlayers: e.target.value })}
                         />
                         <InputTextbox
                             idName="maxDist"
                             name="Distance"
-                            value={(localSearchParams?.maxDist as string) || '5000'}
+                            value={(searchParams?.maxDist as string) || '5000'}
                             placeholder="Max Dist"
-                            onChange={(e) => updateSearchParams('maxDist', e.target.value)}
+                            onChange={(e) => onUpdateSearchParams({ maxDist: e.target.value })}
                         />
                     </div>
                     <div className="flex w-full flex-row space-x-2">
                         <InputTextbox
                             idName="minRank"
                             name="Min Rank"
-                            value={(localSearchParams?.minRank as string) || '0'}
+                            value={(searchParams?.minRank as string) || '0'}
                             placeholder="Min Rank"
-                            onChange={(e) => updateSearchParams('minRank', e.target.value)}
+                            onChange={(e) => onUpdateSearchParams({ minRank: e.target.value })}
                         />
                         <InputTextbox
                             idName="maxRank"
                             name="Max Rank"
-                            value={(localSearchParams?.maxRank as string) || '10000'}
+                            value={(searchParams?.maxRank as string) || '10000'}
                             placeholder="Max Rank"
-                            onChange={(e) => updateSearchParams('maxRank', e.target.value)}
+                            onChange={(e) => onUpdateSearchParams({ maxRank: e.target.value })}
                         />
                     </div>
                     <InputSelect
@@ -126,26 +115,25 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
                         name="Group Size"
                         select_options={groupLimitOptions}
                         defaultValue={{
-                            value: (localSearchParams?.groupLimit as string) || 'any',
+                            value: (searchParams?.groupLimit as string) || 'any',
                             label:
-                                groupLimitOptions.find(
-                                    (option) => option[0] === ((localSearchParams?.groupLimit as string) || 'any'),
-                                )?.[1] || 'Any Group Limit',
+                                groupLimitOptions.find((option) => option[0] === ((searchParams?.groupLimit as string) || 'any'))?.[1] ||
+                                'Any Group Limit',
                         }}
-                        onChange={(value) => updateSearchParams('groupLimit', value)} // Pass only the value
+                        onChange={(value) => onUpdateSearchParams({ groupLimit: value })}
                     />
                     <InputSelect
                         idName="resourceRate"
                         name="Resources"
                         select_options={resourceRateOptions}
                         defaultValue={{
-                            value: (localSearchParams?.resourceRate as string) || 'any',
+                            value: (searchParams?.resourceRate as string) || 'any',
                             label:
                                 resourceRateOptions.find(
-                                    (option) => option[0] === ((localSearchParams?.resourceRate as string) || 'any'),
+                                    (option) => option[0] === ((searchParams?.resourceRate as string) || 'any'),
                                 )?.[1] || 'Any Resource Rate',
                         }}
-                        onChange={(value) => updateSearchParams('resourceRate', value)} // Pass only the value
+                        onChange={(value) => onUpdateSearchParams({ resourceRate: value })}
                     />
                     <div className="flex w-full flex-row space-x-2">
                         <InputSelect
@@ -153,12 +141,12 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
                             name="country"
                             select_options={countryOptions}
                             defaultValue={{
-                                value: (localSearchParams?.country as string) || 'US',
+                                value: (searchParams?.country as string) || 'US',
                                 label:
-                                    countryOptions.find((option) => option[0] === ((localSearchParams?.country as string) || 'US'))?.[1] ||
+                                    countryOptions.find((option) => option[0] === ((searchParams?.country as string) || 'US'))?.[1] ||
                                     'United States',
                             }}
-                            onChange={(value) => updateSearchParams('country', value)}
+                            onChange={(value) => onUpdateSearchParams({ country: value })}
                         />
                         <button
                             type="button"

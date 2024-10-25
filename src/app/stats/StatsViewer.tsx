@@ -1,5 +1,3 @@
-// File: /src/app/stats/StatsViewer.tsx
-
 'use client';
 
 import React, { useState, useMemo } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Masonry from 'react-masonry-css';
@@ -17,11 +17,11 @@ interface KitViewerProps {
     kits: KitsWithExtraImages[];
     initialSelectedKitId: number | null;
     initialSelectedType: string;
+    searchParams: URLSearchParams; // Add this prop
 }
 
-const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initialSelectedType }) => {
+const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initialSelectedType, searchParams }) => {
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(null);
     const [selectedType, setSelectedType] = useState(initialSelectedType);

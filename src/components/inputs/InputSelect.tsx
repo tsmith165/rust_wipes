@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useId } from 'react';
-import Select, { components, StylesConfig, ControlProps } from 'react-select';
+import Select, { components, StylesConfig, InputProps } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
 
@@ -16,6 +16,15 @@ const DropdownIndicator = (props: any) => {
             <FaArrowDown className="fill-secondary_dark" />
         </components.DropdownIndicator>
     );
+};
+
+// Custom Input component that removes aria-activedescendant when empty
+const Input = (props: InputProps<OptionType, false>) => {
+    const newProps = {
+        ...props,
+        'aria-activedescendant': props['aria-activedescendant'] || undefined,
+    };
+    return <components.Input {...newProps} />;
 };
 
 interface InputSelectProps {
@@ -72,6 +81,7 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
                 classNamePrefix="select"
                 components={{
                     DropdownIndicator,
+                    Input,
                 }}
                 styles={customStyles}
                 options={react_select_options}
