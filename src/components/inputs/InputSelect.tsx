@@ -1,9 +1,14 @@
 'use client';
 
 import React, { useId } from 'react';
-import Select, { components } from 'react-select';
+import Select, { components, StylesConfig, ControlProps } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
+
+interface OptionType {
+    value: string;
+    label: string;
+}
 
 const DropdownIndicator = (props: any) => {
     return (
@@ -14,12 +19,12 @@ const DropdownIndicator = (props: any) => {
 };
 
 interface InputSelectProps {
-    defaultValue?: { value: string; label: string };
+    defaultValue?: OptionType;
     idName: string;
     name: string;
     select_options: [string, string][];
     value?: string;
-    onChange?: (value: string) => void; // Expecting just a string value
+    onChange?: (value: string) => void;
 }
 
 const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, select_options, value, onChange }) => {
@@ -32,10 +37,18 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
         .join(' ');
     const react_select_options = select_options.map((option) => ({ value: option[0], label: option[1] }));
 
-    const handleSelectChange = (selectedOption: { value: string }) => {
-        if (onChange) {
-            onChange(selectedOption.value); // Pass only the string value
+    const handleSelectChange = (selectedOption: OptionType | null) => {
+        if (onChange && selectedOption) {
+            onChange(selectedOption.value);
         }
+    };
+
+    const customStyles: StylesConfig<OptionType, false> = {
+        control: (baseStyles) => ({
+            ...baseStyles,
+            borderColor: '',
+            backgroundColor: 'var(--tw-bg-stone-400)',
+        }),
     };
 
     return (
@@ -48,7 +61,7 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
                 <div className="font-bold text-stone-950">{formatted_name}</div>
             </div>
             <Tooltip id={`tooltip-${idName}`} place="top" />
-            <Select
+            <Select<OptionType, false>
                 inputId={selectId}
                 instanceId={selectId}
                 defaultValue={defaultValue}
@@ -60,15 +73,9 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
                 components={{
                     DropdownIndicator,
                 }}
-                styles={{
-                    control: (baseStyles) => ({
-                        ...baseStyles,
-                        borderColor: '',
-                        backgroundColor: 'var(--tw-bg-stone-400)',
-                    }),
-                }}
+                styles={customStyles}
                 options={react_select_options}
-                onChange={(selectedOption) => handleSelectChange(selectedOption as { value: string })}
+                onChange={handleSelectChange}
             />
         </div>
     );
