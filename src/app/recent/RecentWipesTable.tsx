@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import queryString from 'query-string';
 import { IoIosArrowForward } from 'react-icons/io';
 import RecentServerRow from './RecentServerRow';

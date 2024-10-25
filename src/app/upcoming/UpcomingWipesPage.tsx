@@ -94,7 +94,7 @@ export default function UpcomingWipesPage() {
                     {error ? (
                         <div className="p-2 text-red-500">{error}</div>
                     ) : loading ? (
-                        <div className="p-2 text-stone-950">Loading...</div>
+                        <div className="p-2 text-stone-950"></div>
                     ) : serversJsxArray.length > 0 ? (
                         serversJsxArray
                     ) : (

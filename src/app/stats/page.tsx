@@ -37,13 +37,14 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-    searchParams?: {
+    searchParams?: Promise<{
         category?: string;
         server?: string;
-    };
+    }>;
 }
 
-export default async function StatsPage({ searchParams }: PageProps) {
+export default async function StatsPage(props: PageProps) {
+    const searchParams = await props.searchParams;
     const distinctId = await captureDistictId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 

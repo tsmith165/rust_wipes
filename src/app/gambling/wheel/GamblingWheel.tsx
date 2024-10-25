@@ -12,7 +12,7 @@ import RecentWinners from './RecentWinners';
 import { BiSolidDownArrow } from 'react-icons/bi';
 
 import Cookies from 'js-cookie';
-import SteamSignInModal from '@/components/SteamSignInModal'; // Import the new component
+import SteamSignInModal from '@/components/SteamSignInModal';
 
 // Dynamically import the Confetti component to avoid SSR issues
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
@@ -34,7 +34,6 @@ interface SteamProfile {
 }
 
 export default function GamblingWheel() {
-    // State variables
     const [spinning, setSpinning] = useState(false);
     const [result, setResult] = useState<WheelResult | null>(null);
     const [rotation, setRotation] = useState(0);

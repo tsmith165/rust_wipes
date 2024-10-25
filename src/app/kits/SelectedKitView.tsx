@@ -25,7 +25,7 @@ interface SelectedKitViewProps {
     handleImageLoad: () => void;
     setIsFullScreenImage: (isFullScreen: boolean) => void;
     selectedKitIndex: number | null;
-    selectedImageRef: React.RefObject<HTMLDivElement>;
+    selectedImageRef: React.RefObject<HTMLDivElement | null>;
     handleNext: () => void;
     handlePrev: () => void;
     togglePlayPause: () => void;

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import InputSelect from '@/components/inputs/InputSelect';
@@ -22,12 +22,8 @@ interface UpcomingWipesSidebarProps {
 const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParams }) => {
     const router = useRouter();
     const currentSearchParams = useSearchParams();
-
-    const updateSearchParams = (key: string, value: string) => {
-        const params = new URLSearchParams(currentSearchParams.toString());
-        params.set(key, value);
-        router.push(`/upcoming?${params.toString()}`);
-    };
+    const [mounted, setMounted] = useState(false);
+    const [timeOptions, setTimeOptions] = useState<[string, string][]>([]);
 
     const standardTimeOptions: [string, string][] = [
         ['-10', 'Hawaii-Aleutian Standard Time (UTC-10:00)'],
@@ -77,18 +73,12 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
         ['14', 'Samoa Daylight Time (UTC+14:00)'],
     ];
 
-    const isDST = useMemo(() => {
-        const now = moment();
-        return now.isDST();
-    }, []);
-
-    const timeSelectOptions = isDST ? daylightTimeOptions : standardTimeOptions;
-
     const regionSelectOptions: [string, string][] = [
         ['US', 'US'],
         ['EU', 'EU'],
         ['AS', 'AS'],
     ];
+
     const rateSelectOptions: [string, string][] = [
         ['any', 'Any Resource Rate'],
         ['1x', '1x'],
@@ -100,6 +90,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
         ['100x', '100x'],
         ['1000x', '1000x'],
     ];
+
     const groupSelectOptions: [string, string][] = [
         ['any', 'Any Group Limit'],
         ['solo', 'Solo'],
@@ -108,6 +99,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
         ['quad', 'Quad'],
         ['no limit', 'No Limit'],
     ];
+
     const modeSelectOptions: [string, string][] = [
         ['any', 'Any Game Mode'],
         ['pvp', 'PvP'],
@@ -115,6 +107,22 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
         ['arena', 'Arena'],
         ['build', 'Build'],
     ];
+
+    useEffect(() => {
+        const isDST = moment().isDST();
+        setTimeOptions(isDST ? daylightTimeOptions : standardTimeOptions);
+        setMounted(true);
+    }, []);
+
+    const updateSearchParams = (key: string, value: string) => {
+        const params = new URLSearchParams(currentSearchParams.toString());
+        params.set(key, value);
+        router.push(`/upcoming?${params.toString()}`);
+    };
+
+    if (!mounted) {
+        return <div className="h-fit w-full space-y-2 p-2.5 md:h-full"></div>;
+    }
 
     return (
         <div className="h-fit w-full space-y-2 p-2.5 md:h-full">
@@ -138,14 +146,12 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
             <InputSelect
                 idName="time_zone"
                 name="time_zone"
-                select_options={timeSelectOptions}
+                select_options={timeOptions}
                 defaultValue={{
                     value: searchParams.time_zone || '-7',
-                    label:
-                        timeSelectOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] ||
-                        (isDST ? 'Pacific Daylight Time (UTC-07:00)' : 'Pacific Standard Time (UTC-08:00)'),
+                    label: timeOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] || 'Pacific Time',
                 }}
-                onChange={(value) => updateSearchParams('time_zone', value)} // Now passing a string value
+                onChange={(value) => updateSearchParams('time_zone', value)}
             />
             <InputSelect
                 idName="region"

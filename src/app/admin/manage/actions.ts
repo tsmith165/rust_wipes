@@ -7,7 +7,7 @@ import { auth } from '@clerk/nextjs/server';
 import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 
 async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string | undefined }> {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) {
         return { isAdmin: false, error: 'User is not authenticated. Cannot edit kit.' };
     }

@@ -43,7 +43,8 @@ async function fetchKitData(id: number) {
     return { ...kit, next_id, last_id };
 }
 
-export default async function Page({ searchParams }: { searchParams: { id?: string } }) {
+export default async function Page(props: { searchParams: Promise<{ id?: string }> }) {
+    const searchParams = await props.searchParams;
     let id = searchParams.id ? parseInt(searchParams.id, 10) : null;
 
     if (!id) {

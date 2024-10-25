@@ -38,10 +38,10 @@ const DynamicKitViewer = dynamic(() => import('./KitViewer'), {
 });
 
 interface PageProps {
-    searchParams?: {
+    searchParams?: Promise<{
         kit?: string;
         type?: string;
-    };
+    }>;
 }
 
 async function KitData({
@@ -60,13 +60,18 @@ async function KitData({
     return <DynamicKitViewer kits={kitData} initialSelectedKitId={initialSelectedKitId} initialSelectedType={initialSelectedType} />;
 }
 
-export default function KitPage({ searchParams }: PageProps) {
+export default async function KitPage(props: PageProps) {
+    const searchParams = await props.searchParams;
     const selectedKitId = searchParams?.kit ? parseInt(searchParams.kit, 10) : null;
     const selectedType = searchParams?.type || 'monthly';
 
     return (
         <PageLayout page="/kits">
-            <Suspense fallback={<div className="h-full w-full bg-stone-800">Loading...</div>}>
+            <Suspense
+                fallback={
+                    <div className="radial-gradient-stone-600 flex h-full w-full flex-col items-center justify-center bg-stone-950"></div>
+                }
+            >
                 <KitData initialSelectedKitId={selectedKitId} initialSelectedType={selectedType} />
             </Suspense>
         </PageLayout>
