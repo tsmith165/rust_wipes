@@ -3,8 +3,8 @@ import { fetchPlayerStats, fetchServerInfo } from '@/app/actions';
 import React from 'react';
 import StatsViewer from './StatsViewer';
 import PageLayout from '@/components/layout/PageLayout';
-
 import { captureEvent, captureDistictId } from '@/utils/posthog';
+import { DEFAULT_PARAMS } from './constants';
 
 const PAGE_NAME = 'Player Stats';
 
@@ -37,32 +37,31 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-    searchParams?: {
-        category?: string;
-        server?: string;
-    };
+    searchParams: Promise<{
+        [key: string]: string | string[] | undefined;
+    }>;
 }
 
 export default async function StatsPage({ searchParams }: PageProps) {
     const distinctId = await captureDistictId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
+    const resolvedParams = await searchParams;
     const serverInfo = await fetchServerInfo();
-    const selectedCategory = searchParams?.category || 'kills';
-    const selectedServer = searchParams?.server || serverInfo[0]?.id;
 
-    const playerStats = await fetchPlayerStats(selectedServer);
+    // Ensure we use the default values for any missing parameters
+    const initialParams = {
+        category: String(resolvedParams.category ?? DEFAULT_PARAMS.category),
+        server: String(resolvedParams.server ?? serverInfo[0]?.id ?? DEFAULT_PARAMS.server),
+    };
+
+    const playerStats = await fetchPlayerStats(initialParams.server);
 
     return (
         <PageLayout page="/stats">
-            <StatsViewer
-                playerStats={playerStats}
-                initialSelectedCategory={selectedCategory}
-                serverInfo={serverInfo}
-                initialSelectedServer={selectedServer}
-            />
+            <StatsViewer playerStats={playerStats} initialParams={initialParams} serverInfo={serverInfo} />
         </PageLayout>
     );
 }
 
-export const revalidate = 60; // Revalidate this page every 60 seconds
+export const revalidate = 60;

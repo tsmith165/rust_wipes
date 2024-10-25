@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Select, { components } from 'react-select';
+import Select, { components, StylesConfig, ControlProps, MultiValueProps, OptionProps, GroupBase } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
 
 interface InputMultiSelectProps {
@@ -9,7 +9,12 @@ interface InputMultiSelectProps {
     name: string;
     select_options: [string, string][];
     onChange?: (selectedOptions: { value: string; label: string }[]) => void;
-    inputId?: string; // Added inputId prop
+    inputId?: string;
+}
+
+interface OptionType {
+    value: string;
+    label: string;
 }
 
 const DropdownIndicator = (props: any) => {
@@ -28,12 +33,34 @@ const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name,
         .join(' ');
     const react_select_options = select_options.map((option) => ({ value: option[0], label: option[1] }));
 
+    const customStyles: StylesConfig<OptionType, true> = {
+        control: (baseStyles) => ({
+            ...baseStyles,
+            borderColor: '',
+            backgroundColor: '#54786d',
+        }),
+        multiValue: (styles) => ({
+            ...styles,
+            backgroundColor: '#616c63',
+        }),
+        option: (provided) => ({
+            ...provided,
+            color: '#54786d',
+        }),
+    };
+
+    const handleChange = (selectedOptions: readonly OptionType[] | null) => {
+        if (onChange && selectedOptions) {
+            onChange(selectedOptions as { value: string; label: string }[]);
+        }
+    };
+
     return (
         <div className="m-0 flex w-full p-0">
             <div className="flex min-w-28 max-w-28 items-center justify-center rounded-l-md bg-secondary_dark px-2.5 py-1.5 text-secondary_light">
                 <div className="text-primary">{formatted_name}</div>
             </div>
-            <Select
+            <Select<OptionType, true>
                 defaultValue={defaultValue}
                 isMulti={true}
                 id={id}
@@ -43,27 +70,9 @@ const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name,
                 components={{
                     DropdownIndicator,
                 }}
-                styles={{
-                    control: (baseStyles, state) => ({
-                        ...baseStyles,
-                        borderColor: '',
-                        backgroundColor: '#54786d',
-                    }),
-                    multiValue: (styles) => ({
-                        ...styles,
-                        backgroundColor: '#616c63',
-                    }),
-                    option: (provided, state) => ({
-                        ...provided,
-                        color: '#54786d',
-                    }),
-                }}
+                styles={customStyles}
                 options={react_select_options}
-                onChange={(selectedOptions) => {
-                    if (onChange) {
-                        onChange(selectedOptions as { value: string; label: string }[]);
-                    }
-                }}
+                onChange={handleChange}
             />
         </div>
     );

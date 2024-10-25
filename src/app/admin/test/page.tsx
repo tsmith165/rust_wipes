@@ -32,12 +32,13 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-    searchParams?: {
+    searchParams?: Promise<{
         tab?: string;
-    };
+    }>;
 }
 
-export default async function TestPage({ searchParams }: PageProps) {
+export default async function TestPage(props: PageProps) {
+    const searchParams = await props.searchParams;
     const tab = searchParams?.tab || 'kit-access';
     const kits = await getKits();
 

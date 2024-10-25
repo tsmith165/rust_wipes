@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
-    swcMinify: true,
     images: {
         remotePatterns: [
             {
@@ -25,19 +24,19 @@ const nextConfig = {
         ],
         minimumCacheTTL: 60 * 60 * 24 * 7, //In seconds
     },
-    async headers() {
-        return [
-            {
-                source: '/:all*(js|css|jpg|png|svg)',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=3600, stale-while-revalidate=86400',
-                    },
-                ],
-            },
-        ];
-    },
+    // headers() {
+    //     return [
+    //         {
+    //             source: '/:all*(js|css|jpg|png|svg)',
+    //             headers: [
+    //                 {
+    //                     key: 'Cache-Control',
+    //                     value: 'public, max-age=3600, stale-while-revalidate=86400',
+    //                 },
+    //             ],
+    //         },
+    //     ];
+    // },
 };
 
 module.exports = nextConfig;

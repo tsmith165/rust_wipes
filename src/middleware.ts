@@ -4,13 +4,13 @@ import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 
 const isPrivateRoute = createRouteMatcher(['/admin(/.*)', '/api/uploadthing']);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
     const currentPath = req.nextUrl.pathname;
     console.log('Current route:', req.url);
 
     if (isPrivateRoute(req)) {
         console.log('Route is private. Protecting with admin role.');
-        const { userId } = auth();
+        const { userId } = await auth();
 
         if (!userId) {
             console.log('User ID is null. Redirecting to sign in page.');

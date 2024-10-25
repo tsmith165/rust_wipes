@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import queryString from 'query-string';
 import { IoIosArrowForward } from 'react-icons/io';
 import RecentServerRow from './RecentServerRow';
@@ -23,13 +23,14 @@ interface ServerListItem {
 }
 
 interface RecentWipesTableProps {
-    searchParams?: {
+    searchParams: {
         [key: string]: string | string[] | undefined;
     };
     server_list: ServerListItem[];
+    onUpdateSearchParams: (updates: Record<string, string>) => void;
 }
 
-const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, server_list }) => {
+const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, server_list, onUpdateSearchParams }) => {
     console.log('Creating Recent Wipes Table...');
 
     const page = parseInt((searchParams?.page as string) || '1');
@@ -116,39 +117,27 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     const pagination_container = (
         <div className="flex items-center space-x-2 rounded-lg bg-primary_dark">
-            <form method="GET" action="/recent" className="flex items-center ">
-                <input type="hidden" name="page" value={decrementPage} />
-                <input type="hidden" name="numServers" value={numServers} />
-                <input type="hidden" name="minPlayers" value={minPlayers} />
-                <input type="hidden" name="maxDist" value={maxDist} />
-                <input type="hidden" name="minRank" value={minRank} />
-                <input type="hidden" name="maxRank" value={maxRank} />
-                <input type="hidden" name="country" value={country} />
-                <input type="hidden" name="groupLimit" value={groupLimit} />
-                <input type="hidden" name="resourceRate" value={resourceRate} />
-                <button type="submit" className="group flex items-center justify-center rounded-l-lg p-1 hover:!bg-primary">
-                    <IoIosArrowForward className="rotate-180 cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
-                </button>
-            </form>
+            <button
+                onClick={() => onUpdateSearchParams({ page: decrementPage.toString() })}
+                className="group flex items-center justify-center rounded-l-lg p-1 hover:!bg-primary"
+                disabled={page <= 1}
+            >
+                <IoIosArrowForward className="rotate-180 cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
+            </button>
             <span className="flex items-center justify-center text-lg font-bold">{page}</span>
-            <form method="GET" action="/recent" className="flex items-center">
-                <input type="hidden" name="page" value={incrementPage} />
-                <input type="hidden" name="numServers" value={numServers} />
-                <input type="hidden" name="minPlayers" value={minPlayers} />
-                <input type="hidden" name="maxDist" value={maxDist} />
-                <input type="hidden" name="minRank" value={minRank} />
-                <input type="hidden" name="maxRank" value={maxRank} />
-                <input type="hidden" name="country" value={country} />
-                <input type="hidden" name="groupLimit" value={groupLimit} />
-                <input type="hidden" name="resourceRate" value={resourceRate} />
-                <button type="submit" className="group flex items-center justify-center rounded-r-lg p-1 hover:!bg-primary">
-                    <IoIosArrowForward className="cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
-                </button>
-            </form>
+            <button
+                onClick={() => onUpdateSearchParams({ page: incrementPage.toString() })}
+                className="group flex items-center justify-center rounded-r-lg p-1 hover:!bg-primary"
+            >
+                <IoIosArrowForward className="cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
+            </button>
         </div>
     );
 
-    const num_servers_select = <NumServersSelect defaultValue={numServers} searchParams={searchParams} />;
+    // Update NumServersSelect to use onUpdateSearchParams
+    const num_servers_select = (
+        <NumServersSelect defaultValue={numServers} searchParams={searchParams} onUpdateSearchParams={onUpdateSearchParams} />
+    );
 
     const server_list_table_header = (
         <div className="flex bg-stone-600 pr-2 font-bold text-stone-300">

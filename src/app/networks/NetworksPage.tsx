@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { db } from '@/db/db';
 import { rw_server_network, rw_parsed_server } from '@/db/schema';
 import { eq } from 'drizzle-orm';

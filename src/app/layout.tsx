@@ -1,14 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import 'tailwindcss/tailwind.css';
 import '@/styles/globals.css';
-
 import { PHProvider } from '@/app/providers';
-import dynamic from 'next/dynamic';
-
-const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
-    ssr: false,
-});
+import PostHogPageView from './PostHogPageView';
 
 interface RootLayoutProps {
     children: React.ReactNode;
@@ -20,7 +15,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <html lang="en">
                 <PHProvider>
                     <body>
-                        <PostHogPageView />
+                        <Suspense fallback={null}>
+                            <PostHogPageView />
+                        </Suspense>
                         {children}
                     </body>
                 </PHProvider>

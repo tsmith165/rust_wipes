@@ -1,11 +1,18 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import InputTextbox from '@/components/inputs/InputTextbox';
 import InputSelect from '@/components/inputs/InputSelect';
 import InputDatePicker from '@/components/inputs/InputDatePicker';
 import moment from 'moment-timezone';
+import {
+    standardTimeOptions,
+    daylightTimeOptions,
+    regionSelectOptions,
+    rateSelectOptions,
+    groupSelectOptions,
+    modeSelectOptions,
+} from './constants';
 
 interface UpcomingWipesSidebarProps {
     searchParams: {
@@ -17,104 +24,22 @@ interface UpcomingWipesSidebarProps {
         group_limit?: string;
         game_mode?: string;
     };
+    onUpdateSearchParams: (updates: Record<string, string>) => void;
 }
 
-const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParams }) => {
-    const router = useRouter();
-    const currentSearchParams = useSearchParams();
+const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParams, onUpdateSearchParams }) => {
+    const [mounted, setMounted] = useState(false);
+    const [timeOptions, setTimeOptions] = useState<[string, string][]>([]);
 
-    const updateSearchParams = (key: string, value: string) => {
-        const params = new URLSearchParams(currentSearchParams.toString());
-        params.set(key, value);
-        router.push(`/upcoming?${params.toString()}`);
-    };
-
-    const standardTimeOptions: [string, string][] = [
-        ['-10', 'Hawaii-Aleutian Standard Time (UTC-10:00)'],
-        ['-9', 'Alaska Standard Time (UTC-09:00)'],
-        ['-8', 'Pacific Standard Time (UTC-08:00)'],
-        ['-7', 'Mountain Standard Time (UTC-07:00)'],
-        ['-6', 'Central Standard Time (UTC-06:00)'],
-        ['-5', 'Eastern Standard Time (UTC-05:00)'],
-        ['-4', 'Atlantic Standard Time (UTC-04:00)'],
-        ['0', 'Coordinated Universal Time (UTC)'],
-        ['1', 'Central European Time (UTC+01:00)'],
-        ['2', 'Eastern European Time (UTC+02:00)'],
-        ['3', 'Moscow Standard Time (UTC+03:00)'],
-        ['4', 'Gulf Standard Time (UTC+04:00)'],
-        ['5', 'Pakistan Standard Time (UTC+05:00)'],
-        ['6', 'Bangladesh Standard Time (UTC+06:00)'],
-        ['7', 'Indochina Time (UTC+07:00)'],
-        ['8', 'China Standard Time (UTC+08:00)'],
-        ['9', 'Japan Standard Time (UTC+09:00)'],
-        ['10', 'Australian Eastern Standard Time (UTC+10:00)'],
-        ['11', 'Solomon Islands Time (UTC+11:00)'],
-        ['12', 'New Zealand Standard Time (UTC+12:00)'],
-        ['13', 'Samoa Standard Time (UTC+13:00)'],
-    ];
-
-    const daylightTimeOptions: [string, string][] = [
-        ['-9', 'Hawaii-Aleutian Daylight Time (UTC-09:00)'],
-        ['-8', 'Alaska Daylight Time (UTC-08:00)'],
-        ['-7', 'Pacific Daylight Time (UTC-07:00)'],
-        ['-6', 'Mountain Daylight Time (UTC-06:00)'],
-        ['-5', 'Central Daylight Time (UTC-05:00)'],
-        ['-4', 'Eastern Daylight Time (UTC-04:00)'],
-        ['-3', 'Atlantic Daylight Time (UTC-03:00)'],
-        ['0', 'Coordinated Universal Time (UTC)'],
-        ['2', 'Central European Summer Time (UTC+02:00)'],
-        ['3', 'Eastern European Summer Time (UTC+03:00)'],
-        ['4', 'Moscow Daylight Time (UTC+04:00)'],
-        ['5', 'Gulf Daylight Time (UTC+05:00)'],
-        ['6', 'Pakistan Daylight Time (UTC+06:00)'],
-        ['7', 'Bangladesh Daylight Time (UTC+07:00)'],
-        ['8', 'Indochina Daylight Time (UTC+08:00)'],
-        ['9', 'China Daylight Time (UTC+09:00)'],
-        ['10', 'Japan Daylight Time (UTC+10:00)'],
-        ['11', 'Australian Eastern Daylight Time (UTC+11:00)'],
-        ['12', 'Solomon Islands Daylight Time (UTC+12:00)'],
-        ['13', 'New Zealand Daylight Time (UTC+13:00)'],
-        ['14', 'Samoa Daylight Time (UTC+14:00)'],
-    ];
-
-    const isDST = useMemo(() => {
-        const now = moment();
-        return now.isDST();
+    useEffect(() => {
+        const isDST = moment().isDST();
+        setTimeOptions(isDST ? daylightTimeOptions : standardTimeOptions);
+        setMounted(true);
     }, []);
 
-    const timeSelectOptions = isDST ? daylightTimeOptions : standardTimeOptions;
-
-    const regionSelectOptions: [string, string][] = [
-        ['US', 'US'],
-        ['EU', 'EU'],
-        ['AS', 'AS'],
-    ];
-    const rateSelectOptions: [string, string][] = [
-        ['any', 'Any Resource Rate'],
-        ['1x', '1x'],
-        ['1.5x', '1.5x'],
-        ['2x', '2x'],
-        ['3x', '3x'],
-        ['5x', '5x'],
-        ['10x', '10x'],
-        ['100x', '100x'],
-        ['1000x', '1000x'],
-    ];
-    const groupSelectOptions: [string, string][] = [
-        ['any', 'Any Group Limit'],
-        ['solo', 'Solo'],
-        ['duo', 'Duo'],
-        ['trio', 'Trio'],
-        ['quad', 'Quad'],
-        ['no limit', 'No Limit'],
-    ];
-    const modeSelectOptions: [string, string][] = [
-        ['any', 'Any Game Mode'],
-        ['pvp', 'PvP'],
-        ['pve', 'PvE'],
-        ['arena', 'Arena'],
-        ['build', 'Build'],
-    ];
+    if (!mounted) {
+        return <div className="h-fit w-full space-y-2 p-2.5 md:h-full">Loading...</div>;
+    }
 
     return (
         <div className="h-fit w-full space-y-2 p-2.5 md:h-full">
@@ -123,7 +48,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     idName="date"
                     name="date"
                     defaultValue={searchParams.date || moment().format('YYYY-MM-DD')}
-                    onChange={(date) => updateSearchParams('date', moment(date).format('YYYY-MM-DD'))}
+                    onChange={(date) => onUpdateSearchParams({ date: moment(date).format('YYYY-MM-DD') })}
                 />
             </div>
             <div className="flex">
@@ -132,20 +57,18 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     name="min_rank"
                     placeholder="Min Rank"
                     value={searchParams.min_rank}
-                    onChange={(e) => updateSearchParams('min_rank', e.target.value)}
+                    onChange={(e) => onUpdateSearchParams({ min_rank: e.target.value })}
                 />
             </div>
             <InputSelect
                 idName="time_zone"
                 name="time_zone"
-                select_options={timeSelectOptions}
+                select_options={timeOptions}
                 defaultValue={{
                     value: searchParams.time_zone || '-7',
-                    label:
-                        timeSelectOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] ||
-                        (isDST ? 'Pacific Daylight Time (UTC-07:00)' : 'Pacific Standard Time (UTC-08:00)'),
+                    label: timeOptions.find((option) => option[0] === (searchParams.time_zone || '-7'))?.[1] || 'Pacific Time',
                 }}
-                onChange={(value) => updateSearchParams('time_zone', value)} // Now passing a string value
+                onChange={(value) => onUpdateSearchParams({ time_zone: value })}
             />
             <InputSelect
                 idName="region"
@@ -155,7 +78,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     value: searchParams.region || 'US',
                     label: regionSelectOptions.find((option) => option[0] === (searchParams.region || 'US'))?.[1] || 'US',
                 }}
-                onChange={(value) => updateSearchParams('region', value)}
+                onChange={(value) => onUpdateSearchParams({ region: value })}
             />
             <InputSelect
                 idName="resource_rate"
@@ -166,7 +89,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     label:
                         rateSelectOptions.find((option) => option[0] === (searchParams.resource_rate || 'any'))?.[1] || 'Any Resource Rate',
                 }}
-                onChange={(value) => updateSearchParams('resource_rate', value)}
+                onChange={(value) => onUpdateSearchParams({ resource_rate: value })}
             />
             <InputSelect
                 idName="group_limit"
@@ -176,7 +99,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     value: searchParams.group_limit || 'any',
                     label: groupSelectOptions.find((option) => option[0] === (searchParams.group_limit || 'any'))?.[1] || 'Any Group Limit',
                 }}
-                onChange={(value) => updateSearchParams('group_limit', value)}
+                onChange={(value) => onUpdateSearchParams({ group_limit: value })}
             />
             <InputSelect
                 idName="game_mode"
@@ -186,7 +109,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     value: searchParams.game_mode || 'any',
                     label: modeSelectOptions.find((option) => option[0] === (searchParams.game_mode || 'any'))?.[1] || 'Any Game Mode',
                 }}
-                onChange={(value) => updateSearchParams('game_mode', value)}
+                onChange={(value) => onUpdateSearchParams({ game_mode: value })}
             />
         </div>
     );

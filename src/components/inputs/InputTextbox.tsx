@@ -12,32 +12,21 @@ interface InputTextboxProps {
     labelWidth?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-const InputTextbox: React.FC<InputTextboxProps> = ({
-    idName,
-    name,
-    value,
-    placeholder,
-    onChange,
-    labelWidth = 'md', // Default to medium width, which matches the original size
-}) => {
+const InputTextbox: React.FC<InputTextboxProps> = ({ idName, name, value = '', placeholder, onChange, labelWidth = 'md' }) => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const prevValueRef = useRef<string | undefined>(value);
+    const isControlled = onChange !== undefined;
 
     useEffect(() => {
-        if (value !== prevValueRef.current) {
-            prevValueRef.current = value;
-            if (inputRef.current && !onChange) {
-                inputRef.current.value = value || '';
-            }
+        if (!isControlled && inputRef.current && value !== inputRef.current.value) {
+            inputRef.current.value = value;
         }
-    }, [idName, value, onChange]);
+    }, [value, isControlled]);
 
     const formatted_name = name
         .split('_')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
-    // Define width classes based on the labelWidth prop
     const labelWidthClasses = {
         sm: 'min-w-24 max-w-24',
         md: 'min-w-28 max-w-28',
@@ -60,10 +49,8 @@ const InputTextbox: React.FC<InputTextboxProps> = ({
                 id={idName}
                 name={idName}
                 className="flex h-8 w-full rounded-r-md border-none bg-stone-400 px-2 text-sm font-bold text-stone-950 placeholder-stone-700"
-                value={onChange ? value : undefined}
-                defaultValue={!onChange ? value : undefined}
+                {...(isControlled ? { value, onChange } : { defaultValue: value })}
                 placeholder={placeholder || ''}
-                onChange={onChange}
                 autoComplete="on"
             />
         </div>

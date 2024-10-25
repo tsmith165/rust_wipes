@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Masonry from 'react-masonry-css';
@@ -12,17 +12,16 @@ import { KitsWithExtraImages } from '@/db/schema';
 import KitItemView from './KitItemView';
 import FullScreenView from './FullScreenView';
 import SelectedKitView from './SelectedKitView';
-import Link from 'next/link';
 
 interface KitViewerProps {
     kits: KitsWithExtraImages[];
     initialSelectedKitId: number | null;
     initialSelectedType: string;
+    searchParams: URLSearchParams; // Add this prop
 }
 
-const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initialSelectedType }) => {
+const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initialSelectedType, searchParams }) => {
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(null);
     const [selectedType, setSelectedType] = useState(initialSelectedType);
@@ -39,6 +38,8 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         [filteredKits, selectedKitIndex],
     );
     const selectedImageRef = useRef<HTMLDivElement>(null);
+
+    const typeOptions = useMemo(() => ['monthly', 'single', 'priority'], []);
 
     const smallImageList = useMemo(() => {
         if (!selectedKit) return [];
@@ -75,9 +76,14 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     useEffect(() => {
         if (kits.length > 0) {
             setIsMasonryLoaded(true);
+
             if (initialSelectedKitId) {
                 const index = filteredKits.findIndex((kit) => kit.id === initialSelectedKitId);
-                setSelectedKitIndex(index !== -1 ? index : 0);
+                if (index !== -1) {
+                    setSelectedKitIndex(index);
+                } else {
+                    setSelectedKitIndex(0);
+                }
             } else {
                 setSelectedKitIndex(0);
             }
@@ -102,16 +108,37 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         [selectedKitIndex, searchParams, router, selectedType],
     );
 
-    const kitItems = useMemo(() => {
-        return filteredKits.map((kit, index) => (
-            <KitItemView
-                key={`kit-${kit.id}`}
-                kit={{ ...kit, index }}
-                handleKitClick={handleKitClick}
-                isSelected={selectedKitIndex === index}
-            />
-        ));
-    }, [filteredKits, handleKitClick]);
+    const handleTypeChange = useCallback(
+        (type: string) => {
+            setSelectedType(type);
+            const firstKitOfType = kits.find((kit) => kit.type === type);
+            if (firstKitOfType) {
+                router.push(`/kits?type=${type}&kit=${firstKitOfType.id}`);
+            } else {
+                router.push(`/kits?type=${type}`);
+            }
+        },
+        [kits, router],
+    );
+
+    const handleImageLoad = useCallback((index: number) => {
+        setImageLoadStates((prev) => ({
+            ...prev,
+            [index]: true,
+        }));
+    }, []);
+
+    const handleNext = useCallback(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageList.length);
+    }, [imageList.length]);
+
+    const handlePrev = useCallback(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex - 1 + imageList.length) % imageList.length);
+    }, [imageList.length]);
+
+    const togglePlayPause = useCallback(() => {
+        setIsPlaying((prevState) => !prevState);
+    }, []);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -129,58 +156,35 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         };
     }, [speed, isPlaying, imageList.length, selectedKit]);
 
-    const handleImageLoad = useCallback(() => {
-        setImageLoadStates((prevLoadStates) => ({
-            ...prevLoadStates,
-            [currentImageIndex]: true,
-        }));
-    }, [currentImageIndex]);
-
-    const handleNext = useCallback(() => {
-        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageList.length);
-    }, [imageList.length]);
-
-    const handlePrev = useCallback(() => {
-        setCurrentImageIndex((prevIndex) => (prevIndex - 1 + imageList.length) % imageList.length);
-    }, [imageList.length]);
-
-    const togglePlayPause = useCallback(() => {
-        setIsPlaying((prevState) => !prevState);
-    }, []);
-
-    const handleTypeChange = (type: string) => {
-        setSelectedType(type);
-        const firstKitOfType = kits.find((kit) => kit.type === type);
-        if (firstKitOfType) {
-            router.push(`/kits?type=${type}&kit=${firstKitOfType.id}`);
-        } else {
-            router.push(`/kits?type=${type}`);
-        }
-    };
-
-    if (!isMasonryLoaded)
+    if (!isMasonryLoaded) {
         return (
             <div className="inset-0 flex h-full w-full items-center justify-center">
-                <div className="xxs:h-[300px] xxs:w-[300px] relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70 xs:h-[350px] xs:w-[350px]">
+                <div className="relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70 xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px]">
                     <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} />
                 </div>
             </div>
         );
+    }
 
     return (
         <div className="radial-gradient-stone-600 flex h-full w-full flex-col items-center justify-center bg-stone-950">
             <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
-                {['monthly', 'single', 'priority'].map((type) => (
-                    <div
-                        className={`rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${selectedType === type ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300' : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'}`}
+                {typeOptions.map((type) => (
+                    <button
+                        key={`type-${type}`}
+                        className={`rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${
+                            selectedType === type
+                                ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
+                                : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
+                        }`}
                         onClick={() => handleTypeChange(type)}
                     >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </div>
+                    </button>
                 ))}
             </div>
             <motion.div
-                className={`flex h-full w-full flex-col overflow-y-auto overflow-x-hidden `}
+                className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}
@@ -192,7 +196,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                         imageList={imageList}
                         smallImageList={smallImageList}
                         imageLoadStates={imageLoadStates}
-                        handleImageLoad={handleImageLoad}
+                        handleImageLoad={() => handleImageLoad(currentImageIndex)}
                         setIsFullScreenImage={setIsFullScreenImage}
                         selectedKitIndex={selectedKitIndex}
                         selectedImageRef={selectedImageRef}
@@ -218,10 +222,17 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                             700: 2,
                             500: 1,
                         }}
-                        className="my-masonry-grid flex w-full "
+                        className="my-masonry-grid flex w-full"
                         columnClassName="my-masonry-grid_column"
                     >
-                        {kitItems}
+                        {filteredKits.map((kit, index) => (
+                            <KitItemView
+                                key={`kit-${kit.id}`}
+                                kit={{ ...kit, index }}
+                                handleKitClick={handleKitClick}
+                                isSelected={selectedKitIndex === index}
+                            />
+                        ))}
                     </Masonry>
                 </motion.div>
             </motion.div>

@@ -38,18 +38,20 @@ const DynamicKitViewer = dynamic(() => import('./KitViewer'), {
 });
 
 interface PageProps {
-    searchParams?: {
+    searchParams: Promise<{
         kit?: string;
         type?: string;
-    };
+    }>;
 }
 
 async function KitData({
     initialSelectedKitId,
     initialSelectedType,
+    searchParams,
 }: {
     initialSelectedKitId: number | null;
     initialSelectedType: string;
+    searchParams: URLSearchParams;
 }) {
     const kitData = await fetchKits();
 
@@ -57,17 +59,37 @@ async function KitData({
         return <div>No kits available.</div>;
     }
 
-    return <DynamicKitViewer kits={kitData} initialSelectedKitId={initialSelectedKitId} initialSelectedType={initialSelectedType} />;
+    return (
+        <DynamicKitViewer
+            kits={kitData}
+            initialSelectedKitId={initialSelectedKitId}
+            initialSelectedType={initialSelectedType}
+            searchParams={searchParams}
+        />
+    );
 }
 
-export default function KitPage({ searchParams }: PageProps) {
-    const selectedKitId = searchParams?.kit ? parseInt(searchParams.kit, 10) : null;
-    const selectedType = searchParams?.type || 'monthly';
+export default async function KitPage({ searchParams }: PageProps) {
+    // Await the searchParams
+    const resolvedParams = await searchParams;
+
+    const selectedKitId = resolvedParams?.kit ? parseInt(resolvedParams.kit, 10) : null;
+    const selectedType = resolvedParams?.type || 'monthly';
+
+    // Create URLSearchParams after resolving
+    const urlSearchParams = new URLSearchParams();
+    Object.entries(resolvedParams).forEach(([key, value]) => {
+        if (value) urlSearchParams.set(key, value);
+    });
 
     return (
         <PageLayout page="/kits">
-            <Suspense fallback={<div className="h-full w-full bg-stone-800">Loading...</div>}>
-                <KitData initialSelectedKitId={selectedKitId} initialSelectedType={selectedType} />
+            <Suspense
+                fallback={
+                    <div className="radial-gradient-stone-600 flex h-full w-full flex-col items-center justify-center bg-stone-950"></div>
+                }
+            >
+                <KitData initialSelectedKitId={selectedKitId} initialSelectedType={selectedType} searchParams={urlSearchParams} />
             </Suspense>
         </PageLayout>
     );

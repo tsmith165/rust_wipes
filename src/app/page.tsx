@@ -37,8 +37,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-    const distinctId = await captureDistictId();
-    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+    // const distinctId = await captureDistictId();
+    // captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
     return (
         <PageLayout page={'home'}>

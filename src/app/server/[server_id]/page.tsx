@@ -40,12 +40,12 @@ export const metadata: Metadata = {
 };
 
 interface ServerPageProps {
-    params?: {
+    params?: Promise<{
         server_id?: string;
-    };
-    searchParams?: {
+    }>;
+    searchParams?: Promise<{
         [key: string]: string | string[];
-    };
+    }>;
 }
 
 interface BattleMetricsServerData {
@@ -64,7 +64,8 @@ interface BattleMetricsServerData {
     };
 }
 
-export default async function ServerPage({ params, searchParams }: ServerPageProps) {
+export default async function ServerPage(props: ServerPageProps) {
+    const params = await props.params;
     const distinctId = await captureDistictId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 

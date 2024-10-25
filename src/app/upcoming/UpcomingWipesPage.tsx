@@ -1,21 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import moment from 'moment-timezone';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
-
-interface SearchParams {
-    region?: string;
-    resource_rate?: string;
-    group_limit?: string;
-    game_mode?: string;
-    min_rank?: string;
-    time_zone?: string;
-    date?: string;
-}
+import { DEFAULT_PARAMS } from './constants';
 
 interface ServerData {
     id: number;
@@ -31,54 +21,69 @@ interface GroupedWipeDict {
     [key: number]: ServerData[];
 }
 
-const defaultParams: Required<SearchParams> = {
-    region: 'US',
-    resource_rate: 'any',
-    group_limit: 'any',
-    game_mode: 'any',
-    min_rank: '5000',
-    time_zone: '-7', // Pacific Time
-    date: moment().format('YYYY-MM-DD'),
-};
+interface UpcomingWipesPageProps {
+    initialSearchParams: {
+        region?: string;
+        resource_rate?: string;
+        group_limit?: string;
+        game_mode?: string;
+        min_rank?: string;
+        time_zone?: string;
+        date?: string;
+    };
+}
 
-export default function UpcomingWipesPage() {
+export default function UpcomingWipesPage({ initialSearchParams }: UpcomingWipesPageProps) {
     const router = useRouter();
-    const searchParams = useSearchParams();
+
+    // Initialize searchParams using the initialSearchParams and DEFAULT_PARAMS
+    const [searchParams, setSearchParams] = useState(() => {
+        const params = new URLSearchParams();
+
+        // Use initialSearchParams with fallback to DEFAULT_PARAMS
+        Object.entries(DEFAULT_PARAMS).forEach(([key, defaultValue]) => {
+            const value = initialSearchParams[key as keyof typeof initialSearchParams] ?? defaultValue;
+            params.set(key, String(value));
+        });
+
+        return params;
+    });
+
     const [serverList, setServerList] = useState<GroupedWipeDict>({});
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const currentParams = Object.fromEntries(searchParams.entries());
-        const mergedParams: Required<SearchParams> = { ...defaultParams, ...currentParams };
-
-        // Check if we need to update the URL with default params
-        const shouldUpdateUrl = Object.keys(defaultParams).some((key) => !(key in currentParams));
-
-        if (shouldUpdateUrl) {
-            const newSearchParams = new URLSearchParams(searchParams.toString());
-            Object.entries(mergedParams).forEach(([key, value]) => {
-                newSearchParams.set(key, value);
-            });
-            router.replace(`/upcoming?${newSearchParams.toString()}`, { scroll: false });
-        }
-
         const fetchServers = async () => {
             try {
                 setLoading(true);
-                const servers = await fetchFilteredServers(mergedParams);
+                const paramsObj = Object.fromEntries(searchParams.entries());
+                const servers = await fetchFilteredServers(paramsObj);
                 setServerList(servers);
                 setError(null);
-                setLoading(false);
             } catch (error) {
                 console.error('Error fetching servers:', error);
                 setServerList({});
                 setError('An error occurred while fetching server data. Please try again later.');
             }
+            setLoading(false);
         };
 
         fetchServers();
-    }, [searchParams, router]);
+    }, [searchParams]);
+
+    const updateSearchParams = (updates: Record<string, string>) => {
+        const newSearchParams = new URLSearchParams(searchParams);
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value) {
+                newSearchParams.set(key, value);
+            } else {
+                newSearchParams.delete(key);
+            }
+        });
+        setSearchParams(newSearchParams);
+        router.push(`/upcoming?${newSearchParams.toString()}`);
+    };
 
     const serversJsxArray = Object.entries(serverList)
         .sort(([hourA], [hourB]) => parseInt(hourA) - parseInt(hourB))
@@ -88,13 +93,16 @@ export default function UpcomingWipesPage() {
         <div className="h-full w-full overflow-hidden">
             <div className="flex h-full w-full flex-col md:flex-row">
                 <div className="h-fit w-full bg-stone-800 md:h-full md:w-[35%] md:min-w-[35%] md:max-w-[35%]">
-                    <UpcomingWipesSidebar searchParams={Object.fromEntries(searchParams.entries())} />
+                    <UpcomingWipesSidebar
+                        searchParams={Object.fromEntries(searchParams.entries())}
+                        onUpdateSearchParams={updateSearchParams}
+                    />
                 </div>
                 <div className="h-full min-w-full flex-grow overflow-y-auto bg-stone-400 md:w-[65%] md:min-w-[65%]">
                     {error ? (
                         <div className="p-2 text-red-500">{error}</div>
                     ) : loading ? (
-                        <div className="p-2 text-stone-950">Loading...</div>
+                        <div className="p-2 text-stone-950"></div>
                     ) : serversJsxArray.length > 0 ? (
                         serversJsxArray
                     ) : (

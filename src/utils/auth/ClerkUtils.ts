@@ -4,7 +4,9 @@ import type { OrganizationMembership } from '@clerk/nextjs/server';
 async function captureClerkUserOrganizationMemberships(userId: string): Promise<OrganizationMembership[]> {
     console.log("Capturing user's organization memberships...");
     try {
-        const paginatedMemberships = await clerkClient().users.getOrganizationMembershipList({ userId });
+        // Get the clerk client instance first
+        const clerk = await clerkClient();
+        const paginatedMemberships = await clerk.users.getOrganizationMembershipList({ userId });
         return paginatedMemberships.data;
     } catch (error) {
         console.error('Error fetching organization memberships:', error);
