@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { PlayerStats } from '@/db/schema';
@@ -13,36 +13,44 @@ interface ExtendedPlayerStats extends PlayerStats {
 
 interface StatsViewerProps {
     playerStats: ExtendedPlayerStats[];
-    initialSelectedCategory: string;
+    initialParams: {
+        category: string;
+        server: string;
+    };
     serverInfo: { id: string; name: string }[];
-    initialSelectedServer: string;
 }
 
-const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedCategory, serverInfo, initialSelectedServer }) => {
+const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialParams, serverInfo }) => {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const [selectedCategory, setSelectedCategory] = useState(initialSelectedCategory);
-    const [selectedServer, setSelectedServer] = useState(initialSelectedServer);
+    const [searchParams, setSearchParams] = useState(() => {
+        const params = new URLSearchParams();
+        Object.entries(initialParams).forEach(([key, value]) => {
+            params.set(key, value);
+        });
+        return params;
+    });
 
-    const handleCategoryChange = (category: string) => {
-        setSelectedCategory(category);
+    const updateSearchParams = (updates: Record<string, string>) => {
         const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.set('category', category);
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value) {
+                newSearchParams.set(key, value);
+            } else {
+                newSearchParams.delete(key);
+            }
+        });
+        setSearchParams(newSearchParams);
         router.push(`/stats?${newSearchParams.toString()}`);
     };
 
-    const handleServerChange = (serverId: string) => {
-        setSelectedServer(serverId);
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.set('server', serverId);
-        router.push(`/stats?${newSearchParams.toString()}`);
-    };
+    const selectedCategory = searchParams.get('category') || 'kills';
+    const selectedServer = searchParams.get('server') || serverInfo[0]?.id;
 
-    const filteredStats = useMemo(() => {
+    const filteredStats = React.useMemo(() => {
         return playerStats.filter((stat) => stat.server_id === selectedServer);
     }, [playerStats, selectedServer]);
 
-    const sortedStats = useMemo(() => {
+    const sortedStats = React.useMemo(() => {
         switch (selectedCategory) {
             case 'kills':
                 return [...filteredStats].sort((a, b) => b.kills - a.kills);
@@ -115,7 +123,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                 <select
                     className="w-full rounded-md bg-stone-800 px-4 py-2 text-stone-300 sm:w-auto"
                     value={selectedServer}
-                    onChange={(e) => handleServerChange(e.target.value)}
+                    onChange={(e) => updateSearchParams({ server: e.target.value })}
                 >
                     {serverInfo.map((server) => (
                         <option key={server.id} value={server.id}>
@@ -132,7 +140,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialSelectedC
                                     ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
                                     : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
                             }`}
-                            onClick={() => handleCategoryChange(category)}
+                            onClick={() => updateSearchParams({ category })}
                         >
                             {category.charAt(0).toUpperCase() + category.slice(1)}
                         </div>

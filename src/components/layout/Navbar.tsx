@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useEffect, useCallback, useTransition, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
-import { menu_list, navbar_menu_list } from '@/lib/menu_list';
+import { navbar_menu_list } from '@/lib/menu_list';
 import { IoIosMenu } from 'react-icons/io';
 import { FaDiscord } from 'react-icons/fa';
 import { Protect } from '@clerk/nextjs';
