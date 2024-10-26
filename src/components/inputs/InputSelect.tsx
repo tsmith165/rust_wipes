@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useId } from 'react';
 import Select, { components, StylesConfig, InputProps } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
@@ -18,6 +16,15 @@ const DropdownIndicator = (props: any) => {
     );
 };
 
+interface InputSelectProps<T extends string> {
+    defaultValue?: OptionType;
+    idName: string;
+    name: string;
+    select_options: [T, string][];
+    value?: T;
+    onChange?: (value: T) => void;
+}
+
 // Custom Input component that removes aria-activedescendant when empty
 const Input = (props: InputProps<OptionType, false>) => {
     const newProps = {
@@ -27,16 +34,7 @@ const Input = (props: InputProps<OptionType, false>) => {
     return <components.Input {...newProps} />;
 };
 
-interface InputSelectProps {
-    defaultValue?: OptionType;
-    idName: string;
-    name: string;
-    select_options: [string, string][];
-    value?: string;
-    onChange?: (value: string) => void;
-}
-
-const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, select_options, value, onChange }) => {
+const InputSelect = <T extends string>({ defaultValue, idName, name, select_options, value, onChange }: InputSelectProps<T>) => {
     const uniqueId = useId();
     const selectId = `react-select-${idName}-${uniqueId}`;
 
@@ -48,7 +46,7 @@ const InputSelect: React.FC<InputSelectProps> = ({ defaultValue, idName, name, s
 
     const handleSelectChange = (selectedOption: OptionType | null) => {
         if (onChange && selectedOption) {
-            onChange(selectedOption.value);
+            onChange(selectedOption.value as T);
         }
     };
 

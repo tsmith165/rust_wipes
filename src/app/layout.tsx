@@ -3,25 +3,28 @@ import { ClerkProvider } from '@clerk/nextjs';
 import 'tailwindcss/tailwind.css';
 import '@/styles/globals.css';
 import { PHProvider } from '@/app/providers';
-import PostHogPageView from './PostHogPageView';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 interface RootLayoutProps {
     children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+const RootProvider = ({ children }: RootLayoutProps) => {
     return (
         <ClerkProvider>
-            <html lang="en">
-                <PHProvider>
-                    <body>
-                        <Suspense fallback={null}>
-                            <PostHogPageView />
-                        </Suspense>
-                        {children}
-                    </body>
-                </PHProvider>
-            </html>
+            <PHProvider>
+                <NuqsAdapter>{children}</NuqsAdapter>
+            </PHProvider>
         </ClerkProvider>
+    );
+};
+
+export default function RootLayout({ children }: RootLayoutProps) {
+    return (
+        <RootProvider>
+            <html lang="en">
+                <body>{children}</body>
+            </html>
+        </RootProvider>
     );
 }

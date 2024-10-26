@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useQueryStates } from 'nuqs';
 import UpcomingWipesSidebar from './UpcomingWipesSidebar';
 import UpcomingServerHourGroup from './UpcomingServerHourGroup';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
-import { DEFAULT_PARAMS } from './constants';
+import { regionParser, resourceRateParser, groupLimitParser, gameModeParser, minRankParser, timeZoneParser, dateParser } from './parsers';
 
 interface ServerData {
     id: number;
@@ -22,43 +22,36 @@ interface GroupedWipeDict {
 }
 
 interface UpcomingWipesPageProps {
-    initialSearchParams: {
-        region?: string;
-        resource_rate?: string;
-        group_limit?: string;
-        game_mode?: string;
-        min_rank?: string;
-        time_zone?: string;
-        date?: string;
-    };
+    initialData: GroupedWipeDict;
 }
 
-export default function UpcomingWipesPage({ initialSearchParams }: UpcomingWipesPageProps) {
-    const router = useRouter();
+export default function UpcomingWipesPage({ initialData }: UpcomingWipesPageProps) {
+    const [params, setParams] = useQueryStates(
+        {
+            region: regionParser,
+            resource_rate: resourceRateParser,
+            group_limit: groupLimitParser,
+            game_mode: gameModeParser,
+            min_rank: minRankParser,
+            time_zone: timeZoneParser,
+            date: dateParser,
+        },
+        {
+            shallow: true,
+            history: 'push',
+        },
+    );
 
-    // Initialize searchParams using the initialSearchParams and DEFAULT_PARAMS
-    const [searchParams, setSearchParams] = useState(() => {
-        const params = new URLSearchParams();
-
-        // Use initialSearchParams with fallback to DEFAULT_PARAMS
-        Object.entries(DEFAULT_PARAMS).forEach(([key, defaultValue]) => {
-            const value = initialSearchParams[key as keyof typeof initialSearchParams] ?? defaultValue;
-            params.set(key, String(value));
-        });
-
-        return params;
-    });
-
-    const [serverList, setServerList] = useState<GroupedWipeDict>({});
+    const [serverList, setServerList] = useState<GroupedWipeDict>(initialData);
     const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // Start with false since we have initial data
 
+    // Use React's useEffect for subsequent parameter changes
     useEffect(() => {
         const fetchServers = async () => {
             try {
                 setLoading(true);
-                const paramsObj = Object.fromEntries(searchParams.entries());
-                const servers = await fetchFilteredServers(paramsObj);
+                const servers = await fetchFilteredServers(params);
                 setServerList(servers);
                 setError(null);
             } catch (error) {
@@ -70,19 +63,10 @@ export default function UpcomingWipesPage({ initialSearchParams }: UpcomingWipes
         };
 
         fetchServers();
-    }, [searchParams]);
+    }, [params]);
 
-    const updateSearchParams = (updates: Record<string, string>) => {
-        const newSearchParams = new URLSearchParams(searchParams);
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value) {
-                newSearchParams.set(key, value);
-            } else {
-                newSearchParams.delete(key);
-            }
-        });
-        setSearchParams(newSearchParams);
-        router.push(`/upcoming?${newSearchParams.toString()}`);
+    const updateSearchParams = (updates: Partial<typeof params>) => {
+        setParams(updates);
     };
 
     const serversJsxArray = Object.entries(serverList)
@@ -93,10 +77,7 @@ export default function UpcomingWipesPage({ initialSearchParams }: UpcomingWipes
         <div className="h-full w-full overflow-hidden">
             <div className="flex h-full w-full flex-col md:flex-row">
                 <div className="h-fit w-full bg-stone-800 md:h-full md:w-[35%] md:min-w-[35%] md:max-w-[35%]">
-                    <UpcomingWipesSidebar
-                        searchParams={Object.fromEntries(searchParams.entries())}
-                        onUpdateSearchParams={updateSearchParams}
-                    />
+                    <UpcomingWipesSidebar searchParams={params} onUpdateSearchParams={updateSearchParams} />
                 </div>
                 <div className="h-full min-w-full flex-grow overflow-y-auto bg-stone-400 md:w-[65%] md:min-w-[65%]">
                     {error ? (
