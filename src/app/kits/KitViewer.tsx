@@ -160,7 +160,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
         return (
             <div className="inset-0 flex h-full w-full items-center justify-center">
                 <div className="relative flex h-[250px] w-[250px] items-center justify-center rounded-full bg-stone-900 p-6 opacity-70 xxs:h-[300px] xxs:w-[300px] xs:h-[350px] xs:w-[350px]">
-                    <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} />
+                    {/* <Image src="/rust_hazmat_icon.png" alt="Rust Logo" width={186} height={186} /> */}
                 </div>
             </div>
         );

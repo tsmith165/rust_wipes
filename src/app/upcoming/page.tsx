@@ -5,16 +5,7 @@ import Loading from './loading';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPage from '@/app/upcoming/UpcomingWipesPage';
 import { captureEvent, captureDistictId } from '@/utils/posthog';
-import {
-    regionParser,
-    resourceRateParser,
-    groupLimitParser,
-    gameModeParser,
-    minRankParser,
-    timeZoneParser,
-    dateParser,
-    type ParsedParams,
-} from './parsers';
+import { regionParser, resourceRateParser, groupLimitParser, gameModeParser, minRankParser, timeZoneParser, dateParser } from './parsers';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
 
 const PAGE_NAME = 'Upcoming Wipes';

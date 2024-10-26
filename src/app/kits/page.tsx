@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 const DynamicKitViewer = dynamic(() => import('./KitViewer'), {
-    loading: () => <div className="h-full w-full bg-stone-800">Loading...</div>,
+    loading: () => <div className="h-full w-full bg-stone-800"></div>,
 });
 
 interface PageProps {
