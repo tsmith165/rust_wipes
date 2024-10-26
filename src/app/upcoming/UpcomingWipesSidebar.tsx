@@ -13,33 +13,15 @@ import {
     groupSelectOptions,
     modeSelectOptions,
 } from './constants';
+import { SearchParamsType } from './parsers';
 
 interface UpcomingWipesSidebarProps {
-    searchParams: {
-        date?: string;
-        min_rank?: string;
-        time_zone?: string;
-        region?: string;
-        resource_rate?: string;
-        group_limit?: string;
-        game_mode?: string;
-    };
-    onUpdateSearchParams: (updates: Record<string, string>) => void;
+    searchParams: Partial<SearchParamsType>;
+    onUpdateSearchParams: (updates: Partial<SearchParamsType>) => void;
 }
 
 const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParams, onUpdateSearchParams }) => {
-    const [mounted, setMounted] = useState(false);
     const [timeOptions, setTimeOptions] = useState<[string, string][]>([]);
-
-    useEffect(() => {
-        const isDST = moment().isDST();
-        setTimeOptions(isDST ? daylightTimeOptions : standardTimeOptions);
-        setMounted(true);
-    }, []);
-
-    if (!mounted) {
-        return <div className="h-fit w-full space-y-2 p-2.5 md:h-full">Loading...</div>;
-    }
 
     return (
         <div className="h-fit w-full space-y-2 p-2.5 md:h-full">
@@ -60,7 +42,7 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                     onChange={(e) => onUpdateSearchParams({ min_rank: e.target.value })}
                 />
             </div>
-            <InputSelect
+            <InputSelect<string>
                 idName="time_zone"
                 name="time_zone"
                 select_options={timeOptions}
@@ -70,20 +52,20 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                 }}
                 onChange={(value) => onUpdateSearchParams({ time_zone: value })}
             />
-            <InputSelect
+            <InputSelect<SearchParamsType['region']>
                 idName="region"
                 name="region"
-                select_options={regionSelectOptions}
+                select_options={regionSelectOptions as [SearchParamsType['region'], string][]}
                 defaultValue={{
                     value: searchParams.region || 'US',
                     label: regionSelectOptions.find((option) => option[0] === (searchParams.region || 'US'))?.[1] || 'US',
                 }}
                 onChange={(value) => onUpdateSearchParams({ region: value })}
             />
-            <InputSelect
+            <InputSelect<SearchParamsType['resource_rate']>
                 idName="resource_rate"
                 name="resources"
-                select_options={rateSelectOptions}
+                select_options={rateSelectOptions as [SearchParamsType['resource_rate'], string][]}
                 defaultValue={{
                     value: searchParams.resource_rate || 'any',
                     label:
@@ -91,20 +73,20 @@ const UpcomingWipesSidebar: React.FC<UpcomingWipesSidebarProps> = ({ searchParam
                 }}
                 onChange={(value) => onUpdateSearchParams({ resource_rate: value })}
             />
-            <InputSelect
+            <InputSelect<SearchParamsType['group_limit']>
                 idName="group_limit"
                 name="group_limit"
-                select_options={groupSelectOptions}
+                select_options={groupSelectOptions as [SearchParamsType['group_limit'], string][]}
                 defaultValue={{
                     value: searchParams.group_limit || 'any',
                     label: groupSelectOptions.find((option) => option[0] === (searchParams.group_limit || 'any'))?.[1] || 'Any Group Limit',
                 }}
                 onChange={(value) => onUpdateSearchParams({ group_limit: value })}
             />
-            <InputSelect
+            <InputSelect<SearchParamsType['game_mode']>
                 idName="game_mode"
                 name="game_mode"
-                select_options={modeSelectOptions}
+                select_options={modeSelectOptions as [SearchParamsType['game_mode'], string][]}
                 defaultValue={{
                     value: searchParams.game_mode || 'any',
                     label: modeSelectOptions.find((option) => option[0] === (searchParams.game_mode || 'any'))?.[1] || 'Any Game Mode',

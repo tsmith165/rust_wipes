@@ -1,9 +1,21 @@
 import { Metadata } from 'next';
 import React from 'react';
+import { Suspense } from 'react';
+import Loading from './loading';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPage from '@/app/upcoming/UpcomingWipesPage';
 import { captureEvent, captureDistictId } from '@/utils/posthog';
-import { DEFAULT_PARAMS } from './constants';
+import {
+    regionParser,
+    resourceRateParser,
+    groupLimitParser,
+    gameModeParser,
+    minRankParser,
+    timeZoneParser,
+    dateParser,
+    type ParsedParams,
+} from './parsers';
+import { fetchFilteredServers } from '@/app/upcoming/actions';
 
 const PAGE_NAME = 'Upcoming Wipes';
 
@@ -45,23 +57,28 @@ export default async function Page({ searchParams }: PageProps) {
     const distinctId = await captureDistictId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
-    // Wait for searchParams to resolve
-    const resolvedParams = await searchParams;
+    // Await searchParams first
+    const resolvedSearchParams = await searchParams;
 
-    // Ensure we use the default values for any missing parameters
-    const initialParams = {
-        region: String(resolvedParams.region ?? DEFAULT_PARAMS.region),
-        resource_rate: String(resolvedParams.resource_rate ?? DEFAULT_PARAMS.resource_rate),
-        group_limit: String(resolvedParams.group_limit ?? DEFAULT_PARAMS.group_limit),
-        game_mode: String(resolvedParams.game_mode ?? DEFAULT_PARAMS.game_mode),
-        min_rank: String(resolvedParams.min_rank ?? DEFAULT_PARAMS.min_rank),
-        time_zone: String(resolvedParams.time_zone ?? DEFAULT_PARAMS.time_zone),
-        date: String(resolvedParams.date ?? DEFAULT_PARAMS.date),
+    // Parse all search parameters server-side using nuqs parsers
+    const parsedParams = {
+        region: regionParser.parseServerSide(resolvedSearchParams.region),
+        resource_rate: resourceRateParser.parseServerSide(resolvedSearchParams.resource_rate),
+        group_limit: groupLimitParser.parseServerSide(resolvedSearchParams.group_limit),
+        game_mode: gameModeParser.parseServerSide(resolvedSearchParams.game_mode),
+        min_rank: minRankParser.parseServerSide(resolvedSearchParams.min_rank),
+        time_zone: timeZoneParser.parseServerSide(resolvedSearchParams.time_zone),
+        date: dateParser.parseServerSide(resolvedSearchParams.date),
     };
+
+    // Pre-fetch initial data
+    const preloadServers = await fetchFilteredServers(parsedParams);
 
     return (
         <PageLayout page={'upcoming'}>
-            <UpcomingWipesPage initialSearchParams={initialParams} />
+            <Suspense fallback={<Loading />}>
+                <UpcomingWipesPage initialData={preloadServers} />
+            </Suspense>
         </PageLayout>
     );
 }
