@@ -1,8 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
 import PageLayout from '@/components/layout/PageLayout';
-import Servers from './Servers';
-
+import { PageContent } from './PageContent';
+import { fetchServers, fetchNextWipeInfo, fetchMapOptions, fetchMapVotes } from '@/app/actions';
 import { captureEvent, captureDistictId } from '@/utils/posthog';
 
 const PAGE_NAME = 'Our Servers';
@@ -36,12 +36,32 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-    const distinctId = await captureDistictId();
+    const [servers, nextWipeInfos, mapOptions, mapVotes, distinctId] = await Promise.all([
+        fetchServers(),
+        fetchNextWipeInfo(),
+        fetchMapOptions(),
+        fetchMapVotes(),
+        captureDistictId(),
+    ]);
+
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
+
+    const nextWipeInfoMap = nextWipeInfos.reduce(
+        (acc, info) => ({
+            ...acc,
+            [info.server_id]: info,
+        }),
+        {},
+    );
 
     return (
         <PageLayout page={'servers'}>
-            <Servers />
+            <div className="radial-gradient-stone-950 container flex max-h-full min-h-full w-full min-w-full flex-col items-center overflow-y-auto bg-primary_dark px-4 py-8">
+                <h1 className="mb-8 w-fit bg-gradient-to-b from-primary_dark to-primary_light bg-clip-text text-center text-4xl font-bold text-transparent">
+                    Our Servers
+                </h1>
+                <PageContent servers={servers} nextWipeInfoMap={nextWipeInfoMap} mapOptions={mapOptions} mapVotes={mapVotes} />
+            </div>
         </PageLayout>
     );
 }
