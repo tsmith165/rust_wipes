@@ -1,6 +1,7 @@
 import { PostHog } from 'posthog-node';
 import { v4 as uuidv4 } from 'uuid';
 import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 
 const COOKIE_KEY = 'distinct_id';
 
@@ -24,16 +25,26 @@ export async function captureEvent(event: string, properties?: Record<string, an
 }
 
 export async function captureDistictId() {
-    const hostname = process.env.NODE_ENV === 'production' ? 'https://www.rustwipes.net' : 'http://localhost:3000';
-    const apiUrl = `${hostname}/api/distinct-id`;
-    const response = await fetch(apiUrl);
-
-    let distinctId = '';
     try {
+        // Get the request headers to access the host
+        const headersList = await headers();
+        const host = headersList.get('host') || 'localhost:3000';
+        const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+
+        // Construct the URL using the actual host from the request
+        const apiUrl = `${protocol}://${host}/api/distinct-id`;
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        distinctId = data.distinctId || '';
+        return data.distinctId || uuidv4();
     } catch (error) {
-        console.error('Error parsing JSON:', error);
+        console.error('Error getting distinct ID:', error);
+        // Fallback to generating a new UUID if the request fails
+        return uuidv4();
     }
-    return distinctId;
 }

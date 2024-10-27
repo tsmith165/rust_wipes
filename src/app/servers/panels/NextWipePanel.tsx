@@ -18,6 +18,11 @@ const ServerInfoRow = ({ label, value }: ServerInfoRowProps) => (
 export function NextWipePanel({ server }: { server: RwServer }) {
     const countdown = useCountdown(server);
 
+    // convert wipe time to non-military time
+    const wipe_time = server.wipe_time ? server.wipe_time : 11;
+    let wipe_time_string = wipe_time > 11 ? `${wipe_time - 12}:00PM PST` : `${wipe_time}:00AM PST`;
+    if (wipe_time_string === '0:00AM PST') wipe_time_string = '12:00PM PST';
+
     return (
         <div className="flex flex-col space-y-4">
             <div className="flex flex-col space-y-2">
@@ -30,7 +35,7 @@ export function NextWipePanel({ server }: { server: RwServer }) {
                         .map((day) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][Number(day)])
                         .join(', ')}
                 />
-                <ServerInfoRow label="Wipe Time" value={`${server.wipe_time}:00AM PST`} />
+                <ServerInfoRow label="Wipe Time" value={wipe_time_string} />
             </div>
             <div className="rounded bg-gradient-to-b from-stone-500 to-stone-300 p-3">
                 <p className="text-lg font-semibold">Next Wipe In:</p>
