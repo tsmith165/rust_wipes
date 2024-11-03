@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
-import 'tailwindcss/tailwind.css';
-import '@/styles/globals.css';
 import { PHProvider } from '@/app/providers';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+
+import 'tailwindcss/tailwind.css';
+import '@/styles/globals.css';
 
 interface RootLayoutProps {
     children: React.ReactNode;

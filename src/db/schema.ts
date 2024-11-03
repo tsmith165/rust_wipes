@@ -1,5 +1,3 @@
-// File 7: /src/db/schema.ts
-
 import { pgTable, integer, varchar, timestamp, text, serial, boolean, jsonb, numeric, date } from 'drizzle-orm/pg-core';
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
@@ -190,6 +188,8 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     map_size: integer('map_size'),
     map_name: varchar('map_name'),
     is_queued: boolean('is_queued').notNull().default(false),
+    rcon_port: integer('rcon_port'), // Added RCON port
+    rcon_password: text('rcon_password'), // Added RCON password
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
