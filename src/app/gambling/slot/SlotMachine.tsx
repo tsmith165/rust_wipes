@@ -6,6 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { spinSlotMachine, getUserCredits, verifySteamProfile, setBonusType } from './slotMachineActions';
+import { fetchUserCredits } from '../serverActions';
 import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
 import RecentSlotWinners from './RecentSlotWinners';
@@ -321,48 +322,37 @@ export default function SlotMachine() {
         if (savedSteamInput && savedCode) {
             setSteamInput(savedSteamInput);
             setCode(savedCode);
-            // Automatically verify credentials using the values from cookies
-            handleVerify(savedSteamInput, savedCode);
+            // Fetch user credits using server action
+            const loadUserCredits = async () => {
+                const result = await fetchUserCredits(savedSteamInput, savedCode);
+                if (result.success && result.data) {
+                    setSteamProfile(result.data.profile);
+                    setCredits(result.data.credits);
+                    setFreeSpins(result.data.freeSpins);
+                    setIsVerified(true);
+                } else {
+                    // If there's an error, clear the cookies
+                    Cookies.remove('steamInput');
+                    Cookies.remove('authCode');
+                }
+            };
+            loadUserCredits();
         }
     }, []);
 
     // Function to handle user verification
-    const handleVerify = async (profileUrlParam?: string, authCodeParam?: string) => {
-        const profileUrl = profileUrlParam ?? steamInput;
-        const authCode = authCodeParam ?? code;
-
+    const handleVerify = async (profileData: any) => {
         try {
-            const response = await verifySteamProfile(profileUrl);
-            if (!response.success) {
-                setError(response.error || 'Verification failed');
-                return;
-            }
-            const profile = response.data;
-            if (!profile) {
-                setError('Failed to retrieve Steam profile');
-                return;
-            }
-
+            const { profile, credits, freeSpins } = profileData;
             setSteamProfile(profile);
-
-            const creditsResponse = await getUserCredits(profile.steamId, authCode);
-            if (!creditsResponse.success) {
-                setError(creditsResponse.error || 'Failed to retrieve user credits');
-                return;
-            }
-            if (!creditsResponse.data) {
-                setError('Failed to retrieve user credits');
-                return;
-            }
-            const { credits, freeSpins } = creditsResponse.data;
             setCredits(credits);
             setFreeSpins(freeSpins);
             setIsVerified(true);
             setError('');
 
             // Save credentials to cookies
-            Cookies.set('steamInput', profileUrl, { expires: 7 });
-            Cookies.set('authCode', authCode, { expires: 7 });
+            Cookies.set('steamInput', steamInput, { expires: 7 });
+            Cookies.set('authCode', code, { expires: 7 });
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -820,14 +810,16 @@ export default function SlotMachine() {
 
             {/* Sign-In Modal */}
             {!isVerified && (
-                <SteamSignInModal
-                    steamInput={steamInput}
-                    setSteamInput={setSteamInput}
-                    code={code}
-                    setCode={setCode}
-                    onVerify={handleVerify}
-                    error={error}
-                />
+                <div className="absolute inset-0 lg:w-3/4">
+                    <SteamSignInModal
+                        steamInput={steamInput}
+                        setSteamInput={setSteamInput}
+                        code={code}
+                        setCode={setCode}
+                        onVerify={handleVerify}
+                        error={error}
+                    />
+                </div>
             )}
 
             {/* Bonus Type Selection Modal */}

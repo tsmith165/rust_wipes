@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult } from './wheelActions';
+import { fetchUserCredits } from '../serverActions';
 import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelResult, LEGEND_ORDER } from './wheelConstants';
 import Image from 'next/image';
 import RecentWinners from './RecentWinners';
@@ -60,40 +61,17 @@ export default function GamblingWheel() {
     }, []);
 
     // Function to handle user verification
-    const handleVerify = async (profileUrlParam?: string, authCodeParam?: string) => {
-        const profileUrl = profileUrlParam ?? steamInput;
-        const authCode = authCodeParam ?? code;
-
+    const handleVerify = async (profileData: any) => {
         try {
-            const profile = await verifySteamProfile(profileUrl);
-            if (!profile.success) {
-                setError(profile.error || 'Failed to verify Steam profile.');
-                return;
-            }
-
-            if (!profile.data) {
-                setError('Failed to verify Steam profile.');
-                return;
-            }
-
-            setSteamProfile(profile.data);
-            const creditsResponse = await getUserCredits(profile.data.steamId, authCode);
-            if (!creditsResponse.success) {
-                setError(creditsResponse.error || 'Failed to retrieve user credits');
-                return;
-            }
-            if (!creditsResponse.data) {
-                setError('Failed to retrieve user credits');
-                return;
-            }
-
-            setCredits(creditsResponse.data.credits);
+            const { profile, credits } = profileData;
+            setSteamProfile(profile);
+            setCredits(credits);
             setIsVerified(true);
             setError('');
 
             // Save credentials to cookies
-            Cookies.set('steamInput', profileUrl, { expires: 7, secure: true, sameSite: 'Lax' });
-            Cookies.set('authCode', authCode, { expires: 7, secure: true, sameSite: 'Lax' });
+            Cookies.set('steamInput', steamInput, { expires: 7, secure: true, sameSite: 'Lax' });
+            Cookies.set('authCode', code, { expires: 7, secure: true, sameSite: 'Lax' });
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -107,8 +85,20 @@ export default function GamblingWheel() {
         if (savedSteamInput && savedCode) {
             setSteamInput(savedSteamInput);
             setCode(savedCode);
-            // Automatically verify credentials using the values from cookies
-            handleVerify(savedSteamInput, savedCode);
+            // Fetch user credits using server action
+            const loadUserCredits = async () => {
+                const result = await fetchUserCredits(savedSteamInput, savedCode);
+                if (result.success && result.data) {
+                    setSteamProfile(result.data.profile);
+                    setCredits(result.data.credits);
+                    setIsVerified(true);
+                } else {
+                    // If there's an error, clear the cookies
+                    Cookies.remove('steamInput');
+                    Cookies.remove('authCode');
+                }
+            };
+            loadUserCredits();
         }
     }, []);
 
@@ -161,7 +151,7 @@ export default function GamblingWheel() {
             {/* Main Wheel and Spin Area */}
             <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
                 {/* Wheel Display and Result */}
-                <div className="flex h-full flex-col items-center space-y-2 lg:space-y-4">
+                <div className="relative flex h-full flex-col items-center space-y-2 lg:space-y-4">
                     {/* Wheel and Overlay */}
                     <div className="relative flex h-full w-full items-center justify-start">
                         <div className="relative h-fit w-[3/4]">
@@ -270,14 +260,16 @@ export default function GamblingWheel() {
                 </div>
                 {/* Sign-In Modal */}
                 {!isVerified && (
-                    <SteamSignInModal
-                        steamInput={steamInput}
-                        setSteamInput={setSteamInput}
-                        code={code}
-                        setCode={setCode}
-                        onVerify={handleVerify}
-                        error={error}
-                    />
+                    <div className="absolute inset-0">
+                        <SteamSignInModal
+                            steamInput={steamInput}
+                            setSteamInput={setSteamInput}
+                            code={code}
+                            setCode={setCode}
+                            onVerify={handleVerify}
+                            error={error}
+                        />
+                    </div>
                 )}
             </div>
             {/* Sidebar: User Info and Recent Winners */}
