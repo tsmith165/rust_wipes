@@ -1,98 +1,77 @@
+'use client';
+
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
-interface CustomTooltipProps {
-    active?: boolean;
-    payload?: any;
-    label?: string;
-}
-
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
-    if (active && payload && payload.length) {
-        const formatDate = (timestamp: number) => {
-            const dateOptions: Intl.DateTimeFormatOptions = {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-            };
-            return new Date(timestamp).toLocaleDateString(undefined, dateOptions);
-        };
-        const formatTime = (timestamp: number) => {
-            return new Date(timestamp).toLocaleTimeString(undefined, {
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        };
-
-        return (
-            <div className="custom-tooltip rounded-md border bg-white p-3 shadow-md">
-                <p className="label">{formatDate(label as unknown as number)}</p>
-                <p className="intro">{formatTime(label as unknown as number)}</p>
-                <p className="desc">
-                    <span className="dot" style={{ color: '#8884d8' }}>
-                        &#x25CF;{' '}
-                    </span>
-                    Max: {payload[0].payload.max}
-                </p>
-                <p className="desc">
-                    <span className="dot" style={{ color: '#82ca9d' }}>
-                        &#x25CF;{' '}
-                    </span>
-                    Value: {payload[0].payload.value}
-                </p>
-                <p className="desc">
-                    <span className="dot" style={{ color: '#ff7300' }}>
-                        &#x25CF;{' '}
-                    </span>
-                    Min: {payload[0].payload.min}
-                </p>
-            </div>
-        );
-    }
-
-    return null;
-}
+// Register ChartJS components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface PlayerCountPanelProps {
-    player_count_data: any;
+    player_count_data: Array<{
+        timestamp: string;
+        players: number;
+    }>;
 }
 
 const PlayerCountPanel: React.FC<PlayerCountPanelProps> = ({ player_count_data }) => {
-    console.log('player_count_data: ', player_count_data);
-
-    const formatted_data =
-        player_count_data?.data?.map((item: any) => ({
-            timestamp: item.attributes?.timestamp,
-            max: item.attributes?.max,
-            value: item.attributes?.value,
-            min: item.attributes?.min,
-        })) || [];
-
-    const formatDate = (timestamp: number) => {
-        const dateOptions: Intl.DateTimeFormatOptions = {
-            weekday: 'short',
-            month: 'short',
+    const formatTimestampForName = (timestamp: string) => {
+        const date = new Date(timestamp);
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'numeric',
             day: 'numeric',
-        };
-        return new Date(timestamp).toLocaleDateString(undefined, dateOptions);
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }).format(date);
     };
 
-    const xAxisInterval = Math.floor(formatted_data.length / 3) - 1;
+    const labels = player_count_data.map((item) => formatTimestampForName(item.timestamp));
+    const playerCounts = player_count_data.map((item) => item.players);
+
+    const data = {
+        labels,
+        datasets: [
+            {
+                label: 'Players',
+                data: playerCounts,
+                borderColor: 'rgb(130, 202, 157)',
+                backgroundColor: 'rgba(130, 202, 157, 0.5)',
+                tension: 0.1,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: false,
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                },
+            },
+            y: {
+                beginAtZero: true,
+            },
+        },
+    };
 
     return (
-        <div className="h-full w-full overflow-hidden rounded-lg bg-secondary p-2.5">
-            <ResponsiveContainer className="h-full w-full">
-                <LineChart data={formatted_data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="timestamp" tickFormatter={(timestamp) => formatDate(timestamp)} interval={xAxisInterval} />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                    <Line type="monotone" dataKey="max" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="value" stroke="#82ca9d" />
-                    <Line type="monotone" dataKey="min" stroke="#ff7300" />
-                </LineChart>
-            </ResponsiveContainer>
+        <div className="flex h-full w-full flex-col overflow-hidden rounded-lg bg-stone-800 p-2.5">
+            <h3 className="mb-2 text-xl font-bold text-primary_light">Player Count History</h3>
+            <div className="relative h-[350px] w-full">
+                <Line options={options} data={data} />
+            </div>
         </div>
     );
 };

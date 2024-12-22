@@ -64,6 +64,15 @@ interface BattleMetricsServerData {
     };
 }
 
+interface BattleMetricsPlayerHistory {
+    data: Array<{
+        attributes: {
+            timestamp: string;
+            value: number;
+        };
+    }>;
+}
+
 export default async function ServerPage(props: ServerPageProps) {
     const params = await props.params;
     const distinctId = await captureDistictId();
@@ -71,7 +80,7 @@ export default async function ServerPage(props: ServerPageProps) {
 
     const server_id = params?.server_id || '1';
 
-    // Fetch data here
+    // Fetch server data
     const database_data = await db
         .select()
         .from(rw_parsed_server)
@@ -89,12 +98,34 @@ export default async function ServerPage(props: ServerPageProps) {
 
     // Fetch BattleMetrics API data
     const bmApiUrl = `https://api.battlemetrics.com/servers/${server_id}`;
-    const bm_api_server_data_response = await axios.get<BattleMetricsServerData>(bmApiUrl);
-    const bm_api_server_data = bm_api_server_data_response.data.data;
+
+    // Calculate start and stop times for last 24 hours
+    const stop = new Date().toISOString();
+    const start = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const playerHistoryUrl = `https://api.battlemetrics.com/servers/${server_id}/player-count-history?start=${start}&stop=${stop}&resolution=30`;
+
+    const [serverDataResponse, playerHistoryResponse] = await Promise.all([
+        axios.get<BattleMetricsServerData>(bmApiUrl),
+        axios.get<BattleMetricsPlayerHistory>(playerHistoryUrl),
+    ]);
+
+    const bm_api_server_data = serverDataResponse.data.data;
+    const player_history = playerHistoryResponse.data.data.map((item) => ({
+        timestamp: item.attributes.timestamp,
+        players: item.attributes.value,
+    }));
+
+    console.log('player_history: ', player_history);
 
     return (
         <PageLayout page={'server'}>
-            <ServerInfoPage database_data={database_data} bm_api_server_data={bm_api_server_data} params={params} />
+            <ServerInfoPage
+                database_data={database_data}
+                bm_api_server_data={bm_api_server_data}
+                player_history={player_history}
+                params={params}
+            />
         </PageLayout>
     );
 }

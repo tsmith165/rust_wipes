@@ -14,7 +14,7 @@ interface MapInfoPanelProps {
 }
 
 export default function MapInfoPanel({ mapData, name }: MapInfoPanelProps) {
-    if (!mapData) return <p>Error loading map data.</p>;
+    if (!mapData || !mapData.thumbnailUrl) return null;
 
     const { seed, size, url } = mapData;
 
@@ -28,19 +28,17 @@ export default function MapInfoPanel({ mapData, name }: MapInfoPanelProps) {
     ];
 
     return (
-        <div className="rounded-lg bg-secondary">
-            <div className="rounded-t-lg p-2.5 text-primary_light">
-                <h3 className="text-xl font-bold ">Map Info</h3>
-            </div>
-            <div className="bg-secondary_light px-2.5 pb-2.5">
+        <div className="rounded-lg bg-stone-800">
+            <Image className="w-full rounded-lg p-2" src={mapData.thumbnailUrl} alt={`Thumbnail of ${name}`} width={200} height={200} />
+
+            <div className=" px-2.5 pb-2.5">
                 {map_info_data.map(({ title, value }) => (
                     <div className="m-0 flex flex-row space-x-1.5 p-0" key={title}>
-                        <b className="text-primary">{`${title}: `}</b>
-                        <p className="text-secondary hover:font-bold hover:text-primary_light">{value}</p>
+                        <b className="text-primary_light">{`${title}: `}</b>
+                        <p className="text-secondary_light hover:font-bold hover:text-primary_light">{value}</p>
                     </div>
                 ))}
             </div>
-            <Image className="w-full rounded-b-lg" src={mapData.thumbnailUrl} alt={`Thumbnail of ${name}`} width={100} height={100} />
         </div>
     );
 }
