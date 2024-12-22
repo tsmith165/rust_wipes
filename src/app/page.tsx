@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import PageLayout from '@/components/layout/PageLayout';
 import HomePage from '@/app/HomePage';
 
-import { captureEvent, captureDistinctId } from '@/utils/posthog';
+import { captureEvent, getServerDistinctId } from '@/utils/posthog';
 
 const PAGE_NAME = 'Homepage';
 
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-    const distinctId = await captureDistinctId();
+    const distinctId = await getServerDistinctId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
     return (

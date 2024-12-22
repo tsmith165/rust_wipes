@@ -27,15 +27,26 @@ export const metadata = {
     },
 };
 
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import PageLayout from '@/components/layout/PageLayout';
 import NetworksPage from '@/app/networks/NetworksPage';
 
+// Loading component for Suspense fallback
+function NetworksLoading() {
+    return (
+        <div className="flex h-full w-full items-center justify-center">
+            <div className="text-primary">Loading networks...</div>
+        </div>
+    );
+}
+
 export default function Networks() {
     return (
         <PageLayout page={'networks'}>
-            <NetworksPage />
+            <Suspense fallback={<NetworksLoading />}>
+                <NetworksPage />
+            </Suspense>
         </PageLayout>
     );
 }

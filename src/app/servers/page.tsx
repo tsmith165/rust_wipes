@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import PageLayout from '@/components/layout/PageLayout';
 import { PageContent } from './PageContent';
 import { fetchServers, fetchNextWipeInfo, fetchMapOptions, fetchMapVotes } from '@/app/actions';
-import { captureEvent, captureDistinctId } from '@/utils/posthog';
+import { captureEvent, getServerDistinctId } from '@/utils/posthog';
 
 const PAGE_NAME = 'Our Servers';
 
@@ -41,7 +41,7 @@ export default async function Page() {
         fetchNextWipeInfo(),
         fetchMapOptions(),
         fetchMapVotes(),
-        captureDistinctId(),
+        getServerDistinctId(),
     ]);
 
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);

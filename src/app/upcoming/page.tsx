@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import Loading from './loading';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPage from '@/app/upcoming/UpcomingWipesPage';
-import { captureEvent, captureDistinctId } from '@/utils/posthog';
+import { captureEvent, getServerDistinctId } from '@/utils/posthog';
 import { regionParser, resourceRateParser, groupLimitParser, gameModeParser, minRankParser, timeZoneParser, dateParser } from './parsers';
 import { fetchFilteredServers } from '@/app/upcoming/actions';
 
@@ -45,7 +45,7 @@ interface PageProps {
 }
 
 export default async function Page({ searchParams }: PageProps) {
-    const distinctId = await captureDistinctId();
+    const distinctId = await getServerDistinctId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
     // Await searchParams first

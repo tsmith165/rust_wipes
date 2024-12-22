@@ -3,7 +3,6 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
 import { DEFAULT_PARAMS } from './constants';
-import { captureEvent, captureDistinctId } from '@/utils/posthog';
 
 const PAGE_NAME = 'Recent Wipes';
 

@@ -3,7 +3,7 @@ import { fetchPlayerStats, fetchServerInfo } from '@/app/actions';
 import React from 'react';
 import StatsViewer from './StatsViewer';
 import PageLayout from '@/components/layout/PageLayout';
-import { captureEvent, captureDistinctId } from '@/utils/posthog';
+import { captureEvent, getServerDistinctId } from '@/utils/posthog';
 import { DEFAULT_PARAMS } from './constants';
 
 const PAGE_NAME = 'Player Stats';
@@ -43,7 +43,7 @@ interface PageProps {
 }
 
 export default async function StatsPage({ searchParams }: PageProps) {
-    const distinctId = await captureDistinctId();
+    const distinctId = await getServerDistinctId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
     const resolvedParams = await searchParams;
