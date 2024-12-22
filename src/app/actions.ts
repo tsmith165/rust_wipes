@@ -452,7 +452,7 @@ async function fetchSteamUserInfo(steamId: string) {
                 steamid: player.steamid,
             };
         } else {
-            console.error('Steam user not found in API response:', data);
+            console.log('Steam user not found in API response:', data);
             return {
                 personaname: 'Unknown',
                 avatarfull: '/default-avatar.png', // Make sure to have a default avatar image

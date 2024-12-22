@@ -1,5 +1,3 @@
-// src/app/gambling/wheel/GamblingWheel.tsx
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -93,7 +91,7 @@ export default function GamblingWheel() {
                     setCredits(result.data.credits);
                     setIsVerified(true);
                 } else {
-                    // If there's an error, clear the cookies
+                    // If there's an error, clear the c`ookies
                     Cookies.remove('steamInput');
                     Cookies.remove('authCode');
                 }
