@@ -32,6 +32,7 @@ interface BattleMetricsServer {
         rank: number | null;
         details: {
             rust_last_wipe: string | null;
+            rust_next_wipe?: string | null;
         };
         players: number | null;
         maxPlayers: number | null;
@@ -466,5 +467,25 @@ async function fetchSteamUserInfo(steamId: string) {
             avatarfull: '/default-avatar.png',
             steamid: steamId,
         };
+    }
+}
+
+export async function fetchNetworkServerDetails(serverIds: string[]) {
+    try {
+        const bmServers = await fetchBattleMetricsServers(
+            serverIds.map((id) => parseInt(id, 10)),
+            serverIds.length,
+        );
+
+        return bmServers.map((server) => ({
+            id: parseInt(server.id, 10),
+            current_pop: server.attributes.players,
+            max_pop: server.attributes.maxPlayers,
+            last_wipe: server.attributes.details.rust_last_wipe ? new Date(server.attributes.details.rust_last_wipe) : null,
+            next_wipe: server.attributes.details?.rust_next_wipe ? new Date(server.attributes.details.rust_next_wipe) : null,
+        }));
+    } catch (error) {
+        console.error('Error fetching network server details:', error);
+        return [];
     }
 }
