@@ -22,7 +22,7 @@ export default function MapInfoPanel({ mapData, name }: MapInfoPanelProps) {
         { title: 'Seed', value: seed },
         { title: 'Size', value: size },
         {
-            title: 'More Map Info',
+            title: 'Full',
             value: <a href={url} target="_blank" rel="noopener noreferrer">{`RustMaps.com/${seed}_${size}`}</a>,
         },
     ];

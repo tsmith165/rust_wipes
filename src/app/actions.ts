@@ -504,3 +504,26 @@ export async function fetchNetworkServerDetails(serverIds: string[]) {
         return [];
     }
 }
+
+export async function fetchServerTitles(serverIds: number[]) {
+    try {
+        const servers = await db
+            .select({
+                id: rw_parsed_server.id,
+                title: rw_parsed_server.title,
+            })
+            .from(rw_parsed_server)
+            .where(inArray(rw_parsed_server.id, serverIds));
+
+        return servers.reduce(
+            (acc, server) => {
+                acc[server.id] = server.title;
+                return acc;
+            },
+            {} as Record<number, string | null>,
+        );
+    } catch (error) {
+        console.error('Error fetching server titles:', error);
+        return {};
+    }
+}

@@ -6,14 +6,15 @@ import { useIsMobile } from './useIsMobile';
 import NetworksClientDesktop from './NetworksClientDesktop';
 import NetworksClientMobile from './NetworksClientMobile';
 import type { ServerNetwork, ServerDetails } from '@/app/networks/types';
-import { fetchNetworkServerDetails } from '@/app/actions';
+import { fetchNetworkServerDetails, fetchServerTitles } from '@/app/actions';
 
 interface NetworksClientProps {
-    networks: ServerNetwork[];
+    initialNetworks: ServerNetwork[];
 }
 
-export default function NetworksClient({ networks }: NetworksClientProps) {
+export default function NetworksClient({ initialNetworks }: NetworksClientProps) {
     const isMobile = useIsMobile();
+    const [networks, setNetworks] = React.useState(initialNetworks);
     const [networkId, setNetworkId] = useQueryState('network', {
         defaultValue: networks[0]?.id.toString() ?? '',
         parse: (value) => value,
@@ -21,6 +22,30 @@ export default function NetworksClient({ networks }: NetworksClientProps) {
 
     const selectedNetwork = networks.find((n) => n.id.toString() === networkId) ?? networks[0];
     const [serverDetails, setServerDetails] = React.useState<Record<string, ServerDetails>>({});
+
+    // Fetch server titles on mount
+    React.useEffect(() => {
+        async function fetchTitles() {
+            const serverIds = networks.flatMap((network) => network.servers.map((server) => server.id));
+
+            try {
+                const titles = await fetchServerTitles(serverIds);
+                setNetworks((prevNetworks) =>
+                    prevNetworks.map((network) => ({
+                        ...network,
+                        servers: network.servers.map((server) => ({
+                            ...server,
+                            title: titles[server.id] ?? null,
+                        })),
+                    })),
+                );
+            } catch (error) {
+                console.error('Error fetching server titles:', error);
+            }
+        }
+
+        fetchTitles();
+    }, []);
 
     // Fetch server details when network is selected
     React.useEffect(() => {
@@ -53,7 +78,6 @@ export default function NetworksClient({ networks }: NetworksClientProps) {
                 });
             } catch (error) {
                 console.error('Error updating server details:', error);
-                // Mark all servers as not loading on error
                 setServerDetails((prev) => {
                     const updates: Record<string, ServerDetails> = {};
                     selectedNetwork.servers.forEach((server) => {
@@ -81,9 +105,7 @@ export default function NetworksClient({ networks }: NetworksClientProps) {
 
         updateServerDetails();
 
-        // Set up polling interval
-        const interval = setInterval(updateServerDetails, 30000); // Update every 30 seconds
-
+        const interval = setInterval(updateServerDetails, 30000);
         return () => clearInterval(interval);
     }, [selectedNetwork]);
 
