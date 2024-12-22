@@ -26,13 +26,13 @@ const serverData = {
     '1.5x': [
         {
             title: '1.5x Trio',
-            description: 'Thursday & Sunday wipes. Perfect for small groups with balanced rates.',
+            description: 'Perfect for small groups with balanced rates.',
             wipeSchedule: 'Thursday / Sunday',
             href: '/servers',
         },
         {
             title: '1.5x Duo Offset',
-            description: 'Friday & Monday wipes. Ideal for duos seeking a fresh start.',
+            description: 'Ideal for duos seeking a fresh start.',
             wipeSchedule: 'Friday / Monday',
             href: '/servers',
         },
@@ -40,13 +40,13 @@ const serverData = {
     '2x': [
         {
             title: '2x Trio',
-            description: 'Thursday & Sunday wipes. Enhanced rates for trio gameplay.',
+            description: 'Enhanced rates for trio gameplay.',
             wipeSchedule: 'Thursday / Sunday',
             href: '/servers',
         },
         {
             title: '2x Duo Offset',
-            description: 'Friday & Monday wipes. Boosted rates for duo action.',
+            description: 'Boosted rates for duo action.',
             wipeSchedule: 'Friday / Monday',
             href: '/servers',
         },
@@ -54,13 +54,13 @@ const serverData = {
     '3x': [
         {
             title: '3x Duo',
-            description: 'Thursday & Sunday wipes. High-paced duo gameplay.',
+            description: 'High-paced duo gameplay.',
             wipeSchedule: 'Thursday / Sunday',
             href: '/servers',
         },
         {
             title: '3x Trio Offset',
-            description: 'Friday & Monday wipes. Fast-paced trio action.',
+            description: 'Fast-paced trio action.',
             wipeSchedule: 'Friday / Monday',
             href: '/servers',
         },
@@ -68,13 +68,13 @@ const serverData = {
     Other: [
         {
             title: 'Creative / Build',
-            description: 'Wednesday wipes. Perfect for building and testing designs.',
+            description: 'Perfect for building and testing designs.',
             wipeSchedule: 'Wednesday',
             href: '/servers',
         },
         {
             title: 'Arena / AimTrain',
-            description: 'Wednesday wipes. Practice your combat skills.',
+            description: 'Practice your combat skills.',
             wipeSchedule: 'Wednesday',
             href: '/servers',
         },
