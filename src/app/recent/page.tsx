@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
-import { captureEvent, captureDistictId } from '@/utils/posthog';
 import { DEFAULT_PARAMS } from './constants';
+import { captureEvent, captureDistinctId } from '@/utils/posthog';
 
 const PAGE_NAME = 'Recent Wipes';
 
@@ -43,13 +43,8 @@ interface PageProps {
 }
 
 export default async function Page({ searchParams }: PageProps) {
-    const distinctId = await captureDistictId();
-    captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
-
-    // Wait for searchParams to resolve
     const resolvedParams = await searchParams;
 
-    // Ensure we use the default values for any missing parameters
     const initialParams = {
         country: String(resolvedParams.country ?? DEFAULT_PARAMS.country),
         minPlayers: String(resolvedParams.minPlayers ?? DEFAULT_PARAMS.minPlayers),

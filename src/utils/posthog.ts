@@ -24,7 +24,7 @@ export async function captureEvent(event: string, properties?: Record<string, an
     });
 }
 
-export async function captureDistictId() {
+export async function captureDistinctId() {
     try {
         // Get the request headers to access the host
         const headersList = await headers();

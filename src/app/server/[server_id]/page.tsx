@@ -3,7 +3,7 @@ import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import ServerInfoPage from '@/app/server/ServerInfoPage';
 
-import { captureEvent, captureDistictId } from '@/utils/posthog';
+import { captureEvent, captureDistinctId } from '@/utils/posthog';
 import axios from 'axios';
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
@@ -75,7 +75,7 @@ interface BattleMetricsPlayerHistory {
 
 export default async function ServerPage(props: ServerPageProps) {
     const params = await props.params;
-    const distinctId = await captureDistictId();
+    const distinctId = await captureDistinctId();
     captureEvent(`${PAGE_NAME} page was loaded with ID: ${distinctId}`);
 
     const server_id = params?.server_id || '1';
