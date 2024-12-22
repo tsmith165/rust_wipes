@@ -12,6 +12,7 @@ import { KitsWithExtraImages } from '@/db/schema';
 import KitItemView from './KitItemView';
 import FullScreenView from './FullScreenView';
 import SelectedKitView from './SelectedKitView';
+import KitPhilosophy from './KitPhilosophy';
 
 interface KitViewerProps {
     kits: KitsWithExtraImages[];
@@ -31,6 +32,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     const [imageLoadStates, setImageLoadStates] = useState<{ [key: number]: boolean }>({});
     const [isPlaying, setIsPlaying] = useState(true);
     const [speed, setSpeed] = useState(3000);
+    const [showPhilosophy, setShowPhilosophy] = useState(true);
 
     const filteredKits = useMemo(() => kits.filter((kit) => kit.type === selectedType), [kits, selectedType]);
     const selectedKit = useMemo(
@@ -167,75 +169,78 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     }
 
     return (
-        <div className="radial-gradient-stone-600 flex h-full w-full flex-col items-center justify-center bg-stone-950">
-            <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
-                {typeOptions.map((type) => (
-                    <button
-                        key={`type-${type}`}
-                        className={`rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${
-                            selectedType === type
-                                ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
-                                : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
-                        }`}
-                        onClick={() => handleTypeChange(type)}
-                    >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
-                ))}
-            </div>
-            <motion.div
-                className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 2 }}
-            >
-                {selectedKit && (
-                    <SelectedKitView
-                        selectedKit={selectedKit}
-                        currentImageIndex={currentImageIndex}
-                        imageList={imageList}
-                        smallImageList={smallImageList}
-                        imageLoadStates={imageLoadStates}
-                        handleImageLoad={() => handleImageLoad(currentImageIndex)}
-                        setIsFullScreenImage={setIsFullScreenImage}
-                        selectedKitIndex={selectedKitIndex}
-                        selectedImageRef={selectedImageRef}
-                        handleNext={handleNext}
-                        handlePrev={handlePrev}
-                        togglePlayPause={togglePlayPause}
-                        isPlaying={isPlaying}
-                        speed={speed}
-                        setSpeed={setSpeed}
-                    />
-                )}
+        <div className="radial-gradient-stone-600 flex h-fit w-full flex-col bg-stone-950">
+            <div className="mx-auto w-full max-w-7xl">
+                {showPhilosophy && <KitPhilosophy onClose={() => setShowPhilosophy(false)} />}
+                <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
+                    {typeOptions.map((type) => (
+                        <button
+                            key={`type-${type}`}
+                            className={`rounded-3xl px-2 py-1 xs:px-4 xs:py-2 ${
+                                selectedType === type
+                                    ? 'bg-gradient-to-b from-primary_light to-primary_dark text-stone-300'
+                                    : 'bg-gradient-to-t from-stone-300 to-stone-500 text-stone-950 hover:!bg-gradient-to-b hover:!from-primary_light hover:!to-primary_dark hover:text-stone-300'
+                            }`}
+                            onClick={() => handleTypeChange(type)}
+                        >
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </button>
+                    ))}
+                </div>
                 <motion.div
-                    className={`flex h-fit w-full items-center justify-center px-8 ${selectedKit ? 'pb-4 md:pb-8' : 'py-8'}`}
+                    className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 2 }}
                 >
-                    <Masonry
-                        breakpointCols={{
-                            default: 4,
-                            1500: 4,
-                            1100: 3,
-                            700: 2,
-                            500: 1,
-                        }}
-                        className="my-masonry-grid flex w-full"
-                        columnClassName="my-masonry-grid_column"
+                    {selectedKit && (
+                        <SelectedKitView
+                            selectedKit={selectedKit}
+                            currentImageIndex={currentImageIndex}
+                            imageList={imageList}
+                            smallImageList={smallImageList}
+                            imageLoadStates={imageLoadStates}
+                            handleImageLoad={() => handleImageLoad(currentImageIndex)}
+                            setIsFullScreenImage={setIsFullScreenImage}
+                            selectedKitIndex={selectedKitIndex}
+                            selectedImageRef={selectedImageRef}
+                            handleNext={handleNext}
+                            handlePrev={handlePrev}
+                            togglePlayPause={togglePlayPause}
+                            isPlaying={isPlaying}
+                            speed={speed}
+                            setSpeed={setSpeed}
+                        />
+                    )}
+                    <motion.div
+                        className={`flex h-fit w-full items-center justify-center px-8 ${selectedKit ? 'pb-4 md:pb-8' : 'py-8'}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 2 }}
                     >
-                        {filteredKits.map((kit, index) => (
-                            <KitItemView
-                                key={`kit-${kit.id}`}
-                                kit={{ ...kit, index }}
-                                handleKitClick={handleKitClick}
-                                isSelected={selectedKitIndex === index}
-                            />
-                        ))}
-                    </Masonry>
+                        <Masonry
+                            breakpointCols={{
+                                default: 4,
+                                1500: 4,
+                                1100: 3,
+                                700: 2,
+                                500: 1,
+                            }}
+                            className="my-masonry-grid flex w-full"
+                            columnClassName="my-masonry-grid_column"
+                        >
+                            {filteredKits.map((kit, index) => (
+                                <KitItemView
+                                    key={`kit-${kit.id}`}
+                                    kit={{ ...kit, index }}
+                                    handleKitClick={handleKitClick}
+                                    isSelected={selectedKitIndex === index}
+                                />
+                            ))}
+                        </Masonry>
+                    </motion.div>
                 </motion.div>
-            </motion.div>
+            </div>
             {isFullScreenImage && selectedKit && (
                 <FullScreenView
                     selectedKit={selectedKit}
