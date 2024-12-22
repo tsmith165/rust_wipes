@@ -20,6 +20,7 @@ import {
     bonus_spins,
     referrals,
     referral_rewards,
+    player_stats_history,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -45,4 +46,5 @@ export {
     bonus_spins,
     referrals,
     referral_rewards,
+    player_stats_history,
 };

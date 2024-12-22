@@ -3,7 +3,17 @@
 import axios from 'axios';
 import { eq, gte, and, between, desc, asc, gt, lt, inArray, like } from 'drizzle-orm';
 import { db } from '@/db/db';
-import { rw_parsed_server, rw_servers, kits, KitExtraImages, player_stats, next_wipe_info, map_options, map_votes } from '@/db/schema';
+import {
+    rw_parsed_server,
+    rw_servers,
+    kits,
+    KitExtraImages,
+    player_stats,
+    next_wipe_info,
+    map_options,
+    map_votes,
+    player_stats_history,
+} from '@/db/schema';
 import type { KitsWithExtraImages, RwServer, PlayerStats, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
 import type { SQL } from 'drizzle-orm';
 
@@ -223,30 +233,35 @@ export async function fetchMapVotes(): Promise<MapVotes[]> {
     return votes;
 }
 
-export async function fetchPlayerStats(serverId?: string): Promise<(PlayerStats & { steamUsername: string; avatarUrl: string })[]> {
-    console.log('Fetching player stats with Drizzle');
+export async function fetchPlayerStats(serverId: string, period: string = 'current') {
+    try {
+        let statsQuery;
 
-    let whereClause: SQL | undefined;
-    if (serverId) {
-        whereClause = eq(player_stats.server_id, serverId);
+        if (period === 'current') {
+            statsQuery = db.select().from(player_stats).where(eq(player_stats.server_id, serverId));
+        } else {
+            statsQuery = db.select().from(player_stats_history).where(eq(player_stats_history.server_id, serverId));
+        }
+
+        const stats = await statsQuery;
+
+        // Fetch Steam user info for each unique steam_id
+        const steamIds = [...new Set(stats.map((stat) => stat.steam_id))];
+        const steamUserInfo = await Promise.all(steamIds.map((id) => fetchSteamUserInfo(id)));
+
+        // Create a map of steam_id to user info
+        const userInfoMap = new Map(steamUserInfo.map((info) => [info.steamid, info]));
+
+        // Combine stats with Steam user info
+        return stats.map((stat) => ({
+            ...stat,
+            steamUsername: userInfoMap.get(stat.steam_id)?.personaname || 'Unknown',
+            avatarUrl: userInfoMap.get(stat.steam_id)?.avatarfull || '/default-avatar.png',
+        }));
+    } catch (error) {
+        console.error('Error fetching player stats:', error);
+        return [];
     }
-
-    const stats = await db.select().from(player_stats).where(whereClause).orderBy(desc(player_stats.kills));
-
-    // Fetch Steam user info for all players
-    const statsWithSteamInfo = await Promise.all(
-        stats.map(async (stat) => {
-            const steamInfo = await fetchSteamUserInfo(stat.steam_id);
-            return {
-                ...stat,
-                steamUsername: steamInfo.personaname,
-                avatarUrl: steamInfo.avatarfull,
-            };
-        }),
-    );
-
-    console.log('Captured player stats with Steam info successfully');
-    return statsWithSteamInfo;
 }
 
 export async function fetchServerInfo(): Promise<{ id: string; name: string }[]> {

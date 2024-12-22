@@ -4,18 +4,35 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { PlayerStats } from '@/db/schema';
+import { PlayerStats, PlayerStatsHistory } from '@/db/schema';
 
-interface ExtendedPlayerStats extends PlayerStats {
+interface BaseStats {
     steamUsername: string;
     avatarUrl: string;
+    id: number;
+    steam_id: string;
+    server_id: string;
+    kills: number;
+    deaths: number;
+    stone_gathered: number;
+    wood_gathered: number;
+    metal_ore_gathered: number;
+    sulfur_ore_gathered: number;
+    scrap_wagered: number;
+    scrap_won: number;
 }
+
+type ExtendedPlayerStats = (PlayerStats | PlayerStatsHistory) & {
+    steamUsername: string;
+    avatarUrl: string;
+};
 
 interface StatsViewerProps {
     playerStats: ExtendedPlayerStats[];
     initialParams: {
         category: string;
         server: string;
+        period: string;
     };
     serverInfo: { id: string; name: string }[];
 }
@@ -45,6 +62,7 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialParams, s
 
     const selectedCategory = searchParams.get('category') || 'kills';
     const selectedServer = searchParams.get('server') || serverInfo[0]?.id;
+    const selectedPeriod = searchParams.get('period') || 'current';
 
     const filteredStats = React.useMemo(() => {
         return playerStats.filter((stat) => stat.server_id === selectedServer);
@@ -120,17 +138,28 @@ const StatsViewer: React.FC<StatsViewerProps> = ({ playerStats, initialParams, s
     return (
         <div className="radial-gradient-stone-950 flex h-full w-full flex-col items-center bg-primary p-4">
             <div className="flex w-full max-w-4xl flex-col items-center justify-center space-y-4">
-                <select
-                    className="w-full rounded-md bg-stone-800 px-4 py-2 text-stone-300 sm:w-auto"
-                    value={selectedServer}
-                    onChange={(e) => updateSearchParams({ server: e.target.value })}
-                >
-                    {serverInfo.map((server) => (
-                        <option key={server.id} value={server.id}>
-                            {server.name}
-                        </option>
-                    ))}
-                </select>
+                <div className="flex w-full flex-col justify-center space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
+                    <select
+                        className="w-full rounded-md bg-stone-800 px-4 py-2 text-stone-300 sm:w-auto"
+                        value={selectedServer}
+                        onChange={(e) => updateSearchParams({ server: e.target.value })}
+                    >
+                        {serverInfo.map((server) => (
+                            <option key={server.id} value={server.id}>
+                                {server.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        className="w-full rounded-md bg-stone-800 px-4 py-2 text-stone-300 sm:w-auto"
+                        value={selectedPeriod}
+                        onChange={(e) => updateSearchParams({ period: e.target.value })}
+                    >
+                        <option value="current">Current Wipe</option>
+                        <option value="history">Stats History</option>
+                    </select>
+                </div>
                 <div className="flex flex-wrap justify-center space-x-2">
                     {['kills', 'farm', 'gambling'].map((category) => (
                         <div

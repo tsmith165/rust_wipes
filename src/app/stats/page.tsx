@@ -49,13 +49,13 @@ export default async function StatsPage({ searchParams }: PageProps) {
     const resolvedParams = await searchParams;
     const serverInfo = await fetchServerInfo();
 
-    // Ensure we use the default values for any missing parameters
     const initialParams = {
         category: String(resolvedParams.category ?? DEFAULT_PARAMS.category),
         server: String(resolvedParams.server ?? serverInfo[0]?.id ?? DEFAULT_PARAMS.server),
+        period: String(resolvedParams.period ?? DEFAULT_PARAMS.period),
     };
 
-    const playerStats = await fetchPlayerStats(initialParams.server);
+    const playerStats = await fetchPlayerStats(initialParams.server, initialParams.period);
 
     return (
         <PageLayout page="/stats">

@@ -311,3 +311,22 @@ export const referral_rewards = pgTable('referral_rewards', {
 
 export type ReferralRewards = InferSelectModel<typeof referral_rewards>;
 export type InsertReferralRewards = InferInsertModel<typeof referral_rewards>;
+
+export const player_stats_history = pgTable('player_stats_history', {
+    id: serial('id').primaryKey(),
+    steam_id: varchar('steam_id').notNull(),
+    server_id: varchar('server_id').notNull(),
+    kills: integer('kills').notNull().default(0),
+    deaths: integer('deaths').notNull().default(0),
+    stone_gathered: integer('stone_gathered').notNull().default(0),
+    wood_gathered: integer('wood_gathered').notNull().default(0),
+    metal_ore_gathered: integer('metal_ore_gathered').notNull().default(0),
+    sulfur_ore_gathered: integer('sulfur_ore_gathered').notNull().default(0),
+    scrap_wagered: integer('scrap_wagered').notNull().default(0),
+    scrap_won: integer('scrap_won').notNull().default(0),
+    wipe_start: timestamp('wipe_start').notNull(),
+    wipe_end: timestamp('wipe_end').notNull(),
+});
+
+export type PlayerStatsHistory = InferSelectModel<typeof player_stats_history>;
+export type InsertPlayerStatsHistory = InferInsertModel<typeof player_stats_history>;
