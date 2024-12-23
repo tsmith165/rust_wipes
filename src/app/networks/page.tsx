@@ -27,7 +27,7 @@ export const metadata = {
     },
 };
 
-import React, { Suspense } from 'react';
+import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import NetworksData from './NetworksData';
 
