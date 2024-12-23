@@ -30,14 +30,11 @@ export const metadata = {
 import React, { Suspense } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import NetworksData from './NetworksData';
-import NetworksLoadingUI from './NetworksLoadingUI';
 
 export default function Networks() {
     return (
         <PageLayout page={'networks'}>
-            <Suspense fallback={<NetworksLoadingUI />}>
-                <NetworksData />
-            </Suspense>
+            <NetworksData />
         </PageLayout>
     );
 }
