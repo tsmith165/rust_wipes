@@ -115,11 +115,11 @@ export default function NetworksClientDesktop({ networks, selectedNetwork, serve
                                                     <th className="w-[20%] p-3 text-left text-primary">Until Wipe</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody className="bg-stone-600/20">
                                                 {servers.map((server) => {
                                                     const details = serverDetails[server.id];
                                                     return (
-                                                        <tr key={server.id} className="border-b border-stone-600 hover:bg-stone-600/20">
+                                                        <tr key={server.id} className="border-b border-stone-600 hover:bg-stone-800">
                                                             <td className="p-3">
                                                                 {isLoadingTitles ? (
                                                                     <span className="text-primary">Loading...</span>
