@@ -27,14 +27,16 @@ export const metadata = {
     },
 };
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import NetworksData from './NetworksData';
 
 export default function Networks() {
     return (
         <PageLayout page={'networks'}>
-            <NetworksData />
+            <Suspense>
+                <NetworksData />
+            </Suspense>
         </PageLayout>
     );
 }

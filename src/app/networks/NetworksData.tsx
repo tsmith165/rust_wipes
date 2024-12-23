@@ -2,7 +2,6 @@ import { db } from '@/db/db';
 import { rw_server_network, rw_parsed_server } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import NetworksClient from './NetworksClient';
-import type { ServerNetwork } from '@/app/networks/types';
 
 // This function runs server-side during initial page load
 async function getBasicNetworkData() {
