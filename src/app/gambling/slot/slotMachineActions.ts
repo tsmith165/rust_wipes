@@ -213,26 +213,31 @@ export async function spinSlotMachine(
         let needsBonusTypeSelection = false;
 
         if (bonusCountFinal >= 3) {
-            // Assign spins based on the selected bonus type
-            if (selectedBonusType === 'normal') {
-                if (bonusCountFinal === 3) {
-                    spinsAwarded = 10;
-                } else if (bonusCountFinal === 4) {
-                    spinsAwarded = 15;
-                } else if (bonusCountFinal >= 5) {
-                    spinsAwarded = 20;
+            // If this is a new bonus trigger (no existing bonus type), set needsBonusTypeSelection
+            if (!selectedBonusType) {
+                needsBonusTypeSelection = true;
+                // Don't award spins yet - wait for user selection
+            } else {
+                // Existing bonus type - award spins immediately
+                if (selectedBonusType === 'normal') {
+                    if (bonusCountFinal === 3) {
+                        spinsAwarded = 10;
+                    } else if (bonusCountFinal === 4) {
+                        spinsAwarded = 15;
+                    } else if (bonusCountFinal >= 5) {
+                        spinsAwarded = 20;
+                    }
+                } else if (selectedBonusType === 'sticky') {
+                    if (bonusCountFinal === 3) {
+                        spinsAwarded = 5;
+                    } else if (bonusCountFinal === 4) {
+                        spinsAwarded = 8;
+                    } else if (bonusCountFinal >= 5) {
+                        spinsAwarded = 10;
+                    }
                 }
-            } else if (selectedBonusType === 'sticky') {
-                if (bonusCountFinal === 3) {
-                    spinsAwarded = 5;
-                } else if (bonusCountFinal === 4) {
-                    spinsAwarded = 8;
-                } else if (bonusCountFinal >= 5) {
-                    spinsAwarded = 10;
-                }
+                freeSpinsAvailable += spinsAwarded;
             }
-
-            freeSpinsAvailable += spinsAwarded;
         }
 
         // Update user credits and bonus spins
@@ -293,6 +298,7 @@ export async function spinSlotMachine(
             bonusCells: [], // Update if necessary
             winningLines: winningLines, // Update if necessary
             stickyMultipliers: selectedBonusType === 'sticky' ? currentMultipliers : [], // Conditional assignment
+            needsBonusTypeSelection: needsBonusTypeSelection, // Make sure this is included
         };
 
         if (needsBonusTypeSelection) {

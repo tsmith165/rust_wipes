@@ -13,7 +13,7 @@ import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 
 import SteamSignInModal from '@/components/SteamSignInModal'; // Import the SteamSignInModal component
-import { useSteamUser } from './SteamUserContext';
+import { useSteamUser } from '@/stores/steam_user_store';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -75,8 +75,9 @@ export default function SlotMachine() {
     const [spinning, setSpinning] = useState(false);
     const [autoSpin, setAutoSpin] = useState(false);
     const [result, setResult] = useState<SlotResult | null>(null);
+    const [freeSpins, setFreeSpins] = useState(0);
 
-    // Use the expanded context
+    // Use the Zustand store
     const {
         steamInput,
         setSteamInput,
@@ -88,18 +89,15 @@ export default function SlotMachine() {
         setProfile: setSteamProfile,
         credits,
         setCredits,
-        freeSpins,
-        setFreeSpins,
         isVerified,
         setIsVerified,
         error,
         setError,
+        verifyUser,
+        loadUserData,
     } = useSteamUser();
 
-    console.log('SlotMachine - steamInput:', steamInput);
-    console.log('SlotMachine - authCode:', code);
-    console.log('SlotMachine - isVerified:', isVerified);
-    console.log('SlotMachine - error:', error);
+    console.log(`SlotMachine - steamId: ${steamId} | authCode: ${code} | isVerified: ${isVerified} | error: ${error}`);
 
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
@@ -333,13 +331,7 @@ export default function SlotMachine() {
     // Function to handle user verification
     const handleVerify = async (profileData: any) => {
         try {
-            const { profile, credits: newCredits, freeSpins: newFreeSpins } = profileData;
-            setSteamProfile(profile);
-            setSteamId(profile.steamId); // Set the Steam ID when verifying
-            setCredits(newCredits);
-            setFreeSpins(newFreeSpins);
-            setIsVerified(true);
-            setError('');
+            verifyUser(profileData);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -525,6 +517,7 @@ export default function SlotMachine() {
             if (spins_remaining > 0) {
                 setFreeSpins(spins_remaining);
             }
+            setAutoSpin(true);
         } catch (error) {
             console.error('Error assigning bonus spins:', error);
             setError(error instanceof Error ? error.message : 'An error occurred while assigning bonus spins.');
@@ -546,6 +539,20 @@ export default function SlotMachine() {
             currentWinningLinePoints.push(`${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2}`);
         }
     }
+
+    useEffect(() => {
+        const initializeUser = async () => {
+            if (steamId && code) {
+                // Attempt to load user data
+                await loadUserData();
+            } else {
+                // If no steamId or code, make sure isVerified is false
+                setIsVerified(false);
+            }
+        };
+
+        initializeUser();
+    }, []); // Run once on mount
 
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
@@ -748,13 +755,13 @@ export default function SlotMachine() {
                         >
                             {autoSpin ? (
                                 <div className="flex items-center justify-center space-x-2">
-                                    <FaPlay className="h-6 w-6" />
-                                    <span className="leading-6">Stop Auto Spins</span>
+                                    <FaPause className="h-6 w-6" />
+                                    <span className="leading-6">Auto Spins</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-center space-x-2">
-                                    <FaPause className="h-6 w-6" />
-                                    <span className="leading-6">Start Auto Spins</span>
+                                    <FaPlay className="h-6 w-6" />
+                                    <span className="leading-6">Auto Spins</span>
                                 </div>
                             )}
                         </button>

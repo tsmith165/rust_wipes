@@ -2,8 +2,9 @@
 
 import { verifySteamProfile } from './slot/slotMachineActions';
 import { getUserCredits } from './slot/slotMachineActions';
-import { db, user_playtime, bonus_spins } from '@/db/db';
-import { eq } from 'drizzle-orm';
+import { db } from '@/db/db';
+import { user_playtime, bonus_spins } from '@/db/schema';
+import { eq, and } from 'drizzle-orm';
 
 export async function verifyAndGetCredits(profileUrl: string, authCode: string) {
     try {
@@ -70,4 +71,14 @@ export async function fetchUserCredits(steamId: string, authCode: string) {
         console.error('Error fetching user credits:', error);
         return { success: false, error: 'Failed to fetch user credits' };
     }
+}
+
+export async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
+    const user = await db
+        .select()
+        .from(user_playtime)
+        .where(and(eq(user_playtime.steam_id, steamId), eq(user_playtime.auth_code, code)))
+        .limit(1);
+
+    return user.length > 0;
 }

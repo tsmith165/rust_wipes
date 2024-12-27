@@ -1,8 +1,7 @@
 import SlotMachine from './SlotMachine';
 import PageLayout from '@/components/layout/PageLayout';
 import type { Metadata } from 'next';
-import { SteamUserProvider } from './SteamUserContext';
-import Image from 'next/image'; // Import Image
+import Image from 'next/image';
 
 export const metadata: Metadata = {
     title: 'Rust Wipes - Slot Machine',
@@ -36,13 +35,11 @@ export const metadata: Metadata = {
 export default function SlotMachinePage() {
     return (
         <PageLayout page="/gambling/slot-machine">
-            <SteamUserProvider>
-                <div className="relative flex flex-col md:flex-row">
-                    <div className="relative z-10 h-full w-full">
-                        <SlotMachine />
-                    </div>
+            <div className="relative flex flex-col md:flex-row">
+                <div className="relative z-10 h-full w-full">
+                    <SlotMachine />
                 </div>
-            </SteamUserProvider>
+            </div>
         </PageLayout>
     );
 }
