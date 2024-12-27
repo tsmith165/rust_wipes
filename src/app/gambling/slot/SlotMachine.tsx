@@ -746,7 +746,7 @@ export default function SlotMachine() {
                             disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
                             className="h-full w-full rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400 md:w-1/2"
                         >
-                            {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
+                            £{spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
                         </button>
                         <button
                             onClick={handleAutoSpinButton}
