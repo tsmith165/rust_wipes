@@ -86,7 +86,7 @@ async function getNetworksData() {
     }
 }
 
-export default async function Networks({ searchParams }: { searchParams: { [key: string]: string } }) {
+export default async function Networks({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     const { networkId } = parse(searchParams);
     const networks = await getNetworksData();
 
