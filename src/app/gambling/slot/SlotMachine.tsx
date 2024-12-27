@@ -1,12 +1,9 @@
-// src/app/gambling/slot/SlotMachine.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, getUserCredits, verifySteamProfile, setBonusType } from './slotMachineActions';
-import { fetchUserCredits } from '../serverActions';
+import { spinSlotMachine, setBonusType } from './slotMachineActions';
 import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
 import RecentSlotWinners from './RecentSlotWinners';
@@ -15,8 +12,8 @@ import { getRandomSymbol } from './slotMachineUtils';
 import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 
-import Cookies from 'js-cookie';
 import SteamSignInModal from '@/components/SteamSignInModal'; // Import the SteamSignInModal component
+import { useSteamUser } from '@/stores/steam_user_store';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -78,13 +75,30 @@ export default function SlotMachine() {
     const [spinning, setSpinning] = useState(false);
     const [autoSpin, setAutoSpin] = useState(false);
     const [result, setResult] = useState<SlotResult | null>(null);
-    const [steamInput, setSteamInput] = useState('');
-    const [code, setCode] = useState('');
-    const [error, setError] = useState('');
-    const [credits, setCredits] = useState<number | null>(null);
-    const [isVerified, setIsVerified] = useState(false);
-    const [steamProfile, setSteamProfile] = useState<SteamProfile | null>(null);
     const [freeSpins, setFreeSpins] = useState(0);
+
+    // Use the Zustand store
+    const {
+        steamInput,
+        setSteamInput,
+        authCode: code,
+        setAuthCode: setCode,
+        steamId,
+        setSteamId,
+        profile: steamProfile,
+        setProfile: setSteamProfile,
+        credits,
+        setCredits,
+        isVerified,
+        setIsVerified,
+        error,
+        setError,
+        verifyUser,
+        loadUserData,
+    } = useSteamUser();
+
+    console.log(`SlotMachine - steamId: ${steamId} | authCode: ${code} | isVerified: ${isVerified} | error: ${error}`);
+
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
 
@@ -314,45 +328,10 @@ export default function SlotMachine() {
         }
     }, [winningLines]);
 
-    // Load credentials from cookies on component mount
-    useEffect(() => {
-        const savedSteamInput = Cookies.get('steamInput');
-        const savedCode = Cookies.get('authCode');
-
-        if (savedSteamInput && savedCode) {
-            setSteamInput(savedSteamInput);
-            setCode(savedCode);
-            // Fetch user credits using server action
-            const loadUserCredits = async () => {
-                const result = await fetchUserCredits(savedSteamInput, savedCode);
-                if (result.success && result.data) {
-                    setSteamProfile(result.data.profile);
-                    setCredits(result.data.credits);
-                    setFreeSpins(result.data.freeSpins);
-                    setIsVerified(true);
-                } else {
-                    // If there's an error, clear the cookies
-                    Cookies.remove('steamInput');
-                    Cookies.remove('authCode');
-                }
-            };
-            loadUserCredits();
-        }
-    }, []);
-
     // Function to handle user verification
     const handleVerify = async (profileData: any) => {
         try {
-            const { profile, credits, freeSpins } = profileData;
-            setSteamProfile(profile);
-            setCredits(credits);
-            setFreeSpins(freeSpins);
-            setIsVerified(true);
-            setError('');
-
-            // Save credentials to cookies
-            Cookies.set('steamInput', steamInput, { expires: 7 });
-            Cookies.set('authCode', code, { expires: 7 });
+            verifyUser(profileData);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -415,7 +394,7 @@ export default function SlotMachine() {
         setWinningLines([]);
 
         try {
-            const spinResponse = await spinSlotMachine(steamProfile.steamId, code);
+            const spinResponse = await spinSlotMachine(steamId, code);
             if (!spinResponse.success) {
                 setError(spinResponse.error || 'An error occurred during the spin.');
                 setSpinning(false);
@@ -538,6 +517,7 @@ export default function SlotMachine() {
             if (spins_remaining > 0) {
                 setFreeSpins(spins_remaining);
             }
+            setAutoSpin(true);
         } catch (error) {
             console.error('Error assigning bonus spins:', error);
             setError(error instanceof Error ? error.message : 'An error occurred while assigning bonus spins.');
@@ -559,6 +539,20 @@ export default function SlotMachine() {
             currentWinningLinePoints.push(`${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2}`);
         }
     }
+
+    useEffect(() => {
+        const initializeUser = async () => {
+            if (steamId && code) {
+                // Attempt to load user data
+                await loadUserData();
+            } else {
+                // If no steamId or code, make sure isVerified is false
+                setIsVerified(false);
+            }
+        };
+
+        initializeUser();
+    }, []); // Run once on mount
 
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-stone-800 text-white">
@@ -761,13 +755,13 @@ export default function SlotMachine() {
                         >
                             {autoSpin ? (
                                 <div className="flex items-center justify-center space-x-2">
-                                    <FaPlay className="h-6 w-6" />
-                                    <span className="leading-6">Stop Auto Spins</span>
+                                    <FaPause className="h-6 w-6" />
+                                    <span className="leading-6">Auto Spins</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-center space-x-2">
-                                    <FaPause className="h-6 w-6" />
-                                    <span className="leading-6">Start Auto Spins</span>
+                                    <FaPlay className="h-6 w-6" />
+                                    <span className="leading-6">Auto Spins</span>
                                 </div>
                             )}
                         </button>

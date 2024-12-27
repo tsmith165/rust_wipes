@@ -2,8 +2,9 @@
 
 import { verifySteamProfile } from './slot/slotMachineActions';
 import { getUserCredits } from './slot/slotMachineActions';
-import { db, user_playtime, bonus_spins } from '@/db/db';
-import { eq } from 'drizzle-orm';
+import { db } from '@/db/db';
+import { user_playtime, bonus_spins } from '@/db/schema';
+import { eq, and } from 'drizzle-orm';
 
 export async function verifyAndGetCredits(profileUrl: string, authCode: string) {
     try {
@@ -20,7 +21,10 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
         return {
             success: true,
             data: {
-                profile: profileResponse.data,
+                profile: {
+                    ...profileResponse.data,
+                    steamId: profileResponse.data.steamId,
+                },
                 credits: creditsResponse.data.credits,
                 freeSpins: creditsResponse.data.freeSpins,
             },
@@ -33,10 +37,17 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
 
 export async function fetchUserCredits(steamId: string, authCode: string) {
     try {
+        console.log('Fetching user credits for steamId:', steamId, 'and authCode:', authCode);
         // First verify the auth code matches
         const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
 
-        if (!user.length || user[0].auth_code !== authCode) {
+        if (!user.length) {
+            console.log('User not found');
+            return { success: false, error: 'User not found' };
+        }
+
+        if (user[0].auth_code !== authCode) {
+            console.log('Invalid credentials');
             return { success: false, error: 'Invalid credentials' };
         }
 
@@ -60,4 +71,14 @@ export async function fetchUserCredits(steamId: string, authCode: string) {
         console.error('Error fetching user credits:', error);
         return { success: false, error: 'Failed to fetch user credits' };
     }
+}
+
+export async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
+    const user = await db
+        .select()
+        .from(user_playtime)
+        .where(and(eq(user_playtime.steam_id, steamId), eq(user_playtime.auth_code, code)))
+        .limit(1);
+
+    return user.length > 0;
 }

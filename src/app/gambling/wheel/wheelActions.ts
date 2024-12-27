@@ -1,10 +1,10 @@
 'use server';
-import 'server-only';
 
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
-import { eq, desc, and } from 'drizzle-orm';
-import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor, WheelPayout, LEGEND_ORDER } from './wheelConstants';
+import { eq, desc } from 'drizzle-orm';
+import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor, WheelPayout } from './wheelConstants';
+import { verifyAuthCode } from '@/app/gambling/serverActions';
 
 // **Define a precise type for PAYOUTS**
 type PayoutsType = {
@@ -64,19 +64,11 @@ interface RecordSpinResultResponse {
     error?: string;
 }
 
-async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
-    const user = await db
-        .select()
-        .from(user_playtime)
-        .where(and(eq(user_playtime.steam_id, steamId), eq(user_playtime.auth_code, code)))
-        .limit(1);
-
-    return user.length > 0;
-}
-
 export async function spinWheel(steamId: string, code: string, currentRotation: number): Promise<ActionResponse<SpinWheelData>> {
     try {
-        if (!(await verifyAuthCode(steamId, code))) {
+        // Verify authentication
+        const isAuthValid = await verifyAuthCode(steamId, code);
+        if (!isAuthValid) {
             return { success: false, error: 'Invalid auth code' };
         }
 
@@ -159,36 +151,28 @@ export async function getRecentWinners(): Promise<ActionResponse<WinnerWithPictu
             .orderBy(desc(wheel_spins.timestamp))
             .limit(25);
 
-        const winnersWithPictures = await Promise.all(
-            winners.map(async (winner) => {
-                let profilePictureUrl = winner.profile_picture_url;
-                if (!profilePictureUrl) {
-                    profilePictureUrl = await fetchAndStoreProfilePicture(winner.steam_id);
-                }
+        const winnersWithPictures = winners.map((winner) => {
+            // Find the color by matching the display name
+            const colorEntry = Object.entries(PAYOUTS).find(([_, payout]) => payout.displayName === winner.result);
+            const color = colorEntry ? (colorEntry[0] as WheelColor) : 'Yellow'; // Fallback to Yellow
 
-                // Find the WheelColor based on the result's displayName
-                const wheelColorEntry = Object.entries(PAYOUTS_TYPED).find(([_, payout]) => payout.displayName === winner.result);
-
-                const wheelColor = wheelColorEntry ? (wheelColorEntry[0] as WheelColor) : 'Yellow'; // Default to 'Yellow' if not found
-
-                return {
-                    player_name: winner.player_name || 'Unknown Player',
-                    timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
-                    result: winner.result, // Include `result` as required by the interface
-                    payout: [
-                        {
-                            item: PAYOUTS_TYPED[wheelColor].inGameName,
-                            full_name: PAYOUTS_TYPED[wheelColor].displayName,
-                            quantity: 1, // Assuming quantity is 1 per spin
-                        },
-                    ],
-                    free_spins_won: 0, // Assuming wheel spins don't award free spins
-                    color: wheelColor,
-                    profile_picture_url: profilePictureUrl,
-                    steam_id: winner.steam_id,
-                };
-            }),
-        );
+            return {
+                player_name: winner.player_name || 'Unknown Player',
+                timestamp: winner.timestamp?.toISOString() || new Date().toISOString(),
+                result: winner.result,
+                payout: [
+                    {
+                        item: PAYOUTS[color].inGameName,
+                        full_name: PAYOUTS[color].displayName,
+                        quantity: 1,
+                    },
+                ],
+                free_spins_won: 0,
+                color: color,
+                profile_picture_url: winner.profile_picture_url,
+                steam_id: winner.steam_id,
+            };
+        });
 
         return { success: true, data: winnersWithPictures };
     } catch (error) {

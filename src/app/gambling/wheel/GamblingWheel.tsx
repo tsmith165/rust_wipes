@@ -3,17 +3,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinWheel, getUserCredits, verifySteamProfile, recordSpinResult } from './wheelActions';
-import { fetchUserCredits } from '../serverActions';
+import { spinWheel } from './wheelActions';
 import { WHEEL_SLOTS, DEGREES_PER_SLOT, COLOR_CODES, PAYOUTS, WheelColor, WheelResult, LEGEND_ORDER } from './wheelConstants';
 import Image from 'next/image';
 import RecentWinners from './RecentWinners';
 import { BiSolidDownArrow } from 'react-icons/bi';
-
-import Cookies from 'js-cookie';
 import SteamSignInModal from '@/components/SteamSignInModal';
+import { useSteamUser } from '@/stores/steam_user_store';
 
-// Dynamically import the Confetti component to avoid SSR issues
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 // Map payout display names to their corresponding icon paths
@@ -25,28 +22,35 @@ const ICON_PATHS: Record<string, string> = {
     'P2 Pistol': '/rust_icons/p2_icon.png',
 };
 
-// Interface for Steam Profile data
-interface SteamProfile {
-    name: string;
-    avatarUrl: string;
-    steamId: string;
-}
-
 export default function GamblingWheel() {
     const [spinning, setSpinning] = useState(false);
     const [result, setResult] = useState<WheelResult | null>(null);
     const [rotation, setRotation] = useState(0);
-    const [steamInput, setSteamInput] = useState('');
-    const [code, setCode] = useState('');
-    const [error, setError] = useState('');
-    const [credits, setCredits] = useState<number | null>(null);
-    const [isVerified, setIsVerified] = useState(false);
-    const [steamProfile, setSteamProfile] = useState<SteamProfile | null>(null);
     const [shouldRefetchWinners, setShouldRefetchWinners] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
     const currentRotationRef = useRef(0);
+
+    // Use the Zustand store
+    const {
+        steamInput,
+        setSteamInput,
+        authCode: code,
+        setAuthCode: setCode,
+        steamId,
+        setSteamId,
+        profile: steamProfile,
+        setProfile: setSteamProfile,
+        credits,
+        setCredits,
+        isVerified,
+        setIsVerified,
+        error,
+        setError,
+        verifyUser,
+        loadUserData,
+    } = useSteamUser();
 
     // Effect to handle window resize for Confetti component
     useEffect(() => {
@@ -58,47 +62,18 @@ export default function GamblingWheel() {
         return () => window.removeEventListener('resize', updateWindowSize);
     }, []);
 
-    // Function to handle user verification
-    const handleVerify = async (profileData: any) => {
-        try {
-            const { profile, credits } = profileData;
-            setSteamProfile(profile);
-            setCredits(credits);
-            setIsVerified(true);
-            setError('');
-
-            // Save credentials to cookies
-            Cookies.set('steamInput', steamInput, { expires: 7, secure: true, sameSite: 'Lax' });
-            Cookies.set('authCode', code, { expires: 7, secure: true, sameSite: 'Lax' });
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Verification failed');
-        }
-    };
-
-    // Load credentials from cookies on component mount
+    // Initialize user data
     useEffect(() => {
-        const savedSteamInput = Cookies.get('steamInput');
-        const savedCode = Cookies.get('authCode');
+        const initializeUser = async () => {
+            if (steamId && code) {
+                await loadUserData();
+            } else {
+                setIsVerified(false);
+            }
+        };
 
-        if (savedSteamInput && savedCode) {
-            setSteamInput(savedSteamInput);
-            setCode(savedCode);
-            // Fetch user credits using server action
-            const loadUserCredits = async () => {
-                const result = await fetchUserCredits(savedSteamInput, savedCode);
-                if (result.success && result.data) {
-                    setSteamProfile(result.data.profile);
-                    setCredits(result.data.credits);
-                    setIsVerified(true);
-                } else {
-                    // If there's an error, clear the c`ookies
-                    Cookies.remove('steamInput');
-                    Cookies.remove('authCode');
-                }
-            };
-            loadUserCredits();
-        }
-    }, []);
+        initializeUser();
+    }, []); // Run once on mount
 
     // Function to handle spinning the wheel
     const handleSpin = async () => {
@@ -120,23 +95,23 @@ export default function GamblingWheel() {
                 return;
             }
 
-            const { result: spinResult, totalRotation, finalDegree, credits: updatedCredits, userId } = spinResponse.data;
+            const { result: spinResult, totalRotation, finalDegree, credits: updatedCredits } = spinResponse.data;
 
             setRotation((prev) => prev + totalRotation);
             currentRotationRef.current = finalDegree;
             setCredits(updatedCredits);
-            setTimeout(async () => {
+
+            setTimeout(() => {
                 setResult(spinResult);
                 setSpinning(false);
                 setShowOverlay(true);
                 setShowConfetti(true);
-                await recordSpinResult(userId, spinResult.color);
                 setShouldRefetchWinners(true);
                 setTimeout(() => {
                     setShowOverlay(false);
                     setShowConfetti(false);
                 }, 2500);
-            }, 5000); // Simulate spin duration
+            }, 5000);
         } catch (error) {
             console.error('Error spinning wheel:', error);
             setError(error instanceof Error ? error.message : 'An error occurred while spinning the wheel.');
@@ -145,7 +120,7 @@ export default function GamblingWheel() {
     };
 
     return (
-        <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-x-hidden overflow-y-hidden bg-stone-800 text-white lg:flex-row">
+        <div className="flex h-[calc(100dvh-50px)] w-full flex-col overflow-x-hidden overflow-y-scroll bg-stone-800 text-white md:overflow-y-hidden lg:flex-row">
             {/* Main Wheel and Spin Area */}
             <div className="flex w-full items-center justify-center p-4 lg:w-3/4">
                 {/* Wheel Display and Result */}
@@ -258,20 +233,20 @@ export default function GamblingWheel() {
                 </div>
                 {/* Sign-In Modal */}
                 {!isVerified && (
-                    <div className="absolute inset-0">
+                    <div className="absolute inset-0 lg:w-3/4">
                         <SteamSignInModal
                             steamInput={steamInput}
                             setSteamInput={setSteamInput}
                             code={code}
                             setCode={setCode}
-                            onVerify={handleVerify}
+                            onVerify={verifyUser}
                             error={error}
                         />
                     </div>
                 )}
             </div>
             {/* Sidebar: User Info and Recent Winners */}
-            <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 lg:w-1/4 lg:space-y-4 lg:p-4">
+            <div className="flex h-fit w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 md:h-full lg:w-1/4 lg:space-y-4 lg:p-4">
                 {/* User Information */}
                 <div className="flex flex-row items-center justify-between lg:flex-col lg:space-y-4">
                     <div className="fit flex items-start lg:w-full">
