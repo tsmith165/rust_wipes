@@ -4,6 +4,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import {
     rw_servers,
     rw_server_network,
+    rw_parsed_server,
     kits,
     KitExtraImages,
     users,
@@ -30,6 +31,7 @@ export {
     db,
     rw_servers,
     rw_server_network,
+    rw_parsed_server,
     kits,
     KitExtraImages,
     users,
