@@ -745,56 +745,58 @@ export default function SlotMachine() {
                         </div>
 
                         {/* Control buttons row */}
-                        <div className="flex justify-start space-x-4 py-2">
+                        <div className="flex justify-start">
                             {/* Spin Button */}
                             <button
                                 data-tooltip-id="spin-tooltip"
+                                data-tooltip-place="top"
+                                data-tooltip-offset={6}
                                 onClick={handleSpin}
                                 disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                className="rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                className="mr-2 rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                             >
                                 <FaCoins className="h-6 w-6" />
                             </button>
-                            <Tooltip id="spin-tooltip" place="top">
+                            <Tooltip id="spin-tooltip">
                                 {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
                             </Tooltip>
 
                             {/* Auto Spin Button */}
                             <button
                                 data-tooltip-id="auto-spin-tooltip"
+                                data-tooltip-place="top"
+                                data-tooltip-offset={6}
                                 onClick={handleAutoSpinButton}
                                 disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                className="rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                className="mr-2 rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                             >
                                 {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
                             </button>
-                            <Tooltip id="auto-spin-tooltip" place="top">
-                                {autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}
-                            </Tooltip>
+                            <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
 
                             {/* Show Lines Button */}
                             <button
                                 data-tooltip-id="show-lines-tooltip"
+                                data-tooltip-place="top"
+                                data-tooltip-offset={6}
                                 onClick={handleShowLines}
-                                className="rounded-lg bg-stone-300 p-4 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                className="mr-2 rounded-lg bg-stone-300 p-4 text-primary hover:bg-stone-800 hover:text-primary_light"
                             >
                                 <FaInfoCircle className="h-6 w-6" />
                             </button>
-                            <Tooltip id="show-lines-tooltip" place="top">
-                                Show Winning Lines
-                            </Tooltip>
+                            <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
 
                             {/* Sound Toggle Button */}
                             <button
                                 data-tooltip-id="sound-tooltip"
+                                data-tooltip-place="top"
+                                data-tooltip-offset={6}
                                 onClick={handleMuteToggle}
-                                className="rounded-lg bg-stone-300 p-4 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                className="mr-2 rounded-lg bg-stone-300 p-4 text-primary hover:bg-stone-800 hover:text-primary_light"
                             >
                                 {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
                             </button>
-                            <Tooltip id="sound-tooltip" place="top">
-                                {isMuted ? 'Turn Sound On' : 'Turn Sound Off'}
-                            </Tooltip>
+                            <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
                         </div>
 
                         {error && <p className="mt-2 text-red-500">{error}</p>}
