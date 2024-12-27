@@ -9,8 +9,9 @@ import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants'
 import RecentSlotWinners from './RecentSlotWinners';
 import { getRandomSymbol } from './slotMachineUtils';
 
-import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
+import { FaVolumeMute, FaPlay, FaPause, FaInfoCircle, FaCoins } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
+import { Tooltip } from 'react-tooltip';
 
 import SteamSignInModal from '@/components/SteamSignInModal'; // Import the SteamSignInModal component
 import { useSteamUser } from '@/stores/steam_user_store';
@@ -725,80 +726,84 @@ export default function SlotMachine() {
                 {/* Side panel */}
                 <div className="flex h-full w-full flex-col space-y-2 overflow-y-auto bg-stone-700 px-4 py-2 lg:w-1/4 lg:space-y-4 lg:p-4">
                     {/* User info and controls */}
-                    <div className="flex flex-row justify-between">
-                        <div className="fit flex items-start">
-                            <Image
-                                src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
-                                alt="Steam Avatar"
-                                width={32}
-                                height={32}
-                                className="mr-2 rounded-full"
-                            />
-                            <span className="items-end text-lg font-bold leading-8">{steamProfile?.name || 'Unknown Player'}</span>
+                    <div className="flex flex-col space-y-2">
+                        {/* User info and credits row */}
+                        <div className="flex flex-row justify-between">
+                            <div className="fit flex items-start">
+                                <Image
+                                    src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
+                                    alt="Steam Avatar"
+                                    width={32}
+                                    height={32}
+                                    className="mr-2 rounded-full"
+                                />
+                                <span className="items-end text-lg font-bold leading-8">{steamProfile?.name || 'Unknown Player'}</span>
+                            </div>
+                            <p className="flex w-fit items-end overflow-hidden text-end text-lg font-bold text-white">
+                                Credits: {credits || '0'}
+                            </p>
                         </div>
-                        <p className="flex w-fit items-end overflow-hidden text-end text-lg font-bold text-white">
-                            Credits: {credits || '0'}
-                        </p>
-                    </div>
-                    <div className="flex flex-col items-center justify-between space-y-2 md:flex-row md:space-x-2 md:space-y-0">
-                        <button
-                            onClick={handleSpin}
-                            disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                            className="h-full w-full rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400 md:w-1/2"
-                        >
-                            {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
-                        </button>
-                        <button
-                            onClick={handleAutoSpinButton}
-                            disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                            className="flex h-full w-full items-center justify-center space-x-2 rounded bg-primary_light px-4 py-2 font-bold text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400 md:w-1/2"
-                        >
-                            {autoSpin ? (
-                                <div className="flex items-center justify-center space-x-2">
-                                    <FaPause className="h-6 w-6" />
-                                    <span className="leading-6">Auto Spins</span>
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-center space-x-2">
-                                    <FaPlay className="h-6 w-6" />
-                                    <span className="leading-6">Auto Spins</span>
-                                </div>
-                            )}
-                        </button>
-                    </div>
-                    <div className="flex flex-col items-center justify-between space-y-2 md:flex-row md:space-x-2 md:space-y-0">
-                        {/* Add the "Show Lines" button */}
-                        <button
-                            onClick={handleShowLines}
-                            className="h-full w-full rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
-                        >
-                            Show Lines
-                        </button>
 
-                        {/* Mute Sound Button */}
-                        <button
-                            onClick={handleMuteToggle}
-                            className="flex w-full justify-center rounded bg-stone-300 px-4 py-2 font-bold text-primary hover:bg-stone-800 hover:text-primary_light md:w-1/2"
-                        >
-                            {isMuted ? (
-                                <div className="flex w-fit items-center justify-center space-x-2">
-                                    <FaVolumeMute className="h-6 w-6" />
-                                    <span className="leading-6">Turn Sound On</span>
-                                </div>
-                            ) : (
-                                <div className="flex w-fit items-center justify-center space-x-2">
-                                    <FaVolumeHigh className="h-6 w-6" />
-                                    <span className="leading-6">Turn Sound Off</span>
-                                </div>
-                            )}
-                        </button>
+                        {/* Control buttons row */}
+                        <div className="flex justify-start space-x-4 py-2">
+                            {/* Spin Button */}
+                            <button
+                                data-tooltip-id="spin-tooltip"
+                                onClick={handleSpin}
+                                disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                className="rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                            >
+                                <FaCoins className="h-6 w-6" />
+                            </button>
+                            <Tooltip id="spin-tooltip" place="top">
+                                {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
+                            </Tooltip>
+
+                            {/* Auto Spin Button */}
+                            <button
+                                data-tooltip-id="auto-spin-tooltip"
+                                onClick={handleAutoSpinButton}
+                                disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                className="rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                            >
+                                {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
+                            </button>
+                            <Tooltip id="auto-spin-tooltip" place="top">
+                                {autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}
+                            </Tooltip>
+
+                            {/* Show Lines Button */}
+                            <button
+                                data-tooltip-id="show-lines-tooltip"
+                                onClick={handleShowLines}
+                                className="rounded-lg bg-stone-300 p-4 text-primary hover:bg-stone-800 hover:text-primary_light"
+                            >
+                                <FaInfoCircle className="h-6 w-6" />
+                            </button>
+                            <Tooltip id="show-lines-tooltip" place="top">
+                                Show Winning Lines
+                            </Tooltip>
+
+                            {/* Sound Toggle Button */}
+                            <button
+                                data-tooltip-id="sound-tooltip"
+                                onClick={handleMuteToggle}
+                                className="rounded-lg bg-stone-300 p-4 text-primary hover:bg-stone-800 hover:text-primary_light"
+                            >
+                                {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
+                            </button>
+                            <Tooltip id="sound-tooltip" place="top">
+                                {isMuted ? 'Turn Sound On' : 'Turn Sound Off'}
+                            </Tooltip>
+                        </div>
+
+                        {error && <p className="mt-2 text-red-500">{error}</p>}
+                        <RecentSlotWinners
+                            shouldRefetch={shouldRefetchWinners}
+                            onRefetchComplete={() => setShouldRefetchWinners(false)}
+                            spinning={spinning}
+                        />
                     </div>
-                    {error && <p className="mt-2 text-red-500">{error}</p>}
-                    <RecentSlotWinners
-                        shouldRefetch={shouldRefetchWinners}
-                        onRefetchComplete={() => setShouldRefetchWinners(false)}
-                        spinning={spinning}
-                    />
                 </div>
             </div>
 
