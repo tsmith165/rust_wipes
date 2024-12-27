@@ -20,7 +20,10 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
         return {
             success: true,
             data: {
-                profile: profileResponse.data,
+                profile: {
+                    ...profileResponse.data,
+                    steamId: profileResponse.data.steamId,
+                },
                 credits: creditsResponse.data.credits,
                 freeSpins: creditsResponse.data.freeSpins,
             },
@@ -33,10 +36,17 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
 
 export async function fetchUserCredits(steamId: string, authCode: string) {
     try {
+        console.log('Fetching user credits for steamId:', steamId, 'and authCode:', authCode);
         // First verify the auth code matches
         const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
 
-        if (!user.length || user[0].auth_code !== authCode) {
+        if (!user.length) {
+            console.log('User not found');
+            return { success: false, error: 'User not found' };
+        }
+
+        if (user[0].auth_code !== authCode) {
+            console.log('Invalid credentials');
             return { success: false, error: 'Invalid credentials' };
         }
 

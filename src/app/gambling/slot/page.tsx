@@ -1,6 +1,7 @@
 import SlotMachine from './SlotMachine';
 import PageLayout from '@/components/layout/PageLayout';
 import type { Metadata } from 'next';
+import { SteamUserProvider } from './SteamUserContext';
 import Image from 'next/image'; // Import Image
 
 export const metadata: Metadata = {
@@ -35,11 +36,13 @@ export const metadata: Metadata = {
 export default function SlotMachinePage() {
     return (
         <PageLayout page="/gambling/slot-machine">
-            <div className="relative flex flex-col md:flex-row">
-                <div className="relative z-10 h-full w-full">
-                    <SlotMachine />
+            <SteamUserProvider>
+                <div className="relative flex flex-col md:flex-row">
+                    <div className="relative z-10 h-full w-full">
+                        <SlotMachine />
+                    </div>
                 </div>
-            </div>
+            </SteamUserProvider>
         </PageLayout>
     );
 }

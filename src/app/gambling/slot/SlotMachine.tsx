@@ -1,12 +1,9 @@
-// src/app/gambling/slot/SlotMachine.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, getUserCredits, verifySteamProfile, setBonusType } from './slotMachineActions';
-import { fetchUserCredits } from '../serverActions';
+import { spinSlotMachine, setBonusType } from './slotMachineActions';
 import Image from 'next/image';
 import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
 import RecentSlotWinners from './RecentSlotWinners';
@@ -15,8 +12,8 @@ import { getRandomSymbol } from './slotMachineUtils';
 import { FaVolumeMute, FaPlay, FaPause } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 
-import Cookies from 'js-cookie';
 import SteamSignInModal from '@/components/SteamSignInModal'; // Import the SteamSignInModal component
+import { useSteamUser } from './SteamUserContext';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -78,13 +75,32 @@ export default function SlotMachine() {
     const [spinning, setSpinning] = useState(false);
     const [autoSpin, setAutoSpin] = useState(false);
     const [result, setResult] = useState<SlotResult | null>(null);
-    const [steamInput, setSteamInput] = useState('');
-    const [code, setCode] = useState('');
-    const [error, setError] = useState('');
-    const [credits, setCredits] = useState<number | null>(null);
-    const [isVerified, setIsVerified] = useState(false);
-    const [steamProfile, setSteamProfile] = useState<SteamProfile | null>(null);
-    const [freeSpins, setFreeSpins] = useState(0);
+
+    // Use the expanded context
+    const {
+        steamInput,
+        setSteamInput,
+        authCode: code,
+        setAuthCode: setCode,
+        steamId,
+        setSteamId,
+        profile: steamProfile,
+        setProfile: setSteamProfile,
+        credits,
+        setCredits,
+        freeSpins,
+        setFreeSpins,
+        isVerified,
+        setIsVerified,
+        error,
+        setError,
+    } = useSteamUser();
+
+    console.log('SlotMachine - steamInput:', steamInput);
+    console.log('SlotMachine - authCode:', code);
+    console.log('SlotMachine - isVerified:', isVerified);
+    console.log('SlotMachine - error:', error);
+
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
 
@@ -314,45 +330,16 @@ export default function SlotMachine() {
         }
     }, [winningLines]);
 
-    // Load credentials from cookies on component mount
-    useEffect(() => {
-        const savedSteamInput = Cookies.get('steamInput');
-        const savedCode = Cookies.get('authCode');
-
-        if (savedSteamInput && savedCode) {
-            setSteamInput(savedSteamInput);
-            setCode(savedCode);
-            // Fetch user credits using server action
-            const loadUserCredits = async () => {
-                const result = await fetchUserCredits(savedSteamInput, savedCode);
-                if (result.success && result.data) {
-                    setSteamProfile(result.data.profile);
-                    setCredits(result.data.credits);
-                    setFreeSpins(result.data.freeSpins);
-                    setIsVerified(true);
-                } else {
-                    // If there's an error, clear the cookies
-                    Cookies.remove('steamInput');
-                    Cookies.remove('authCode');
-                }
-            };
-            loadUserCredits();
-        }
-    }, []);
-
     // Function to handle user verification
     const handleVerify = async (profileData: any) => {
         try {
-            const { profile, credits, freeSpins } = profileData;
+            const { profile, credits: newCredits, freeSpins: newFreeSpins } = profileData;
             setSteamProfile(profile);
-            setCredits(credits);
-            setFreeSpins(freeSpins);
+            setSteamId(profile.steamId); // Set the Steam ID when verifying
+            setCredits(newCredits);
+            setFreeSpins(newFreeSpins);
             setIsVerified(true);
             setError('');
-
-            // Save credentials to cookies
-            Cookies.set('steamInput', steamInput, { expires: 7 });
-            Cookies.set('authCode', code, { expires: 7 });
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Verification failed');
         }
@@ -415,7 +402,7 @@ export default function SlotMachine() {
         setWinningLines([]);
 
         try {
-            const spinResponse = await spinSlotMachine(steamProfile.steamId, code);
+            const spinResponse = await spinSlotMachine(steamId, code);
             if (!spinResponse.success) {
                 setError(spinResponse.error || 'An error occurred during the spin.');
                 setSpinning(false);
