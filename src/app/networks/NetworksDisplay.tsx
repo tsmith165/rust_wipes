@@ -55,6 +55,7 @@ export function NetworksDisplay({ networks, selectedNetworkId }: NetworksDisplay
                             className={`mb-2 block w-full rounded p-2 text-left ${
                                 selectedNetwork?.id === network.id ? 'bg-primary text-secondary_dark' : 'text-primary hover:bg-stone-600'
                             }`}
+                            prefetch={false}
                         >
                             <div className="font-medium">{network.name ?? 'Unnamed Network'}</div>
                             <div className="text-sm opacity-75">

@@ -6,16 +6,15 @@ import { rw_server_network, rw_parsed_server } from '@/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import { fetchNetworkServerDetails } from '@/app/actions';
 import { NetworksDisplay } from './NetworksDisplay';
-import { createSearchParamsCache } from 'nuqs/server';
-import { parseAsString, parseAsInteger } from 'nuqs/server';
+import { createSearchParamsCache, parseAsInteger, parseAsString, type SearchParams } from 'nuqs/server';
 
 export const metadata: Metadata = {
     title: 'Server Networks - Rust Wipes',
     description: 'Discover various server networks on Rust Wipes.',
 };
 
-// Define search params using nuqs
-const { parse } = createSearchParamsCache({
+// Define the search params cache
+const searchParamsCache = createSearchParamsCache({
     networkId: parseAsInteger.withDefault(0),
     region: parseAsString.withDefault('US'),
 });
@@ -86,16 +85,28 @@ async function getNetworksData() {
     }
 }
 
-export default async function Networks({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-    const { networkId } = parse(searchParams);
+export default async function Networks({
+    searchParams,
+}: {
+    searchParams: Promise<SearchParams>; // Note: Next.js 15+ has async searchParams
+}) {
+    console.log('Page render - searchParams:', searchParams);
+
+    // Parse the search params after awaiting them
+    const params = await searchParamsCache.parse(searchParams);
     const networks = await getNetworksData();
+
+    console.log('Page render - params:', params);
+    console.log('Page render - networkId:', params.networkId);
+    console.log('Page render - networks length:', networks.length);
 
     return (
         <PageLayout page={'networks'}>
-            <NetworksDisplay networks={networks} selectedNetworkId={networkId} />
+            <NetworksDisplay networks={networks} selectedNetworkId={params.networkId} />
         </PageLayout>
     );
 }
 
-// Force dynamic rendering since we're fetching live data
+// These ensure the page is always server-rendered with fresh data
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
