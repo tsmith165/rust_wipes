@@ -74,7 +74,11 @@ export function NetworksContent({ network }: ContentProps) {
         <div className="flex-grow overflow-y-scroll bg-stone-500 p-4">
             {network && groupedServers ? (
                 <div>
-                    <h2 className="mb-4 w-full text-center text-2xl font-bold text-primary">{network.name ?? 'Unnamed Network'}</h2>
+                    <h1 className="mb-4 w-full text-center text-2xl font-bold text-stone-800">
+                        <a href={`https://www.${network.name}`} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
+                            {network.name ?? 'Unnamed Network'}
+                        </a>
+                    </h1>
                     {Object.entries(groupedServers)
                         .filter(([_, servers]) => servers.length > 0)
                         .map(([group, servers]) => (
