@@ -10,7 +10,7 @@ interface SidebarProps {
 const SELECTED_NETWORK_CLASS = 'bg-primary_dark text-stone-300';
 const UNSELECTED_NETWORK_CLASS = 'text-stone-400 hover:bg-stone-700';
 
-export function NetworksSidebar({ networks, selectedNetworkId }: SidebarProps) {
+export function NetworksDesktopForm({ networks, selectedNetworkId }: SidebarProps) {
     return (
         <div className="flex w-[20%] min-w-[250px] flex-col bg-stone-800">
             <div className="flex-grow">
