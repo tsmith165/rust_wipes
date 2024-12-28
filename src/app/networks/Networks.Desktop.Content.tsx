@@ -4,7 +4,7 @@ import { Table } from '@/components/tables/Table';
 import { TableHeader } from '@/components/tables/Table.Header';
 import { TableRow } from '@/components/tables/Table.Row';
 import type { ServerNetwork } from './types';
-import { SERVER_TITLE_RATE_KEYWORDS, type ResourceRateGroup } from './constants';
+import { SERVER_TITLE_RATE_KEYWORDS, type ResourceRateGroup } from './Networks.Constants';
 import { formatTimeDifference } from './utils';
 
 interface ContentProps {
@@ -67,7 +67,7 @@ function NetworksTableContent({ servers }: { servers: ServerNetwork['servers'] }
     );
 }
 
-export function NetworksContent({ network }: ContentProps) {
+export function NetworksDesktopContent({ network }: ContentProps) {
     const groupedServers = network ? groupServersByRate(network.servers) : null;
 
     return (

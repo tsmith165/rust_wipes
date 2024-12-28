@@ -1,35 +1,33 @@
 import React from 'react';
-import PageLayout from '@/components/layout/PageLayout';
-import { NetworksDisplay } from './Networks.Main';
-import { getNetworksData } from './networkActions';
-import { createSearchParamsCache, parseAsInteger, parseAsString, type SearchParams } from 'nuqs/server';
-
+import { createSearchParamsCache, parseAsInteger } from 'nuqs/server';
+import { getNetworksData } from '@/app/networks/Networks.Actions';
+import { NetworksContainer } from '@/app/networks/Networks.Container';
 import { Metadata } from 'next';
+import PageLayout from '@/components/layout/PageLayout';
 export const metadata: Metadata = {
     title: 'Server Networks - Rust Wipes',
     description: 'Discover various server networks on Rust Wipes.',
 };
 
-// Define the search params cache
+// Define the search params cache with type-safe parsing
 const searchParamsCache = createSearchParamsCache({
     networkId: parseAsInteger.withDefault(0),
-    region: parseAsString.withDefault('US'),
 });
 
-export default async function Networks({ searchParams }: { searchParams: Promise<SearchParams> }) {
-    console.log('Page render - searchParams:', searchParams);
+interface NetworksPageProps {
+    searchParams: { [key: string]: string | string[] | undefined };
+}
 
-    // Parse the search params after awaiting them
-    const params = await searchParamsCache.parse(searchParams);
+export default async function NetworksPage({ searchParams }: NetworksPageProps) {
     const networks = await getNetworksData();
-
-    console.log('Page render - params:', params);
-    console.log('Page render - networkId:', params.networkId);
-    console.log('Page render - networks length:', networks.length);
+    const params = await searchParamsCache.parse(searchParams);
+    const selectedNetworkId = params.networkId || networks[0]?.id || 0;
 
     return (
-        <PageLayout page={'networks'}>
-            <NetworksDisplay networks={networks} selectedNetworkId={params.networkId} />
+        <PageLayout page="/networks">
+            <div className="h-full w-full">
+                <NetworksContainer networks={networks} selectedNetworkId={selectedNetworkId} />
+            </div>
         </PageLayout>
     );
 }

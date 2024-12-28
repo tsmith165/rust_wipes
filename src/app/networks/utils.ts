@@ -16,7 +16,7 @@ export function formatTimeDifference(timestamp: Date | null | undefined, isNextW
     }
 
     if (diffDays > 0) {
-        return `${diffDays}d ${diffHours % 24}h`;
+        return `${diffDays}d ${diffHours % 24}h ${diffMins % 60}m`;
     } else if (diffHours > 0) {
         return `${diffHours}h ${diffMins % 60}m`;
     } else {
