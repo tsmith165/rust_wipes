@@ -10,6 +10,7 @@ import RecentWinners from './RecentWinners';
 import { BiSolidDownArrow } from 'react-icons/bi';
 import SteamSignInModal from '@/components/SteamSignInModal';
 import { useSteamUser } from '@/stores/steam_user_store';
+import { verifyAndGetCredits, fetchUserCredits } from '@/app/gambling/Gambling.Actions';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 

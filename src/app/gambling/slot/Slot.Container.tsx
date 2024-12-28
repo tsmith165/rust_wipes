@@ -3,17 +3,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, setBonusType } from './slotMachineActions';
+import { spinSlotMachine, setBonusType } from './Slot.Actions';
 import Image from 'next/image';
-import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
-import RecentSlotWinners from './RecentSlotWinners';
-import { getRandomSymbol } from './slotMachineUtils';
+import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from '@/app/gambling/slot/Slot.Constants';
+import { getRandomSymbol } from '@/app/gambling/slot/Slot.Utils';
+import RecentSlotWinners from '@/app/gambling/slot/Slot.RecentWinners';
 
 import { FaVolumeMute, FaPlay, FaPause, FaInfoCircle, FaCoins } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
 
-import SteamSignInModal from '@/components/SteamSignInModal'; // Import the SteamSignInModal component
+import SteamSignInModal from '@/components/SteamSignInModal';
 import { useSteamUser } from '@/stores/steam_user_store';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
@@ -755,10 +755,14 @@ export default function SlotMachine() {
                                 disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
                                 className="mr-2 rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                             >
-                                <FaCoins className="h-6 w-6" />
+                                {freeSpins > 0 ? freeSpins : Math.floor((credits || 0) / 5)}
                             </button>
                             <Tooltip id="spin-tooltip">
-                                {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
+                                {spinning
+                                    ? 'Spinning...'
+                                    : freeSpins > 0
+                                      ? `${freeSpins} Free Spins Remaining`
+                                      : `${Math.floor((credits || 0) / 5)} Spins Available (5 credits each)`}
                             </Tooltip>
 
                             {/* Auto Spin Button */}
