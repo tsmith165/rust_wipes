@@ -31,6 +31,7 @@ export default function GamblingWheel() {
     const [showOverlay, setShowOverlay] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+    const [showSignInModal, setShowSignInModal] = useState(true);
     const currentRotationRef = useRef(0);
 
     // Use the Zustand store
@@ -75,6 +76,11 @@ export default function GamblingWheel() {
 
         initializeUser();
     }, []); // Run once on mount
+
+    // Update the modal visibility when verification status changes
+    useEffect(() => {
+        setShowSignInModal(!isVerified);
+    }, [isVerified]);
 
     // Function to handle spinning the wheel
     const handleSpin = async () => {
@@ -242,6 +248,8 @@ export default function GamblingWheel() {
                             setCode={setCode}
                             onVerify={verifyUser}
                             error={error}
+                            showModal={showSignInModal}
+                            setShowModal={setShowSignInModal}
                         />
                     </div>
                 )}
