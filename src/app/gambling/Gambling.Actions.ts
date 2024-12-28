@@ -1,7 +1,7 @@
 'use server';
 
-import { verifySteamProfile } from './slot/slotMachineActions';
-import { getUserCredits } from './slot/slotMachineActions';
+import { verifySteamProfile } from '@/app/gambling/slot/Slot.Actions';
+import { getUserCredits } from '@/app/gambling/slot/Slot.Actions';
 import { db } from '@/db/db';
 import { user_playtime, bonus_spins } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
