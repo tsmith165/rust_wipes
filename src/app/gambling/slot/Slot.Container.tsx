@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { spinSlotMachine, setBonusType } from './Slot.Actions';
 import Image from 'next/image';
-import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from '@/app/gambling/slot/Slot.Constants';
+import { WINNING_LINES } from '@/app/gambling/slot/Slot.Constants';
 import { getRandomSymbol } from '@/app/gambling/slot/Slot.Utils';
 import RecentSlotWinners from '@/app/gambling/slot/Slot.RecentWinners';
 

@@ -1,11 +1,16 @@
-// File: /src/app/gambling/slot/slotMachineActions.ts
-
 'use server';
 
 import { db } from '@/db/db';
 import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
 import { eq, and, sql, or, desc } from 'drizzle-orm';
-import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES, SLOT_ITEMS_NO_MULTIPLIERS } from '@/app/gambling/slot/Slot.Constants';
+import {
+    BONUS_SYMBOL,
+    BASE_PAYOUTS,
+    WINNING_LINES,
+    SLOT_ITEMS_NO_MULTIPLIERS,
+    INITIAL_BONUS_SPINS,
+    RETRIGGER_BONUS_SPINS,
+} from '@/app/gambling/slot/Slot.Constants';
 import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from '@/app/gambling/slot/Slot.Utils';
 
 // **Define a standardized response interface**
@@ -40,6 +45,7 @@ interface WinnerWithPictures {
     steam_id: string;
     payout: { item: string; full_name: string; quantity: number }[];
     free_spins_won: number;
+    bonus_type: string;
     timestamp: string;
     profile_picture_url: string | null;
 }
@@ -216,28 +222,16 @@ export async function spinSlotMachine(
             // If this is a new bonus trigger (no existing bonus type), set needsBonusTypeSelection
             if (!selectedBonusType) {
                 needsBonusTypeSelection = true;
-                // Don't award spins yet - wait for user selection
             } else {
-                // Existing bonus type - award spins immediately
-                if (selectedBonusType === 'normal') {
-                    if (bonusCountFinal === 3) {
-                        spinsAwarded = 10;
-                    } else if (bonusCountFinal === 4) {
-                        spinsAwarded = 15;
-                    } else if (bonusCountFinal >= 5) {
-                        spinsAwarded = 20;
-                    }
-                } else if (selectedBonusType === 'sticky') {
-                    if (bonusCountFinal === 3) {
-                        spinsAwarded = 5;
-                    } else if (bonusCountFinal === 4) {
-                        spinsAwarded = 8;
-                    } else if (bonusCountFinal >= 5) {
-                        spinsAwarded = 10;
-                    }
-                }
+                // Existing bonus type - award spins based on whether this is a retrigger
+                const bonusTable = freeSpinsAvailable > 0 ? RETRIGGER_BONUS_SPINS : INITIAL_BONUS_SPINS;
+                spinsAwarded = bonusTable[selectedBonusType][bonusCountFinal as 3 | 4 | 5] || 0;
                 freeSpinsAvailable += spinsAwarded;
             }
+        } else if (freeSpinsAvailable > 0 && bonusCountFinal === 2 && selectedBonusType) {
+            // Handle 2 bonus symbols during free spins
+            spinsAwarded = RETRIGGER_BONUS_SPINS[selectedBonusType][2];
+            freeSpinsAvailable += spinsAwarded;
         }
 
         // Update user credits and bonus spins
@@ -513,27 +507,8 @@ export async function setBonusType(steamId: string, code: string, bonusType: 'no
             return { success: false, error: 'Invalid last spin result format' };
         }
 
-        let bonus_spins_awarded = 0;
-        // Determine bonus spins based on the selected bonus type
-        if (bonusType === 'normal') {
-            bonus_spins_awarded =
-                number_of_bonus_symbols_in_last_win === 5
-                    ? 20
-                    : number_of_bonus_symbols_in_last_win === 4
-                      ? 15
-                      : number_of_bonus_symbols_in_last_win === 3
-                        ? 10
-                        : 0;
-        } else if (bonusType === 'sticky') {
-            bonus_spins_awarded =
-                number_of_bonus_symbols_in_last_win === 5
-                    ? 10
-                    : number_of_bonus_symbols_in_last_win === 4
-                      ? 8
-                      : number_of_bonus_symbols_in_last_win === 3
-                        ? 5
-                        : 0;
-        }
+        // Use the INITIAL_BONUS_SPINS constant to determine bonus spins
+        const bonus_spins_awarded = INITIAL_BONUS_SPINS[bonusType][number_of_bonus_symbols_in_last_win as 3 | 4 | 5] || 0;
 
         // Retrieve existing bonus spins data
         const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
@@ -655,6 +630,7 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                 timestamp: slot_machine_spins.timestamp,
                 profile_picture_url: user_playtime.profile_picture_url,
                 free_spins_won: slot_machine_spins.free_spins_won,
+                user_id: user_playtime.id,
             })
             .from(slot_machine_spins)
             .innerJoin(user_playtime, eq(user_playtime.id, slot_machine_spins.user_id))
@@ -668,6 +644,21 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                 if (!profilePictureUrl) {
                     const fetchResult = await fetchAndStoreProfilePicture(winner.steam_id);
                     profilePictureUrl = fetchResult;
+                }
+
+                // Get bonus type for this spin if free spins were won
+                let bonusType = '';
+                if (winner.free_spins_won > 0) {
+                    const bonusSpinData = await db
+                        .select()
+                        .from(bonus_spins)
+                        .where(eq(bonus_spins.user_id, winner.user_id))
+                        .orderBy(desc(bonus_spins.last_updated))
+                        .limit(1);
+
+                    if (bonusSpinData.length > 0) {
+                        bonusType = bonusSpinData[0].bonus_type;
+                    }
                 }
 
                 let payoutData: { item: string; full_name: string; quantity: number }[] = [];
@@ -686,6 +677,7 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                     timestamp: winner.timestamp ? new Date(winner.timestamp).toISOString() : new Date().toISOString(),
                     payout: Array.isArray(payoutData) ? payoutData : [payoutData],
                     free_spins_won: winner.free_spins_won,
+                    bonus_type: bonusType,
                     profile_picture_url: profilePictureUrl,
                     steam_id: winner.steam_id,
                 };

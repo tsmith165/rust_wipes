@@ -1,49 +1,50 @@
 import { SLOT_ITEMS, BONUS_SYMBOL, SYMBOL_PROBABILITIES } from './Slot.Constants';
 
-// Helper function to get a random symbol based on probabilities
-export function getRandomSymbol(): string {
+type SlotItem = (typeof SLOT_ITEMS)[number];
+
+export function getRandomSymbol(): SlotItem {
     const rand = Math.random();
     let cumulativeProbability = 0;
 
     for (const [symbol, probability] of Object.entries(SYMBOL_PROBABILITIES)) {
         cumulativeProbability += probability;
         if (rand < cumulativeProbability) {
-            return symbol;
+            return symbol as SlotItem;
         }
     }
 
-    // Fallback in case of rounding errors
     return SLOT_ITEMS[SLOT_ITEMS.length - 1];
 }
 
-export function getRandomSymbolExcludingBonus(): string {
-    const symbolsExcludingBonus = SLOT_ITEMS.filter((item) => item !== BONUS_SYMBOL);
-    const adjustedProbabilities: Record<string, number> = {};
+export function getRandomSymbolExcludingBonus(): SlotItem {
+    const symbolsExcludingBonus = SLOT_ITEMS.filter((item: SlotItem) => item !== BONUS_SYMBOL);
+    const adjustedProbabilities: Partial<Record<SlotItem, number>> = {};
     let totalProb = 0;
 
-    // Calculate total probability excluding bonus
     for (const [symbol, probability] of Object.entries(SYMBOL_PROBABILITIES)) {
         if (symbol !== BONUS_SYMBOL) {
-            adjustedProbabilities[symbol] = probability;
+            adjustedProbabilities[symbol as SlotItem] = probability;
             totalProb += probability;
         }
     }
 
-    // Normalize probabilities
     for (const symbol in adjustedProbabilities) {
-        adjustedProbabilities[symbol] = adjustedProbabilities[symbol] / totalProb;
+        if (adjustedProbabilities[symbol as SlotItem] !== undefined) {
+            adjustedProbabilities[symbol as SlotItem]! /= totalProb;
+        }
     }
 
     const rand = Math.random();
     let cumulativeProbability = 0;
     for (const [symbol, probability] of Object.entries(adjustedProbabilities)) {
-        cumulativeProbability += probability;
-        if (rand < cumulativeProbability) {
-            return symbol;
+        if (probability !== undefined) {
+            cumulativeProbability += probability;
+            if (rand < cumulativeProbability) {
+                return symbol as SlotItem;
+            }
         }
     }
 
-    // Fallback
     return symbolsExcludingBonus[symbolsExcludingBonus.length - 1];
 }
 
