@@ -1,7 +1,6 @@
-import SlotMachine from './SlotMachine';
+import SlotMachine from './Slot.Container';
 import PageLayout from '@/components/layout/PageLayout';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 
 export const metadata: Metadata = {
     title: 'Rust Wipes - Slot Machine',

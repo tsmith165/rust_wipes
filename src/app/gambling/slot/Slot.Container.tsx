@@ -3,17 +3,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, setBonusType } from './slotMachineActions';
+import { spinSlotMachine, setBonusType } from './Slot.Actions';
 import Image from 'next/image';
-import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from './slotMachineConstants';
-import RecentSlotWinners from './RecentSlotWinners';
-import { getRandomSymbol } from './slotMachineUtils';
+import { SLOT_ITEMS, BONUS_SYMBOL, WINNING_LINES } from '@/app/gambling/slot/Slot.Constants';
+import { getRandomSymbol } from '@/app/gambling/slot/Slot.Utils';
+import RecentSlotWinners from '@/app/gambling/slot/Slot.RecentWinners';
 
 import { FaVolumeMute, FaPlay, FaPause, FaInfoCircle, FaCoins } from 'react-icons/fa';
 import { FaVolumeHigh } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
 
-import SteamSignInModal from '@/components/SteamSignInModal'; // Import the SteamSignInModal component
+import SteamSignInModal from '@/components/SteamSignInModal';
 import { useSteamUser } from '@/stores/steam_user_store';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
@@ -67,17 +67,6 @@ const VISIBLE_ITEMS = 5;
 const GAP = 2; // Adjusted gap
 
 export default function SlotMachine() {
-    // State variables
-    const [showOverlay, setShowOverlay] = useState(false);
-    const [showConfetti, setShowConfetti] = useState(false);
-    const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-    const [shouldRefetchWinners, setShouldRefetchWinners] = useState(false);
-
-    const [spinning, setSpinning] = useState(false);
-    const [autoSpin, setAutoSpin] = useState(false);
-    const [result, setResult] = useState<SlotResult | null>(null);
-    const [freeSpins, setFreeSpins] = useState(0);
-
     // Use the Zustand store
     const {
         steamInput,
@@ -90,6 +79,8 @@ export default function SlotMachine() {
         setProfile: setSteamProfile,
         credits,
         setCredits,
+        freeSpins,
+        setFreeSpins,
         isVerified,
         setIsVerified,
         error,
@@ -99,6 +90,15 @@ export default function SlotMachine() {
     } = useSteamUser();
 
     console.log(`SlotMachine - steamId: ${steamId} | authCode: ${code} | isVerified: ${isVerified} | error: ${error}`);
+
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+    const [shouldRefetchWinners, setShouldRefetchWinners] = useState(false);
+
+    const [spinning, setSpinning] = useState(false);
+    const [autoSpin, setAutoSpin] = useState(false);
+    const [result, setResult] = useState<SlotResult | null>(null);
 
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
@@ -755,10 +755,16 @@ export default function SlotMachine() {
                                 disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
                                 className="mr-2 rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                             >
-                                <FaCoins className="h-6 w-6" />
+                                {freeSpins > 0 ? (
+                                    <div className="flex h-6 w-6 items-center justify-center">
+                                        <b className="text-xl">{freeSpins}</b>
+                                    </div>
+                                ) : (
+                                    <FaCoins className="h-6 w-6" />
+                                )}
                             </button>
                             <Tooltip id="spin-tooltip">
-                                {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins} left)` : 'Spin (5 credits)'}
+                                {spinning ? 'Spinning...' : freeSpins > 0 ? `${freeSpins} Free Spins Remaining` : `Spin (5 credits)`}
                             </Tooltip>
 
                             {/* Auto Spin Button */}
@@ -767,7 +773,7 @@ export default function SlotMachine() {
                                 data-tooltip-place="top"
                                 data-tooltip-offset={6}
                                 onClick={handleAutoSpinButton}
-                                disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
                                 className="mr-2 rounded-lg bg-primary_light p-4 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                             >
                                 {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}

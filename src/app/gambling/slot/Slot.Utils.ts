@@ -1,4 +1,4 @@
-import { SLOT_ITEMS, BONUS_SYMBOL, SYMBOL_PROBABILITIES } from './slotMachineConstants';
+import { SLOT_ITEMS, BONUS_SYMBOL, SYMBOL_PROBABILITIES } from './Slot.Constants';
 
 // Helper function to get a random symbol based on probabilities
 export function getRandomSymbol(): string {

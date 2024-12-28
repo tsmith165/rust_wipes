@@ -4,7 +4,7 @@ import { db } from '@/db/db';
 import { user_playtime, wheel_spins } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor, WheelPayout } from './wheelConstants';
-import { verifyAuthCode } from '@/app/gambling/serverActions';
+import { verifyAuthCode } from '@/app/gambling/Gambling.Actions';
 
 // **Define a precise type for PAYOUTS**
 type PayoutsType = {

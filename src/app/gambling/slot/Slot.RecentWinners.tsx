@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getRecentSlotWinners } from './slotMachineActions';
+import { getRecentSlotWinners } from './Slot.Actions';
 import Image from 'next/image';
 
 interface PayoutItem {

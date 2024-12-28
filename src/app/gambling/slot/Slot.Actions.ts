@@ -5,8 +5,8 @@
 import { db } from '@/db/db';
 import { user_playtime, slot_machine_spins, bonus_spins } from '@/db/schema';
 import { eq, and, sql, or, desc } from 'drizzle-orm';
-import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES, SLOT_ITEMS_NO_MULTIPLIERS } from './slotMachineConstants';
-import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from './slotMachineUtils';
+import { BONUS_SYMBOL, BASE_PAYOUTS, WINNING_LINES, SLOT_ITEMS_NO_MULTIPLIERS } from '@/app/gambling/slot/Slot.Constants';
+import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from '@/app/gambling/slot/Slot.Utils';
 
 // **Define a standardized response interface**
 interface ActionResponse<T> {
