@@ -55,7 +55,7 @@ export default function RecentWinners({ shouldRefetch, onRefetchComplete }: Rece
     }, [shouldRefetch, onRefetchComplete]);
 
     return (
-        <div className="h-fit rounded-lg bg-stone-600 p-4 shadow">
+        <div className="h-fit rounded-lg bg-stone-600 p-4 pt-0 shadow">
             <h2 className="mb-2 text-lg font-bold">Recent Winners</h2>
             {error && <p className="text-red-500">{error}</p>} {/* **Added: Display error message** */}
             <ul className="space-y-2">

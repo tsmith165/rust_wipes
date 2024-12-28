@@ -277,6 +277,7 @@ export async function spinSlotMachine(
             free_spins_won: spinsAwarded,
             free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
             redeemed: payout.length === 0,
+            bonus_type: selectedBonusType,
         });
 
         // Prepare the SpinResult
@@ -630,6 +631,7 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                 timestamp: slot_machine_spins.timestamp,
                 profile_picture_url: user_playtime.profile_picture_url,
                 free_spins_won: slot_machine_spins.free_spins_won,
+                bonus_type: slot_machine_spins.bonus_type,
                 user_id: user_playtime.id,
             })
             .from(slot_machine_spins)
@@ -644,21 +646,6 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                 if (!profilePictureUrl) {
                     const fetchResult = await fetchAndStoreProfilePicture(winner.steam_id);
                     profilePictureUrl = fetchResult;
-                }
-
-                // Get bonus type for this spin if free spins were won
-                let bonusType = '';
-                if (winner.free_spins_won > 0) {
-                    const bonusSpinData = await db
-                        .select()
-                        .from(bonus_spins)
-                        .where(eq(bonus_spins.user_id, winner.user_id))
-                        .orderBy(desc(bonus_spins.last_updated))
-                        .limit(1);
-
-                    if (bonusSpinData.length > 0) {
-                        bonusType = bonusSpinData[0].bonus_type;
-                    }
                 }
 
                 let payoutData: { item: string; full_name: string; quantity: number }[] = [];
@@ -677,7 +664,7 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                     timestamp: winner.timestamp ? new Date(winner.timestamp).toISOString() : new Date().toISOString(),
                     payout: Array.isArray(payoutData) ? payoutData : [payoutData],
                     free_spins_won: winner.free_spins_won,
-                    bonus_type: bonusType,
+                    bonus_type: winner.bonus_type,
                     profile_picture_url: profilePictureUrl,
                     steam_id: winner.steam_id,
                 };

@@ -1,6 +1,23 @@
-import SlotMachine from './Slot.Container';
+import { Suspense } from 'react';
+import SlotContainer from './Slot.Container';
 import PageLayout from '@/components/layout/PageLayout';
 import type { Metadata } from 'next';
+import { getRandomSymbol } from './Slot.Utils';
+
+// Constants for initial grid
+const VISIBLE_ITEMS = 5;
+const REELS = 5;
+
+// Generate initial symbols on the server
+function generateInitialSymbols() {
+    return Array(REELS)
+        .fill(0)
+        .map(() =>
+            Array(VISIBLE_ITEMS)
+                .fill(0)
+                .map(() => getRandomSymbol()),
+        );
+}
 
 export const metadata: Metadata = {
     title: 'Rust Wipes - Slot Machine',
@@ -32,13 +49,14 @@ export const metadata: Metadata = {
 };
 
 export default function SlotMachinePage() {
+    // Generate initial symbols on the server
+    const initialSymbols = generateInitialSymbols();
+
     return (
         <PageLayout page="/gambling/slot-machine">
-            <div className="relative flex flex-col md:flex-row">
-                <div className="relative z-10 h-full w-full">
-                    <SlotMachine />
-                </div>
-            </div>
+            <Suspense fallback={<div className="h-[100dvh] w-full animate-pulse bg-gray-800" />}>
+                <SlotContainer initialSymbols={initialSymbols} />
+            </Suspense>
         </PageLayout>
     );
 }

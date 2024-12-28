@@ -6,6 +6,22 @@ import { db } from '@/db/db';
 import { user_playtime, bonus_spins } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
+interface ActionResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+}
+
+interface UserCreditsResponse {
+    profile: {
+        name: string;
+        avatarUrl: string;
+        steamId: string;
+    };
+    credits: number;
+    freeSpins: number;
+}
+
 export async function verifyAndGetCredits(profileUrl: string, authCode: string) {
     try {
         const profileResponse = await verifySteamProfile(profileUrl);
@@ -35,23 +51,21 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
     }
 }
 
-export async function fetchUserCredits(steamId: string, authCode: string) {
+export async function fetchUserCredits(steamId: string, code: string): Promise<ActionResponse<UserCreditsResponse>> {
     try {
-        console.log('Fetching user credits for steamId:', steamId, 'and authCode:', authCode);
-        // First verify the auth code matches
-        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+        // Verify authentication
+        const isAuthValid = await verifyAuthCode(steamId, code);
+        if (!isAuthValid) {
+            return { success: false, error: 'Invalid auth code' };
+        }
 
+        // Get user data
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
         if (!user.length) {
-            console.log('User not found');
             return { success: false, error: 'User not found' };
         }
 
-        if (user[0].auth_code !== authCode) {
-            console.log('Invalid credentials');
-            return { success: false, error: 'Invalid credentials' };
-        }
-
-        // Get bonus spins if they exist
+        // Get bonus spins data
         const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
         const freeSpins = bonusSpinsData.length > 0 ? bonusSpinsData[0].spins_remaining : 0;
 
@@ -68,8 +82,8 @@ export async function fetchUserCredits(steamId: string, authCode: string) {
             },
         };
     } catch (error) {
-        console.error('Error fetching user credits:', error);
-        return { success: false, error: 'Failed to fetch user credits' };
+        console.error('Error in fetchUserCredits:', error);
+        return { success: false, error: 'An unexpected error occurred' };
     }
 }
 

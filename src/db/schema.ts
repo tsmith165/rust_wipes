@@ -270,6 +270,7 @@ export const slot_machine_spins = pgTable('slot_machine_spins', {
     redeemed: boolean('redeemed').notNull().default(false),
     payout_redeemed: jsonb('payout_redeemed').notNull().default('{}'),
     timestamp: timestamp('timestamp').defaultNow(),
+    bonus_type: varchar('bonus_type').notNull().default(''),
 });
 
 export type SlotMachineSpins = InferSelectModel<typeof slot_machine_spins>;

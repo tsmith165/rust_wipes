@@ -1,3 +1,16 @@
+// Window size thresholds
+export const WINDOW_SIZE_SMALL_THRESHOLD = 400;
+export const WINDOW_SIZE_MEDIUM_THRESHOLD = 600;
+export const WINDOW_SIZE_LARGE_THRESHOLD = 800;
+export const WINDOW_SIZE_EXTRA_LARGE_THRESHOLD = 1300;
+
+// Item sizes for different window sizes
+export const ITEM_SIZE_EXTRA_LARGE = 100;
+export const ITEM_SIZE_LARGE = 80;
+export const ITEM_SIZE_MEDIUM = 60;
+export const ITEM_SIZE_SMALL = 50;
+export const ITEM_SIZE_EXTRA_SMALL = 40;
+
 // Define available slot items
 export const SLOT_ITEMS = [
     'scrap',
@@ -24,6 +37,19 @@ export const SYMBOL_PROBABILITIES: Record<string, number> = {
     '2x_multiplier': 0.007,
     '3x_multiplier': 0.005,
     '5x_multiplier': 0.003,
+};
+
+export const DB_IMAGE_PATHS = {
+    ak47: '/rust_icons/ak47_icon.png',
+    m39_rifle: '/rust_icons/m39_icon.png',
+    thompson: '/rust_icons/thompson_icon.png',
+    scrap: '/rust_icons/scrap_icon.png',
+    metal_fragments: '/rust_icons/metal_fragments_icon.png',
+    high_quality_metal: '/rust_icons/hqm_icon.png',
+    bonus: '/rust_icons/bonus_symbol.png',
+    '2x_multiplier': '/rust_icons/2x_multi.png',
+    '3x_multiplier': '/rust_icons/3x_multi.png',
+    '5x_multiplier': '/rust_icons/5x_multi.png',
 };
 
 // Map symbols to image paths
@@ -76,10 +102,10 @@ export const RETRIGGER_BONUS_SPINS = {
         5: 20,
     },
     sticky: {
-        2: 4,
-        3: 8,
-        4: 12,
-        5: 15,
+        2: 3,
+        3: 5,
+        4: 8,
+        5: 10,
     },
 } as const;
 
@@ -142,46 +168,60 @@ export const WINNING_LINES = {
         [
             [0, 0],
             [1, 1],
-            [2, 2],
+            [2, 0],
             [3, 1],
             [4, 0],
         ],
         [
             [0, 1],
             [1, 2],
-            [2, 3],
+            [2, 1],
             [3, 2],
             [4, 1],
         ],
         [
             [0, 2],
             [1, 3],
-            [2, 4],
+            [2, 2],
             [3, 3],
             [4, 2],
+        ],
+        [
+            [0, 3],
+            [1, 4],
+            [2, 3],
+            [3, 4],
+            [4, 3],
         ],
     ],
     zigzag_upwards: [
         [
             [0, 4],
             [1, 3],
-            [2, 2],
+            [2, 4],
             [3, 3],
             [4, 4],
         ],
         [
             [0, 3],
             [1, 2],
-            [2, 1],
+            [2, 3],
             [3, 2],
             [4, 3],
         ],
         [
             [0, 2],
             [1, 1],
-            [2, 0],
+            [2, 2],
             [3, 1],
             [4, 2],
+        ],
+        [
+            [0, 1],
+            [1, 0],
+            [2, 1],
+            [3, 0],
+            [4, 1],
         ],
     ],
 };

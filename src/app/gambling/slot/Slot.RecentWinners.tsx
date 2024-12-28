@@ -3,19 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { getRecentSlotWinners } from './Slot.Actions';
-import { motion, AnimatePresence } from 'framer-motion';
+import { DB_IMAGE_PATHS } from './Slot.Constants';
 
-// Map symbols to image paths
-const ITEM_ICON_PATHS: Record<string, string> = {
-    scrap: '/rust_icons/scrap_icon.png',
-    metal_fragments: '/rust_icons/metal_fragments_icon.png',
-    high_quality_metal: '/rust_icons/hqm_icon.png',
-    'smg.thompson': '/rust_icons/thompson_icon.png',
-    'rifle.m39': '/rust_icons/m39_icon.png',
-    'rifle.ak': '/rust_icons/ak47_icon.png',
-};
-
-interface Winner {
+interface WinnerWithPictures {
     player_name: string;
     steam_id: string;
     payout: { item: string; full_name: string; quantity: number }[];
@@ -25,114 +15,97 @@ interface Winner {
     profile_picture_url: string | null;
 }
 
-interface Props {
-    shouldRefetch: boolean;
-    onRefetchComplete: () => void;
+interface RecentSlotWinnersProps {
     spinning: boolean;
 }
 
-export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete, spinning }: Props) {
-    const [winners, setWinners] = useState<Winner[]>([]);
+export default function RecentSlotWinners({ spinning }: RecentSlotWinnersProps) {
+    const [winners, setWinners] = useState<WinnerWithPictures[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchWinners = async () => {
+        try {
+            const response = await getRecentSlotWinners();
+            if (response.success && response.data) {
+                setWinners(response.data);
+                setError(null);
+            } else {
+                setError(response.error || 'Failed to fetch winners');
+            }
+        } catch (error) {
+            console.error('Error fetching winners:', error);
+            setError('An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchWinners = async () => {
-            try {
-                const response = await getRecentSlotWinners();
-                if (response.success && response.data) {
-                    setWinners(response.data);
-                    setError(null);
-                } else {
-                    setError(response.error || 'Failed to fetch winners');
-                }
-            } catch (err) {
-                setError('An error occurred while fetching winners');
-            }
-        };
-
-        // Initial fetch
         fetchWinners();
-
-        // Set up interval for periodic updates
-        const interval = setInterval(fetchWinners, 10000); // Update every 10 seconds
-
+        const interval = setInterval(fetchWinners, 5000);
         return () => clearInterval(interval);
     }, []);
 
-    // Refetch when shouldRefetch is true
     useEffect(() => {
-        if (shouldRefetch) {
-            const fetchWinners = async () => {
-                try {
-                    const response = await getRecentSlotWinners();
-                    if (response.success && response.data) {
-                        setWinners(response.data);
-                        setError(null);
-                    } else {
-                        setError(response.error || 'Failed to fetch winners');
-                    }
-                    onRefetchComplete();
-                } catch (err) {
-                    setError('An error occurred while fetching winners');
-                    onRefetchComplete();
-                }
-            };
-
+        if (!spinning) {
             fetchWinners();
         }
-    }, [shouldRefetch, onRefetchComplete]);
+    }, [spinning]);
+
+    if (isLoading) {
+        return <div className="h-full w-full animate-pulse bg-gray-800" />;
+    }
+
+    const getImagePath = (item: string) => {
+        const path = DB_IMAGE_PATHS[item as keyof typeof DB_IMAGE_PATHS];
+        if (!path) {
+            console.warn(`No image path found for item: ${item}`);
+            return DB_IMAGE_PATHS.scrap; // Default fallback
+        }
+        return path;
+    };
 
     return (
-        <div className="flex h-full flex-col space-y-2">
-            <h2 className="text-lg font-bold">Recent Winners</h2>
-            <div className="flex-1 overflow-y-auto">
-                <AnimatePresence mode="popLayout">
-                    {winners.map((winner, index) => (
-                        <motion.div
-                            key={`${winner.steam_id}-${winner.timestamp}`}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            transition={{ duration: 0.3 }}
-                            className="mb-2 flex items-start space-x-2 rounded-lg bg-stone-800 p-2"
-                        >
-                            <Image
-                                src={winner.profile_picture_url || '/steam_icon_small.png'}
-                                alt="Winner Avatar"
-                                width={32}
-                                height={32}
-                                className="rounded-full"
-                            />
-                            <div className="flex-1">
-                                <span className="font-bold">{winner.player_name}</span>
-                                <div className="mt-1 space-y-1">
-                                    {winner.payout.map((item, i) => (
-                                        <div key={i} className="flex items-center space-x-2">
-                                            <Image
-                                                src={ITEM_ICON_PATHS[item.item] || '/rust_icons/scrap_icon.png'}
-                                                alt={item.full_name}
-                                                width={24}
-                                                height={24}
-                                            />
-                                            <span className="text-sm">
-                                                {item.quantity}x {item.full_name}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    {winner.free_spins_won > 0 && (
-                                        <div className="flex items-center space-x-2">
-                                            <Image src="/rust_icons/bonus_symbol.png" alt="Bonus Spins" width={24} height={24} />
-                                            <span className="text-sm text-yellow-400">
-                                                {winner.free_spins_won}x {winner.bonus_type === 'sticky' ? 'Sticky' : 'Normal'} Free Spins
-                                            </span>
-                                        </div>
-                                    )}
+        <div className="h-full w-full p-4">
+            <h1 className="mb-2 text-center text-lg font-bold">Recent Winners</h1>
+            {error && <p className="text-red-500">{error}</p>}
+            <ul className="flex flex-col space-y-2 md:w-3/4 mx-auto">
+                {winners.map((winner, index) => (
+                    <li key={index} className="rounded-lg bg-stone-300 p-2">
+                        <div className="flex items-center">
+                            {winner.profile_picture_url ? (
+                                <Image
+                                    src={winner.profile_picture_url}
+                                    alt={`${winner.player_name}'s profile`}
+                                    width={32}
+                                    height={32}
+                                    className="mr-2 rounded-full"
+                                />
+                            ) : (
+                                <div className="mr-2 h-8 w-8 rounded-full bg-gray-300" />
+                            )}
+                            <span className="font-semibold text-stone-800">{winner.player_name}</span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2 pl-10">
+                            {winner.payout.map((item, payoutIndex) => (
+                                <div key={payoutIndex} className="flex items-center">
+                                    <Image src={getImagePath(item.item)} alt={item.full_name} width={24} height={24} className="mr-1" />
+                                    <span className="text-stone-800">x{item.quantity}</span>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </div>
+                            ))}
+                            {winner.free_spins_won > 0 && (
+                                <div className="flex items-center">
+                                    <Image src={DB_IMAGE_PATHS.bonus} alt="Free Spins" width={24} height={24} className="mr-1" />
+                                    <span className="text-stone-800">
+                                        {winner.free_spins_won} {winner.bonus_type} spins
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
