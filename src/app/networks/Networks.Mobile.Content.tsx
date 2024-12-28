@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { ServerNetwork } from './types';
 import { SERVER_TITLE_RATE_KEYWORDS, type ResourceRateGroup } from './Networks.Constants';
-import { formatTimeDifference } from './utils';
+import { formatTimeDifference } from '@/utils/Date.Format.TimeDifference';
 
 interface MobileContentProps {
     network: ServerNetwork | null;
