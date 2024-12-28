@@ -4,6 +4,7 @@ import { getNetworksData } from '@/app/networks/Networks.Actions';
 import { NetworksContainer } from '@/app/networks/Networks.Container';
 import { Metadata } from 'next';
 import PageLayout from '@/components/layout/PageLayout';
+
 export const metadata: Metadata = {
     title: 'Server Networks - Rust Wipes',
     description: 'Discover various server networks on Rust Wipes.',
@@ -15,12 +16,14 @@ const searchParamsCache = createSearchParamsCache({
 });
 
 interface NetworksPageProps {
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ [key: string]: string | string[] }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function NetworksPage({ searchParams }: NetworksPageProps) {
     const networks = await getNetworksData();
-    const params = await searchParamsCache.parse(searchParams);
+    const resolvedSearchParams = await searchParams;
+    const params = await searchParamsCache.parse(resolvedSearchParams);
     const selectedNetworkId = params.networkId || networks[0]?.id || 0;
 
     return (
