@@ -15,6 +15,7 @@ interface SteamUserState {
     steamId: string;
     profile: SteamProfile | null;
     credits: number;
+    freeSpins: number;
     isVerified: boolean;
     error: string;
 
@@ -24,6 +25,7 @@ interface SteamUserState {
     setSteamId: (id: string) => void;
     setProfile: (profile: SteamProfile | null) => void;
     setCredits: (credits: number) => void;
+    setFreeSpins: (spins: number) => void;
     setIsVerified: (verified: boolean) => void;
     setError: (error: string) => void;
 
@@ -42,6 +44,7 @@ export const useSteamUser = create<SteamUserState>()(
             steamId: '',
             profile: null,
             credits: 0,
+            freeSpins: 0,
             isVerified: false,
             error: '',
 
@@ -51,6 +54,7 @@ export const useSteamUser = create<SteamUserState>()(
             setSteamId: (id) => set({ steamId: id }),
             setProfile: (profile) => set({ profile }),
             setCredits: (credits) => set({ credits }),
+            setFreeSpins: (spins) => set({ freeSpins: spins }),
             setIsVerified: (verified) => set({ isVerified: verified }),
             setError: (error) => set({ error }),
 
@@ -68,6 +72,7 @@ export const useSteamUser = create<SteamUserState>()(
                         set({
                             profile: result.data.profile,
                             credits: result.data.credits,
+                            freeSpins: result.data.freeSpins,
                             isVerified: true,
                             error: '',
                         });
@@ -100,17 +105,19 @@ export const useSteamUser = create<SteamUserState>()(
                     steamId: '',
                     profile: null,
                     credits: 0,
+                    freeSpins: 0,
                     isVerified: false,
                     error: '',
                 });
             },
 
             verifyUser: (profileData) => {
-                const { profile, credits } = profileData;
+                const { profile, credits, freeSpins } = profileData;
                 set({
                     profile,
                     steamId: profile.steamId,
                     credits,
+                    freeSpins,
                     isVerified: true,
                     error: '',
                 });
