@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, setBonusType } from './Slot.Actions';
+import { spinSlotMachine, setBonusType, checkPendingBonus } from './Slot.Actions';
+import type { SpinResult } from './Slot.Actions';
 import Image from 'next/image';
 import { WINNING_LINES } from '@/app/gambling/slot/Slot.Constants';
 import { getRandomSymbol } from '@/app/gambling/slot/Slot.Utils';
@@ -31,20 +32,6 @@ const SYMBOL_IMAGE_PATHS: Record<string, string> = {
     '3x_multiplier': '/rust_icons/3x_multi.png',
     '5x_multiplier': '/rust_icons/5x_multi.png',
 };
-
-interface SlotResult {
-    finalVisibleGrid: string[][];
-    spinAmounts: number[];
-    payout: { item: string; full_name: string; quantity: number }[];
-    bonusTriggered: boolean;
-    bonusSpinsAwarded: number;
-    credits: number;
-    freeSpinsAvailable: number;
-    winningCells: number[][]; // [x, y]
-    bonusCells: number[][]; // [x, y]
-    winningLines: number[][][]; // [[x, y]]
-    stickyMultipliers?: { x: number; y: number; multiplier: number }[]; // Added for sticky multipliers
-}
 
 interface SteamProfile {
     name: string;
@@ -78,6 +65,61 @@ const ClientOnly = ({ children }: { children: React.ReactNode }) => {
     }
 
     return <>{children}</>;
+};
+
+// Add a new ConfettiOverlay component
+const ConfettiOverlay = ({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) => {
+    const [rect, setRect] = useState({ x: 0, y: 0, w: 0, h: 0 });
+
+    useEffect(() => {
+        if (containerRef.current) {
+            const updateRect = () => {
+                const bounds = containerRef.current?.getBoundingClientRect();
+                if (bounds) {
+                    // Use window dimensions for width to ensure confetti spans the entire viewport
+                    setRect({
+                        x: window.innerWidth / 2,
+                        y: bounds.top + bounds.height / 2,
+                        w: window.innerWidth,
+                        h: window.innerHeight,
+                    });
+                }
+            };
+
+            updateRect();
+            const observer = new ResizeObserver(updateRect);
+            observer.observe(containerRef.current);
+            window.addEventListener('scroll', updateRect);
+            window.addEventListener('resize', updateRect);
+
+            return () => {
+                if (containerRef.current) {
+                    observer.unobserve(containerRef.current);
+                }
+                window.removeEventListener('scroll', updateRect);
+                window.removeEventListener('resize', updateRect);
+            };
+        }
+    }, [containerRef]);
+
+    return (
+        <Confetti
+            className="pointer-events-none fixed inset-0"
+            recycle={false}
+            numberOfPieces={200}
+            gravity={0.2}
+            initialVelocityX={5}
+            initialVelocityY={20}
+            width={rect.w}
+            height={rect.h}
+            confettiSource={{
+                x: rect.x,
+                y: rect.y,
+                w: 0,
+                h: 0,
+            }}
+        />
+    );
 };
 
 export default function SlotMachine() {
@@ -115,7 +157,7 @@ export default function SlotMachine() {
 
     const [spinning, setSpinning] = useState(false);
     const [autoSpin, setAutoSpin] = useState(false);
-    const [result, setResult] = useState<SlotResult | null>(null);
+    const [result, setResult] = useState<SpinResult | null>(null);
 
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
@@ -402,8 +444,6 @@ export default function SlotMachine() {
         // Wait for fade out animation
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Proceed with spinning
-
         setError('');
 
         // Clear winning and bonus cells and lines
@@ -437,8 +477,6 @@ export default function SlotMachine() {
 
             setSpinAmounts(spinAmounts);
 
-            console.log('Final Visible Grid:', finalVisibleGrid);
-
             // Prepare reels for animation
             const newReels = finalVisibleGrid.map((finalReel, i) => {
                 const spinSymbolsCount = spinAmounts[i];
@@ -454,8 +492,6 @@ export default function SlotMachine() {
 
             setReels(newReels);
 
-            // Play spin start sound for each reel when spinning starts
-
             // Wait for the animations to complete
             const maxDuration = 2 + 4 * 0.6 + 0.4; // For the last reel
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
@@ -464,7 +500,7 @@ export default function SlotMachine() {
             setCredits(updatedCredits);
             setFreeSpins(freeSpinsAvailable);
             setResult(spinResult);
-            setSpinning(false); // Spin is now complete
+            setSpinning(false);
 
             // Update winning cells, bonus cells, and winning lines
             setWinningCells(currWinningCells);
@@ -472,39 +508,38 @@ export default function SlotMachine() {
             setWinningLines(currWinningLines);
             setCurrentWinningLine(currWinningLines[0]);
             setCurrentWinningLineIndex(0);
-            setShouldRefetchWinners(true); // Trigger refetch after spin is complete
+            setShouldRefetchWinners(true);
 
-            // Determine which sounds to play
-            const hasNormalWin = payout.length > 0;
-            const hasBonusWin = bonusSpinsAwarded > 0;
-
-            if (hasNormalWin) {
-                // Play win sound based on number of wins
-                playWinSound(payout.length, isMuted);
-            }
-
-            if (hasBonusWin && !hasNormalWin) {
-                // Play bonus sound only if there is no normal win
-                playBonusWonSound(isMuted);
-            }
-
-            if (hasNormalWin || hasBonusWin) {
-                setShowOverlay(true);
+            // Handle bonus type selection
+            if (needsBonusTypeSelection) {
+                setShowBonusTypeModal(true);
+                setIsBonusPending(true);
                 setShowConfetti(true);
-                setTimeout(() => {
-                    setShowOverlay(false);
-                    setShowConfetti(false);
-                }, 2500);
-            }
+                playBonusWonSound(isMuted);
+                setAutoSpin(false); // Stop auto spin when bonus is triggered
+            } else {
+                // Determine which sounds to play for normal wins
+                const hasNormalWin = payout.length > 0;
+                const hasBonusWin = bonusSpinsAwarded > 0;
 
-            if (bonusTriggered) {
-                if (needsBonusTypeSelection) {
-                    // Bonus type needs to be selected by the user
-                    setIsBonusPending(true);
-                    setShowBonusTypeModal(true);
-                    setAutoSpin(false);
-                } else {
-                    // Bonus type was already set and spins were assigned
+                if (hasNormalWin) {
+                    playWinSound(payout.length, isMuted);
+                    setShowOverlay(true);
+                    setShowConfetti(true);
+                    setTimeout(() => {
+                        setShowOverlay(false);
+                        setShowConfetti(false);
+                    }, 2500);
+                }
+
+                if (hasBonusWin && !hasNormalWin) {
+                    playBonusWonSound(isMuted);
+                    setShowOverlay(true);
+                    setShowConfetti(true);
+                    setTimeout(() => {
+                        setShowOverlay(false);
+                        setShowConfetti(false);
+                    }, 2500);
                 }
             }
         } catch (error) {
@@ -516,6 +551,12 @@ export default function SlotMachine() {
 
     // Handle "Show Lines" button click
     const handleShowLines = () => {
+        // Clear any existing winning lines
+        setWinningLines([]);
+        setCurrentWinningLine([]);
+        setCurrentWinningLineIndex(0);
+        setCurrentWinningLineFlashCount(0);
+        // Show the line patterns
         setLineType('horizontal');
     };
 
@@ -572,6 +613,30 @@ export default function SlotMachine() {
         initializeUser();
     }, []); // Run once on mount
 
+    // Add new useEffect for checking pending bonus
+    useEffect(() => {
+        const checkForPendingBonus = async () => {
+            if (steamId && code && isVerified) {
+                try {
+                    const response = await checkPendingBonus(steamId, code);
+                    if (response.success && response.data && response.data.pending) {
+                        setShowBonusTypeModal(true);
+                        setIsBonusPending(true);
+                        // Don't set result or show overlay since we're showing the bonus type modal
+                        setShowConfetti(true);
+                    }
+                } catch (error) {
+                    console.error('Error checking pending bonus:', error);
+                }
+            }
+        };
+
+        checkForPendingBonus();
+    }, [steamId, code, isVerified]);
+
+    const winOverlayRef = useRef<HTMLDivElement>(null);
+    const bonusTypeModalRef = useRef<HTMLDivElement>(null);
+
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
             {/* Main Content Layer */}
@@ -579,7 +644,7 @@ export default function SlotMachine() {
                 {/* Slot Machine Section with Background Images */}
                 <div className="flex w-full flex-row items-center justify-center">
                     {/* Left Hazmat Image */}
-                    <div className="hidden h-full w-1/4 items-end justify-end md:!flex">
+                    <div className="z-100 hidden h-full w-1/4 items-end justify-end md:!flex">
                         <Image
                             src="/rust_hazmat_icon_large.png"
                             alt="Rust Hazmat Icon Left"
@@ -590,7 +655,7 @@ export default function SlotMachine() {
                     </div>
 
                     {/* Slot Machine */}
-                    <div className="w-full p-4 md:w-1/2">
+                    <div className="z-50 w-full p-4 md:w-1/2">
                         <div className="relative flex flex-col items-center space-y-2">
                             <div
                                 className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
@@ -713,49 +778,39 @@ export default function SlotMachine() {
                             </div>
                             <AnimatePresence>
                                 {showOverlay && result && (
-                                    <div className="absolute flex h-full w-full items-center justify-center">
+                                    <div
+                                        ref={winOverlayRef}
+                                        className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50"
+                                    >
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.8 }}
-                                            className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
+                                            className="m-4 flex h-fit w-[calc(80dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8 sm:!w-[calc(100dvw*0.75/3)]"
                                         >
                                             <div className="text-center">
                                                 <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                                                {result.payout.map((item, index) => (
-                                                    <p key={index} className="text-2xl">
-                                                        {item.quantity}x {item.full_name}
-                                                    </p>
-                                                ))}
+                                                {result.payout.map(
+                                                    (item: { item: string; full_name: string; quantity: number }, index: number) => (
+                                                        <p key={index} className="text-2xl">
+                                                            {item.quantity}x {item.full_name}
+                                                        </p>
+                                                    ),
+                                                )}
                                                 {result.bonusSpinsAwarded > 0 && (
-                                                    <p className="text-2xl text-yellow-400">Free Spins Won!</p>
+                                                    <p className="text-2xl text-yellow-400">{result.bonusSpinsAwarded} Free Spins Won!</p>
                                                 )}
                                             </div>
                                         </motion.div>
+                                        {showConfetti && winOverlayRef.current && <ConfettiOverlay containerRef={winOverlayRef} />}
                                     </div>
                                 )}
                             </AnimatePresence>
-                            {showConfetti && (
-                                <Confetti
-                                    className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8"
-                                    recycle={false}
-                                    numberOfPieces={200}
-                                    gravity={0.2}
-                                    initialVelocityX={5}
-                                    initialVelocityY={20}
-                                    confettiSource={{
-                                        x: windowSize.width / 2,
-                                        y: windowSize.height / 2,
-                                        w: 0,
-                                        h: 0,
-                                    }}
-                                />
-                            )}
                         </div>
                     </div>
 
                     {/* Right Hazmat Image */}
-                    <div className="hidden h-full w-1/4 items-end justify-start md:!flex">
+                    <div className="z-100 hidden h-full w-1/4 items-end justify-start md:!flex">
                         <Image
                             src="/rust_hazmat_icon_large.png"
                             alt="Rust Hazmat Icon Right"
@@ -770,10 +825,10 @@ export default function SlotMachine() {
                 <div className="w-full max-w-[1200px] px-4">
                     <div className="flex flex-col space-y-4 rounded-lg bg-stone-700 p-4">
                         {/* User info and controls row */}
-                        <div className="flex w-full flex-col items-start justify-between space-y-2">
+                        <div className="flex w-full flex-row items-start justify-between sm:items-center">
                             {/* User info and credits */}
-                            <div className="flex w-full flex-row justify-between">
-                                <div className="flex items-center">
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                                <div className="flex" data-tooltip-id="steam-id-tooltip">
                                     <Image
                                         src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
                                         alt="Steam Avatar"
@@ -783,71 +838,80 @@ export default function SlotMachine() {
                                     />
                                     <span className="text-xl font-bold">{steamProfile?.name || 'Unknown Player'}</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex space-x-2" data-tooltip-id="credits-tooltip">
                                     <FaCoins className="h-10 w-10 text-primary_light" />
                                     <span className="text-xl font-bold text-white">{credits || '0'}</span>
                                 </div>
+                                <Tooltip id="credits-tooltip">Credits</Tooltip>
+                                <Tooltip id="steam-id-tooltip">Steam ID: {steamId}</Tooltip>
                             </div>
 
                             {/* Control buttons */}
-                            <div className="flex w-full justify-end space-x-2">
-                                {/* Spin Button */}
-                                <button
-                                    data-tooltip-id="spin-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleSpin}
-                                    disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                    className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                                >
-                                    {freeSpins > 0 ? (
-                                        <div className="flex h-6 w-6 items-center justify-center">
-                                            <b className="text-2xl">{freeSpins}</b>
-                                        </div>
-                                    ) : (
-                                        <FaCoins className="h-6 w-6" />
-                                    )}
-                                </button>
-                                <Tooltip id="spin-tooltip">
-                                    {spinning ? 'Spinning...' : freeSpins > 0 ? `${freeSpins} Free Spins Remaining` : `Spin (5 credits)`}
-                                </Tooltip>
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                                <div className="flex flex-row space-x-2">
+                                    {/* Spin Button */}
+                                    <button
+                                        data-tooltip-id="spin-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleSpin}
+                                        disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                    >
+                                        {freeSpins > 0 ? (
+                                            <div className="flex h-6 w-6 items-center justify-center">
+                                                <b className="text-2xl">{freeSpins}</b>
+                                            </div>
+                                        ) : (
+                                            <FaCoins className="h-6 w-6" />
+                                        )}
+                                    </button>
+                                    <Tooltip id="spin-tooltip">
+                                        {spinning
+                                            ? 'Spinning...'
+                                            : freeSpins > 0
+                                              ? `${freeSpins} Free Spins Remaining`
+                                              : `Spin (5 credits)`}
+                                    </Tooltip>
 
-                                {/* Auto Spin Button */}
-                                <button
-                                    data-tooltip-id="auto-spin-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleAutoSpinButton}
-                                    disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
-                                    className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                                >
-                                    {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
-                                </button>
-                                <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
+                                    {/* Auto Spin Button */}
+                                    <button
+                                        data-tooltip-id="auto-spin-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleAutoSpinButton}
+                                        disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
+                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                    >
+                                        {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
+                                    </button>
+                                    <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
+                                </div>
+                                <div className="flex flex-row space-x-2">
+                                    {/* Show Lines Button */}
+                                    <button
+                                        data-tooltip-id="show-lines-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleShowLines}
+                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                    >
+                                        <FaInfoCircle className="h-6 w-6" />
+                                    </button>
+                                    <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
 
-                                {/* Show Lines Button */}
-                                <button
-                                    data-tooltip-id="show-lines-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleShowLines}
-                                    className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
-                                >
-                                    <FaInfoCircle className="h-6 w-6" />
-                                </button>
-                                <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
-
-                                {/* Sound Toggle Button */}
-                                <button
-                                    data-tooltip-id="sound-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleMuteToggle}
-                                    className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
-                                >
-                                    {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
-                                </button>
-                                <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
+                                    {/* Sound Toggle Button */}
+                                    <button
+                                        data-tooltip-id="sound-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleMuteToggle}
+                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                    >
+                                        {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
+                                    </button>
+                                    <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
+                                </div>
                             </div>
                         </div>
 
@@ -885,6 +949,7 @@ export default function SlotMachine() {
             <AnimatePresence>
                 {showBonusTypeModal && (
                     <motion.div
+                        ref={bonusTypeModalRef}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -894,9 +959,10 @@ export default function SlotMachine() {
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
-                            className="rounded-lg bg-stone-800 p-8 text-white shadow-lg"
+                            className="rounded-lg bg-stone-900 p-8 text-white shadow-lg"
                         >
-                            <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
+                            <h2 className="mb-2 text-center text-4xl font-bold text-primary_light">You Won Free Spins!</h2>
+                            <h3 className="mb-6 text-center text-2xl">Select Your Bonus Type</h3>
                             <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
                                 {/* Normal Bonus Button */}
                                 <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">
@@ -933,6 +999,7 @@ export default function SlotMachine() {
                                 </button>
                             </div>
                         </motion.div>
+                        {showConfetti && bonusTypeModalRef.current && <ConfettiOverlay containerRef={bonusTypeModalRef} />}
                     </motion.div>
                 )}
             </AnimatePresence>

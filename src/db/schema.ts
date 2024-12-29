@@ -284,6 +284,8 @@ export const bonus_spins = pgTable('bonus_spins', {
     bonus_type: varchar('bonus_type').notNull().default('normal'),
     sticky_multipliers: jsonb('sticky_multipliers').notNull().default('[]'),
     last_updated: timestamp('last_updated').defaultNow(),
+    pending_bonus: boolean('pending_bonus').notNull().default(false),
+    pending_bonus_amount: integer('pending_bonus_amount').notNull().default(0),
 });
 
 export type BonusSpins = InferSelectModel<typeof bonus_spins>;

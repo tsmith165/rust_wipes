@@ -39,7 +39,7 @@ export default function Navbar({ page }: { page: string }) {
             {discord_component_admin}
             <IoIosMenu className="h-[50px] w-[50px] fill-primary_dark py-[5px] group-hover:fill-primary" />
             {showMenu && (
-                <div className="absolute right-0 top-full z-50 h-fit w-[160px] rounded-bl-lg border-stone-500 bg-stone-300">
+                <div className="absolute right-0 top-full z-50 h-fit w-[160px] rounded-bl-xl border-stone-500 bg-stone-500">
                     <DynamicMenuOverlay currentPage={page} isAdmin={false} />
                 </div>
             )}
