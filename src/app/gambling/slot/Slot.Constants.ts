@@ -13,18 +13,32 @@ export const SLOT_ITEMS = [
 ] as const;
 
 // Define probabilities for each symbol (must sum to 1)
-export const SYMBOL_PROBABILITIES: Record<string, number> = {
+export const SYMBOL_PROBABILITIES_BASE: Record<string, number> = {
     scrap: 0.25,
     metal_fragments: 0.19,
-    high_quality_metal: 0.16,
-    thompson: 0.15,
-    m39_rifle: 0.12,
+    high_quality_metal: 0.18,
+    thompson: 0.13,
+    m39_rifle: 0.11,
     ak47: 0.075,
+    bonus: 0.05,
+    '2x_multiplier': 0.007,
+    '3x_multiplier': 0.005,
+    '5x_multiplier': 0.003,
+};
+
+export const SYMBOL_PROBABILITIES_NO_METAL: Record<string, number> = {
+    scrap: 0.25,
+    high_quality_metal: 0.2,
+    thompson: 0.16,
+    m39_rifle: 0.13,
+    ak47: 0.11,
     bonus: 0.04,
     '2x_multiplier': 0.007,
     '3x_multiplier': 0.005,
     '5x_multiplier': 0.003,
 };
+
+export const SYMBOL_PROBABILITIES = SYMBOL_PROBABILITIES_NO_METAL;
 
 // Map symbols to image paths
 export const SYMBOL_IMAGE_PATHS: Record<string, string> = {
@@ -47,7 +61,7 @@ export const BASE_PAYOUTS: Record<string, { item: string; full_name: string; bas
     thompson: { item: 'thompson', full_name: 'Thompson', base_quantity: 1 },
     scrap: { item: 'scrap', full_name: 'Scrap', base_quantity: 100 },
     metal_fragments: { item: 'metal_fragments', full_name: 'Metal Fragments', base_quantity: 1000 },
-    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 10 },
+    high_quality_metal: { item: 'high_quality_metal', full_name: 'High Quality Metal', base_quantity: 50 },
 };
 
 // Bonus symbol
@@ -61,8 +75,8 @@ export const INITIAL_BONUS_SPINS = {
         5: 20,
     },
     sticky: {
-        3: 8,
-        4: 12,
+        3: 7,
+        4: 10,
         5: 15,
     },
 } as const;
@@ -76,10 +90,10 @@ export const RETRIGGER_BONUS_SPINS = {
         5: 20,
     },
     sticky: {
-        2: 4,
-        3: 8,
-        4: 12,
-        5: 15,
+        2: 3,
+        3: 5,
+        4: 8,
+        5: 10,
     },
 } as const;
 

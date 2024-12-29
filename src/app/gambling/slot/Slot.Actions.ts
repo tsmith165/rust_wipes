@@ -48,6 +48,7 @@ interface WinnerWithPictures {
     bonus_type: string;
     timestamp: string;
     profile_picture_url: string | null;
+    pending_bonus_amount: number;
 }
 
 interface SteamProfile {
@@ -222,6 +223,15 @@ export async function spinSlotMachine(
             // If this is a new bonus trigger (no existing bonus type), set needsBonusTypeSelection
             if (!selectedBonusType) {
                 needsBonusTypeSelection = true;
+                // Set pending bonus in the database
+                await db
+                    .update(bonus_spins)
+                    .set({
+                        pending_bonus: true,
+                        pending_bonus_amount: bonusCountFinal,
+                        last_updated: new Date(),
+                    })
+                    .where(eq(bonus_spins.user_id, user[0].id));
             } else {
                 // Existing bonus type - award spins based on whether this is a retrigger
                 const bonusTable = freeSpinsAvailable > 0 ? RETRIGGER_BONUS_SPINS : INITIAL_BONUS_SPINS;
@@ -269,12 +279,12 @@ export async function spinSlotMachine(
                 .where(eq(bonus_spins.id, bonusSpinsData[0].id));
         }
 
-        // Record spin result
+        // Record spin result with pending bonus information
         await db.insert(slot_machine_spins).values({
             user_id: user[0].id,
-            result: finalVisibleGrid, // Stored as a JSON object
-            payout: payout, // Stored as a JSON object
-            free_spins_won: spinsAwarded,
+            result: finalVisibleGrid,
+            payout: payout,
+            free_spins_won: needsBonusTypeSelection ? 0 : spinsAwarded, // Only record spins if not pending
             free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
             redeemed: payout.length === 0,
         });
@@ -519,35 +529,41 @@ export async function setBonusType(steamId: string, code: string, bonusType: 'no
             return { success: false, error: 'Invalid last spin result format' };
         }
 
-        // Use the INITIAL_BONUS_SPINS constant to determine bonus spins
-        const bonus_spins_awarded = INITIAL_BONUS_SPINS[bonusType][number_of_bonus_symbols_in_last_win as 3 | 4 | 5] || 0;
-
-        // Retrieve existing bonus spins data
+        // Retrieve bonus spins data to check for pending bonus
         const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
-
-        let existingStickyMultipliers: { x: number; y: number; multiplier: number }[] = [];
-
-        if (bonusSpinsData.length > 0) {
-            if (isStickyMultipliersArray(bonusSpinsData[0].sticky_multipliers)) {
-                existingStickyMultipliers = bonusSpinsData[0].sticky_multipliers;
-            } else {
-                console.warn('Invalid sticky_multipliers format. Resetting to empty array.');
-                existingStickyMultipliers = [];
-            }
+        if (!bonusSpinsData.length) {
+            return { success: false, error: 'No bonus spins data found' };
         }
 
-        // Update the bonus_spins table with conditional sticky_multipliers
+        let bonus_spins_awarded = 0;
+        if (bonusSpinsData[0].pending_bonus && bonusSpinsData[0].pending_bonus_amount > 0) {
+            // Award spins based on the pending amount
+            bonus_spins_awarded = INITIAL_BONUS_SPINS[bonusType][bonusSpinsData[0].pending_bonus_amount as 3 | 4 | 5] || 0;
+
+            // Record the awarded spins in slot_machine_spins
+            await db.insert(slot_machine_spins).values({
+                user_id: user[0].id,
+                result: [], // Empty result as this is just recording the bonus
+                payout: [], // Empty payout as this is just recording the bonus
+                free_spins_won: bonus_spins_awarded,
+                free_spins_used: 0,
+                redeemed: false,
+            });
+        }
+
+        // Update the bonus_spins table
         await db
             .update(bonus_spins)
             .set({
                 bonus_type: bonusType,
                 spins_remaining: bonus_spins_awarded,
-                sticky_multipliers: bonusType === 'sticky' ? existingStickyMultipliers : [], // Conditional assignment
+                sticky_multipliers: bonusType === 'sticky' ? bonusSpinsData[0].sticky_multipliers : [], // Keep existing multipliers if sticky
+                pending_bonus: false,
+                pending_bonus_amount: 0,
                 last_updated: new Date(),
             })
             .where(eq(bonus_spins.user_id, user[0].id));
 
-        // Return the number of spins awarded
         return { success: true, data: bonus_spins_awarded };
     } catch (error) {
         console.error('Error in setBonusType:', error);
@@ -634,6 +650,7 @@ export async function verifySteamProfile(profileUrl: string): Promise<ActionResp
  */
 export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithPictures[]>> {
     try {
+        // First, get all recent wins from slot_machine_spins
         const winners = await db
             .select({
                 player_name: user_playtime.player_name,
@@ -650,8 +667,43 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
             .orderBy(desc(slot_machine_spins.timestamp))
             .limit(25);
 
+        // Also get any pending bonuses that haven't been recorded in slot_machine_spins yet
+        const pendingBonuses = await db
+            .select({
+                player_name: user_playtime.player_name,
+                steam_id: user_playtime.steam_id,
+                profile_picture_url: user_playtime.profile_picture_url,
+                user_id: user_playtime.id,
+                pending_bonus_amount: bonus_spins.pending_bonus_amount,
+                last_updated: bonus_spins.last_updated,
+            })
+            .from(bonus_spins)
+            .innerJoin(user_playtime, eq(user_playtime.id, bonus_spins.user_id))
+            .where(eq(bonus_spins.pending_bonus, true));
+
+        // Convert pending bonuses to the same format as winners
+        const pendingBonusWinners = pendingBonuses.map((bonus) => ({
+            player_name: bonus.player_name || 'Unknown Player',
+            steam_id: bonus.steam_id,
+            payout: [],
+            timestamp: bonus.last_updated,
+            profile_picture_url: bonus.profile_picture_url,
+            free_spins_won: -1, // Use -1 to indicate pending
+            user_id: bonus.user_id,
+            pending_bonus_amount: bonus.pending_bonus_amount,
+        }));
+
+        // Combine and sort all winners
+        const allWinners = [...winners, ...pendingBonusWinners]
+            .sort((a, b) => {
+                const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+                return dateB - dateA;
+            })
+            .slice(0, 25); // Keep only the 25 most recent
+
         const winnersWithPictures: WinnerWithPictures[] = await Promise.all(
-            winners.map(async (winner) => {
+            allWinners.map(async (winner) => {
                 let profilePictureUrl = winner.profile_picture_url;
                 if (!profilePictureUrl) {
                     const fetchResult = await fetchAndStoreProfilePicture(winner.steam_id);
@@ -692,6 +744,7 @@ export async function getRecentSlotWinners(): Promise<ActionResponse<WinnerWithP
                     bonus_type: bonusType,
                     profile_picture_url: profilePictureUrl,
                     steam_id: winner.steam_id,
+                    pending_bonus_amount: ('pending_bonus_amount' in winner ? winner.pending_bonus_amount : 0) as number,
                 };
             }),
         );

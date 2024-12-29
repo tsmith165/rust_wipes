@@ -23,6 +23,7 @@ interface Winner {
     bonus_type: string;
     timestamp: string;
     profile_picture_url: string | null;
+    pending_bonus_amount: number;
 }
 
 interface Props {
@@ -119,14 +120,23 @@ export default function RecentSlotWinners({ shouldRefetch, onRefetchComplete, sp
                                             </span>
                                         </div>
                                     ))}
-                                    {winner.free_spins_won > 0 && (
+                                    {winner.free_spins_won === -1 ? (
+                                        // Display pending bonus
+                                        <div className="flex items-center space-x-2">
+                                            <Image src="/rust_icons/bonus_symbol.png" alt="Bonus Spins" width={24} height={24} />
+                                            <span className="text-sm text-yellow-400">
+                                                {winner.pending_bonus_amount} Bonus Symbols - Selecting Bonus Type...
+                                            </span>
+                                        </div>
+                                    ) : winner.free_spins_won > 0 ? (
+                                        // Display awarded bonus
                                         <div className="flex items-center space-x-2">
                                             <Image src="/rust_icons/bonus_symbol.png" alt="Bonus Spins" width={24} height={24} />
                                             <span className="text-sm text-yellow-400">
                                                 {winner.free_spins_won}x {winner.bonus_type === 'sticky' ? 'Sticky' : 'Normal'} Free Spins
                                             </span>
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
                             </div>
                         </motion.div>

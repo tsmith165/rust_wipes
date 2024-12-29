@@ -718,7 +718,7 @@ export default function SlotMachine() {
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.8 }}
-                                            className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
+                                            className="absolute m-4 flex h-fit w-[calc(80dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8 sm:!w-[calc(100dvw*0.75/3)]"
                                         >
                                             <div className="text-center">
                                                 <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
@@ -728,7 +728,7 @@ export default function SlotMachine() {
                                                     </p>
                                                 ))}
                                                 {result.bonusSpinsAwarded > 0 && (
-                                                    <p className="text-2xl text-yellow-400">Free Spins Won!</p>
+                                                    <p className="text-2xl text-yellow-400">{result.bonusSpinsAwarded} Free Spins Won!</p>
                                                 )}
                                             </div>
                                         </motion.div>
