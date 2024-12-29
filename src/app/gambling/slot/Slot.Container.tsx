@@ -773,9 +773,9 @@ export default function SlotMachine() {
                     <div className="w-full max-w-[1200px] px-4">
                         <div className="flex flex-col space-y-4 rounded-lg bg-stone-700 p-4">
                             {/* User info and controls row */}
-                            <div className="flex flex-row items-start justify-between">
+                            <div className="flex w-full flex-col items-start justify-between space-y-2">
                                 {/* User info and credits */}
-                                <div className="flex flex-col space-y-2">
+                                <div className="flex w-full flex-row justify-between">
                                     <div className="flex items-center">
                                         <Image
                                             src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
@@ -793,7 +793,7 @@ export default function SlotMachine() {
                                 </div>
 
                                 {/* Control buttons */}
-                                <div className="flex space-x-3">
+                                <div className="flex w-full justify-end space-x-2">
                                     {/* Spin Button */}
                                     <button
                                         data-tooltip-id="spin-tooltip"
@@ -801,14 +801,14 @@ export default function SlotMachine() {
                                         data-tooltip-offset={6}
                                         onClick={handleSpin}
                                         disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                        className="rounded-lg bg-primary_light p-5 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                                     >
                                         {freeSpins > 0 ? (
-                                            <div className="flex h-8 w-8 items-center justify-center">
+                                            <div className="flex h-6 w-6 items-center justify-center">
                                                 <b className="text-2xl">{freeSpins}</b>
                                             </div>
                                         ) : (
-                                            <FaCoins className="h-8 w-8" />
+                                            <FaCoins className="h-6 w-6" />
                                         )}
                                     </button>
                                     <Tooltip id="spin-tooltip">
@@ -826,9 +826,9 @@ export default function SlotMachine() {
                                         data-tooltip-offset={6}
                                         onClick={handleAutoSpinButton}
                                         disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
-                                        className="rounded-lg bg-primary_light p-5 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
                                     >
-                                        {autoSpin ? <FaPause className="h-8 w-8" /> : <FaPlay className="h-8 w-8" />}
+                                        {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
                                     </button>
                                     <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
 
@@ -838,9 +838,9 @@ export default function SlotMachine() {
                                         data-tooltip-place="top"
                                         data-tooltip-offset={6}
                                         onClick={handleShowLines}
-                                        className="rounded-lg bg-stone-300 p-5 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
                                     >
-                                        <FaInfoCircle className="h-8 w-8" />
+                                        <FaInfoCircle className="h-6 w-6" />
                                     </button>
                                     <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
 
@@ -850,9 +850,9 @@ export default function SlotMachine() {
                                         data-tooltip-place="top"
                                         data-tooltip-offset={6}
                                         onClick={handleMuteToggle}
-                                        className="rounded-lg bg-stone-300 p-5 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
                                     >
-                                        {isMuted ? <FaVolumeMute className="h-8 w-8" /> : <FaVolumeHigh className="h-8 w-8" />}
+                                        {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
                                     </button>
                                     <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
                                 </div>
