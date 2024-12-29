@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { spinSlotMachine, setBonusType } from './Slot.Actions';
+import { spinSlotMachine, setBonusType, checkPendingBonus } from './Slot.Actions';
+import type { SpinResult } from './Slot.Actions';
 import Image from 'next/image';
 import { WINNING_LINES } from '@/app/gambling/slot/Slot.Constants';
 import { getRandomSymbol } from '@/app/gambling/slot/Slot.Utils';
@@ -31,20 +32,6 @@ const SYMBOL_IMAGE_PATHS: Record<string, string> = {
     '3x_multiplier': '/rust_icons/3x_multi.png',
     '5x_multiplier': '/rust_icons/5x_multi.png',
 };
-
-interface SlotResult {
-    finalVisibleGrid: string[][];
-    spinAmounts: number[];
-    payout: { item: string; full_name: string; quantity: number }[];
-    bonusTriggered: boolean;
-    bonusSpinsAwarded: number;
-    credits: number;
-    freeSpinsAvailable: number;
-    winningCells: number[][]; // [x, y]
-    bonusCells: number[][]; // [x, y]
-    winningLines: number[][][]; // [[x, y]]
-    stickyMultipliers?: { x: number; y: number; multiplier: number }[]; // Added for sticky multipliers
-}
 
 interface SteamProfile {
     name: string;
@@ -115,7 +102,7 @@ export default function SlotMachine() {
 
     const [spinning, setSpinning] = useState(false);
     const [autoSpin, setAutoSpin] = useState(false);
-    const [result, setResult] = useState<SlotResult | null>(null);
+    const [result, setResult] = useState<SpinResult | null>(null);
 
     const [winningCells, setWinningCells] = useState<number[][]>([]);
     const [bonusCells, setBonusCells] = useState<number[][]>([]);
@@ -402,8 +389,6 @@ export default function SlotMachine() {
         // Wait for fade out animation
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Proceed with spinning
-
         setError('');
 
         // Clear winning and bonus cells and lines
@@ -437,8 +422,6 @@ export default function SlotMachine() {
 
             setSpinAmounts(spinAmounts);
 
-            console.log('Final Visible Grid:', finalVisibleGrid);
-
             // Prepare reels for animation
             const newReels = finalVisibleGrid.map((finalReel, i) => {
                 const spinSymbolsCount = spinAmounts[i];
@@ -454,8 +437,6 @@ export default function SlotMachine() {
 
             setReels(newReels);
 
-            // Play spin start sound for each reel when spinning starts
-
             // Wait for the animations to complete
             const maxDuration = 2 + 4 * 0.6 + 0.4; // For the last reel
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
@@ -464,7 +445,7 @@ export default function SlotMachine() {
             setCredits(updatedCredits);
             setFreeSpins(freeSpinsAvailable);
             setResult(spinResult);
-            setSpinning(false); // Spin is now complete
+            setSpinning(false);
 
             // Update winning cells, bonus cells, and winning lines
             setWinningCells(currWinningCells);
@@ -472,39 +453,38 @@ export default function SlotMachine() {
             setWinningLines(currWinningLines);
             setCurrentWinningLine(currWinningLines[0]);
             setCurrentWinningLineIndex(0);
-            setShouldRefetchWinners(true); // Trigger refetch after spin is complete
+            setShouldRefetchWinners(true);
 
-            // Determine which sounds to play
-            const hasNormalWin = payout.length > 0;
-            const hasBonusWin = bonusSpinsAwarded > 0;
-
-            if (hasNormalWin) {
-                // Play win sound based on number of wins
-                playWinSound(payout.length, isMuted);
-            }
-
-            if (hasBonusWin && !hasNormalWin) {
-                // Play bonus sound only if there is no normal win
-                playBonusWonSound(isMuted);
-            }
-
-            if (hasNormalWin || hasBonusWin) {
-                setShowOverlay(true);
+            // Handle bonus type selection
+            if (needsBonusTypeSelection) {
+                setShowBonusTypeModal(true);
+                setIsBonusPending(true);
                 setShowConfetti(true);
-                setTimeout(() => {
-                    setShowOverlay(false);
-                    setShowConfetti(false);
-                }, 2500);
-            }
+                playBonusWonSound(isMuted);
+                setAutoSpin(false); // Stop auto spin when bonus is triggered
+            } else {
+                // Determine which sounds to play for normal wins
+                const hasNormalWin = payout.length > 0;
+                const hasBonusWin = bonusSpinsAwarded > 0;
 
-            if (bonusTriggered) {
-                if (needsBonusTypeSelection) {
-                    // Bonus type needs to be selected by the user
-                    setIsBonusPending(true);
-                    setShowBonusTypeModal(true);
-                    setAutoSpin(false);
-                } else {
-                    // Bonus type was already set and spins were assigned
+                if (hasNormalWin) {
+                    playWinSound(payout.length, isMuted);
+                    setShowOverlay(true);
+                    setShowConfetti(true);
+                    setTimeout(() => {
+                        setShowOverlay(false);
+                        setShowConfetti(false);
+                    }, 2500);
+                }
+
+                if (hasBonusWin && !hasNormalWin) {
+                    playBonusWonSound(isMuted);
+                    setShowOverlay(true);
+                    setShowConfetti(true);
+                    setTimeout(() => {
+                        setShowOverlay(false);
+                        setShowConfetti(false);
+                    }, 2500);
                 }
             }
         } catch (error) {
@@ -571,6 +551,27 @@ export default function SlotMachine() {
 
         initializeUser();
     }, []); // Run once on mount
+
+    // Add new useEffect for checking pending bonus
+    useEffect(() => {
+        const checkForPendingBonus = async () => {
+            if (steamId && code && isVerified) {
+                try {
+                    const response = await checkPendingBonus(steamId, code);
+                    if (response.success && response.data && response.data.pending) {
+                        setShowBonusTypeModal(true);
+                        setIsBonusPending(true);
+                        // Don't set result or show overlay since we're showing the bonus type modal
+                        setShowConfetti(true);
+                    }
+                } catch (error) {
+                    console.error('Error checking pending bonus:', error);
+                }
+            }
+        };
+
+        checkForPendingBonus();
+    }, [steamId, code, isVerified]);
 
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
@@ -722,11 +723,13 @@ export default function SlotMachine() {
                                         >
                                             <div className="text-center">
                                                 <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                                                {result.payout.map((item, index) => (
-                                                    <p key={index} className="text-2xl">
-                                                        {item.quantity}x {item.full_name}
-                                                    </p>
-                                                ))}
+                                                {result.payout.map(
+                                                    (item: { item: string; full_name: string; quantity: number }, index: number) => (
+                                                        <p key={index} className="text-2xl">
+                                                            {item.quantity}x {item.full_name}
+                                                        </p>
+                                                    ),
+                                                )}
                                                 {result.bonusSpinsAwarded > 0 && (
                                                     <p className="text-2xl text-yellow-400">{result.bonusSpinsAwarded} Free Spins Won!</p>
                                                 )}
@@ -894,9 +897,10 @@ export default function SlotMachine() {
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
-                            className="rounded-lg bg-stone-800 p-8 text-white shadow-lg"
+                            className="rounded-lg bg-stone-900 p-8 text-white shadow-lg"
                         >
-                            <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
+                            <h2 className="mb-2 text-center text-4xl font-bold text-primary_light">You Won Free Spins!</h2>
+                            <h3 className="mb-6 text-center text-2xl">Select Your Bonus Type</h3>
                             <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
                                 {/* Normal Bonus Button */}
                                 <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">

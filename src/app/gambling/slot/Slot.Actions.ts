@@ -25,7 +25,7 @@ const VISIBLE_ITEMS = 5;
 const MIN_SPIN = 80;
 const MAX_SPIN = 120;
 
-interface SpinResult {
+export interface SpinResult {
     finalVisibleGrid: string[][];
     spinAmounts: number[];
     payout: { item: string; full_name: string; quantity: number }[];
@@ -858,5 +858,41 @@ async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
     } catch (error) {
         console.error('Error verifying auth code:', error);
         return false;
+    }
+}
+
+/**
+ * Checks if a user has a pending bonus that needs type selection.
+ */
+export async function checkPendingBonus(steamId: string, code: string): Promise<ActionResponse<{ pending: boolean; amount: number }>> {
+    try {
+        // Verify authentication
+        const isAuthValid = await verifyAuthCode(steamId, code);
+        if (!isAuthValid) {
+            return { success: false, error: 'Invalid auth code' };
+        }
+
+        // Retrieve user
+        const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
+        if (!user.length) {
+            return { success: false, error: 'User not found' };
+        }
+
+        // Check for pending bonus
+        const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+        if (!bonusSpinsData.length) {
+            return { success: true, data: { pending: false, amount: 0 } };
+        }
+
+        return {
+            success: true,
+            data: {
+                pending: bonusSpinsData[0].pending_bonus,
+                amount: bonusSpinsData[0].pending_bonus_amount,
+            },
+        };
+    } catch (error) {
+        console.error('Error checking pending bonus:', error);
+        return { success: false, error: 'An unexpected error occurred.' };
     }
 }
