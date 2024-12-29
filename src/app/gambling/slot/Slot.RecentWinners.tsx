@@ -10,9 +10,9 @@ const ITEM_ICON_PATHS: Record<string, string> = {
     scrap: '/rust_icons/scrap_icon.png',
     metal_fragments: '/rust_icons/metal_fragments_icon.png',
     high_quality_metal: '/rust_icons/hqm_icon.png',
-    'smg.thompson': '/rust_icons/thompson_icon.png',
-    'rifle.m39': '/rust_icons/m39_icon.png',
-    'rifle.ak': '/rust_icons/ak47_icon.png',
+    thompson: '/rust_icons/thompson_icon.png',
+    m39_rifle: '/rust_icons/m39_icon.png',
+    ak47: '/rust_icons/ak47_icon.png',
 };
 
 interface Winner {
