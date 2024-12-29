@@ -188,7 +188,7 @@ export async function spinSlotMachine(
             .map(() => Math.floor(Math.random() * (MAX_SPIN - MIN_SPIN + 1)) + MIN_SPIN);
 
         // Calculate winning cells and bonus cells
-        const { payout, bonusCount, winningLines } = calculatePayout(finalVisibleGrid);
+        const { payout, bonusCount, winningLines, winningCells, bonusCells } = calculatePayout(finalVisibleGrid);
 
         // Identify multipliers in the spin result
         const currentMultipliers: { x: number; y: number; multiplier: number }[] = [];
@@ -288,8 +288,8 @@ export async function spinSlotMachine(
             bonusSpinsAwarded: spinsAwarded,
             credits: updatedCredits,
             freeSpinsAvailable,
-            winningCells: [], // Update if necessary
-            bonusCells: [], // Update if necessary
+            winningCells,
+            bonusCells,
             winningLines: winningLines, // Update if necessary
             stickyMultipliers: selectedBonusType === 'sticky' ? currentMultipliers : [], // Conditional assignment
             needsBonusTypeSelection: needsBonusTypeSelection, // Make sure this is included
@@ -323,9 +323,22 @@ function calculatePayout(grid: string[][]): {
     payout: { item: string; full_name: string; quantity: number }[];
     bonusCount: number;
     winningLines: number[][][];
+    winningCells: number[][];
+    bonusCells: number[][];
 } {
     let payout: { item: string; full_name: string; quantity: number }[] = [];
     const winningLines: number[][][] = [];
+    const winningCells: number[][] = [];
+    const bonusCells: number[][] = [];
+
+    // Track bonus cells first
+    grid.forEach((column, x) => {
+        column.forEach((symbol, y) => {
+            if (symbol === BONUS_SYMBOL) {
+                bonusCells.push([x, y]);
+            }
+        });
+    });
 
     // Function to validate a line considering multipliers
     const checkLine = (line: number[][], line_type_string: string) => {
@@ -399,6 +412,12 @@ function calculatePayout(grid: string[][]): {
 
                 // Add the winning part of the line
                 winningLines.push(lineMatches);
+                // Add individual cells to winningCells if not already present
+                lineMatches.forEach(([x, y]) => {
+                    if (!winningCells.some((cell) => cell[0] === x && cell[1] === y)) {
+                        winningCells.push([x, y]);
+                    }
+                });
             }
         }
     };
@@ -409,16 +428,9 @@ function calculatePayout(grid: string[][]): {
     }
 
     // Count the number of bonus symbols in the final grid
-    let bonusCount = 0;
-    grid.forEach((column) => {
-        column.forEach((symbol) => {
-            if (symbol === BONUS_SYMBOL) {
-                bonusCount++;
-            }
-        });
-    });
+    let bonusCount = bonusCells.length;
 
-    return { payout, bonusCount, winningLines };
+    return { payout, bonusCount, winningLines, winningCells, bonusCells };
 }
 
 /**
