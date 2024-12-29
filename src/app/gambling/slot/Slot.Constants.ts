@@ -26,19 +26,32 @@ export const SYMBOL_PROBABILITIES_BASE: Record<string, number> = {
     '5x_multiplier': 0.003,
 };
 
-export const SYMBOL_PROBABILITIES_NO_METAL: Record<string, number> = {
+export const SYMBOL_PROBABILITIES_MODERATE: Record<string, number> = {
     scrap: 0.25,
-    high_quality_metal: 0.2,
-    thompson: 0.16,
-    m39_rifle: 0.13,
-    ak47: 0.11,
-    bonus: 0.04,
+    metal_fragments: 0.15,
+    high_quality_metal: 0.1,
+    thompson: 0.2,
+    m39_rifle: 0.15,
+    ak47: 0.12,
+    bonus: 0.02,
     '2x_multiplier': 0.007,
     '3x_multiplier': 0.005,
     '5x_multiplier': 0.003,
 };
 
-export const SYMBOL_PROBABILITIES = SYMBOL_PROBABILITIES_NO_METAL;
+export const SYMBOL_PROBABILITIES_NO_METAL: Record<string, number> = {
+    scrap: 0.25,
+    high_quality_metal: 0.21,
+    thompson: 0.16,
+    m39_rifle: 0.13,
+    ak47: 0.11,
+    bonus: 0.03,
+    '2x_multiplier': 0.007,
+    '3x_multiplier': 0.005,
+    '5x_multiplier': 0.003,
+};
+
+export const SYMBOL_PROBABILITIES = SYMBOL_PROBABILITIES_MODERATE;
 
 // Map symbols to image paths
 export const SYMBOL_IMAGE_PATHS: Record<string, string> = {
@@ -156,46 +169,60 @@ export const WINNING_LINES = {
         [
             [0, 0],
             [1, 1],
-            [2, 2],
+            [2, 0],
             [3, 1],
             [4, 0],
         ],
         [
             [0, 1],
             [1, 2],
-            [2, 3],
+            [2, 1],
             [3, 2],
             [4, 1],
         ],
         [
             [0, 2],
             [1, 3],
-            [2, 4],
+            [2, 2],
             [3, 3],
             [4, 2],
+        ],
+        [
+            [0, 3],
+            [1, 2],
+            [2, 3],
+            [3, 2],
+            [4, 3],
         ],
     ],
     zigzag_upwards: [
         [
             [0, 4],
             [1, 3],
-            [2, 2],
+            [2, 4],
             [3, 3],
             [4, 4],
         ],
         [
             [0, 3],
             [1, 2],
-            [2, 1],
+            [2, 3],
             [3, 2],
             [4, 3],
         ],
         [
             [0, 2],
             [1, 1],
-            [2, 0],
+            [2, 2],
             [3, 1],
             [4, 2],
+        ],
+        [
+            [0, 1],
+            [1, 0],
+            [2, 1],
+            [3, 0],
+            [4, 1],
         ],
     ],
 };

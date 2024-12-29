@@ -239,9 +239,9 @@ export async function spinSlotMachine(
                 freeSpinsAvailable += spinsAwarded;
             }
         } else if (freeSpinsAvailable > 0 && bonusCountFinal === 2 && selectedBonusType) {
-            // Handle 2 bonus symbols during free spins
-            spinsAwarded = RETRIGGER_BONUS_SPINS[selectedBonusType][2];
-            freeSpinsAvailable += spinsAwarded;
+            // Remove this entire block to prevent awarding spins for 2 bonus symbols
+            // spinsAwarded = RETRIGGER_BONUS_SPINS[selectedBonusType][2];
+            // freeSpinsAvailable += spinsAwarded;
         }
 
         // Update user credits and bonus spins
