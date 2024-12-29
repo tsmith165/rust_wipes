@@ -67,6 +67,61 @@ const ClientOnly = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 };
 
+// Add a new ConfettiOverlay component
+const ConfettiOverlay = ({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) => {
+    const [rect, setRect] = useState({ x: 0, y: 0, w: 0, h: 0 });
+
+    useEffect(() => {
+        if (containerRef.current) {
+            const updateRect = () => {
+                const bounds = containerRef.current?.getBoundingClientRect();
+                if (bounds) {
+                    // Use window dimensions for width to ensure confetti spans the entire viewport
+                    setRect({
+                        x: window.innerWidth / 2,
+                        y: bounds.top + bounds.height / 2,
+                        w: window.innerWidth,
+                        h: window.innerHeight,
+                    });
+                }
+            };
+
+            updateRect();
+            const observer = new ResizeObserver(updateRect);
+            observer.observe(containerRef.current);
+            window.addEventListener('scroll', updateRect);
+            window.addEventListener('resize', updateRect);
+
+            return () => {
+                if (containerRef.current) {
+                    observer.unobserve(containerRef.current);
+                }
+                window.removeEventListener('scroll', updateRect);
+                window.removeEventListener('resize', updateRect);
+            };
+        }
+    }, [containerRef]);
+
+    return (
+        <Confetti
+            className="pointer-events-none fixed inset-0"
+            recycle={false}
+            numberOfPieces={200}
+            gravity={0.2}
+            initialVelocityX={5}
+            initialVelocityY={20}
+            width={rect.w}
+            height={rect.h}
+            confettiSource={{
+                x: rect.x,
+                y: rect.y,
+                w: 0,
+                h: 0,
+            }}
+        />
+    );
+};
+
 export default function SlotMachine() {
     // Use the Zustand store
     const {
@@ -573,6 +628,9 @@ export default function SlotMachine() {
         checkForPendingBonus();
     }, [steamId, code, isVerified]);
 
+    const winOverlayRef = useRef<HTMLDivElement>(null);
+    const bonusTypeModalRef = useRef<HTMLDivElement>(null);
+
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
             {/* Main Content Layer */}
@@ -714,12 +772,15 @@ export default function SlotMachine() {
                             </div>
                             <AnimatePresence>
                                 {showOverlay && result && (
-                                    <div className="absolute flex h-full w-full items-center justify-center">
+                                    <div
+                                        ref={winOverlayRef}
+                                        className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50"
+                                    >
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.8 }}
-                                            className="absolute m-4 flex h-fit w-[calc(80dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8 sm:!w-[calc(100dvw*0.75/3)]"
+                                            className="m-4 flex h-fit w-[calc(80dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8 sm:!w-[calc(100dvw*0.75/3)]"
                                         >
                                             <div className="text-center">
                                                 <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
@@ -735,25 +796,10 @@ export default function SlotMachine() {
                                                 )}
                                             </div>
                                         </motion.div>
+                                        {showConfetti && winOverlayRef.current && <ConfettiOverlay containerRef={winOverlayRef} />}
                                     </div>
                                 )}
                             </AnimatePresence>
-                            {showConfetti && (
-                                <Confetti
-                                    className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8"
-                                    recycle={false}
-                                    numberOfPieces={200}
-                                    gravity={0.2}
-                                    initialVelocityX={5}
-                                    initialVelocityY={20}
-                                    confettiSource={{
-                                        x: windowSize.width / 2,
-                                        y: windowSize.height / 2,
-                                        w: 0,
-                                        h: 0,
-                                    }}
-                                />
-                            )}
                         </div>
                     </div>
 
@@ -888,6 +934,7 @@ export default function SlotMachine() {
             <AnimatePresence>
                 {showBonusTypeModal && (
                     <motion.div
+                        ref={bonusTypeModalRef}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -937,6 +984,7 @@ export default function SlotMachine() {
                                 </button>
                             </div>
                         </motion.div>
+                        {showConfetti && bonusTypeModalRef.current && <ConfettiOverlay containerRef={bonusTypeModalRef} />}
                     </motion.div>
                 )}
             </AnimatePresence>
