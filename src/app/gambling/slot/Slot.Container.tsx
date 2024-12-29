@@ -573,377 +573,369 @@ export default function SlotMachine() {
     }, []); // Run once on mount
 
     return (
-        <ClientOnly>
-            <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
-                {/* Main Content Layer */}
-                <div className="z-10 flex w-full flex-col items-center">
-                    {/* Slot Machine Section with Background Images */}
-                    <div className="flex w-full flex-row items-center justify-center">
-                        {/* Left Hazmat Image */}
-                        <div className="hidden h-full w-1/4 items-end justify-end md:!flex">
-                            <Image
-                                src="/rust_hazmat_icon_large.png"
-                                alt="Rust Hazmat Icon Left"
-                                width={512}
-                                height={512}
-                                className="h-auto w-auto"
-                            />
-                        </div>
+        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
+            {/* Main Content Layer */}
+            <div className="z-10 flex w-full flex-col items-center">
+                {/* Slot Machine Section with Background Images */}
+                <div className="flex w-full flex-row items-center justify-center">
+                    {/* Left Hazmat Image */}
+                    <div className="hidden h-full w-1/4 items-end justify-end md:!flex">
+                        <Image
+                            src="/rust_hazmat_icon_large.png"
+                            alt="Rust Hazmat Icon Left"
+                            width={512}
+                            height={512}
+                            className="h-auto w-auto"
+                        />
+                    </div>
 
-                        {/* Slot Machine */}
-                        <div className="w-full p-4 md:w-1/2">
-                            <div className="relative flex flex-col items-center space-y-2">
-                                <div
-                                    className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
-                                    style={{
-                                        height: `${VISIBLE_ITEMS * ITEM_HEIGHT + (VISIBLE_ITEMS - 1) * GAP + 4 + 8}px`,
-                                        width: `${5 * ITEM_WIDTH + 4 * GAP + 4 + 8}px`,
-                                    }}
-                                >
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={spinKey}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ duration: 1.2 }}
-                                            className="grid grid-cols-5 gap-0"
-                                        >
-                                            {reels.map((reel, i) => (
-                                                <motion.div
-                                                    key={`reel-${i}-${reel.length}-${spinKey}`}
-                                                    className="flex flex-col items-center"
-                                                    animate={
-                                                        spinning && spinAmounts.length > 0
-                                                            ? {
-                                                                  y: -(
-                                                                      calculateReelHeight(reel.length) - calculateReelHeight(VISIBLE_ITEMS)
-                                                                  ),
-                                                              }
-                                                            : {}
-                                                    }
-                                                    transition={{
-                                                        duration: 2 + i * 0.5,
-                                                        ease: 'easeInOut',
-                                                    }}
-                                                    style={{
-                                                        // Set initial position to show the starting items
-                                                        y: spinning
-                                                            ? 0
-                                                            : -(calculateReelHeight(reel.length) - calculateReelHeight(VISIBLE_ITEMS)),
-                                                    }}
-                                                    // Play spin start sound when animation starts
-                                                    onAnimationStart={() => playSpinStart(isMuted)}
-                                                    // Play spin end sound when animation completes
-                                                    onAnimationComplete={() => playSpinEnd(isMuted)}
-                                                >
-                                                    {reel.map((item, j) => {
-                                                        const displayedIndex = j - (reel.length - VISIBLE_ITEMS);
-                                                        const isDisplayed = displayedIndex >= 0 && displayedIndex < VISIBLE_ITEMS;
+                    {/* Slot Machine */}
+                    <div className="w-full p-4 md:w-1/2">
+                        <div className="relative flex flex-col items-center space-y-2">
+                            <div
+                                className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
+                                style={{
+                                    height: `${VISIBLE_ITEMS * ITEM_HEIGHT + (VISIBLE_ITEMS - 1) * GAP + 4 + 8}px`,
+                                    width: `${5 * ITEM_WIDTH + 4 * GAP + 4 + 8}px`,
+                                }}
+                            >
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={spinKey}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 1.2 }}
+                                        className="grid grid-cols-5 gap-0"
+                                    >
+                                        {reels.map((reel, i) => (
+                                            <motion.div
+                                                key={`reel-${i}-${reel.length}-${spinKey}`}
+                                                className="flex flex-col items-center"
+                                                animate={
+                                                    spinning && spinAmounts.length > 0
+                                                        ? {
+                                                              y: -(calculateReelHeight(reel.length) - calculateReelHeight(VISIBLE_ITEMS)),
+                                                          }
+                                                        : {}
+                                                }
+                                                transition={{
+                                                    duration: 2 + i * 0.5,
+                                                    ease: 'easeInOut',
+                                                }}
+                                                style={{
+                                                    // Set initial position to show the starting items
+                                                    y: spinning
+                                                        ? 0
+                                                        : -(calculateReelHeight(reel.length) - calculateReelHeight(VISIBLE_ITEMS)),
+                                                }}
+                                                // Play spin start sound when animation starts
+                                                onAnimationStart={() => playSpinStart(isMuted)}
+                                                // Play spin end sound when animation completes
+                                                onAnimationComplete={() => playSpinEnd(isMuted)}
+                                            >
+                                                {reel.map((item, j) => {
+                                                    const displayedIndex = j - (reel.length - VISIBLE_ITEMS);
+                                                    const isDisplayed = displayedIndex >= 0 && displayedIndex < VISIBLE_ITEMS;
 
-                                                        return (
-                                                            <div
-                                                                key={j}
-                                                                className="relative flex items-center justify-center"
-                                                                style={{
-                                                                    height: `${ITEM_HEIGHT}px`,
-                                                                    width: `${ITEM_WIDTH}px`,
-                                                                    marginBottom: j < reel.length - 1 ? `${GAP}px` : '0px',
-                                                                }}
-                                                            >
-                                                                {/* Highlight for winning and bonus cells */}
-                                                                {isDisplayed &&
-                                                                    winningCells.some(
-                                                                        (cell) => cell[0] === i && cell[1] === displayedIndex,
-                                                                    ) && <div className="absolute inset-0 z-10 bg-red-500 opacity-50" />}
-                                                                {isDisplayed &&
-                                                                    bonusCells.some(
-                                                                        (cell) => cell[0] === i && cell[1] === displayedIndex,
-                                                                    ) && <div className="absolute inset-0 z-10 bg-green-500 opacity-50" />}
-                                                                {SYMBOL_IMAGE_PATHS[item] ? (
-                                                                    <Image
-                                                                        src={SYMBOL_IMAGE_PATHS[item]}
-                                                                        alt={item}
-                                                                        width={ITEM_WIDTH - 10}
-                                                                        height={ITEM_HEIGHT - 10}
-                                                                        className="z-50"
-                                                                    />
-                                                                ) : (
-                                                                    <span className="z-50 text-4xl">{item}</span>
+                                                    return (
+                                                        <div
+                                                            key={j}
+                                                            className="relative flex items-center justify-center"
+                                                            style={{
+                                                                height: `${ITEM_HEIGHT}px`,
+                                                                width: `${ITEM_WIDTH}px`,
+                                                                marginBottom: j < reel.length - 1 ? `${GAP}px` : '0px',
+                                                            }}
+                                                        >
+                                                            {/* Highlight for winning and bonus cells */}
+                                                            {isDisplayed &&
+                                                                winningCells.some(
+                                                                    (cell) => cell[0] === i && cell[1] === displayedIndex,
+                                                                ) && <div className="absolute inset-0 z-10 bg-red-500 opacity-50" />}
+                                                            {isDisplayed &&
+                                                                bonusCells.some((cell) => cell[0] === i && cell[1] === displayedIndex) && (
+                                                                    <div className="absolute inset-0 z-10 bg-green-500 opacity-50" />
                                                                 )}
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </motion.div>
-                                            ))}
-                                        </motion.div>
-                                    </AnimatePresence>
-                                    {/* Cycle through each winning line */}
-                                    {!spinning && winningLines && winningLines.length > 0 && (
-                                        <div className="absolute inset-0">
-                                            <svg key={`winning-line`} className="absolute inset-0 z-50 h-full w-full">
+                                                            {SYMBOL_IMAGE_PATHS[item] ? (
+                                                                <Image
+                                                                    src={SYMBOL_IMAGE_PATHS[item]}
+                                                                    alt={item}
+                                                                    width={ITEM_WIDTH - 10}
+                                                                    height={ITEM_HEIGHT - 10}
+                                                                    className="z-50"
+                                                                />
+                                                            ) : (
+                                                                <span className="z-50 text-4xl">{item}</span>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
+                                </AnimatePresence>
+                                {/* Cycle through each winning line */}
+                                {!spinning && winningLines && winningLines.length > 0 && (
+                                    <div className="absolute inset-0">
+                                        <svg key={`winning-line`} className="absolute inset-0 z-50 h-full w-full">
+                                            <polyline
+                                                points={currentWinningLinePoints.join(' ')}
+                                                fill="none"
+                                                stroke={'#32CD32'}
+                                                strokeWidth="4"
+                                                opacity={currentWinningLineFlashCount % 2 === 0 ? 1 : 0}
+                                            />
+                                        </svg>
+                                    </div>
+                                )}
+                                {/* Render the lines when lineType is set */}
+                                {lineType && (
+                                    <div className="absolute inset-0">
+                                        {WINNING_LINES[lineType].map((line, index) => (
+                                            <svg key={`${lineType}-${index}`} className="absolute inset-0 z-50 h-full w-full">
                                                 <polyline
-                                                    points={currentWinningLinePoints.join(' ')}
+                                                    points={line
+                                                        .map(
+                                                            ([x, y]) =>
+                                                                `${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2}`,
+                                                        )
+                                                        .join(' ')}
                                                     fill="none"
                                                     stroke={'#32CD32'}
                                                     strokeWidth="4"
-                                                    opacity={currentWinningLineFlashCount % 2 === 0 ? 1 : 0}
+                                                    opacity={lineFlashCount % 2 === 0 ? 1 : 0}
                                                 />
                                             </svg>
-                                        </div>
-                                    )}
-                                    {/* Render the lines when lineType is set */}
-                                    {lineType && (
-                                        <div className="absolute inset-0">
-                                            {WINNING_LINES[lineType].map((line, index) => (
-                                                <svg key={`${lineType}-${index}`} className="absolute inset-0 z-50 h-full w-full">
-                                                    <polyline
-                                                        points={line
-                                                            .map(
-                                                                ([x, y]) =>
-                                                                    `${x * (ITEM_WIDTH + GAP) + ITEM_WIDTH / 2},${y * (ITEM_HEIGHT + GAP) + ITEM_HEIGHT / 2}`,
-                                                            )
-                                                            .join(' ')}
-                                                        fill="none"
-                                                        stroke={'#32CD32'}
-                                                        strokeWidth="4"
-                                                        opacity={lineFlashCount % 2 === 0 ? 1 : 0}
-                                                    />
-                                                </svg>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                <AnimatePresence>
-                                    {showOverlay && result && (
-                                        <div className="absolute flex h-full w-full items-center justify-center">
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0, scale: 0.8 }}
-                                                className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
-                                            >
-                                                <div className="text-center">
-                                                    <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                                                    {result.payout.map((item, index) => (
-                                                        <p key={index} className="text-2xl">
-                                                            {item.quantity}x {item.full_name}
-                                                        </p>
-                                                    ))}
-                                                    {result.bonusSpinsAwarded > 0 && (
-                                                        <p className="text-2xl text-yellow-400">Free Spins Won!</p>
-                                                    )}
-                                                </div>
-                                            </motion.div>
-                                        </div>
-                                    )}
-                                </AnimatePresence>
-                                {showConfetti && (
-                                    <Confetti
-                                        className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8"
-                                        recycle={false}
-                                        numberOfPieces={200}
-                                        gravity={0.2}
-                                        initialVelocityX={5}
-                                        initialVelocityY={20}
-                                        confettiSource={{
-                                            x: windowSize.width / 2,
-                                            y: windowSize.height / 2,
-                                            w: 0,
-                                            h: 0,
-                                        }}
-                                    />
+                                        ))}
+                                    </div>
                                 )}
                             </div>
-                        </div>
-
-                        {/* Right Hazmat Image */}
-                        <div className="hidden h-full w-1/4 items-end justify-start md:!flex">
-                            <Image
-                                src="/rust_hazmat_icon_large.png"
-                                alt="Rust Hazmat Icon Right"
-                                width={512}
-                                height={512}
-                                className="h-auto w-auto scale-x-[-1]"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Controls Section */}
-                    <div className="w-full max-w-[1200px] px-4">
-                        <div className="flex flex-col space-y-4 rounded-lg bg-stone-700 p-4">
-                            {/* User info and controls row */}
-                            <div className="flex w-full flex-col items-start justify-between space-y-2">
-                                {/* User info and credits */}
-                                <div className="flex w-full flex-row justify-between">
-                                    <div className="flex items-center">
-                                        <Image
-                                            src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
-                                            alt="Steam Avatar"
-                                            width={40}
-                                            height={40}
-                                            className="mr-2 rounded-full"
-                                        />
-                                        <span className="text-xl font-bold">{steamProfile?.name || 'Unknown Player'}</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <FaCoins className="h-10 w-10 text-primary_light" />
-                                        <span className="text-xl font-bold text-white">{credits || '0'}</span>
-                                    </div>
-                                </div>
-
-                                {/* Control buttons */}
-                                <div className="flex w-full justify-end space-x-2">
-                                    {/* Spin Button */}
-                                    <button
-                                        data-tooltip-id="spin-tooltip"
-                                        data-tooltip-place="top"
-                                        data-tooltip-offset={6}
-                                        onClick={handleSpin}
-                                        disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                                    >
-                                        {freeSpins > 0 ? (
-                                            <div className="flex h-6 w-6 items-center justify-center">
-                                                <b className="text-2xl">{freeSpins}</b>
+                            <AnimatePresence>
+                                {showOverlay && result && (
+                                    <div className="absolute flex h-full w-full items-center justify-center">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            className="absolute m-16 flex h-fit w-[calc(75dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-16 sm:!w-[calc(100dvw*0.75/3)]"
+                                        >
+                                            <div className="text-center">
+                                                <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
+                                                {result.payout.map((item, index) => (
+                                                    <p key={index} className="text-2xl">
+                                                        {item.quantity}x {item.full_name}
+                                                    </p>
+                                                ))}
+                                                {result.bonusSpinsAwarded > 0 && (
+                                                    <p className="text-2xl text-yellow-400">Free Spins Won!</p>
+                                                )}
                                             </div>
-                                        ) : (
-                                            <FaCoins className="h-6 w-6" />
-                                        )}
-                                    </button>
-                                    <Tooltip id="spin-tooltip">
-                                        {spinning
-                                            ? 'Spinning...'
-                                            : freeSpins > 0
-                                              ? `${freeSpins} Free Spins Remaining`
-                                              : `Spin (5 credits)`}
-                                    </Tooltip>
-
-                                    {/* Auto Spin Button */}
-                                    <button
-                                        data-tooltip-id="auto-spin-tooltip"
-                                        data-tooltip-place="top"
-                                        data-tooltip-offset={6}
-                                        onClick={handleAutoSpinButton}
-                                        disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
-                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                                    >
-                                        {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
-                                    </button>
-                                    <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
-
-                                    {/* Show Lines Button */}
-                                    <button
-                                        data-tooltip-id="show-lines-tooltip"
-                                        data-tooltip-place="top"
-                                        data-tooltip-offset={6}
-                                        onClick={handleShowLines}
-                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
-                                    >
-                                        <FaInfoCircle className="h-6 w-6" />
-                                    </button>
-                                    <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
-
-                                    {/* Sound Toggle Button */}
-                                    <button
-                                        data-tooltip-id="sound-tooltip"
-                                        data-tooltip-place="top"
-                                        data-tooltip-offset={6}
-                                        onClick={handleMuteToggle}
-                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
-                                    >
-                                        {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
-                                    </button>
-                                    <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
-                                </div>
-                            </div>
-
-                            {error && <p className="text-red-500">{error}</p>}
+                                        </motion.div>
+                                    </div>
+                                )}
+                            </AnimatePresence>
+                            {showConfetti && (
+                                <Confetti
+                                    className="absolute flex h-fit w-full items-center justify-center rounded-lg p-8"
+                                    recycle={false}
+                                    numberOfPieces={200}
+                                    gravity={0.2}
+                                    initialVelocityX={5}
+                                    initialVelocityY={20}
+                                    confettiSource={{
+                                        x: windowSize.width / 2,
+                                        y: windowSize.height / 2,
+                                        w: 0,
+                                        h: 0,
+                                    }}
+                                />
+                            )}
                         </div>
                     </div>
 
-                    {/* Recent Winners Section */}
-                    <div className="mt-4 w-full max-w-[1200px] px-4 pb-4">
-                        <div className="rounded-lg bg-stone-700 p-4">
-                            <RecentSlotWinners
-                                shouldRefetch={shouldRefetchWinners}
-                                onRefetchComplete={() => setShouldRefetchWinners(false)}
-                                spinning={spinning}
-                            />
-                        </div>
+                    {/* Right Hazmat Image */}
+                    <div className="hidden h-full w-1/4 items-end justify-start md:!flex">
+                        <Image
+                            src="/rust_hazmat_icon_large.png"
+                            alt="Rust Hazmat Icon Right"
+                            width={512}
+                            height={512}
+                            className="h-auto w-auto scale-x-[-1]"
+                        />
                     </div>
                 </div>
 
-                {/* Sign-In Modal */}
-                {!isVerified && (
-                    <div className="absolute inset-0">
-                        <SteamSignInModal
-                            steamInput={steamInput}
-                            setSteamInput={setSteamInput}
-                            code={code}
-                            setCode={setCode}
-                            onVerify={handleVerify}
-                            error={error}
+                {/* Controls Section */}
+                <div className="w-full max-w-[1200px] px-4">
+                    <div className="flex flex-col space-y-4 rounded-lg bg-stone-700 p-4">
+                        {/* User info and controls row */}
+                        <div className="flex w-full flex-col items-start justify-between space-y-2">
+                            {/* User info and credits */}
+                            <div className="flex w-full flex-row justify-between">
+                                <div className="flex items-center">
+                                    <Image
+                                        src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
+                                        alt="Steam Avatar"
+                                        width={40}
+                                        height={40}
+                                        className="mr-2 rounded-full"
+                                    />
+                                    <span className="text-xl font-bold">{steamProfile?.name || 'Unknown Player'}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <FaCoins className="h-10 w-10 text-primary_light" />
+                                    <span className="text-xl font-bold text-white">{credits || '0'}</span>
+                                </div>
+                            </div>
+
+                            {/* Control buttons */}
+                            <div className="flex w-full justify-end space-x-2">
+                                {/* Spin Button */}
+                                <button
+                                    data-tooltip-id="spin-tooltip"
+                                    data-tooltip-place="top"
+                                    data-tooltip-offset={6}
+                                    onClick={handleSpin}
+                                    disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                    className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                >
+                                    {freeSpins > 0 ? (
+                                        <div className="flex h-6 w-6 items-center justify-center">
+                                            <b className="text-2xl">{freeSpins}</b>
+                                        </div>
+                                    ) : (
+                                        <FaCoins className="h-6 w-6" />
+                                    )}
+                                </button>
+                                <Tooltip id="spin-tooltip">
+                                    {spinning ? 'Spinning...' : freeSpins > 0 ? `${freeSpins} Free Spins Remaining` : `Spin (5 credits)`}
+                                </Tooltip>
+
+                                {/* Auto Spin Button */}
+                                <button
+                                    data-tooltip-id="auto-spin-tooltip"
+                                    data-tooltip-place="top"
+                                    data-tooltip-offset={6}
+                                    onClick={handleAutoSpinButton}
+                                    disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
+                                    className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                >
+                                    {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
+                                </button>
+                                <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
+
+                                {/* Show Lines Button */}
+                                <button
+                                    data-tooltip-id="show-lines-tooltip"
+                                    data-tooltip-place="top"
+                                    data-tooltip-offset={6}
+                                    onClick={handleShowLines}
+                                    className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                >
+                                    <FaInfoCircle className="h-6 w-6" />
+                                </button>
+                                <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
+
+                                {/* Sound Toggle Button */}
+                                <button
+                                    data-tooltip-id="sound-tooltip"
+                                    data-tooltip-place="top"
+                                    data-tooltip-offset={6}
+                                    onClick={handleMuteToggle}
+                                    className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                >
+                                    {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
+                                </button>
+                                <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
+                            </div>
+                        </div>
+
+                        {error && <p className="text-red-500">{error}</p>}
+                    </div>
+                </div>
+
+                {/* Recent Winners Section */}
+                <div className="mt-4 w-full max-w-[1200px] px-4 pb-4">
+                    <div className="rounded-lg bg-stone-700 p-4">
+                        <RecentSlotWinners
+                            shouldRefetch={shouldRefetchWinners}
+                            onRefetchComplete={() => setShouldRefetchWinners(false)}
+                            spinning={spinning}
                         />
                     </div>
-                )}
-
-                {/* Bonus Type Selection Modal */}
-                <AnimatePresence>
-                    {showBonusTypeModal && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50"
-                        >
-                            <motion.div
-                                initial={{ scale: 0.8 }}
-                                animate={{ scale: 1 }}
-                                exit={{ scale: 0.8 }}
-                                className="rounded-lg bg-stone-800 p-8 text-white shadow-lg"
-                            >
-                                <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
-                                <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
-                                    {/* Normal Bonus Button */}
-                                    <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">
-                                        <Image
-                                            src="/rust_icons/normal_bonus_banner.png"
-                                            alt="Normal Bonus"
-                                            width={300}
-                                            height={100}
-                                            className="rounded-lg"
-                                        />
-                                        {/* Overlay on Hover */}
-                                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
-                                            <p className="px-4 text-center opacity-0 group-hover:opacity-100">
-                                                More spins, lower volatility. Multipliers do not stick for all spins.
-                                            </p>
-                                        </div>
-                                    </button>
-
-                                    {/* Sticky Bonus Button */}
-                                    <button onClick={() => handleBonusTypeSelection('sticky')} className="group relative">
-                                        <Image
-                                            src="/rust_icons/sticky_bonus_banner.png"
-                                            alt="Sticky Bonus"
-                                            width={300}
-                                            height={100}
-                                            className="rounded-lg"
-                                        />
-                                        {/* Overlay on Hover */}
-                                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
-                                            <p className="px-4 text-center opacity-0 group-hover:opacity-100">
-                                                Less spins, higher volatility. Multipliers will stay in place for all spins.
-                                            </p>
-                                        </div>
-                                    </button>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                </div>
             </div>
-        </ClientOnly>
+
+            {/* Sign-In Modal */}
+            {!isVerified && (
+                <div className="absolute inset-0">
+                    <SteamSignInModal
+                        steamInput={steamInput}
+                        setSteamInput={setSteamInput}
+                        code={code}
+                        setCode={setCode}
+                        onVerify={handleVerify}
+                        error={error}
+                    />
+                </div>
+            )}
+
+            {/* Bonus Type Selection Modal */}
+            <AnimatePresence>
+                {showBonusTypeModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.8 }}
+                            className="rounded-lg bg-stone-800 p-8 text-white shadow-lg"
+                        >
+                            <h2 className="mb-6 text-center text-2xl font-bold">Choose Bonus Type</h2>
+                            <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
+                                {/* Normal Bonus Button */}
+                                <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">
+                                    <Image
+                                        src="/rust_icons/normal_bonus_banner.png"
+                                        alt="Normal Bonus"
+                                        width={300}
+                                        height={100}
+                                        className="rounded-lg"
+                                    />
+                                    {/* Overlay on Hover */}
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                                        <p className="px-4 text-center opacity-0 group-hover:opacity-100">
+                                            More spins, lower volatility. Multipliers do not stick for all spins.
+                                        </p>
+                                    </div>
+                                </button>
+
+                                {/* Sticky Bonus Button */}
+                                <button onClick={() => handleBonusTypeSelection('sticky')} className="group relative">
+                                    <Image
+                                        src="/rust_icons/sticky_bonus_banner.png"
+                                        alt="Sticky Bonus"
+                                        width={300}
+                                        height={100}
+                                        className="rounded-lg"
+                                    />
+                                    {/* Overlay on Hover */}
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                                        <p className="px-4 text-center opacity-0 group-hover:opacity-100">
+                                            Less spins, higher volatility. Multipliers will stay in place for all spins.
+                                        </p>
+                                    </div>
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }
