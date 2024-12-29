@@ -551,6 +551,12 @@ export default function SlotMachine() {
 
     // Handle "Show Lines" button click
     const handleShowLines = () => {
+        // Clear any existing winning lines
+        setWinningLines([]);
+        setCurrentWinningLine([]);
+        setCurrentWinningLineIndex(0);
+        setCurrentWinningLineFlashCount(0);
+        // Show the line patterns
         setLineType('horizontal');
     };
 
