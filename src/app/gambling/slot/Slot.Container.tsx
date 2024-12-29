@@ -644,7 +644,7 @@ export default function SlotMachine() {
                 {/* Slot Machine Section with Background Images */}
                 <div className="flex w-full flex-row items-center justify-center">
                     {/* Left Hazmat Image */}
-                    <div className="hidden h-full w-1/4 items-end justify-end md:!flex">
+                    <div className="z-100 hidden h-full w-1/4 items-end justify-end md:!flex">
                         <Image
                             src="/rust_hazmat_icon_large.png"
                             alt="Rust Hazmat Icon Left"
@@ -655,7 +655,7 @@ export default function SlotMachine() {
                     </div>
 
                     {/* Slot Machine */}
-                    <div className="w-full p-4 md:w-1/2">
+                    <div className="z-50 w-full p-4 md:w-1/2">
                         <div className="relative flex flex-col items-center space-y-2">
                             <div
                                 className="relative overflow-hidden rounded-lg bg-gray-700 p-2"
@@ -810,7 +810,7 @@ export default function SlotMachine() {
                     </div>
 
                     {/* Right Hazmat Image */}
-                    <div className="hidden h-full w-1/4 items-end justify-start md:!flex">
+                    <div className="z-100 hidden h-full w-1/4 items-end justify-start md:!flex">
                         <Image
                             src="/rust_hazmat_icon_large.png"
                             alt="Rust Hazmat Icon Right"
@@ -825,10 +825,10 @@ export default function SlotMachine() {
                 <div className="w-full max-w-[1200px] px-4">
                     <div className="flex flex-col space-y-4 rounded-lg bg-stone-700 p-4">
                         {/* User info and controls row */}
-                        <div className="flex w-full flex-col items-start justify-between space-y-2">
+                        <div className="flex w-full flex-row items-start justify-between sm:items-center">
                             {/* User info and credits */}
-                            <div className="flex w-full flex-row justify-between">
-                                <div className="flex items-center">
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                                <div className="flex" data-tooltip-id="steam-id-tooltip">
                                     <Image
                                         src={steamProfile?.avatarUrl || '/steam_icon_small.png'}
                                         alt="Steam Avatar"
@@ -838,71 +838,80 @@ export default function SlotMachine() {
                                     />
                                     <span className="text-xl font-bold">{steamProfile?.name || 'Unknown Player'}</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex space-x-2" data-tooltip-id="credits-tooltip">
                                     <FaCoins className="h-10 w-10 text-primary_light" />
                                     <span className="text-xl font-bold text-white">{credits || '0'}</span>
                                 </div>
+                                <Tooltip id="credits-tooltip">Credits</Tooltip>
+                                <Tooltip id="steam-id-tooltip">Steam ID: {steamId}</Tooltip>
                             </div>
 
                             {/* Control buttons */}
-                            <div className="flex w-full justify-end space-x-2">
-                                {/* Spin Button */}
-                                <button
-                                    data-tooltip-id="spin-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleSpin}
-                                    disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
-                                    className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                                >
-                                    {freeSpins > 0 ? (
-                                        <div className="flex h-6 w-6 items-center justify-center">
-                                            <b className="text-2xl">{freeSpins}</b>
-                                        </div>
-                                    ) : (
-                                        <FaCoins className="h-6 w-6" />
-                                    )}
-                                </button>
-                                <Tooltip id="spin-tooltip">
-                                    {spinning ? 'Spinning...' : freeSpins > 0 ? `${freeSpins} Free Spins Remaining` : `Spin (5 credits)`}
-                                </Tooltip>
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                                <div className="flex flex-row space-x-2">
+                                    {/* Spin Button */}
+                                    <button
+                                        data-tooltip-id="spin-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleSpin}
+                                        disabled={!isVerified || spinning || (credits !== null && credits < 5 && freeSpins === 0)}
+                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                    >
+                                        {freeSpins > 0 ? (
+                                            <div className="flex h-6 w-6 items-center justify-center">
+                                                <b className="text-2xl">{freeSpins}</b>
+                                            </div>
+                                        ) : (
+                                            <FaCoins className="h-6 w-6" />
+                                        )}
+                                    </button>
+                                    <Tooltip id="spin-tooltip">
+                                        {spinning
+                                            ? 'Spinning...'
+                                            : freeSpins > 0
+                                              ? `${freeSpins} Free Spins Remaining`
+                                              : `Spin (5 credits)`}
+                                    </Tooltip>
 
-                                {/* Auto Spin Button */}
-                                <button
-                                    data-tooltip-id="auto-spin-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleAutoSpinButton}
-                                    disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
-                                    className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
-                                >
-                                    {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
-                                </button>
-                                <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
+                                    {/* Auto Spin Button */}
+                                    <button
+                                        data-tooltip-id="auto-spin-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleAutoSpinButton}
+                                        disabled={!isVerified || (credits !== null && credits < 5 && freeSpins === 0)}
+                                        className="rounded-lg bg-primary_light p-3 text-stone-800 hover:bg-primary hover:text-stone-300 disabled:bg-gray-400"
+                                    >
+                                        {autoSpin ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
+                                    </button>
+                                    <Tooltip id="auto-spin-tooltip">{autoSpin ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
+                                </div>
+                                <div className="flex flex-row space-x-2">
+                                    {/* Show Lines Button */}
+                                    <button
+                                        data-tooltip-id="show-lines-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleShowLines}
+                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                    >
+                                        <FaInfoCircle className="h-6 w-6" />
+                                    </button>
+                                    <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
 
-                                {/* Show Lines Button */}
-                                <button
-                                    data-tooltip-id="show-lines-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleShowLines}
-                                    className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
-                                >
-                                    <FaInfoCircle className="h-6 w-6" />
-                                </button>
-                                <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
-
-                                {/* Sound Toggle Button */}
-                                <button
-                                    data-tooltip-id="sound-tooltip"
-                                    data-tooltip-place="top"
-                                    data-tooltip-offset={6}
-                                    onClick={handleMuteToggle}
-                                    className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
-                                >
-                                    {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
-                                </button>
-                                <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
+                                    {/* Sound Toggle Button */}
+                                    <button
+                                        data-tooltip-id="sound-tooltip"
+                                        data-tooltip-place="top"
+                                        data-tooltip-offset={6}
+                                        onClick={handleMuteToggle}
+                                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                                    >
+                                        {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeHigh className="h-6 w-6" />}
+                                    </button>
+                                    <Tooltip id="sound-tooltip">{isMuted ? 'Turn Sound On' : 'Turn Sound Off'}</Tooltip>
+                                </div>
                             </div>
                         </div>
 
