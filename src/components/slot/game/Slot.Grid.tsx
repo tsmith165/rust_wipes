@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useSlotGame } from '@/stores/slot_game_store';
 
 // Constants
 const ITEM_SIZE_EXTRA_LARGE = 120;
@@ -28,36 +29,36 @@ const SYMBOL_IMAGE_PATHS: Record<string, string> = {
 };
 
 export interface SlotGridProps {
-    grid: string[][];
-    spinAmounts: number[];
-    spinKey: number;
-    isSpinning: boolean;
-    winningCells: number[][];
-    bonusCells: number[][];
-    winningLines: number[][][];
-    currentWinningLine: number[][];
-    currentWinningLineFlashCount: number;
     onSpinComplete?: () => void;
     className?: string;
+    soundManagerRef?: React.RefObject<{
+        playSpinEnd: () => void;
+        playHandlePull: () => void;
+        playSpinStart: () => void;
+        playWinSound: (numWins: number) => void;
+        playBonusWon: () => void;
+        stopAllSounds: () => void;
+    } | null>;
 }
 
 /**
  * Grid component for slot machines.
  * Handles the display and animation of symbols.
  */
-export function SlotGrid({
-    grid,
-    spinAmounts,
-    spinKey,
-    isSpinning,
-    winningCells,
-    bonusCells,
-    winningLines,
-    currentWinningLine,
-    currentWinningLineFlashCount,
-    onSpinComplete,
-    className,
-}: SlotGridProps) {
+export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGridProps) {
+    const {
+        currentGrid: grid,
+        spinAmounts,
+        spinKey,
+        isSpinning,
+        lastResult: result,
+        winningCells = [],
+        bonusCells = [],
+        winningLines = [],
+        currentWinningLine,
+        currentWinningLineFlashCount,
+    } = useSlotGame();
+
     const [itemSize, setItemSize] = React.useState({
         width: ITEM_SIZE_MEDIUM,
         height: ITEM_SIZE_MEDIUM,
@@ -99,7 +100,7 @@ export function SlotGrid({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 1.2 }}
+                    transition={{ duration: 0.3 }}
                     className="grid grid-cols-5 gap-0"
                 >
                     {grid.map((reel, i) => (
@@ -109,22 +110,31 @@ export function SlotGrid({
                             animate={
                                 isSpinning && spinAmounts.length > 0
                                     ? {
+                                          y: [0, -(calculateReelHeight(reel.length) - calculateReelHeight(5))],
+                                      }
+                                    : {
                                           y: -(calculateReelHeight(reel.length) - calculateReelHeight(5)),
                                       }
-                                    : {}
                             }
-                            transition={{
-                                duration: 2 + i * 0.5,
-                                ease: 'easeInOut',
-                            }}
-                            style={{
-                                y: isSpinning ? 0 : -(calculateReelHeight(reel.length) - calculateReelHeight(5)),
-                            }}
-                            onAnimationComplete={() => {
-                                if (i === grid.length - 1) {
-                                    onSpinComplete?.();
-                                }
-                            }}
+                            transition={
+                                isSpinning
+                                    ? {
+                                          duration: 2 + i * 0.5,
+                                          ease: [0.45, 0.05, 0.55, 0.95],
+                                          times: [0, 1],
+                                          onComplete: () => {
+                                              // Play tick sound for each reel stopping
+                                              soundManagerRef?.current?.playSpinEnd();
+                                              // Call onSpinComplete when the last reel finishes
+                                              if (i === grid.length - 1) {
+                                                  onSpinComplete?.();
+                                              }
+                                          },
+                                      }
+                                    : {
+                                          duration: 0,
+                                      }
+                            }
                         >
                             {reel.map((symbol, j) => {
                                 const displayedIndex = j - (reel.length - 5);
@@ -142,10 +152,28 @@ export function SlotGrid({
                                     >
                                         {/* Highlight for winning and bonus cells */}
                                         {isDisplayed && winningCells.some((cell) => cell[0] === i && cell[1] === displayedIndex) && (
-                                            <div className="absolute inset-0 z-10 bg-red-500 opacity-50" />
+                                            <motion.div
+                                                className="absolute inset-0 z-10 bg-red-500"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: [0, 0.5, 0] }}
+                                                transition={{
+                                                    duration: 1,
+                                                    repeat: Infinity,
+                                                    repeatType: 'reverse',
+                                                }}
+                                            />
                                         )}
                                         {isDisplayed && bonusCells.some((cell) => cell[0] === i && cell[1] === displayedIndex) && (
-                                            <div className="absolute inset-0 z-10 bg-green-500 opacity-50" />
+                                            <motion.div
+                                                className="absolute inset-0 z-10 bg-green-500"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: [0, 0.5, 0] }}
+                                                transition={{
+                                                    duration: 1,
+                                                    repeat: Infinity,
+                                                    repeatType: 'reverse',
+                                                }}
+                                            />
                                         )}
                                         {SYMBOL_IMAGE_PATHS[symbol] ? (
                                             <Image
@@ -170,12 +198,20 @@ export function SlotGrid({
             {!isSpinning && winningLines.length > 0 && (
                 <div className="absolute inset-0">
                     <svg className="absolute inset-0 z-50 h-full w-full">
-                        <polyline
+                        <motion.polyline
                             points={currentWinningLinePoints.join(' ')}
                             fill="none"
                             stroke={'#32CD32'}
                             strokeWidth="4"
-                            opacity={currentWinningLineFlashCount % 2 === 0 ? 1 : 0}
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{
+                                pathLength: 1,
+                                opacity: currentWinningLineFlashCount % 2 === 0 ? 1 : 0,
+                            }}
+                            transition={{
+                                pathLength: { duration: 0.5, ease: 'easeInOut' },
+                                opacity: { duration: 0.3 },
+                            }}
                         />
                     </svg>
                 </div>

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import Cookies from 'js-cookie';
 import { fetchUserCredits } from '@/app/gambling/Gambling.Actions';
 
 interface SteamProfile {
@@ -97,12 +96,6 @@ export const useSteamUser = create<SteamUserState>()(
             },
 
             clearUserData: () => {
-                // Clear cookies
-                Cookies.remove('steamInput');
-                Cookies.remove('authCode');
-                Cookies.remove('steamId');
-
-                // Reset state
                 set({
                     steamInput: '',
                     authCode: '',
@@ -142,23 +135,8 @@ export const useSteamUser = create<SteamUserState>()(
                 steamInput: state.steamInput,
                 authCode: state.authCode,
                 steamId: state.steamId,
+                isVerified: state.isVerified,
             }),
         },
     ),
 );
-
-// Optional: Add a subscription to sync with cookies
-useSteamUser.subscribe((state, prevState) => {
-    if (
-        state.isVerified &&
-        (state.steamInput !== prevState.steamInput || state.authCode !== prevState.authCode || state.steamId !== prevState.steamId)
-    ) {
-        Cookies.set('steamInput', state.steamInput, { expires: 7 });
-        Cookies.set('authCode', state.authCode, { expires: 7 });
-        Cookies.set('steamId', state.steamId, { expires: 7 });
-    } else if (!state.isVerified && prevState.isVerified) {
-        Cookies.remove('steamInput');
-        Cookies.remove('authCode');
-        Cookies.remove('steamId');
-    }
-});

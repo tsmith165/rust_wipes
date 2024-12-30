@@ -23,7 +23,17 @@ const SOUND_PATHS = {
     BONUS_WON: '/sounds/slot-bonus_won-1.mp3',
 } as const;
 
-export function SlotSoundManager({ isMuted, volume, onVolumeChange, onMuteToggle, className }: SlotSoundManagerProps) {
+function SlotSoundManagerBase(
+    { isMuted, volume, onVolumeChange, onMuteToggle, className }: SlotSoundManagerProps,
+    ref: React.ForwardedRef<{
+        playHandlePull: () => void;
+        playSpinStart: () => void;
+        playSpinEnd: () => void;
+        playWinSound: (numWins: number) => void;
+        playBonusWon: () => void;
+        stopAllSounds: () => void;
+    }>,
+) {
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const [fadeIntervals, setFadeIntervals] = React.useState<Record<string, NodeJS.Timeout>>({});
@@ -200,6 +210,9 @@ export function SlotSoundManager({ isMuted, volume, onVolumeChange, onMuteToggle
         [isMuted, volume, fadeSound],
     );
 
+    // Expose play functions through a ref
+    React.useImperativeHandle(ref, () => playFunctions, [playFunctions]);
+
     return (
         <div className={cn('fixed bottom-4 right-4 z-50 flex items-center space-x-2', className)}>
             <button
@@ -231,3 +244,16 @@ export function SlotSoundManager({ isMuted, volume, onVolumeChange, onMuteToggle
         </div>
     );
 }
+
+// Export the forwarded ref component
+export const SlotSoundManager = React.forwardRef<
+    {
+        playHandlePull: () => void;
+        playSpinStart: () => void;
+        playSpinEnd: () => void;
+        playWinSound: (numWins: number) => void;
+        playBonusWon: () => void;
+        stopAllSounds: () => void;
+    },
+    SlotSoundManagerProps
+>(SlotSoundManagerBase);

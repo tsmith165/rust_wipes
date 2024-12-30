@@ -1,5 +1,5 @@
+import PageLayout from '@/components/layout/PageLayout';
 import { DefaultSlotContainer } from './Default.Container';
-import { redirect } from 'next/navigation';
 
 export const metadata = {
     title: 'Rust Slots | Default Machine',
@@ -8,8 +8,8 @@ export const metadata = {
 
 export default function DefaultSlotPage() {
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-stone-900 p-4">
+        <PageLayout page="/gambling/slots/default">
             <DefaultSlotContainer />
-        </main>
+        </PageLayout>
     );
 }

@@ -28,7 +28,7 @@ interface Winner {
 
 interface RecentWinnersProps {
     winners: Winner[];
-    onRefresh?: () => Promise<void>;
+    onRefresh?: () => void;
     isLoading?: boolean;
     error?: string;
     className?: string;
@@ -49,12 +49,13 @@ interface WinnerProfileProps {
     onClick?: () => void;
 }
 
-const WinnerProfile: React.FC<WinnerProfileProps> = ({ steamId, playerName, profilePicture, className }) => {
+const WinnerProfile: React.FC<WinnerProfileProps> = ({ steamId, playerName, profilePicture, className, onClick }) => {
     return (
         <motion.div
             className={cn('flex items-center gap-2', className)}
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+            onClick={onClick}
         >
             <Image
                 src={profilePicture || '/steam_icon_small.png'}
@@ -141,6 +142,43 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
  * Displays recent winning spins with animations and Steam profile integration.
  */
 export function SlotRecentWinners({ winners, onRefresh, isLoading, error, className }: RecentWinnersProps) {
+    // Use React's useRef to keep track of the previous winners for diffing
+    const prevWinnersRef = React.useRef<Winner[]>([]);
+    const [displayedWinners, setDisplayedWinners] = React.useState<Winner[]>([]);
+
+    // Update winners list with diffing
+    React.useEffect(() => {
+        if (winners.length === 0) {
+            setDisplayedWinners([]);
+            prevWinnersRef.current = [];
+            return;
+        }
+
+        // Function to check if a winner is new
+        const isNewWinner = (winner: Winner) => {
+            return !prevWinnersRef.current.some(
+                (prevWinner) => prevWinner.steamId === winner.steamId && prevWinner.timestamp === winner.timestamp,
+            );
+        };
+
+        // Get only the new winners
+        const newWinners = winners.filter(isNewWinner);
+
+        // Update the displayed winners list with new winners
+        setDisplayedWinners((prev) => {
+            // Remove any winners that are no longer in the winners list
+            const currentWinners = prev.filter((displayedWinner) =>
+                winners.some((winner) => winner.steamId === displayedWinner.steamId && winner.timestamp === displayedWinner.timestamp),
+            );
+
+            // Add new winners at the beginning
+            return [...newWinners, ...currentWinners];
+        });
+
+        // Update the previous winners reference
+        prevWinnersRef.current = winners;
+    }, [winners]);
+
     return (
         <div className={cn('flex h-full flex-col space-y-4', className)}>
             <div className="flex items-center justify-between">
@@ -180,7 +218,7 @@ export function SlotRecentWinners({ winners, onRefresh, isLoading, error, classN
 
             <div className="flex-1 space-y-4 overflow-y-auto">
                 <AnimatePresence mode="popLayout">
-                    {isLoading ? (
+                    {isLoading && displayedWinners.length === 0 ? (
                         // Loading placeholders
                         Array.from({ length: 3 }).map((_, index) => (
                             <motion.div
@@ -188,7 +226,7 @@ export function SlotRecentWinners({ winners, onRefresh, isLoading, error, classN
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="animate-pulse rounded-lg bg-stone-700 p-4"
+                                className="animate-pulse rounded-lg bg-stone-800 p-4"
                             >
                                 <div className="flex items-center space-x-4">
                                     <div className="h-8 w-8 rounded-full bg-stone-600" />
@@ -199,8 +237,8 @@ export function SlotRecentWinners({ winners, onRefresh, isLoading, error, classN
                                 </div>
                             </motion.div>
                         ))
-                    ) : winners.length > 0 ? (
-                        winners.map((winner, index) => (
+                    ) : displayedWinners.length > 0 ? (
+                        displayedWinners.map((winner, index) => (
                             <WinnerCard
                                 key={`${winner.steamId}-${winner.timestamp}`}
                                 winner={winner}
