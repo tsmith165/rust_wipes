@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import Cookies from 'js-cookie';
 
 import { SlotContainer } from '@/components/slot/base/Slot.Container';
 import { SlotGrid } from '@/components/slot/game/Slot.Grid';
