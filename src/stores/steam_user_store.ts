@@ -7,6 +7,7 @@ interface SteamProfile {
     name: string;
     avatarUrl: string;
     steamId: string;
+    code: string;
 }
 
 interface SteamUserState {
@@ -70,7 +71,10 @@ export const useSteamUser = create<SteamUserState>()(
                     const result = await fetchUserCredits(steamId, authCode);
                     if (result.success && result.data) {
                         set({
-                            profile: result.data.profile,
+                            profile: {
+                                ...result.data.profile,
+                                code: authCode,
+                            },
                             credits: result.data.credits,
                             freeSpins: result.data.freeSpins,
                             isVerified: true,
@@ -112,12 +116,21 @@ export const useSteamUser = create<SteamUserState>()(
             },
 
             verifyUser: (profileData) => {
+                if (!profileData || !profileData.profile || !profileData.profile.steamId) {
+                    console.error('Invalid profile data:', profileData);
+                    set({ error: 'Invalid profile data received' });
+                    return;
+                }
+
                 const { profile, credits, freeSpins } = profileData;
                 set({
-                    profile,
+                    profile: {
+                        ...profile,
+                        code: get().authCode,
+                    },
                     steamId: profile.steamId,
-                    credits,
-                    freeSpins,
+                    credits: credits || 0,
+                    freeSpins: freeSpins || 0,
                     isVerified: true,
                     error: '',
                 });
