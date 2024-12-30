@@ -6,7 +6,14 @@ interface SlotGameState {
     currentGrid: string[][];
     winningCells: number[][];
     bonusCells: number[][];
-    winningLines: number[][][];
+    winningLines: {
+        lines: number[][][];
+        isVisible: boolean;
+    };
+    gridDimensions: {
+        itemSize: { width: number; height: number };
+        gap: number;
+    };
     currentWinningLine: number[][];
     currentWinningLineFlashCount: number;
     spinKey: number;
@@ -18,11 +25,15 @@ interface SlotGameState {
     isMuted: boolean;
     volume: number;
     isAutoSpinning: boolean;
+
+    // Actions
     setSpinning: (isSpinning: boolean) => void;
     setGrid: (grid: string[][]) => void;
     setWinningCells: (cells: number[][]) => void;
     setBonusCells: (cells: number[][]) => void;
     setWinningLines: (lines: number[][][]) => void;
+    setWinningLinesVisibility: (isVisible: boolean) => void;
+    setGridDimensions: (dimensions: { width: number; height: number }, gap: number) => void;
     setCurrentWinningLine: (line: number[][]) => void;
     incrementWinningLineFlashCount: () => void;
     setSpinKey: (key: number) => void;
@@ -41,7 +52,14 @@ export const useSlotGame = create<SlotGameState>((set) => ({
     currentGrid: [],
     winningCells: [],
     bonusCells: [],
-    winningLines: [],
+    winningLines: {
+        lines: [],
+        isVisible: false,
+    },
+    gridDimensions: {
+        itemSize: { width: 80, height: 80 }, // Default medium size
+        gap: 2,
+    },
     currentWinningLine: [],
     currentWinningLineFlashCount: 0,
     spinKey: 0,
@@ -53,13 +71,29 @@ export const useSlotGame = create<SlotGameState>((set) => ({
     isMuted: false,
     volume: 1,
     isAutoSpinning: false,
+
+    // Actions
     setSpinning: (isSpinning) => set({ isSpinning }),
     setGrid: (grid) => set({ currentGrid: grid }),
     setWinningCells: (cells) => set({ winningCells: cells }),
     setBonusCells: (cells) => set({ bonusCells: cells }),
-    setWinningLines: (lines) => set({ winningLines: lines }),
+    setWinningLines: (lines) =>
+        set((state) => ({
+            winningLines: { ...state.winningLines, lines },
+        })),
+    setWinningLinesVisibility: (isVisible) =>
+        set((state) => ({
+            winningLines: { ...state.winningLines, isVisible },
+        })),
+    setGridDimensions: (itemSize, gap) =>
+        set({
+            gridDimensions: { itemSize, gap },
+        }),
     setCurrentWinningLine: (line) => set({ currentWinningLine: line }),
-    incrementWinningLineFlashCount: () => set((state) => ({ currentWinningLineFlashCount: state.currentWinningLineFlashCount + 1 })),
+    incrementWinningLineFlashCount: () =>
+        set((state) => ({
+            currentWinningLineFlashCount: state.currentWinningLineFlashCount + 1,
+        })),
     setSpinKey: (key) => set({ spinKey: key }),
     setSpinAmounts: (amounts) => set({ spinAmounts: amounts }),
     setLastResult: (result) => set({ lastResult: result }),

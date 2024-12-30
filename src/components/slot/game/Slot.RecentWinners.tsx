@@ -76,14 +76,10 @@ const WinnerProfile: React.FC<WinnerProfileProps> = ({ steamId, playerName, prof
 };
 
 const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = true, onProfileClick }) => {
-    const formattedTimestamp = new Date(winner.timestamp).toLocaleString();
-
     return (
         <motion.div
-            layout
-            initial={animate ? { opacity: 0, y: 20 } : false}
+            initial={animate ? { opacity: 0, y: -20 } : false}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -20 }}
             className={cn('rounded-lg bg-stone-800 p-4 shadow-lg', className)}
         >
             <div className="flex items-start justify-between">
@@ -94,20 +90,18 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
                     className="cursor-pointer"
                     onClick={onProfileClick}
                 />
-                <span className="text-xs text-gray-400">{formattedTimestamp}</span>
+                <span className="text-xs text-gray-400">{new Date(winner.timestamp).toLocaleString()}</span>
             </div>
-
-            <div className="mt-2 space-y-2">
+            <motion.div className="mt-2 space-y-2">
                 {winner.payout.map((item, index) => (
                     <motion.div
-                        key={`${index}-${item.full_name}`}
+                        key={`${item.full_name}-${index}`}
+                        initial={animate ? { opacity: 0 } : false}
+                        animate={{ opacity: 1 }}
                         className="flex items-center gap-2"
-                        initial={animate ? { opacity: 0, x: -20 } : false}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
                     >
                         <Image
-                            src={ITEM_ICON_PATHS[item.full_name.toLowerCase()] || '/rust_icons/scrap_icon.png'}
+                            src={ITEM_ICON_PATHS[item.full_name.toLowerCase().replace(/ /g, '_')] || '/rust_icons/scrap_icon.png'}
                             alt={item.full_name}
                             width={24}
                             height={24}
@@ -118,21 +112,15 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
                         </span>
                     </motion.div>
                 ))}
-
-                {winner.bonusAmount && winner.bonusType && (
-                    <motion.div
-                        className="flex items-center gap-2"
-                        initial={animate ? { opacity: 0, x: -20 } : false}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: winner.payout.length * 0.1 }}
-                    >
-                        <Image src="/rust_icons/bonus_symbol.png" alt="Bonus" width={24} height={24} className="rounded-sm" />
-                        <span className="text-sm text-yellow-400">
-                            {winner.bonusAmount}x {winner.bonusType === 'sticky' ? 'Sticky' : 'Normal'} Free Spins
+                {winner.bonusAmount !== undefined && winner.bonusAmount > 0 && winner.bonusType && (
+                    <motion.div initial={animate ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                        <Image src={ITEM_ICON_PATHS.bonus} alt="Bonus" width={24} height={24} className="rounded-sm" />
+                        <span className="text-sm text-white">
+                            {winner.bonusAmount}x {winner.bonusType === 'sticky' ? 'Sticky' : 'Normal'} Bonus Spins
                         </span>
                     </motion.div>
                 )}
-            </div>
+            </motion.div>
         </motion.div>
     );
 };

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useSlotGame } from '@/stores/slot_game_store';
+import { SlotWinningLines } from './Slot.WinningLines';
 
 // Constants
 const ITEM_SIZE_EXTRA_LARGE = 120;
@@ -52,46 +53,49 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
         spinKey,
         isSpinning,
         lastResult: result,
-        winningCells = [],
-        bonusCells = [],
-        winningLines = [],
+        winningCells,
+        bonusCells,
+        winningLines: { lines, isVisible },
         currentWinningLine,
         currentWinningLineFlashCount,
+        gridDimensions,
+        setGridDimensions,
+        incrementWinningLineFlashCount,
     } = useSlotGame();
 
-    const [itemSize, setItemSize] = React.useState({
-        width: ITEM_SIZE_MEDIUM,
-        height: ITEM_SIZE_MEDIUM,
-    });
-
     // Update item size based on window size
-    React.useLayoutEffect(() => {
+    useEffect(() => {
         const updateSize = () => {
             const size = getScreenSize();
-            setItemSize({ width: size, height: size });
+            setGridDimensions({ width: size, height: size }, GAP);
         };
 
         updateSize();
         window.addEventListener('resize', updateSize);
         return () => window.removeEventListener('resize', updateSize);
-    }, []);
+    }, [setGridDimensions]);
+
+    // Flash winning lines
+    useEffect(() => {
+        if (!isSpinning && lines.length > 0 && isVisible) {
+            const interval = setInterval(() => {
+                incrementWinningLineFlashCount();
+            }, 500);
+            return () => clearInterval(interval);
+        }
+    }, [isSpinning, lines, isVisible, incrementWinningLineFlashCount]);
 
     // Helper function to calculate reel height
     const calculateReelHeight = (reelLength: number) => {
-        return reelLength * itemSize.height + (reelLength - 1) * GAP;
+        return reelLength * gridDimensions.itemSize.height + (reelLength - 1) * gridDimensions.gap;
     };
-
-    // Generate points for winning lines
-    const currentWinningLinePoints = currentWinningLine.map(
-        ([x, y]) => `${x * (itemSize.width + GAP) + itemSize.width / 2},${y * (itemSize.height + GAP) + itemSize.height / 2}`,
-    );
 
     return (
         <div
             className={cn('relative overflow-hidden rounded-lg bg-gray-700 p-2', className)}
             style={{
-                height: `${5 * itemSize.height + 4 * GAP + 4 + 8}px`,
-                width: `${5 * itemSize.width + 4 * GAP + 4 + 8}px`,
+                height: `${5 * gridDimensions.itemSize.height + 4 * gridDimensions.gap + 4 + 8}px`,
+                width: `${5 * gridDimensions.itemSize.width + 4 * gridDimensions.gap + 4 + 8}px`,
             }}
         >
             <AnimatePresence mode="wait">
@@ -145,9 +149,9 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
                                         key={j}
                                         className="relative flex items-center justify-center"
                                         style={{
-                                            height: `${itemSize.height}px`,
-                                            width: `${itemSize.width}px`,
-                                            marginBottom: j < reel.length - 1 ? `${GAP}px` : '0px',
+                                            height: `${gridDimensions.itemSize.height}px`,
+                                            width: `${gridDimensions.itemSize.width}px`,
+                                            marginBottom: j < reel.length - 1 ? `${gridDimensions.gap}px` : '0px',
                                         }}
                                     >
                                         {/* Highlight for winning and bonus cells */}
@@ -179,8 +183,8 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
                                             <Image
                                                 src={SYMBOL_IMAGE_PATHS[symbol]}
                                                 alt={symbol}
-                                                width={itemSize.width - 10}
-                                                height={itemSize.height - 10}
+                                                width={gridDimensions.itemSize.width - 10}
+                                                height={gridDimensions.itemSize.height - 10}
                                                 className="z-50"
                                             />
                                         ) : (
@@ -195,25 +199,9 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
             </AnimatePresence>
 
             {/* Winning Lines */}
-            {!isSpinning && winningLines.length > 0 && (
+            {!isSpinning && lines.length > 0 && isVisible && (
                 <div className="absolute inset-0">
-                    <svg className="absolute inset-0 z-50 h-full w-full">
-                        <motion.polyline
-                            points={currentWinningLinePoints.join(' ')}
-                            fill="none"
-                            stroke={'#32CD32'}
-                            strokeWidth="4"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{
-                                pathLength: 1,
-                                opacity: currentWinningLineFlashCount % 2 === 0 ? 1 : 0,
-                            }}
-                            transition={{
-                                pathLength: { duration: 0.5, ease: 'easeInOut' },
-                                opacity: { duration: 0.3 },
-                            }}
-                        />
-                    </svg>
+                    <SlotWinningLines />
                 </div>
             )}
         </div>

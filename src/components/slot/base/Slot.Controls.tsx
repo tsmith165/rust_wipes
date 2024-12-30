@@ -4,6 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import { FaCoins, FaPlay, FaPause, FaInfoCircle, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
+import { useSlotGame } from '@/stores/slot_game_store';
+import { cn } from '@/lib/utils';
 
 export interface SlotControlsProps {
     onSpin: () => void;
@@ -32,6 +34,11 @@ export function SlotControls({
     isLoading,
     steamProfile,
 }: SlotControlsProps) {
+    const {
+        winningLines: { isVisible },
+        setWinningLinesVisibility,
+    } = useSlotGame();
+
     return (
         <div className="flex w-full flex-row items-start justify-between sm:items-center">
             {/* User info and credits */}
@@ -97,12 +104,15 @@ export function SlotControls({
                         data-tooltip-id="show-lines-tooltip"
                         data-tooltip-place="top"
                         data-tooltip-offset={6}
-                        onClick={() => {}}
-                        className="rounded-lg bg-stone-300 p-3 text-primary hover:bg-stone-800 hover:text-primary_light"
+                        onClick={() => setWinningLinesVisibility(!isVisible)}
+                        className={cn(
+                            'rounded-lg p-3 text-primary transition-colors',
+                            isVisible ? 'bg-stone-800 text-primary_light' : 'bg-stone-300 hover:bg-stone-800 hover:text-primary_light',
+                        )}
                     >
                         <FaInfoCircle className="h-6 w-6" />
                     </button>
-                    <Tooltip id="show-lines-tooltip">Show Winning Lines</Tooltip>
+                    <Tooltip id="show-lines-tooltip">{isVisible ? 'Hide Winning Lines' : 'Show Winning Lines'}</Tooltip>
 
                     {/* Sound Toggle Button */}
                     <button

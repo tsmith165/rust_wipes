@@ -12,6 +12,7 @@ import { SlotControls } from '@/components/slot/base/Slot.Controls';
 import { SlotSoundManager } from '@/components/slot/game/Slot.SoundManager';
 import { SlotRecentWinners } from '@/components/slot/game/Slot.RecentWinners';
 import SteamSignInModal from '@/components/SteamSignInModal';
+import { SlotConfettiOverlay } from '@/components/slot/game/Slot.ConfettiOverlay';
 
 import { spinSlotMachine, setBonusType, checkPendingBonus, getRecentSlotWinners } from './Default.Actions';
 import type { SpinResult } from './Default.Actions';
@@ -228,6 +229,9 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
         setShowOverlay(false);
         setShowConfetti(false);
         setSpinning(false);
+        slotGame.setWinningLinesVisibility(false);
+        slotGame.setCurrentWinningLine([]);
+        slotGame.setWinningLines([]);
 
         // Reset to initial grid state
         const initialGrid = Array(5)
@@ -279,7 +283,7 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
                 slotGame.setSpinAmounts(extendedGrid.map((reel) => reel.length - 5)); // Set spin amounts based on extended grid lengths
 
                 // Force a remount of the grid component
-                setSpinKey(spinKey + 1);
+                slotGame.setSpinKey(spinKey + 1);
 
                 // Wait for spin animations to complete (2 seconds base + 0.5 seconds per reel)
                 const maxDuration = 2 + 4 * 0.5 + 0.5; // Base duration + time for last reel + extra time for final tick
@@ -290,7 +294,16 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
                 slotGame.setSpinAmounts([]); // Clear spin amounts after animation
 
                 // Update game state with results
-                setResult(spinResult.data);
+                slotGame.setLastResult(spinResult.data);
+                slotGame.setWinningCells(spinResult.data.winningCells);
+                slotGame.setBonusCells(spinResult.data.bonusCells);
+                slotGame.setWinningLines(spinResult.data.winningLines);
+                slotGame.setWinningLinesVisibility(true);
+
+                // Set initial winning line
+                if (spinResult.data.winningLines.length > 0) {
+                    slotGame.setCurrentWinningLine(spinResult.data.winningLines[0]);
+                }
 
                 // Play end of spin sound if no wins
                 if (!spinResult.data.needsBonusTypeSelection && (!spinResult.data.payout || spinResult.data.payout.length === 0)) {
@@ -509,18 +522,21 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
                                 )}
                             </div>
                         </motion.div>
-                        {showConfetti && winOverlayRef.current && (
-                            <Confetti
-                                width={winOverlayRef.current.clientWidth}
-                                height={winOverlayRef.current.clientHeight}
-                                recycle={false}
-                                numberOfPieces={200}
-                                style={{ position: 'absolute', pointerEvents: 'none' }}
-                            />
-                        )}
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Confetti Overlay */}
+            <SlotConfettiOverlay
+                isVisible={showConfetti}
+                onComplete={() => setShowConfetti(false)}
+                config={{
+                    numberOfPieces: 200,
+                    gravity: 0.2,
+                    initialVelocityX: 5,
+                    initialVelocityY: 20,
+                }}
+            />
 
             {/* Bonus Type Selection Modal */}
             <AnimatePresence>
@@ -570,16 +586,6 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
                                 </button>
                             </div>
                         </motion.div>
-                        {showConfetti && (
-                            <Confetti
-                                className="pointer-events-none fixed inset-0"
-                                recycle={false}
-                                numberOfPieces={200}
-                                gravity={0.2}
-                                initialVelocityX={5}
-                                initialVelocityY={20}
-                            />
-                        )}
                     </div>
                 )}
             </AnimatePresence>
