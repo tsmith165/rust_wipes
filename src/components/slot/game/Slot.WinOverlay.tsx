@@ -21,12 +21,12 @@ export function SlotWinOverlay({ result, showConfetti, onConfettiComplete }: Slo
     }
 
     return (
-        <div ref={containerRef} className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50">
+        <div ref={containerRef} className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800">
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="m-4 flex h-fit w-[calc(80dvw)] items-center justify-center rounded-lg bg-black bg-opacity-70 p-8 sm:!w-[calc(100dvw*0.75/3)]"
+                className="m-4 flex h-fit w-[calc(80dvw)] items-center justify-center rounded-lg bg-stone-800 p-8 sm:!w-[calc(100dvw*0.75/3)]"
             >
                 <div className="text-center">
                     <h2 className="mb-4 text-4xl font-bold">You Won!</h2>

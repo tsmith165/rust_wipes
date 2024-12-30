@@ -49,6 +49,22 @@ interface WinnerProfileProps {
     onClick?: () => void;
 }
 
+const getItemKey = (fullName: string): string => {
+    const nameMap: Record<string, string> = {
+        'AK-47': 'ak47',
+        M39: 'm39_rifle',
+        Thompson: 'thompson',
+        Scrap: 'scrap',
+        'Metal Fragments': 'metal_fragments',
+        'High Quality Metal': 'high_quality_metal',
+        Bonus: 'bonus',
+        '2x Multiplier': '2x_multiplier',
+        '3x Multiplier': '3x_multiplier',
+        '5x Multiplier': '5x_multiplier',
+    };
+    return nameMap[fullName] || fullName.toLowerCase().replace(/[-\s]/g, '_');
+};
+
 const WinnerProfile: React.FC<WinnerProfileProps> = ({ steamId, playerName, profilePicture, className, onClick }) => {
     return (
         <motion.div
@@ -101,7 +117,7 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
                         className="flex items-center gap-2"
                     >
                         <Image
-                            src={ITEM_ICON_PATHS[item.full_name.toLowerCase().replace(/ /g, '_')] || '/rust_icons/scrap_icon.png'}
+                            src={ITEM_ICON_PATHS[getItemKey(item.full_name)] || '/rust_icons/scrap_icon.png'}
                             alt={item.full_name}
                             width={24}
                             height={24}
@@ -112,6 +128,12 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
                         </span>
                     </motion.div>
                 ))}
+                {winner.bonusAmount !== undefined && winner.bonusAmount > 0 && !winner.bonusType && (
+                    <motion.div initial={animate ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                        <Image src={ITEM_ICON_PATHS.bonus} alt="Bonus" width={24} height={24} className="rounded-sm" />
+                        <span className="text-sm text-yellow-400">{winner.bonusAmount}x Bonus Symbols - Selecting Bonus Type...</span>
+                    </motion.div>
+                )}
                 {winner.bonusAmount !== undefined && winner.bonusAmount > 0 && winner.bonusType && (
                     <motion.div initial={animate ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="flex items-center gap-2">
                         <Image src={ITEM_ICON_PATHS.bonus} alt="Bonus" width={24} height={24} className="rounded-sm" />

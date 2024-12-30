@@ -35,9 +35,22 @@ export function SlotControls({
     steamProfile,
 }: SlotControlsProps) {
     const {
-        winningLines: { isVisible },
+        possibleLines: { isVisible: isPossibleLinesVisible },
+        setPossibleLinesVisibility,
         setWinningLinesVisibility,
+        setWinningCells,
+        setBonusCells,
     } = useSlotGame();
+
+    const handleShowPossibleLines = () => {
+        // Stop all current animations and sounds
+        setWinningLinesVisibility(false);
+        setWinningCells([]);
+        setBonusCells([]);
+
+        // Toggle possible lines visibility
+        setPossibleLinesVisibility(!isPossibleLinesVisible);
+    };
 
     return (
         <div className="flex w-full flex-row items-start justify-between sm:items-center">
@@ -57,8 +70,12 @@ export function SlotControls({
                     <FaCoins className="h-10 w-10 text-primary_light" />
                     <span className="text-xl font-bold text-white">{credits || '0'}</span>
                 </div>
-                <Tooltip id="credits-tooltip">Credits</Tooltip>
-                <Tooltip id="steam-id-tooltip">Steam ID: {steamProfile?.steamId}</Tooltip>
+                <Tooltip id="credits-tooltip" className="z-[100]">
+                    Credits
+                </Tooltip>
+                <Tooltip id="steam-id-tooltip" className="z-[100]">
+                    Steam ID: {steamProfile?.steamId}
+                </Tooltip>
             </div>
 
             {/* Control buttons */}
@@ -81,7 +98,7 @@ export function SlotControls({
                             <FaCoins className="h-6 w-6" />
                         )}
                     </button>
-                    <Tooltip id="spin-tooltip">
+                    <Tooltip id="spin-tooltip" className="z-[100]">
                         {isLoading ? 'Spinning...' : freeSpins > 0 ? `${freeSpins} Free Spins Remaining` : `Spin (5 credits)`}
                     </Tooltip>
 
@@ -96,23 +113,29 @@ export function SlotControls({
                     >
                         {isAutoSpinning ? <FaPause className="h-6 w-6" /> : <FaPlay className="h-6 w-6" />}
                     </button>
-                    <Tooltip id="auto-spin-tooltip">{isAutoSpinning ? 'Stop Auto Spins' : 'Start Auto Spins'}</Tooltip>
+                    <Tooltip id="auto-spin-tooltip" className="z-[100]">
+                        {isAutoSpinning ? 'Stop Auto Spins' : 'Start Auto Spins'}
+                    </Tooltip>
                 </div>
                 <div className="flex flex-row space-x-2">
-                    {/* Show Lines Button */}
+                    {/* Show Possible Lines Button */}
                     <button
                         data-tooltip-id="show-lines-tooltip"
                         data-tooltip-place="top"
                         data-tooltip-offset={6}
-                        onClick={() => setWinningLinesVisibility(!isVisible)}
+                        onClick={handleShowPossibleLines}
                         className={cn(
                             'rounded-lg p-3 text-primary transition-colors',
-                            isVisible ? 'bg-stone-800 text-primary_light' : 'bg-stone-300 hover:bg-stone-800 hover:text-primary_light',
+                            isPossibleLinesVisible
+                                ? 'bg-stone-800 text-primary_light'
+                                : 'bg-stone-300 hover:bg-stone-800 hover:text-primary_light',
                         )}
                     >
                         <FaInfoCircle className="h-6 w-6" />
                     </button>
-                    <Tooltip id="show-lines-tooltip">{isVisible ? 'Hide Winning Lines' : 'Show Winning Lines'}</Tooltip>
+                    <Tooltip id="show-lines-tooltip" className="z-[100]">
+                        {isPossibleLinesVisible ? 'Hide Possible Lines' : 'Show Possible Lines'}
+                    </Tooltip>
 
                     {/* Sound Toggle Button */}
                     <button
@@ -124,7 +147,9 @@ export function SlotControls({
                     >
                         {isMuted ? <FaVolumeMute className="h-6 w-6" /> : <FaVolumeUp className="h-6 w-6" />}
                     </button>
-                    <Tooltip id="sound-tooltip">{isMuted ? 'Unmute' : 'Mute'}</Tooltip>
+                    <Tooltip id="sound-tooltip" className="z-[100]">
+                        {isMuted ? 'Unmute' : 'Mute'}
+                    </Tooltip>
                 </div>
             </div>
         </div>

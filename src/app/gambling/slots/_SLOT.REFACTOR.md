@@ -28,107 +28,110 @@
     - Some components still using local state unnecessarily
     - Need to optimize store selectors
 3. Winning Lines:
-    - Need to cycle through multiple winning lines
-    - Add animation for line transitions
+    - Need to separate actual win lines from possible win lines
+    - Add cycling through possible winning patterns
+    - Improve line transitions
 
 ## Required Changes
 
-### 1. Animation Synchronization
+### 1. Winning Lines State Update
 
 ```typescript
-// Update sound handling in components
-useEffect(() => {
-    return () => {
-        soundManagerRef.current?.stopAllSounds();
+// Update slot_game_store.ts to separate win lines from possible lines
+interface SlotGameState {
+    winningLines: {
+        lines: number[][][]; // Current win lines
+        isVisible: boolean; // Whether win lines are visible
     };
-}, []);
+    possibleLines: {
+        lines: number[][][]; // All possible winning patterns
+        isVisible: boolean; // Whether showing possible patterns
+        currentLineIndex: number; // Current pattern being shown
+    };
+}
 
-// Improve animation timing
-const ANIMATION_TIMINGS = {
-    SPIN_BASE: 2000,
-    SPIN_STAGGER: 500,
-    WIN_DISPLAY: 2500,
-    LINE_ANIMATION: 500,
+// Add actions for possible lines
+interface SlotGameActions {
+    setPossibleLinesVisibility: (isVisible: boolean) => void;
+    setCurrentPossibleLine: (index: number) => void;
+    cyclePossibleLines: () => void;
+}
+```
+
+### 2. Animation Synchronization
+
+```typescript
+// Update sound and animation cleanup
+const showPossibleLines = () => {
+    // Stop all current animations and sounds
+    soundManagerRef.current?.stopAllSounds();
+    setWinningLinesVisibility(false);
+    setWinningCells([]);
+    setBonusCells([]);
+
+    // Start showing possible lines
+    setPossibleLinesVisibility(true);
+    startLineCycling();
 };
 ```
 
-### 2. State Management Optimization
-
-```typescript
-// Add selectors to slot_game_store.ts
-const useSpinState = () =>
-    useSlotGame((state) => ({
-        isSpinning: state.isSpinning,
-        spinAmounts: state.spinAmounts,
-        spinKey: state.spinKey,
-    }));
-
-const useWinningState = () =>
-    useSlotGame((state) => ({
-        winningCells: state.winningCells,
-        bonusCells: state.bonusCells,
-        winningLines: state.winningLines,
-        currentWinningLine: state.currentWinningLine,
-    }));
-```
-
-### 3. Winning Lines Enhancement
+### 3. Line Cycling Enhancement
 
 ```typescript
 // Add line cycling functionality
 useEffect(() => {
-    if (!isSpinning && winningLines.length > 0) {
+    if (possibleLines.isVisible) {
         const interval = setInterval(() => {
-            setCurrentWinningLine((currentIndex) => (currentIndex + 1) % winningLines.length);
+            cyclePossibleLines();
         }, 2000);
         return () => clearInterval(interval);
     }
-}, [isSpinning, winningLines]);
+}, [possibleLines.isVisible]);
 ```
 
 ## Next Steps
 
-1. [ ] **Animation Synchronization**
+1. [ ] **Winning Lines Update**
 
+    - [ ] Update store with possible lines state
+    - [ ] Add line cycling functionality
+    - [ ] Update controls button text and behavior
+    - [ ] Add cleanup when toggling possible lines
+
+2. [ ] **Animation Synchronization**
+
+    - [ ] Add proper cleanup of animations
+    - [ ] Stop sounds when showing possible lines
+    - [ ] Improve line transition animations
     - [ ] Add animation timing constants
-    - [ ] Improve sound cleanup
-    - [ ] Synchronize animations with state changes
-    - [ ] Add animation completion callbacks
 
-2. [ ] **State Management**
+3. [ ] **State Management**
 
     - [ ] Add store selectors
-    - [ ] Remove unnecessary local state
     - [ ] Optimize re-renders
     - [ ] Add state persistence where needed
-
-3. [ ] **Winning Lines**
-
-    - [ ] Implement line cycling
-    - [ ] Add transition animations
-    - [ ] Improve line visibility
-    - [ ] Sync with win animations
+    - [ ] Clean up unused state
 
 4. [ ] **Testing**
-    - [ ] Test all animations
-    - [ ] Verify state updates
-    - [ ] Check sound synchronization
-    - [ ] Validate winning lines display
+    - [ ] Test line cycling
+    - [ ] Verify animation cleanup
+    - [ ] Check state transitions
+    - [ ] Validate display behavior
 
 ## Implementation Notes
 
-1. **Animation**
+1. **Winning Lines**
 
-    - Use constants for timing
-    - Handle cleanup properly
-    - Synchronize with state
-    - Use Framer Motion effectively
+    - Keep actual win lines and possible lines separate
+    - Clear win state when showing possible lines
+    - Use smooth transitions between lines
+    - Maintain consistent timing
 
-2. **State**
+2. **State Management**
 
     - Use selectors for performance
-    - Minimize re-renders
-    - Handle side effects properly
+    - Keep state organized and clean
+    - Handle transitions smoothly
     - Maintain type safety
 
 3. **Components**

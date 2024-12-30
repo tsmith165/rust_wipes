@@ -104,6 +104,9 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
         stopAllSounds: () => void;
     } | null>(null);
 
+    // Add a ref to track if a spin is in progress
+    const spinInProgressRef = useRef(false);
+
     // Effects
     useEffect(() => {
         const initializeUser = async () => {
@@ -220,138 +223,140 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
         }
     };
 
+    // Add helper function for safe sound playing
+    const playSoundSafely = (soundFunction: () => void) => {
+        if (document.visibilityState === 'visible' && document.hasFocus()) {
+            try {
+                soundFunction();
+            } catch (err) {
+                console.warn('Failed to play sound:', err);
+            }
+        }
+    };
+
+    // Update handleSpin
     const handleSpin = async () => {
+        // Prevent multiple simultaneous spins
+        if (spinInProgressRef.current) {
+            console.log('Spin already in progress, ignoring...');
+            return;
+        }
+
         if (!steamProfile?.steamId || !steamProfile.code) return;
 
-        // Stop all currently playing sounds
-        soundManagerRef.current?.stopAllSounds();
-
-        setShowOverlay(false);
-        setShowConfetti(false);
-        setSpinning(false);
-        slotGame.setWinningLinesVisibility(false);
-        slotGame.setCurrentWinningLine([]);
-        slotGame.setWinningLines([]);
-
-        // Reset to initial grid state
-        const initialGrid = Array(5)
-            .fill(0)
-            .map(() =>
-                Array(5)
-                    .fill(0)
-                    .map(() => getRandomSymbol()),
-            );
-        slotGame.setGrid(initialGrid);
-
-        // Important: Wait for the initial grid to be rendered
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Start spinning state AFTER grid remount
-        setSpinning(true);
-        setError('');
-
-        // Play handle pull sound
-        soundManagerRef.current?.playHandlePull();
-
-        // Wait for handle pull sound to start
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
         try {
-            // Get the spin result first
+            spinInProgressRef.current = true;
+            console.log('Starting spin...');
+
+            // Stop all currently playing sounds
+            soundManagerRef.current?.stopAllSounds();
+
+            // Clear all win states
+            setShowOverlay(false);
+            setShowConfetti(false);
+            setSpinning(true);
+            slotGame.setWinningLinesVisibility(false);
+            slotGame.setPossibleLinesVisibility(false);
+            slotGame.setCurrentWinningLine([]);
+            slotGame.setWinningLines([]);
+            slotGame.setWinningCells([]);
+            slotGame.setBonusCells([]);
+
+            // Play handle pull sound safely
+            playSoundSafely(() => soundManagerRef.current?.playHandlePull());
+
+            // Shorter wait for handle pull sound
+            await new Promise((resolve) => setTimeout(resolve, 200));
+
+            // Get spin result
+            console.log('Fetching spin result...');
             const spinResult = await spinSlotMachine(steamProfile.steamId, steamProfile.code);
-            if (!spinResult.success) {
-                setError(spinResult.error || 'An error occurred during the spin.');
+
+            if (!spinResult?.success || !spinResult.data) {
+                setError(spinResult?.error || 'An error occurred during the spin.');
                 setSpinning(false);
                 return;
             }
 
-            if (spinResult.data) {
-                // Play spin start sound
-                soundManagerRef.current?.playSpinStart();
+            const spinResultData = spinResult.data;
 
-                // Generate extended grid for animation
-                const extendedGrid = spinResult.data.finalVisibleGrid.map((finalReel, i) => {
-                    const spinSymbolsCount = 15 + i * 5; // Stagger the reel lengths
-                    const additionalSymbols = Array(spinSymbolsCount)
-                        .fill(0)
-                        .map(() => getRandomSymbol());
-                    return [...additionalSymbols, ...finalReel];
-                });
+            // Play spin start sound safely
+            playSoundSafely(() => soundManagerRef.current?.playSpinStart());
 
-                // Set the extended grid and spin amounts for animation
-                slotGame.setGrid(extendedGrid);
-                slotGame.setSpinAmounts(extendedGrid.map((reel) => reel.length - 5)); // Set spin amounts based on extended grid lengths
+            // Generate extended grid for animation
+            const extendedGrid = spinResultData.finalVisibleGrid.map((finalReel, i) => {
+                const spinSymbolsCount = 15 + i * 5; // Stagger the reel lengths
+                const additionalSymbols = Array(spinSymbolsCount)
+                    .fill(0)
+                    .map(() => getRandomSymbol());
+                return [...additionalSymbols, ...finalReel];
+            });
 
-                // Force a remount of the grid component
-                slotGame.setSpinKey(spinKey + 1);
+            console.log('Starting grid animation');
+            // Force a remount of the grid component with the extended grid
+            slotGame.setSpinKey(spinKey + 1);
+            slotGame.setGrid(extendedGrid);
+            slotGame.setSpinAmounts(extendedGrid.map((reel) => reel.length - 5));
 
-                // Wait for spin animations to complete (2 seconds base + 0.5 seconds per reel)
-                const maxDuration = 2 + 4 * 0.5 + 0.5; // Base duration + time for last reel + extra time for final tick
-                await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
+            // Wait for spin animations to complete
+            const maxDuration = 2 + 4 * 0.5 + 0.5;
+            await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
 
-                // Set final grid state
-                slotGame.setGrid(spinResult.data.finalVisibleGrid);
-                slotGame.setSpinAmounts([]); // Clear spin amounts after animation
+            console.log('Animation complete, setting final state');
+            // Set final grid state
+            slotGame.setGrid(spinResultData.finalVisibleGrid);
+            slotGame.setSpinAmounts([]);
 
-                // Update game state with results
-                slotGame.setLastResult(spinResult.data);
-                slotGame.setWinningCells(spinResult.data.winningCells);
-                slotGame.setBonusCells(spinResult.data.bonusCells);
-                slotGame.setWinningLines(spinResult.data.winningLines);
-                slotGame.setWinningLinesVisibility(true);
+            // Update game state with results
+            slotGame.setLastResult(spinResultData);
+            slotGame.setWinningCells(spinResultData.winningCells);
+            slotGame.setBonusCells(spinResultData.bonusCells);
+            slotGame.setWinningLines(spinResultData.winningLines);
+            slotGame.setWinningLinesVisibility(true);
 
-                // Set initial winning line
-                if (spinResult.data.winningLines.length > 0) {
-                    slotGame.setCurrentWinningLine(spinResult.data.winningLines[0]);
-                }
+            // Handle no wins case
+            if (!spinResultData.needsBonusTypeSelection && (!spinResultData.payout || spinResultData.payout.length === 0)) {
+                setTimeout(() => {
+                    playSoundSafely(() => soundManagerRef.current?.playSpinEnd());
+                }, 200);
+            }
 
-                // Play end of spin sound if no wins
-                if (!spinResult.data.needsBonusTypeSelection && (!spinResult.data.payout || spinResult.data.payout.length === 0)) {
-                    setTimeout(() => {
-                        soundManagerRef.current?.playSpinEnd();
-                    }, 200);
-                }
+            // Handle bonus case after spin completes
+            if (spinResultData.needsBonusTypeSelection) {
+                // Stop auto-spinning when bonus is won
+                setAutoSpinning(false);
 
-                if (spinResult.data.needsBonusTypeSelection) {
+                // Wait a bit after spin completes to show bonus modal
+                setTimeout(() => {
                     setShowBonusModal(true);
-                    // Play bonus sound after a short delay
-                    setTimeout(() => {
-                        soundManagerRef.current?.playBonusWon();
-                    }, 500);
-                }
-
-                if (spinResult.data.payout.length > 0) {
                     setShowConfetti(true);
-                    setShowOverlay(true);
+                    playSoundSafely(() => soundManagerRef.current?.playBonusWon());
+                }, 500);
+            }
 
-                    // Play win sound after a short delay
-                    setTimeout(() => {
-                        soundManagerRef.current?.playWinSound(spinResult.data!.payout.length);
-                    }, 500);
+            // Handle win case
+            if (spinResultData.payout.length > 0) {
+                setShowConfetti(true);
+                setShowOverlay(true);
 
-                    // Add the new win to the winners list
-                    const newWinner = {
-                        playerName: steamProfile.name,
-                        steamId: steamProfile.steamId,
-                        payout: spinResult.data.payout.map(({ quantity, full_name }) => ({ quantity, full_name })),
-                        timestamp: new Date().toISOString(),
-                        profilePicture: steamProfile.avatarUrl,
-                        bonusType: spinResult.data.needsBonusTypeSelection ? undefined : ('normal' as const),
-                        bonusAmount: spinResult.data.bonusSpinsAwarded,
-                    };
-                    setWinners((prev) => [newWinner, ...prev]);
+                setTimeout(() => {
+                    playSoundSafely(() => soundManagerRef.current?.playWinSound(spinResultData.payout.length));
+                }, 500);
 
-                    // Auto-hide the overlay after 2.5 seconds
-                    setTimeout(() => {
-                        setShowOverlay(false);
-                        setShowConfetti(false);
-                    }, 2500);
-                }
+                fetchWinners();
+
+                setTimeout(() => {
+                    setShowOverlay(false);
+                    setShowConfetti(false);
+                }, 2500);
             }
         } catch (err) {
+            console.error('Spin error:', err);
             setError('Failed to spin. Please try again.');
         } finally {
+            console.log('Spin complete');
             setSpinning(false);
+            spinInProgressRef.current = false;
         }
     };
 
@@ -370,19 +375,8 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
                 setFreeSpins(response.data);
             }
 
-            // Update the most recent winner with the selected bonus type
-            setWinners((prev) => {
-                if (prev.length === 0) return prev;
-                const [mostRecent, ...rest] = prev;
-                return [
-                    {
-                        ...mostRecent,
-                        bonusType: type,
-                        bonusAmount: response.data || mostRecent.bonusAmount,
-                    },
-                    ...rest,
-                ];
-            });
+            // Fetch winners to update with the selected bonus type
+            fetchWinners();
 
             // Close the bonus modal
             setShowBonusModal(false);
@@ -404,14 +398,9 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
             try {
                 const response = await checkPendingBonus(steamProfile.steamId, steamProfile.code);
                 if (response.success && response.data?.pending) {
+                    // Only show visual elements on initial load, no sounds
                     setShowBonusModal(true);
                     setShowConfetti(true);
-                    // Only play sound if user has interacted with the page
-                    if (document.visibilityState === 'visible' && document.hasFocus()) {
-                        setTimeout(() => {
-                            soundManagerRef.current?.playBonusWon();
-                        }, 1000);
-                    }
                 }
             } catch (err) {
                 console.error('Error checking pending bonus:', err);
@@ -420,6 +409,18 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
 
         checkForPendingBonus();
     }, [steamProfile]);
+
+    const handleTogglePossibleLines = () => {
+        // Stop all currently playing sounds
+        soundManagerRef.current?.stopAllSounds();
+
+        // Stop auto-spinning when showing possible lines
+        if (!slotGame.possibleLines.isVisible) {
+            setAutoSpinning(false);
+        }
+
+        slotGame.setPossibleLinesVisibility(!slotGame.possibleLines.isVisible);
+    };
 
     // Define the three main sections
     const slot_grid = (
@@ -433,7 +434,12 @@ export const DefaultSlotContainer = function DefaultSlotContainer() {
     const slot_controls = (
         <SlotControls
             onSpin={handleSpin}
-            onToggleMute={() => setSoundEnabled(!soundEnabled)}
+            onToggleMute={() => {
+                setSoundEnabled(!soundEnabled);
+                if (soundEnabled) {
+                    soundManagerRef.current?.stopAllSounds();
+                }
+            }}
             onToggleAutoSpin={() => setAutoSpinning(!autoSpinning)}
             isMuted={!soundEnabled}
             isAutoSpinning={autoSpinning}

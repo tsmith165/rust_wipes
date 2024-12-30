@@ -56,11 +56,13 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
         winningCells,
         bonusCells,
         winningLines: { lines, isVisible },
+        possibleLines: { isVisible: isPossibleLinesVisible },
         currentWinningLine,
         currentWinningLineFlashCount,
         gridDimensions,
         setGridDimensions,
         incrementWinningLineFlashCount,
+        cyclePossibleLines,
     } = useSlotGame();
 
     // Update item size based on window size
@@ -84,6 +86,16 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
             return () => clearInterval(interval);
         }
     }, [isSpinning, lines, isVisible, incrementWinningLineFlashCount]);
+
+    // Cycle through possible lines
+    useEffect(() => {
+        if (isPossibleLinesVisible) {
+            const interval = setInterval(() => {
+                cyclePossibleLines();
+            }, 500);
+            return () => clearInterval(interval);
+        }
+    }, [isPossibleLinesVisible, cyclePossibleLines]);
 
     // Helper function to calculate reel height
     const calculateReelHeight = (reelLength: number) => {
@@ -199,11 +211,11 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
             </AnimatePresence>
 
             {/* Winning Lines */}
-            {!isSpinning && lines.length > 0 && isVisible && (
+            {(!isSpinning && lines.length > 0 && isVisible) || isPossibleLinesVisible ? (
                 <div className="absolute inset-0">
                     <SlotWinningLines />
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }
