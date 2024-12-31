@@ -72,7 +72,7 @@ export const ITEM_IMAGE_PATHS: Record<WheelPayout, string> = {
     'M92 Pistol': '/rust_icons/m92_icon.png',
     Thompson: '/rust_icons/thompson_icon.png',
     'AK47 Rifle': '/rust_icons/ak47_icon.png',
-    '3x Bonus': '/rust_icons/3x_multi.png',
+    '3x Bonus': '/rust_icons/bonus_symbol.png',
 };
 
 // Helper functions

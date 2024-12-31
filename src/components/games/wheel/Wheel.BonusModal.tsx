@@ -27,13 +27,13 @@ export function WheelBonusModal({ isVisible, onClose, onBonusSelect }: WheelBonu
                         className="relative w-full max-w-lg rounded-lg bg-stone-800 p-6 text-white shadow-lg"
                     >
                         <div className="mb-6 text-center">
-                            <h2 className="mb-2 text-2xl font-bold">Choose Your Bonus Type</h2>
+                            <h2 className="mb-2 text-2xl font-bold text-primary_light">Choose Your Bonus Type</h2>
                             <p className="text-gray-300">Select a bonus type to continue to the slot machine</p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex w-full flex-col items-center justify-center space-y-2 md:flex-row md:space-x-2 md:space-y-0">
                             {/* Normal Bonus Button */}
-                            <button onClick={() => onBonusSelect('normal')} className="group relative">
+                            <button onClick={() => onBonusSelect('normal')} className="group relative w-fit">
                                 <Image
                                     src="/rust_icons/normal_bonus_banner.png"
                                     alt="Normal Bonus"
@@ -50,7 +50,7 @@ export function WheelBonusModal({ isVisible, onClose, onBonusSelect }: WheelBonu
                             </button>
 
                             {/* Sticky Bonus Button */}
-                            <button onClick={() => onBonusSelect('sticky')} className="group relative">
+                            <button onClick={() => onBonusSelect('sticky')} className="group relative w-fit">
                                 <Image
                                     src="/rust_icons/sticky_bonus_banner.png"
                                     alt="Sticky Bonus"

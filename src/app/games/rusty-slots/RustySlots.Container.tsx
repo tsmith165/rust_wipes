@@ -26,6 +26,7 @@ import { BaseGameControls } from '@/components/games/base/BaseGame.Controls';
 import { RustySlotsSoundManager } from '@/components/games/rusty-slots/RustySlots.SoundManager';
 import { SlotRecentWinners } from '@/components/games/rusty-slots/RustySlots.RecentWinners';
 import { BaseGameConfettiOverlay } from '@/components/games/base/BaseGame.ConfettiOverlay';
+import { RustySlotsBonusModal } from '@/components/games/rusty-slots/RustySlots.BonusModal';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -332,21 +333,26 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 // Stop auto-spinning when bonus is won
                 setAutoSpinning(false);
 
-                // Wait a bit after spin completes to show bonus modal
+                // Wait for spin to complete and show highlighted cells for 1.5 seconds before showing bonus modal
                 setTimeout(() => {
                     setShowBonusModal(true);
                     setShowConfetti(true);
                     playSoundSafely(() => soundManagerRef.current?.playBonusWon());
-                }, 500);
+                }, 1500); // Wait 1.5 seconds after spin completes to show bonus modal
             }
 
             // Handle win case
-            if (spinResultData.payout.length > 0) {
+            if (spinResultData.payout.length > 0 || (spinResultData.bonusSpinsAwarded > 0 && freeSpins && freeSpins > 0)) {
                 setShowConfetti(true);
                 setShowOverlay(true);
 
                 setTimeout(() => {
-                    playSoundSafely(() => soundManagerRef.current?.playWinSound(spinResultData.payout.length));
+                    if (spinResultData.payout.length > 0) {
+                        playSoundSafely(() => soundManagerRef.current?.playWinSound(spinResultData.payout.length));
+                    } else {
+                        // Play bonus won sound for additional free spins during bonus round
+                        playSoundSafely(() => soundManagerRef.current?.playBonusWon());
+                    }
                 }, 500);
 
                 fetchWinners();
@@ -399,7 +405,8 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     // Effect to check for pending bonus on mount
     useEffect(() => {
         const checkForPendingBonus = async () => {
-            if (!steamProfile?.steamId || !steamProfile.code) return;
+            // Don't check for pending bonus if a spin is in progress
+            if (!steamProfile?.steamId || !steamProfile.code || spinInProgressRef.current) return;
 
             try {
                 const response = await checkPendingBonus(steamProfile.steamId, steamProfile.code);
@@ -440,17 +447,14 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     const slot_controls = (
         <BaseGameControls
             onSpin={handleSpin}
-            onToggleMute={() => {
-                setSoundEnabled(!soundEnabled);
-                if (soundEnabled) {
-                    soundManagerRef.current?.stopAllSounds();
-                }
-            }}
+            onToggleMute={() => setSoundEnabled(!soundEnabled)}
             onToggleAutoSpin={() => setAutoSpinning(!autoSpinning)}
+            onVolumeChange={setVolume}
+            volume={volume}
             isMuted={!soundEnabled}
             isAutoSpinning={autoSpinning}
-            credits={credits}
-            freeSpins={freeSpins}
+            credits={credits ?? 0}
+            freeSpins={freeSpins ?? 0}
             isLoading={spinning}
             steamProfile={
                 steamProfile
@@ -468,18 +472,14 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         <SlotRecentWinners winners={winners} isLoading={isLoadingWinners} error={winnersError || undefined} onRefresh={fetchWinners} />
     );
 
+    const sound_manager = <RustySlotsSoundManager ref={soundManagerRef} isMuted={!soundEnabled} volume={volume} />;
+
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
             <SlotContainer slot_grid={slot_grid} slot_controls={slot_controls} slot_recent_winners={slot_recent_winners} />
 
             {/* Sound Manager */}
-            <RustySlotsSoundManager
-                isMuted={!soundEnabled}
-                volume={volume}
-                onVolumeChange={setVolume}
-                onMuteToggle={() => setSoundEnabled(!soundEnabled)}
-                ref={soundManagerRef}
-            />
+            {sound_manager}
 
             {/* Modals */}
             {!isVerified && (
@@ -553,52 +553,11 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             {/* Bonus Type Selection Modal */}
             <AnimatePresence>
                 {showBonusModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800 bg-opacity-50">
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            className="rounded-lg bg-stone-900 p-8 text-white shadow-lg"
-                        >
-                            <h2 className="mb-2 text-center text-4xl font-bold text-primary_light">You Won Free Spins!</h2>
-                            <h3 className="mb-6 text-center text-2xl">Select Your Bonus Type</h3>
-                            <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
-                                {/* Normal Bonus Button */}
-                                <button onClick={() => handleBonusTypeSelection('normal')} className="group relative">
-                                    <Image
-                                        src="/rust_icons/normal_bonus_banner.png"
-                                        alt="Normal Bonus"
-                                        width={300}
-                                        height={100}
-                                        className="rounded-lg"
-                                    />
-                                    {/* Overlay on Hover */}
-                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
-                                        <p className="px-4 text-center opacity-0 group-hover:opacity-100">
-                                            More spins, lower volatility. Multipliers do not stick for all spins.
-                                        </p>
-                                    </div>
-                                </button>
-
-                                {/* Sticky Bonus Button */}
-                                <button onClick={() => handleBonusTypeSelection('sticky')} className="group relative">
-                                    <Image
-                                        src="/rust_icons/sticky_bonus_banner.png"
-                                        alt="Sticky Bonus"
-                                        width={300}
-                                        height={100}
-                                        className="rounded-lg"
-                                    />
-                                    {/* Overlay on Hover */}
-                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
-                                        <p className="px-4 text-center opacity-0 group-hover:opacity-100">
-                                            Less spins, higher volatility. Multipliers will stay in place for all spins.
-                                        </p>
-                                    </div>
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
+                    <RustySlotsBonusModal
+                        onSelect={handleBonusTypeSelection}
+                        showConfetti={showConfetti}
+                        onConfettiComplete={() => setShowConfetti(false)}
+                    />
                 )}
             </AnimatePresence>
 

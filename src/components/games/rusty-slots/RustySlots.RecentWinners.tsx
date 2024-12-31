@@ -147,19 +147,28 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
     );
 };
 
+// Add helper to check if win is too recent
+const isTooRecent = (timestamp: string): boolean => {
+    const winTime = new Date(timestamp).getTime();
+    const now = new Date().getTime();
+    return now - winTime < 5000; // 5 seconds in milliseconds
+};
+
 /**
  * Recent winners component for slot machines.
  * Displays recent winning spins with animations and Steam profile integration.
  */
-export function SlotRecentWinners({ winners, onRefresh, isLoading, error, className }: RecentWinnersProps) {
+export function SlotRecentWinners({ winners: incomingWinners, onRefresh, isLoading, error, className }: RecentWinnersProps) {
     // Use React's useRef to keep track of the previous winners for diffing
     const prevWinnersRef = React.useRef<Winner[]>([]);
     const [displayedWinners, setDisplayedWinners] = React.useState<Winner[]>([]);
+    const [pendingWinners, setPendingWinners] = React.useState<Winner[]>([]);
 
     // Update winners list with diffing
     React.useEffect(() => {
-        if (winners.length === 0) {
+        if (incomingWinners.length === 0) {
             setDisplayedWinners([]);
+            setPendingWinners([]);
             prevWinnersRef.current = [];
             return;
         }
@@ -172,22 +181,55 @@ export function SlotRecentWinners({ winners, onRefresh, isLoading, error, classN
         };
 
         // Get only the new winners
-        const newWinners = winners.filter(isNewWinner);
+        const newWinners = incomingWinners.filter(isNewWinner);
 
-        // Update the displayed winners list with new winners
+        // Split new winners into recent (pending) and older ones
+        const [recent, older] = newWinners.reduce<[Winner[], Winner[]]>(
+            (acc, winner) => {
+                if (isTooRecent(winner.timestamp)) {
+                    acc[0].push(winner);
+                } else {
+                    acc[1].push(winner);
+                }
+                return acc;
+            },
+            [[], []],
+        );
+
+        // Update the displayed winners list with older new winners
         setDisplayedWinners((prev) => {
             // Remove any winners that are no longer in the winners list
             const currentWinners = prev.filter((displayedWinner) =>
-                winners.some((winner) => winner.steamId === displayedWinner.steamId && winner.timestamp === displayedWinner.timestamp),
+                incomingWinners.some(
+                    (winner) => winner.steamId === displayedWinner.steamId && winner.timestamp === displayedWinner.timestamp,
+                ),
             );
 
-            // Add new winners at the beginning
-            return [...newWinners, ...currentWinners];
+            // Add older new winners at the beginning
+            return [...older, ...currentWinners];
         });
 
+        // Store recent wins for next update
+        setPendingWinners((prev) => [...prev, ...recent]);
+
         // Update the previous winners reference
-        prevWinnersRef.current = winners;
-    }, [winners]);
+        prevWinnersRef.current = incomingWinners;
+    }, [incomingWinners]);
+
+    // Effect to add pending winners after delay
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setPendingWinners((prev) => {
+                if (prev.length > 0) {
+                    setDisplayedWinners((current) => [...prev, ...current]);
+                    return [];
+                }
+                return prev;
+            });
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className={cn('flex h-full flex-col space-y-4', className)}>

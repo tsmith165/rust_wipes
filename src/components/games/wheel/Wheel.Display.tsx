@@ -7,12 +7,12 @@ import { BiSolidDownArrow } from 'react-icons/bi';
 import { cn } from '@/lib/utils';
 import { useWheelStore } from '@/app/games/wheel/Wheel.Store';
 import { WHEEL_SLOTS, COLOR_CODES, ITEM_IMAGE_PATHS, PAYOUTS } from '@/app/games/wheel/Wheel.Constants';
-import { WheelSoundManager } from './Wheel.SoundManager';
+import { WheelSoundManagerRef } from './Wheel.SoundManager';
 
 interface WheelDisplayProps {
     onSpinComplete: () => void;
     className?: string;
-    soundManagerRef: React.RefObject<WheelSoundManager | null>;
+    soundManagerRef: React.RefObject<WheelSoundManagerRef | null>;
 }
 
 interface WheelSize {
@@ -28,6 +28,8 @@ const DEFAULT_SIZE: WheelSize = {
     maxWidth: '80vh',
     maxHeight: '80vh',
 };
+
+const FORCE_SHOW_ICONS = true; // Dev variable to force icon visibility
 
 /**
  * Wheel display component for the gambling wheel.
@@ -92,7 +94,7 @@ export function WheelDisplay({ onSpinComplete, className, soundManagerRef }: Whe
                                 {WHEEL_SLOTS.map((color, index) => (
                                     <div
                                         key={index}
-                                        className="invisible absolute lg:visible"
+                                        className={FORCE_SHOW_ICONS ? 'absolute' : 'invisible absolute lg:visible'}
                                         style={{
                                             width: '100%',
                                             height: '100%',
