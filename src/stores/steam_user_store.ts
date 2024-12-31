@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { fetchUserCredits } from '@/app/gambling/Gambling.Actions';
+import { fetchUserCredits } from '@/app/games/Gambling.Actions';
 
 interface SteamProfile {
     name: string;

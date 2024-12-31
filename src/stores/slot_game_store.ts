@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { SpinResult } from '@/app/gambling/slots/default/Default.Actions';
-import { WINNING_PATTERNS } from '@/app/gambling/slots/default/Default.Constants';
+import type { SpinResult } from '@/app/games/rusty-slots/RustySlots.Actions';
+import { WINNING_LINES } from '@/app/games/rusty-slots/RustySlots.Constants';
 
 interface SlotGameState {
     isSpinning: boolean;
@@ -78,10 +78,10 @@ export const useSlotGame = create<SlotGameState>((set) => ({
     },
     possibleLines: {
         lines: {
-            horizontal: WINNING_PATTERNS.horizontal,
-            vShaped: WINNING_PATTERNS.zigzag_downwards,
-            invertedV: WINNING_PATTERNS.zigzag_upwards,
-            diagonal: WINNING_PATTERNS.diagonal,
+            horizontal: WINNING_LINES.horizontal,
+            vShaped: WINNING_LINES.zigzag_downwards,
+            invertedV: WINNING_LINES.zigzag_upwards,
+            diagonal: WINNING_LINES.diagonal,
         },
         isVisible: false,
         currentGroup: 'horizontal',

@@ -66,11 +66,17 @@ export default function Navbar({ page }: { page: string }) {
         if (page.includes('checkout')) {
             page = 'kits';
         }
+
+        // Extract the final part of the path for comparison
+        const currentPath = page.split('/').pop() || '';
+        const menuPath = href.split('/').pop() || '';
+        const isCurrentPage = currentPath === menuPath || (menuPath.includes('?') && menuPath.split('?')[0] === currentPath);
+
         return (
             <div
                 key={menu_class_name}
                 onClick={() => router.push(href)}
-                className={`h-full cursor-pointer items-center justify-center font-bold ${['faq'].includes(menu_class_name) ? 'hidden' : ['recent'].includes(menu_class_name) ? 'hidden xxs:!flex' : ['upcoming'].includes(menu_class_name) ? 'hidden xs:!flex' : ['networks', 'stats', 'wheel', 'slots'].includes(menu_class_name) ? 'hidden sm:!flex' : 'flex'} ${page.includes(menu_class_name) ? 'radial-gradient-stone-300 bg-primary bg-clip-text text-transparent' : 'radial-gradient-stone-300 bg-stone-600 bg-clip-text text-transparent hover:!bg-primary'}`}
+                className={`h-full cursor-pointer items-center justify-center font-bold ${['faq'].includes(menu_class_name) ? 'hidden' : ['recent'].includes(menu_class_name) ? 'hidden xxs:!flex' : ['upcoming'].includes(menu_class_name) ? 'hidden xs:!flex' : ['networks', 'stats', 'wheel', 'slots'].includes(menu_class_name) ? 'hidden sm:!flex' : 'flex'} ${isCurrentPage ? 'radial-gradient-stone-300 bg-primary bg-clip-text text-transparent' : 'radial-gradient-stone-300 bg-stone-600 bg-clip-text text-transparent hover:!bg-primary'}`}
             >
                 {menu_full_name}
             </div>

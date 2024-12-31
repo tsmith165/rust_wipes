@@ -1,4 +1,4 @@
-import type { SpinResult } from '@/app/gambling/slots/default/Default.Actions';
+import type { SpinResult } from '@/app/games/rusty-slots/RustySlots.Actions';
 
 export interface SlotGameState {
     // Game State
