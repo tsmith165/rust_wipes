@@ -23,10 +23,10 @@ interface WheelSize {
 }
 
 const DEFAULT_SIZE: WheelSize = {
-    width: '70vw',
-    height: '70vw',
-    maxWidth: '80vh',
-    maxHeight: '80vh',
+    width: '60vw',
+    height: '60vw',
+    maxWidth: '70vh',
+    maxHeight: '70vh',
 };
 
 const FORCE_SHOW_ICONS = true; // Dev variable to force icon visibility
@@ -46,10 +46,10 @@ export function WheelDisplay({ onSpinComplete, className, soundManagerRef }: Whe
         const updateSize = () => {
             const isMobile = window.innerWidth < 768;
             setWheelSize({
-                width: isMobile ? '90vw' : '70vw',
-                height: isMobile ? '90vw' : '70vw',
-                maxWidth: isMobile ? '60vh' : '80vh',
-                maxHeight: isMobile ? '60vh' : '80vh',
+                width: isMobile ? '90vw' : '60vw',
+                height: isMobile ? '90vw' : '60vw',
+                maxWidth: isMobile ? '60vh' : '70vh',
+                maxHeight: isMobile ? '60vh' : '70vh',
             });
         };
 
@@ -65,7 +65,7 @@ export function WheelDisplay({ onSpinComplete, className, soundManagerRef }: Whe
 
     return (
         <div className={cn('relative flex h-full w-full items-center justify-center p-4', className)}>
-            <div className="relative flex h-full flex-col items-center space-y-2">
+            <div className="relative flex h-fit flex-col items-center space-y-2">
                 {/* Wheel Container */}
                 <div className="relative flex h-full w-full items-center justify-start">
                     <div className="relative h-fit w-[3/4]">
@@ -73,7 +73,7 @@ export function WheelDisplay({ onSpinComplete, className, soundManagerRef }: Whe
                         {isClient && (
                             <motion.div
                                 key={spinKey}
-                                className="relative rounded-full"
+                                className="relative w-fit rounded-full"
                                 style={{
                                     ...wheelSize,
                                     background: wheelGradient,
