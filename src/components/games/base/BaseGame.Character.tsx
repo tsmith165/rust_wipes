@@ -22,15 +22,13 @@ export function BaseGameCharacter({
     imageAlt = 'Rust Hazmat Icon',
 }: BaseGameCharacterProps) {
     return (
-        <div
-            className={cn('z-100 hidden h-full w-1/4 items-end', side === 'left' ? 'justify-end' : 'justify-start', 'md:!flex', className)}
-        >
+        <div className={cn('z-100 flex h-full w-1/4 items-end', side === 'left' ? 'justify-end' : 'justify-start', className)}>
             <Image
                 src={imagePath}
                 alt={`${imageAlt} ${side.charAt(0).toUpperCase() + side.slice(1)}`}
                 width={512}
                 height={512}
-                className={cn('h-auto w-auto', side === 'right' && 'scale-x-[-1]')}
+                className={cn('h-auto w-full', side === 'right' && 'scale-x-[-1]')}
                 priority
             />
         </div>

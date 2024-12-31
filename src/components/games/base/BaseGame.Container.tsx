@@ -21,7 +21,7 @@ export function SlotContainer({ slot_grid, slot_controls, slot_recent_winners, c
             {/* Row 1: Characters and Slot Grid */}
             <div className={cn('z-10 flex w-full flex-row items-center', className)}>
                 <BaseGameCharacter side="left" />
-                <div className="flex w-full items-center justify-center md:w-1/2">{slot_grid}</div>
+                <div className="flex w-1/2 items-center justify-center">{slot_grid}</div>
                 <BaseGameCharacter side="right" />
             </div>
 

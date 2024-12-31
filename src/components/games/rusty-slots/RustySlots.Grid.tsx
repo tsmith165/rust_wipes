@@ -8,11 +8,11 @@ import { useSlotGame } from '@/stores/slot_game_store';
 import { RustySlotsWinningLines } from './RustySlots.WinningLines';
 
 // Constants
-const ITEM_SIZE_EXTRA_LARGE = 120;
-const ITEM_SIZE_LARGE = 100;
-const ITEM_SIZE_MEDIUM = 80;
-const ITEM_SIZE_SMALL = 60;
-const ITEM_SIZE_EXTRA_SMALL = 50;
+const ITEM_SIZE_EXTRA_LARGE = 100;
+const ITEM_SIZE_LARGE = 80;
+const ITEM_SIZE_MEDIUM = 60;
+const ITEM_SIZE_SMALL = 50;
+const ITEM_SIZE_EXTRA_SMALL = 40;
 const GAP = 2;
 
 // Map symbols to image paths
