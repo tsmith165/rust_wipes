@@ -22,13 +22,13 @@ export function RustySlotsBonusModal({ onSelect, showConfetti, onConfettiComplet
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.8 }}
-                className="rounded-lg bg-stone-900 p-8 text-white shadow-lg"
+                className="relative w-full max-w-lg rounded-lg bg-stone-800 p-6 text-white shadow-lg"
             >
                 <h2 className="mb-2 text-center text-4xl font-bold text-primary_light">You Won Free Spins!</h2>
                 <h3 className="mb-6 text-center text-2xl">Select Your Bonus Type</h3>
-                <div className="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
+                <div className="flex w-full flex-col items-center justify-center space-y-2 md:flex-row md:space-x-2 md:space-y-0">
                     {/* Normal Bonus Button */}
-                    <button onClick={() => onSelect('normal')} className="group relative">
+                    <button onClick={() => onSelect('normal')} className="group relative w-fit">
                         <Image
                             src="/rust_icons/normal_bonus_banner.png"
                             alt="Normal Bonus"
@@ -37,7 +37,7 @@ export function RustySlotsBonusModal({ onSelect, showConfetti, onConfettiComplet
                             className="rounded-lg"
                         />
                         {/* Overlay on Hover */}
-                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
+                        <div className="absolute inset-0 flex w-fit items-center justify-center rounded-lg bg-stone-900 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
                             <p className="px-4 text-center opacity-0 group-hover:opacity-100">
                                 More spins, lower volatility. Multipliers do not stick for all spins.
                             </p>
@@ -45,7 +45,7 @@ export function RustySlotsBonusModal({ onSelect, showConfetti, onConfettiComplet
                     </button>
 
                     {/* Sticky Bonus Button */}
-                    <button onClick={() => onSelect('sticky')} className="group relative">
+                    <button onClick={() => onSelect('sticky')} className="group relative w-fit">
                         <Image
                             src="/rust_icons/sticky_bonus_banner.png"
                             alt="Sticky Bonus"

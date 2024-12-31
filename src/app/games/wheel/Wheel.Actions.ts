@@ -225,7 +225,7 @@ export const setBonusType = setSlotBonusType;
 export async function checkPendingBonus(
     steamId: string,
     code: string,
-): Promise<ActionResponse<{ pending: boolean; amount: number; spins_remaining: number; bonus_type: string }>> {
+): Promise<ActionResponse<{ pending: boolean; spins_remaining: number; bonus_type: string }>> {
     try {
         // Verify authentication
         const isAuthValid = await verifyAuthCode(steamId, code);
@@ -246,24 +246,23 @@ export async function checkPendingBonus(
                 success: true,
                 data: {
                     pending: false,
-                    amount: 0,
                     spins_remaining: 0,
                     bonus_type: '',
                 },
             };
         }
 
+        const bonusData = bonusSpinsData[0];
         return {
             success: true,
             data: {
-                pending: bonusSpinsData[0].pending_bonus,
-                amount: bonusSpinsData[0].pending_bonus_amount,
-                spins_remaining: bonusSpinsData[0].spins_remaining,
-                bonus_type: bonusSpinsData[0].bonus_type,
+                pending: bonusData.pending_bonus ?? false,
+                spins_remaining: bonusData.spins_remaining,
+                bonus_type: bonusData.bonus_type,
             },
         };
     } catch (error) {
         console.error('Error checking pending bonus:', error);
-        return { success: false, error: 'An unexpected error occurred.' };
+        return { success: false, error: 'Failed to check pending bonus' };
     }
 }

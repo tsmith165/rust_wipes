@@ -22,7 +22,7 @@ import { WheelBonusModal } from '@/components/games/wheel/Wheel.BonusModal';
 import { WheelDisplay } from '@/components/games/wheel/Wheel.Display';
 import { WheelWinOverlay } from '@/components/games/wheel/Wheel.WinOverlay';
 import { WheelRecentWinners } from '@/components/games/wheel/Wheel.RecentWinners';
-import { WheelSoundManager } from '@/components/games/wheel/Wheel.SoundManager';
+import { WheelSoundManager, WheelSoundManagerRef } from '@/components/games/wheel/Wheel.SoundManager';
 
 import { SPIN_COST, WheelPayout } from './Wheel.Constants';
 import { BonusInProgressOverlay } from '@/components/games/wheel/Wheel.BonusInProgressOverlay';
@@ -75,29 +75,39 @@ export function WheelContainer() {
     const [bonusInProgress, setBonusInProgress] = useState(false);
     const [bonusType, setBonusType] = useState<'normal' | 'sticky'>('normal');
     const [spinsRemaining, setSpinsRemaining] = useState(0);
+    const [autoSpinInterval, setAutoSpinInterval] = useState<number>(0);
 
     // Refs
-    const soundManagerRef = useRef<WheelSoundManager | null>(null);
+    const soundManagerRef = useRef<WheelSoundManagerRef>(null);
 
     // Initialize user data and check bonus status
     useEffect(() => {
         const initializeUser = async () => {
+            console.log('Initializing user with:', { steamId, authCode, isVerified });
             try {
                 if (steamId && authCode) {
                     await loadUserData();
-                    // Check bonus status
-                    const response = await checkPendingBonus(steamId, authCode);
-                    if (response.success && response.data) {
-                        const { pending, amount, spins_remaining, bonus_type } = response.data;
-                        if (pending) {
-                            setShowBonusModal(true);
-                        } else if (spins_remaining > 0 && bonus_type) {
-                            setBonusInProgress(true);
-                            setBonusType(bonus_type as 'normal' | 'sticky');
-                            setSpinsRemaining(spins_remaining);
+
+                    // Only check bonus status if user is verified
+                    if (isVerified) {
+                        // Check bonus status
+                        const response = await checkPendingBonus(steamId, authCode);
+                        console.log('Bonus check response:', response);
+                        if (response.success && response.data) {
+                            const { pending, spins_remaining, bonus_type } = response.data;
+                            console.log('Bonus data:', { pending, spins_remaining, bonus_type });
+                            if (pending) {
+                                console.log('Setting showBonusModal to true');
+                                setShowBonusModal(true);
+                            } else if (spins_remaining > 0 && bonus_type) {
+                                setBonusInProgress(true);
+                                setBonusType(bonus_type as 'normal' | 'sticky');
+                                setSpinsRemaining(spins_remaining);
+                            }
                         }
                     }
                 } else {
+                    console.log('Missing steamId or authCode, setting isVerified to false');
                     setIsVerified(false);
                 }
             } catch (error) {
@@ -108,7 +118,7 @@ export function WheelContainer() {
         };
 
         initializeUser();
-    }, [steamId, authCode, loadUserData, setIsVerified, setSteamError]);
+    }, [steamId, authCode, isVerified, loadUserData, setIsVerified, setSteamError]);
 
     // Add auto-spin timeout ref
     const autoSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -127,7 +137,7 @@ export function WheelContainer() {
         if (isAutoSpinning && !isSpinning && credits !== null && credits >= 5) {
             autoSpinTimeoutRef.current = setTimeout(() => {
                 handleSpin();
-            }, 1000);
+            }, autoSpinInterval);
         }
     }, [isAutoSpinning, isSpinning, credits]);
 
@@ -193,6 +203,7 @@ export function WheelContainer() {
 
         // Reset states
         setSpinning(true);
+        setAutoSpinInterval(3000);
         setShowWinOverlay(false);
         setShowConfetti(false);
 
@@ -220,57 +231,35 @@ export function WheelContainer() {
             // Update local credits state
             await loadUserData();
 
-            // Start with fast ticks
-            let tickInterval = setInterval(() => {
-                soundManagerRef.current?.playTickSound('fast');
-            }, 50);
-
-            // After 2 seconds, switch to medium ticks
+            // After 5 seconds (matching wheel animation), show results
             setTimeout(() => {
-                clearInterval(tickInterval);
-                tickInterval = setInterval(() => {
-                    soundManagerRef.current?.playTickSound('medium');
-                }, 100);
+                setSpinning(false);
+                setShowOverlay(true);
+                setShowWinOverlay(true);
+                setShowConfetti(true);
+                setShouldRefetchWinners(true);
 
-                // After 2 more seconds, switch to slow ticks
+                // Play appropriate win sound
+                if (wheelResult.payout.displayName === '3x Bonus') {
+                    soundManagerRef.current?.playBonusWon();
+                    setShowBonusModal(true);
+                } else {
+                    // Play win sound based on payout type
+                    soundManagerRef.current?.playWinSound(wheelResult.payout.displayName);
+                }
+
+                // Stop auto-spin if credits are too low
+                if (updatedCredits < SPIN_COST) {
+                    setAutoSpinning(false);
+                }
+
+                // Hide overlay and confetti after delay
                 setTimeout(() => {
-                    clearInterval(tickInterval);
-                    tickInterval = setInterval(() => {
-                        soundManagerRef.current?.playTickSound('slow');
-                    }, 200);
-
-                    // Clear ticks and show results after 1 more second
-                    setTimeout(() => {
-                        clearInterval(tickInterval);
-                        setSpinning(false);
-                        setShowOverlay(true);
-                        setShowWinOverlay(true);
-                        setShowConfetti(true);
-                        setShouldRefetchWinners(true);
-
-                        // Play appropriate win sound
-                        if (wheelResult.payout.displayName === '3x Bonus') {
-                            soundManagerRef.current?.playBonusWon();
-                            setShowBonusModal(true);
-                        } else {
-                            // Play win sound based on payout type
-                            soundManagerRef.current?.playWinSound(wheelResult.payout.displayName);
-                        }
-
-                        // Stop auto-spin if credits are too low
-                        if (updatedCredits < SPIN_COST) {
-                            setAutoSpinning(false);
-                        }
-
-                        // Hide overlay and confetti after delay
-                        setTimeout(() => {
-                            setShowOverlay(false);
-                            setShowWinOverlay(false);
-                            setShowConfetti(false);
-                        }, 2500);
-                    }, 1000);
-                }, 2000);
-            }, 2000);
+                    setShowOverlay(false);
+                    setShowWinOverlay(false);
+                    setShowConfetti(false);
+                }, 2500);
+            }, 5000);
         } catch (error) {
             console.error('Error spinning wheel:', error);
             setSteamError(error instanceof Error ? error.message : 'An error occurred while spinning the wheel');
@@ -297,16 +286,16 @@ export function WheelContainer() {
     const wheel_controls = (
         <BaseGameControls
             onSpin={handleSpin}
-            onToggleMute={() => {
-                setSoundEnabled(!soundEnabled);
-                if (soundEnabled) {
-                    soundManagerRef.current?.stopAllSounds();
-                }
+            onToggleMute={() => setSoundEnabled(!soundEnabled)}
+            onToggleAutoSpin={() => {
+                setAutoSpinning(!isAutoSpinning);
+                setAutoSpinInterval(0);
             }}
-            onToggleAutoSpin={() => setAutoSpinning(!isAutoSpinning)}
+            onVolumeChange={setVolume}
+            volume={volume}
             isMuted={!soundEnabled}
             isAutoSpinning={isAutoSpinning}
-            credits={credits}
+            credits={credits ?? 0}
             freeSpins={0}
             isLoading={isSpinning}
             steamProfile={
@@ -326,15 +315,7 @@ export function WheelContainer() {
     );
 
     // Sound manager component
-    const sound_manager = (
-        <WheelSoundManager
-            ref={soundManagerRef}
-            isMuted={!soundEnabled}
-            volume={volume}
-            onVolumeChange={setVolume}
-            onMuteToggle={() => setSoundEnabled(!soundEnabled)}
-        />
-    );
+    const sound_manager = <WheelSoundManager ref={soundManagerRef} isMuted={!soundEnabled} volume={volume} />;
 
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">

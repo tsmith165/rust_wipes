@@ -18,6 +18,13 @@ const getItemImagePath = (fullName: string): string => {
     return ITEM_IMAGE_PATHS[fullName as WheelPayout] || '/rust_icons/scrap_icon.png';
 };
 
+// Add helper to check if win is too recent
+const isTooRecent = (timestamp: string): boolean => {
+    const winTime = new Date(timestamp).getTime();
+    const now = new Date().getTime();
+    return now - winTime < 5000; // 5 seconds in milliseconds
+};
+
 /**
  * Recent winners component for the wheel.
  * Displays recent winning spins with animations and Steam profile integration.
@@ -26,13 +33,31 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
     const [winners, setWinners] = useState<WinnerWithPictures[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [pendingWinners, setPendingWinners] = useState<WinnerWithPictures[]>([]);
 
     const fetchWinners = async () => {
         setIsLoading(true);
         try {
             const response = await getRecentWinners();
             if (response.success && response.data) {
-                setWinners(response.data);
+                // Filter out any wins that are too recent
+                const currentWinners = response.data;
+                const [recent, older] = currentWinners.reduce<[WinnerWithPictures[], WinnerWithPictures[]]>(
+                    (acc, winner) => {
+                        if (isTooRecent(winner.timestamp)) {
+                            acc[0].push(winner);
+                        } else {
+                            acc[1].push(winner);
+                        }
+                        return acc;
+                    },
+                    [[], []],
+                );
+
+                // Store recent wins for next update
+                setPendingWinners(recent);
+                // Show only older wins
+                setWinners(older);
                 setError(null);
             } else {
                 setError(response.error || 'Failed to fetch winners');
@@ -47,7 +72,17 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
     // Initial fetch and periodic updates
     useEffect(() => {
         fetchWinners();
-        const interval = setInterval(fetchWinners, 10000); // Update every 10 seconds
+        const interval = setInterval(() => {
+            fetchWinners();
+            // Add pending winners to the main list when refreshing
+            setPendingWinners((prev) => {
+                if (prev.length > 0) {
+                    setWinners((current) => [...prev, ...current]);
+                    return [];
+                }
+                return prev;
+            });
+        }, 10000); // Update every 10 seconds
         return () => clearInterval(interval);
     }, []);
 
