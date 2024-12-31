@@ -96,16 +96,31 @@ export async function spinWheel(steamId: string, code: string, currentRotation: 
         // Handle bonus win
         let bonusAwarded: { type: 'normal' | 'sticky'; spins: number } | undefined;
         if (PAYOUTS[result.color].displayName === '3x Bonus') {
-            // Create pending bonus entry
-            await db.insert(bonus_spins).values({
-                user_id: user[0].id,
-                spins_remaining: 0, // Will be set when type is selected
-                bonus_type: '', // Will be set when type is selected
-                sticky_multipliers: [],
-                pending_bonus: true,
-                pending_bonus_amount: 3, // 3x bonus
-                last_updated: new Date(),
-            });
+            // Check if bonus_spins record exists
+            const bonusSpinsData = await db.select().from(bonus_spins).where(eq(bonus_spins.user_id, user[0].id)).limit(1);
+
+            if (bonusSpinsData.length === 0) {
+                // Create new bonus_spins record if it doesn't exist
+                await db.insert(bonus_spins).values({
+                    user_id: user[0].id,
+                    spins_remaining: 0,
+                    bonus_type: '',
+                    sticky_multipliers: [],
+                    pending_bonus: true,
+                    pending_bonus_amount: 3, // 3x bonus from wheel
+                    last_updated: new Date(),
+                });
+            } else {
+                // Update existing bonus_spins record
+                await db
+                    .update(bonus_spins)
+                    .set({
+                        pending_bonus: true,
+                        pending_bonus_amount: 3, // 3x bonus from wheel
+                        last_updated: new Date(),
+                    })
+                    .where(eq(bonus_spins.user_id, user[0].id));
+            }
 
             bonusAwarded = {
                 type: 'normal' as const, // Will be updated when user selects
