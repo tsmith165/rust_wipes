@@ -167,12 +167,6 @@ export function WheelContainer() {
                 throw new Error('No free spins were awarded');
             }
 
-            // Create fake spin record using server action
-            const recordResponse = await createBonusSpinRecord(steamProfile.steamId, authCode, spinsAwarded);
-            if (!recordResponse.success) {
-                throw new Error(recordResponse.error || 'Failed to create bonus spin record');
-            }
-
             // Update local state
             await loadUserData();
 
