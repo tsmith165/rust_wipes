@@ -536,9 +536,22 @@ export async function setSlotBonusType(steamId: string, code: string, bonusType:
         }
 
         let bonus_spins_awarded = 0;
-        if (bonusSpinsData[0].pending_bonus && bonusSpinsData[0].pending_bonus_amount > 0) {
+        if (bonusSpinsData.length > 0 && bonusSpinsData[0].pending_bonus && bonusSpinsData[0].pending_bonus_amount > 0) {
             // Award spins based on the pending amount
             bonus_spins_awarded = INITIAL_BONUS_SPINS[bonusType][bonusSpinsData[0].pending_bonus_amount as 3 | 4 | 5] || 0;
+
+            // Update the existing bonus_spins record
+            await db
+                .update(bonus_spins)
+                .set({
+                    bonus_type: bonusType,
+                    spins_remaining: bonus_spins_awarded,
+                    sticky_multipliers: bonusType === 'sticky' ? bonusSpinsData[0].sticky_multipliers : [], // Keep existing multipliers if sticky
+                    pending_bonus: false,
+                    pending_bonus_amount: 0,
+                    last_updated: new Date(),
+                })
+                .where(eq(bonus_spins.user_id, user[0].id));
 
             // Record the awarded spins in slot_machine_spins
             await db.insert(slot_machine_spins).values({
@@ -549,20 +562,9 @@ export async function setSlotBonusType(steamId: string, code: string, bonusType:
                 free_spins_used: 0,
                 redeemed: false,
             });
+        } else {
+            return { success: false, error: 'No pending bonus found' };
         }
-
-        // Update the bonus_spins table
-        await db
-            .update(bonus_spins)
-            .set({
-                bonus_type: bonusType,
-                spins_remaining: bonus_spins_awarded,
-                sticky_multipliers: bonusType === 'sticky' ? bonusSpinsData[0].sticky_multipliers : [], // Keep existing multipliers if sticky
-                pending_bonus: false,
-                pending_bonus_amount: 0,
-                last_updated: new Date(),
-            })
-            .where(eq(bonus_spins.user_id, user[0].id));
 
         return { success: true, data: bonus_spins_awarded };
     } catch (error) {
