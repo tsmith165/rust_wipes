@@ -1,7 +1,7 @@
 'use client';
 
 import InputTextbox from '@/components/inputs/InputTextbox';
-import { verifyAndGetCredits } from '@/app/gambling/Gambling.Actions';
+import { verifyAndGetCredits } from '@/app/games/Gambling.Actions';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 
