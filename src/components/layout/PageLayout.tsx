@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
-import Navbar from './Navbar';
 import { Suspense } from 'react';
 import PostHogPageView from '@/app/PostHogPageView';
+import Navbar from './Navbar/Navbar';
 
 type PageLayoutProps = {
     children: ReactNode;
