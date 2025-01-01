@@ -10,21 +10,34 @@ import { eq } from 'drizzle-orm';
  */
 export async function fetchAndStoreProfilePicture(steamId: string): Promise<string | null> {
     try {
-        // TODO: Implement actual Steam API call to fetch profile picture
-        // For now, return a default avatar
-        const defaultAvatar = 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg';
+        const STEAM_API_KEY = process.env.STEAM_API_KEY;
+        if (!STEAM_API_KEY) {
+            console.error('Steam API key is not set');
+            return null;
+        }
 
-        // Update user's profile picture in database
-        await db
-            .update(user_playtime)
-            .set({
-                profile_picture_url: defaultAvatar,
-            })
-            .where(eq(user_playtime.steam_id, steamId));
+        const steamApiUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
 
-        return defaultAvatar;
+        const response = await fetch(steamApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.response && data.response.players && data.response.players.length > 0) {
+            const player = data.response.players[0];
+            const profilePictureUrl = player.avatarfull;
+
+            // Store the profile picture URL in the database
+            await db.update(user_playtime).set({ profile_picture_url: profilePictureUrl }).where(eq(user_playtime.steam_id, steamId));
+
+            return profilePictureUrl;
+        } else {
+            console.error('Steam user not found in API response:', data);
+            return null;
+        }
     } catch (error) {
-        console.error('Error fetching profile picture:', error);
+        console.error('Error fetching Steam profile picture:', error);
         return null;
     }
 }

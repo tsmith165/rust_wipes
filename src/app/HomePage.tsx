@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GiveawayOverlay } from '@/components/overlays/giveaway/GiveawayOverlay';
 
 const images = [
     { src: '/rust_stock_game_images/rust_stock_2.webp', width: 1920, height: 1080 },
@@ -131,6 +132,7 @@ const serverFinderData = [
 
 export default function HomePage() {
     const [isImageVisible, setImageVisible] = useState(true);
+    const [showGiveaway, setShowGiveaway] = useState(true);
     const currentImageIndexRef = useRef(0);
 
     const linkData: LinkData[] = [
@@ -163,6 +165,7 @@ export default function HomePage() {
     return (
         <div className="relative min-h-[calc(100dvh-50px)] w-full overflow-y-auto">
             <div className="relative h-[60vh] w-full overflow-hidden">
+                <GiveawayOverlay isOpen={showGiveaway} onClose={() => setShowGiveaway(false)} className="pr-8 pt-64" />
                 <AnimatePresence>
                     {isImageVisible && (
                         <motion.div
