@@ -56,7 +56,7 @@ src/app/servers/
 ├── page.tsx                 # Main page component
 ├── PageContent.tsx          # Content wrapper with view switcher
 ├── CalendarView.tsx         # Calendar grid implementation
-├── CalendarGrid.tsx         # Calendar grid wrapper
+├── CalendarGrid.tsx         # CalendarView grid wrapper
 ├── ServerPanel.tsx          # Individual server panel
 ├── ServersList.tsx          # List of server panels
 ├── types.ts                 # Type definitions
