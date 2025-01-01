@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { OverlayContainer } from '../Overlay.Container';
 import { GiveawayProgress } from './GiveawayProgress';
 import { PlayerList } from './PlayerList';
-import { getGiveawayData, type GiveawayData } from '@/actions/Giveaway.Actions';
 import Link from 'next/link';
+import { useGiveawayStore } from '@/stores/giveaway_store';
 
 interface GiveawayOverlayProps {
     isOpen: boolean;
@@ -15,20 +15,7 @@ interface GiveawayOverlayProps {
 }
 
 export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, position = 'middle-right', className }) => {
-    const [data, setData] = useState<GiveawayData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(0);
-
-    const fetchData = async (page: number = 0) => {
-        try {
-            const result = await getGiveawayData(page);
-            setData(result);
-        } catch (error) {
-            console.error('Failed to fetch giveaway data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { fetchData, currentPage, playersByPage, qualifiedCount, totalPlayers, isLoading, setCurrentPage } = useGiveawayStore();
 
     useEffect(() => {
         if (isOpen) {
@@ -37,11 +24,7 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
             const interval = setInterval(() => fetchData(currentPage), 5 * 60 * 1000);
             return () => clearInterval(interval);
         }
-    }, [isOpen, currentPage]);
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
+    }, [isOpen, currentPage, fetchData]);
 
     const subtitle = (
         <span>
@@ -52,6 +35,8 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
             !
         </span>
     );
+
+    const currentPlayers = playersByPage.get(currentPage) ?? [];
 
     return (
         <div className={`relative ${className}`}>
@@ -68,13 +53,8 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
                 className="bg-gradient-to-br from-stone-800 via-stone-900 to-stone-950 shadow-2xl shadow-stone-900/50"
             >
                 <div className="space-y-4">
-                    <GiveawayProgress current={data?.qualifiedCount ?? 0} total={100} loading={loading} />
-                    <PlayerList
-                        players={data?.topPlayers ?? []}
-                        loading={loading}
-                        onPageChange={handlePageChange}
-                        totalPlayers={data?.totalPlayers ?? 0}
-                    />
+                    <GiveawayProgress current={qualifiedCount} total={100} loading={isLoading} />
+                    <PlayerList players={currentPlayers} loading={isLoading} onPageChange={setCurrentPage} totalPlayers={totalPlayers} />
                 </div>
             </OverlayContainer>
         </div>
