@@ -9,17 +9,18 @@ export interface SlotContainerProps {
     slot_controls: React.ReactNode;
     slot_recent_winners: React.ReactNode;
     className?: string;
+    row1Ref?: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
  * Base container component for slot machines.
  * Handles the overall layout and background.
  */
-export function SlotContainer({ slot_grid, slot_controls, slot_recent_winners, className }: SlotContainerProps) {
+export function SlotContainer({ slot_grid, slot_controls, slot_recent_winners, className, row1Ref }: SlotContainerProps) {
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
             {/* Row 1: Characters and Slot Grid */}
-            <div className={cn('z-10 flex w-full flex-row items-center', className)}>
+            <div ref={row1Ref} className={cn('z-10 flex w-full flex-row items-center', className)}>
                 <BaseGameCharacter side="left" />
                 <div className="flex w-1/2 items-center justify-center">{slot_grid}</div>
                 <BaseGameCharacter side="right" />

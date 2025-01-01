@@ -73,7 +73,7 @@ export function WheelDisplay({ onSpinComplete, className, soundManagerRef }: Whe
                         {isClient && (
                             <motion.div
                                 key={spinKey}
-                                className="relative w-fit rounded-full"
+                                className="z-100 relative w-fit rounded-full"
                                 style={{
                                     ...wheelSize,
                                     background: wheelGradient,
@@ -94,14 +94,14 @@ export function WheelDisplay({ onSpinComplete, className, soundManagerRef }: Whe
                                 {WHEEL_SLOTS.map((color, index) => (
                                     <div
                                         key={index}
-                                        className={FORCE_SHOW_ICONS ? 'absolute' : 'invisible absolute lg:visible'}
+                                        className={FORCE_SHOW_ICONS ? 'absolute z-10' : 'invisible absolute z-10 lg:visible'}
                                         style={{
                                             width: '100%',
                                             height: '100%',
                                             transform: `rotate(${index * (360 / WHEEL_SLOTS.length) + 360 / WHEEL_SLOTS.length / 2}deg)`,
                                         }}
                                     >
-                                        <div className="absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 transform">
+                                        <div className="absolute left-1/2 top-[30px] z-10 -translate-x-1/2 -translate-y-1/2 transform">
                                             <Image
                                                 src={ITEM_IMAGE_PATHS[PAYOUTS[color].displayName]}
                                                 alt={PAYOUTS[color].displayName}
