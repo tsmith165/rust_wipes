@@ -23,7 +23,7 @@ export function ServersList({ servers, nextWipeInfoMap, mapOptions, mapVotes }: 
     }, []);
 
     return (
-        <div className="mx-auto grid w-4/5 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto grid w-full grid-cols-1 gap-6 xs:w-4/5 md:grid-cols-2 lg:grid-cols-3">
             {servers.map((server) => {
                 const server_port = server.connection_url.split(':')[1];
                 return (
