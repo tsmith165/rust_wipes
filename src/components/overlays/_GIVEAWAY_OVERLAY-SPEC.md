@@ -81,10 +81,12 @@ src/
 3. PlayerList shows 3 players at a time with navigation
 4. Steam profile pictures are fetched and displayed
 5. Progress bar shows qualified players count
-6. Added Zustand store for state management
-7. Implemented data caching per page
-8. Added detailed debug logging
-9. Improved error handling
+6. Added Zustand store for state management with:
+    - Separated qualified count from pagination data
+    - Cache for player pages
+    - Optimized data fetching
+7. Added detailed debug logging
+8. Improved error handling
 
 ## Current Issues
 
@@ -126,6 +128,10 @@ src/
 16. Added comprehensive debug logging
 17. Improved error handling in server actions
 18. Updated components to use centralized store
+19. Memoized GiveawayProgress component to prevent unnecessary re-renders during pagination
+20. Separated qualified count from pagination data in store
+21. Optimized data fetching to prevent unnecessary updates
+22. Added occasional refresh of qualified count
 
 ## Manual Testing Required
 
@@ -135,3 +141,4 @@ src/
 4. Test edge cases with player data
 5. Monitor debug logs for data accuracy
 6. Test error handling scenarios
+7. Verify progress bar only updates when qualified count changes

@@ -553,15 +553,13 @@ export async function setSlotBonusType(steamId: string, code: string, bonusType:
                 })
                 .where(eq(bonus_spins.user_id, user[0].id));
 
-            // Record the awarded spins in slot_machine_spins
-            await db.insert(slot_machine_spins).values({
-                user_id: user[0].id,
-                result: [], // Empty result as this is just recording the bonus
-                payout: [], // Empty payout as this is just recording the bonus
-                free_spins_won: bonus_spins_awarded,
-                free_spins_used: 0,
-                redeemed: false,
-            });
+            // Update the most recent slot_machine_spins record with the awarded spins
+            await db
+                .update(slot_machine_spins)
+                .set({
+                    free_spins_won: bonus_spins_awarded,
+                })
+                .where(and(eq(slot_machine_spins.user_id, user[0].id), eq(slot_machine_spins.id, last_win[0].id)));
         } else {
             return { success: false, error: 'No pending bonus found' };
         }

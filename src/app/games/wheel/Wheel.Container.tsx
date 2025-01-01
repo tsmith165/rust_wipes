@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { AnimatePresence } from 'framer-motion';
 
 // Steam Auth
 import { useSteamUser } from '@/stores/steam_user_store';
@@ -18,14 +19,14 @@ import { BaseGameControls } from '@/components/games/base/BaseGame.Controls';
 import { BaseGameConfettiOverlay } from '@/components/games/base/BaseGame.ConfettiOverlay';
 
 // Wheel Game Components
-import { WheelBonusModal } from '@/components/games/wheel/Wheel.BonusModal';
 import { WheelDisplay } from '@/components/games/wheel/Wheel.Display';
-import { WheelWinOverlay } from '@/components/games/wheel/Wheel.WinOverlay';
 import { WheelRecentWinners } from '@/components/games/wheel/Wheel.RecentWinners';
 import { WheelSoundManager, WheelSoundManagerRef } from '@/components/games/wheel/Wheel.SoundManager';
 
-import { SPIN_COST, WheelPayout } from './Wheel.Constants';
+import { SPIN_COST, WheelPayout, ITEM_IMAGE_PATHS } from './Wheel.Constants';
 import { BonusInProgressOverlay } from '@/components/games/wheel/Wheel.BonusInProgressOverlay';
+import { BaseGameBonusModal } from '@/components/games/base/BaseGame.BonusModal';
+import { BaseGameWinOverlay } from '@/components/games/base/BaseGame.WinOverlay';
 
 export function WheelContainer() {
     const router = useRouter();
@@ -79,6 +80,9 @@ export function WheelContainer() {
 
     // Refs
     const soundManagerRef = useRef<WheelSoundManagerRef>(null);
+
+    // Add row1Ref for win overlay positioning
+    const row1Ref = useRef<HTMLDivElement>(null);
 
     // Initialize user data and check bonus status
     useEffect(() => {
@@ -313,7 +317,12 @@ export function WheelContainer() {
 
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
-            <SlotContainer slot_grid={wheel_display} slot_controls={wheel_controls} slot_recent_winners={wheel_recent_winners} />
+            <SlotContainer
+                slot_grid={wheel_display}
+                slot_controls={wheel_controls}
+                slot_recent_winners={wheel_recent_winners}
+                row1Ref={row1Ref}
+            />
             {sound_manager}
 
             {/* Sign-In Modal */}
@@ -331,10 +340,56 @@ export function WheelContainer() {
             )}
 
             {/* Win Overlay */}
-            <WheelWinOverlay result={result} isVisible={showWinOverlay} onComplete={() => setShowWinOverlay(false)} />
+            <AnimatePresence>
+                {showWinOverlay && result && (
+                    <BaseGameWinOverlay
+                        result={result}
+                        showConfetti={showConfetti}
+                        onConfettiComplete={() => setShowConfetti(false)}
+                        containerRef={row1Ref}
+                        mapResultToWinItems={(result) => [
+                            {
+                                displayName: result.payout.displayName,
+                                imagePath: ITEM_IMAGE_PATHS[result.payout.displayName as WheelPayout],
+                                inGameName: result.payout.inGameName,
+                            },
+                        ]}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Bonus Modal */}
-            <WheelBonusModal isVisible={showBonusModal} onClose={() => setShowBonusModal(false)} onBonusSelect={handleBonusSelect} />
+            <BaseGameBonusModal<'normal' | 'sticky'>
+                isVisible={showBonusModal}
+                onSelect={handleBonusSelect}
+                onClose={() => setShowBonusModal(false)}
+                title="You Won a Bonus!"
+                subtitle="Choose Your Bonus Type"
+                options={[
+                    {
+                        type: 'normal',
+                        imagePath: '/rust_icons/normal_bonus_banner.png',
+                        imageAlt: 'Normal Bonus',
+                        description: 'More spins, lower volatility. Multipliers do not stick for all spins.',
+                        imageWidth: 300,
+                        imageHeight: 100,
+                        mobileImageWidth: 150,
+                        mobileImageHeight: 50,
+                    },
+                    {
+                        type: 'sticky',
+                        imagePath: '/rust_icons/sticky_bonus_banner.png',
+                        imageAlt: 'Sticky Bonus',
+                        description: 'Less spins, higher volatility. Multipliers will stay in place for all spins.',
+                        imageWidth: 300,
+                        imageHeight: 100,
+                        mobileImageWidth: 150,
+                        mobileImageHeight: 50,
+                    },
+                ]}
+                showConfetti={showConfetti}
+                onConfettiComplete={() => setShowConfetti(false)}
+            />
 
             {/* Bonus In Progress Overlay */}
             <BonusInProgressOverlay isVisible={bonusInProgress} bonusType={bonusType} spinsRemaining={spinsRemaining} />

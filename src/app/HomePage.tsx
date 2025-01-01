@@ -164,8 +164,9 @@ export default function HomePage() {
 
     return (
         <div className="relative min-h-[calc(100dvh-50px)] w-full overflow-y-auto">
+            <GiveawayOverlay isOpen={showGiveaway} onClose={() => setShowGiveaway(false)} className="absolute left-0 right-0 top-[9rem]" />
+
             <div className="relative h-[60vh] w-full overflow-hidden">
-                <GiveawayOverlay isOpen={showGiveaway} onClose={() => setShowGiveaway(false)} className="pr-8 pt-64" />
                 <AnimatePresence>
                     {isImageVisible && (
                         <motion.div

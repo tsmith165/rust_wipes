@@ -15,20 +15,35 @@ interface GiveawayOverlayProps {
 }
 
 export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, position = 'middle-right', className }) => {
-    const { fetchData, currentPage, playersByPage, qualifiedCount, totalPlayers, isLoading, setCurrentPage } = useGiveawayStore();
+    const { fetchQualifiedCount, fetchPlayerPage, currentPage, playersByPage, qualifiedCount, totalPlayers, isLoading, setCurrentPage } =
+        useGiveawayStore();
 
     useEffect(() => {
         if (isOpen) {
-            fetchData(currentPage);
-            // Refresh data every 5 minutes
-            const interval = setInterval(() => fetchData(currentPage), 5 * 60 * 1000);
+            // Fetch initial data
+            fetchQualifiedCount();
+            fetchPlayerPage(currentPage);
+
+            // Refresh player data every 5 minutes
+            const interval = setInterval(
+                () => {
+                    fetchPlayerPage(currentPage);
+                    // Also refresh qualified count occasionally
+                    if (Math.random() < 0.2) {
+                        // 20% chance to refresh qualified count
+                        fetchQualifiedCount();
+                    }
+                },
+                5 * 60 * 1000,
+            );
+
             return () => clearInterval(interval);
         }
-    }, [isOpen, currentPage, fetchData]);
+    }, [isOpen, currentPage, fetchQualifiedCount, fetchPlayerPage]);
 
     const subtitle = (
         <span>
-            First 100 players to play on any of our servers get a free{' '}
+            First 100 players with 10 hours of playtime on any of our servers get a free{' '}
             <Link href="/kits?type=monthly&kit=4" className="text-primary_light underline transition-colors hover:text-primary">
                 Captain Kit
             </Link>

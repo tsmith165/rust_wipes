@@ -292,7 +292,7 @@ export function SlotRecentWinners({ winners: incomingWinners, onRefresh, isLoadi
                     ) : displayedWinners.length > 0 ? (
                         displayedWinners.map((winner, index) => (
                             <WinnerCard
-                                key={`${winner.steamId}-${winner.timestamp}`}
+                                key={`${winner.steamId}-${winner.timestamp}-${index}`}
                                 winner={winner}
                                 animate={index === 0}
                                 onProfileClick={() => window.open(`https://steamcommunity.com/profiles/${winner.steamId}`, '_blank')}
