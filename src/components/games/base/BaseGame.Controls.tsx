@@ -60,7 +60,7 @@ export function BaseGameControls({
     };
 
     return (
-        <div className="flex w-full flex-row items-start justify-between sm:items-center">
+        <div className="z-100 flex w-full flex-row items-start justify-between sm:items-center">
             {/* User info and credits */}
             <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
                 <div className="flex" data-tooltip-id="steam-id-tooltip">

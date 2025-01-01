@@ -247,7 +247,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     const handleSpin = async () => {
         // Prevent multiple simultaneous spins
         if (spinInProgressRef.current) {
-            console.log('Spin already in progress, ignoring...');
             return;
         }
 
@@ -255,7 +254,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
 
         try {
             spinInProgressRef.current = true;
-            console.log('Starting spin...');
 
             // Stop all currently playing sounds
             soundManagerRef.current?.stopAllSounds();
@@ -278,7 +276,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             await new Promise((resolve) => setTimeout(resolve, 200));
 
             // Get spin result
-            console.log('Fetching spin result...');
             const spinResult = await spinSlotMachine(steamProfile.steamId, steamProfile.code);
 
             if (!spinResult?.success || !spinResult.data) {
@@ -301,7 +298,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 return [...additionalSymbols, ...finalReel];
             });
 
-            console.log('Starting grid animation');
             // Force a remount of the grid component with the extended grid
             slotGame.setSpinKey(spinKey + 1);
             slotGame.setGrid(extendedGrid);
@@ -311,7 +307,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             const maxDuration = 2 + 4 * 0.5 + 0.5;
             await new Promise((resolve) => setTimeout(resolve, maxDuration * 1000));
 
-            console.log('Animation complete, setting final state');
             // Set final grid state
             slotGame.setGrid(spinResultData.finalVisibleGrid);
             slotGame.setSpinAmounts([]);
@@ -368,7 +363,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             console.error('Spin error:', err);
             setError('Failed to spin. Please try again.');
         } finally {
-            console.log('Spin complete');
             setSpinning(false);
             spinInProgressRef.current = false;
         }

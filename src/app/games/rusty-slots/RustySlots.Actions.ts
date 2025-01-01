@@ -80,11 +80,7 @@ function isStringDoubleArray(data: any): data is string[][] {
 /**
  * Standardized spinSlotMachine function with ActionResponse.
  */
-export async function spinSlotMachine(
-    steamId: string,
-    code: string,
-    bonusType?: 'normal' | 'sticky', // Optional parameter for bonus type
-): Promise<ActionResponse<SpinResult>> {
+export async function spinSlotMachine(steamId: string, code: string, bonusType?: 'normal' | 'sticky'): Promise<ActionResponse<SpinResult>> {
     try {
         // Verify authentication
         const isAuthValid = await verifyAuthCode(steamId, code);
@@ -129,7 +125,7 @@ export async function spinSlotMachine(
                     existingStickyMultipliers = bonusSpinsData[0].sticky_multipliers;
                 }
             } catch (error) {
-                console.warn('Error parsing sticky_multipliers:', error);
+                console.error('Error parsing sticky_multipliers:', error);
                 existingStickyMultipliers = [];
             }
 
@@ -311,7 +307,7 @@ export async function spinSlotMachine(
 
         return { success: true, data: spinResult };
     } catch (error) {
-        console.error('Error spin slot machine:', error);
+        console.error('Error in spinSlotMachine:', error);
         return { success: false, error: 'An unexpected error occurred.' };
     }
 }
@@ -351,90 +347,97 @@ function calculatePayout(grid: string[][]): {
     });
 
     // Function to validate a line considering multipliers
-    const checkLine = (line: number[][], line_type_string: string) => {
-        console.log(`Checking ${line_type_string} line: `, line);
-
+    function checkLine(
+        line: number[][],
+        grid: string[][],
+        line_type_string: string,
+    ): { consecutiveCount: number; primarySymbol: string; lineMatches: number[][] } {
         let consecutiveCount = 0;
-        let primarySymbol: string | null = null;
-        let shouldMultiply = true;
-        let lineMultipliers: number[] = [];
-        let lineMatches: number[][] = [];
+        let primarySymbol = '';
+        const lineMatches: number[][] = [];
 
-        for (let i = 0; i < line.length; i++) {
-            const [x, y] = line[i];
+        // Get first symbol
+        const [x, y] = line[0];
+        primarySymbol = grid[x][y];
+        const shouldMultiply = !SLOT_ITEMS_NO_MULTIPLIERS.includes(primarySymbol);
+
+        // Check consecutive matches
+        for (const [x, y] of line) {
             const symbol = grid[x][y];
-
-            // If primary symbol is not set yet, set it
-            if (
-                !primarySymbol &&
-                !symbol.startsWith('2x_multiplier') &&
-                !symbol.startsWith('3x_multiplier') &&
-                !symbol.startsWith('5x_multiplier')
-            ) {
-                primarySymbol = symbol;
-                console.log(`Checking if primary symbol (${primarySymbol}) is in: ${SLOT_ITEMS_NO_MULTIPLIERS}`);
-                if (SLOT_ITEMS_NO_MULTIPLIERS.includes(primarySymbol)) {
-                    shouldMultiply = false;
-                }
-                console.log(`Found primary symbol: ${primarySymbol} with shouldMultiply: ${shouldMultiply}`);
-                consecutiveCount++; // Start counting matches
-                lineMatches.push([x, y]);
-            } else if (symbol === primarySymbol) {
-                // Continue matching with the primary symbol
-                console.log(`Found match: ${symbol} with primarySymbol: ${primarySymbol}`);
+            if (symbol === primarySymbol || (shouldMultiply && symbol.includes('multiplier'))) {
                 consecutiveCount++;
                 lineMatches.push([x, y]);
-            } else if (symbol === '2x_multiplier' || symbol === '3x_multiplier' || symbol === '5x_multiplier') {
-                // Handle multipliers as wilds
-                // Add multiplier to matches and continue to the next reel
-                console.log(`Found match: ${symbol} with primarySymbol: ${primarySymbol}`);
-                consecutiveCount++;
-                lineMultipliers.push(symbol === '2x_multiplier' ? 2 : symbol === '3x_multiplier' ? 3 : 5);
-                lineMatches.push([x, y]);
-                continue;
             } else {
-                // Mismatch found, break the matching sequence
-                console.log(`Mismatch found: ${symbol} vs ${primarySymbol}`);
                 break;
             }
         }
 
-        console.log(`Final line consecutiveCount: ${consecutiveCount} with primarySymbol: ${primarySymbol}.  Line matches: `, lineMatches);
-        // Validate line as winning if at least 3 consecutive symbols/multipliers
-        if (consecutiveCount >= 3 && primarySymbol !== null) {
-            const item = getSymbolPayout(primarySymbol, consecutiveCount);
-            if (item) {
-                if (shouldMultiply) {
-                    // Apply the cumulative multiplier to the payout
-                    console.log(`Applying multipliers with multiplication: ${lineMultipliers} to ${item.quantity}`);
-                    for (const multiplier of lineMultipliers) {
-                        item.quantity *= multiplier;
-                    }
-                } else {
-                    // Apply the cumulative multiplier to the payout
-                    console.log(`Applying multipliers with addition: ${lineMultipliers} to ${item.quantity}`);
-                    for (const multiplier of lineMultipliers) {
-                        const actualMultiplier = multiplier === 2 ? 1 : multiplier === 3 ? 2 : 3;
-                        item.quantity += actualMultiplier;
-                    }
-                }
-                payout.push(item);
+        return { consecutiveCount, primarySymbol, lineMatches };
+    }
 
-                // Add the winning part of the line
-                winningLines.push(lineMatches);
-                // Add individual cells to winningCells if not already present
-                lineMatches.forEach(([x, y]) => {
-                    if (!winningCells.some((cell) => cell[0] === x && cell[1] === y)) {
-                        winningCells.push([x, y]);
-                    }
-                });
+    // Function to apply multipliers
+    function applyMultipliers(item: { quantity: number; full_name: string }, lineMultipliers: number[], shouldMultiply: boolean): number {
+        let finalQuantity = item.quantity;
+
+        if (shouldMultiply) {
+            // Multiply the quantity by each multiplier
+            for (const multiplier of lineMultipliers) {
+                finalQuantity *= multiplier;
             }
+        } else {
+            // Add the multipliers to the base quantity
+            finalQuantity += lineMultipliers.reduce((sum, mult) => sum + (mult - 1), 0);
         }
-    };
+
+        return finalQuantity;
+    }
 
     // Check all types of lines (horizontal, diagonal, etc.)
     for (const line_type_string of ['horizontal', 'diagonal', 'zigzag_downwards', 'zigzag_upwards'] as const) {
-        WINNING_LINES[line_type_string].forEach((line) => checkLine(line, line_type_string));
+        WINNING_LINES[line_type_string].forEach((line) => {
+            const { consecutiveCount, primarySymbol, lineMatches } = checkLine(line, grid, line_type_string);
+            if (consecutiveCount >= 3 && primarySymbol !== null) {
+                const item = getSymbolPayout(primarySymbol, consecutiveCount);
+                if (item) {
+                    let shouldMultiply = true;
+                    let lineMultipliers: number[] = [];
+
+                    // Check for sticky multipliers
+                    for (const [x, y] of lineMatches) {
+                        const symbol = grid[x][y];
+                        if (symbol.startsWith('2x_multiplier')) {
+                            lineMultipliers.push(2);
+                        } else if (symbol.startsWith('3x_multiplier')) {
+                            lineMultipliers.push(3);
+                        } else if (symbol.startsWith('5x_multiplier')) {
+                            lineMultipliers.push(5);
+                        } else if (symbol.startsWith('2x_multiplier')) {
+                            lineMultipliers.push(2);
+                        } else if (symbol.startsWith('3x_multiplier')) {
+                            lineMultipliers.push(3);
+                        } else if (symbol.startsWith('5x_multiplier')) {
+                            lineMultipliers.push(5);
+                        } else {
+                            shouldMultiply = false;
+                        }
+                    }
+
+                    if (shouldMultiply) {
+                        const finalQuantity = applyMultipliers(item, lineMultipliers, shouldMultiply);
+                        payout.push({ ...item, quantity: finalQuantity });
+
+                        // Add the winning part of the line
+                        winningLines.push(lineMatches);
+                        // Add individual cells to winningCells if not already present
+                        lineMatches.forEach(([x, y]) => {
+                            if (!winningCells.some((cell) => cell[0] === x && cell[1] === y)) {
+                                winningCells.push([x, y]);
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     // Count the number of bonus symbols in the final grid
@@ -623,7 +626,6 @@ export async function verifySteamProfile(profileUrl: string): Promise<ActionResp
             return { success: false, error: `HTTP error! status: ${response.status}` };
         }
         const data = await response.json();
-        console.log('Steam API response:', data);
 
         if (data.response && data.response.players && data.response.players.length > 0) {
             const player = data.response.players[0];
@@ -636,7 +638,7 @@ export async function verifySteamProfile(profileUrl: string): Promise<ActionResp
                 },
             };
         } else {
-            console.error('Steam user not found in API response:', data);
+            console.error('Steam user not found in API response');
             return { success: false, error: 'Steam user not found' };
         }
     } catch (error) {
