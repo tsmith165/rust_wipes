@@ -1,26 +1,18 @@
+'use client';
+
 import React, { useState } from 'react';
 import { RwServer, NextWipeInfo } from '@/db/schema';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isEqual, parseISO, addMonths, subMonths, setHours, getDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, getDay } from 'date-fns';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
+import { WipeEvent } from '../types';
 
-interface CalendarViewProps {
+interface CalendarDesktopProps {
     servers: RwServer[];
     nextWipeInfoMap: Record<string, NextWipeInfo>;
 }
 
-interface WipeEvent {
-    serverName: string;
-    wipeTime: number;
-    shortTitle?: string;
-}
-
-export function CalendarView({ servers }: CalendarViewProps) {
+export function CalendarDesktop({ servers, nextWipeInfoMap }: CalendarDesktopProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
-
-    const days = eachDayOfInterval({
-        start: startOfMonth(currentDate),
-        end: endOfMonth(currentDate),
-    });
 
     const goToNextMonth = () => {
         setCurrentDate(addMonths(currentDate, 1));
@@ -31,17 +23,17 @@ export function CalendarView({ servers }: CalendarViewProps) {
     };
 
     const getWipesForDay = (date: Date): WipeEvent[] => {
-        const dayOfWeek = getDay(date); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const dayOfWeek = getDay(date);
         const wipeEvents: WipeEvent[] = [];
 
         servers.forEach((server) => {
             const wipeDays = server.wipe_days.split(',').map((day) => parseInt(day.trim()));
-            // Only add the server if it has a valid wipe_time
             if (wipeDays.includes(dayOfWeek) && server.wipe_time !== null) {
                 wipeEvents.push({
                     serverName: server.name,
                     wipeTime: server.wipe_time,
-                    shortTitle: server.short_title || undefined, // Convert null to undefined
+                    shortTitle: server.short_title || undefined,
+                    serverId: server.id,
                 });
             }
         });
@@ -62,8 +54,13 @@ export function CalendarView({ servers }: CalendarViewProps) {
         }
     };
 
+    const days = eachDayOfInterval({
+        start: startOfMonth(currentDate),
+        end: endOfMonth(currentDate),
+    });
+
     return (
-        <div className="w-4/5 rounded-lg bg-stone-900 p-6">
+        <div className="mx-auto w-full max-w-6xl rounded-lg bg-stone-900 p-6">
             <div className="mb-4 flex items-center justify-between">
                 <button onClick={goToPreviousMonth} className="rounded-lg bg-stone-800 p-2 text-stone-300 hover:bg-stone-700">
                     <MdChevronLeft className="h-5 w-5" />

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { RwServer, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
 import { ServersList } from './ServersList';
-import { CalendarView } from './CalendarView';
+import { CalendarContainer } from './calendar/CalendarContainer';
 
 interface ViewSwitcherProps {
     activeView: string;
@@ -12,7 +12,7 @@ interface ViewSwitcherProps {
 
 const ViewSwitcher: React.FC<ViewSwitcherProps> = ({ activeView, onViewChange }) => (
     <div className="mb-8 flex space-x-4">
-        {['Server View', 'Calendar View'].map((view) => (
+        {['Info', 'Calendar'].map((view) => (
             <button
                 key={view}
                 onClick={() => onViewChange(view)}
@@ -36,16 +36,18 @@ interface PageContentProps {
 }
 
 export function PageContent({ servers, nextWipeInfoMap, mapOptions, mapVotes }: PageContentProps) {
-    const [activeView, setActiveView] = useState('Server View');
+    const [activeView, setActiveView] = useState('Info');
 
     return (
         <>
             <ViewSwitcher activeView={activeView} onViewChange={setActiveView} />
-            {activeView === 'Server View' ? (
-                <ServersList servers={servers} nextWipeInfoMap={nextWipeInfoMap} mapOptions={mapOptions} mapVotes={mapVotes} />
-            ) : (
-                <CalendarView servers={servers} nextWipeInfoMap={nextWipeInfoMap} />
-            )}
+            <div className="w-full">
+                {activeView === 'Info' ? (
+                    <ServersList servers={servers} nextWipeInfoMap={nextWipeInfoMap} mapOptions={mapOptions} mapVotes={mapVotes} />
+                ) : (
+                    <CalendarContainer servers={servers} nextWipeInfoMap={nextWipeInfoMap} />
+                )}
+            </div>
         </>
     );
 }
