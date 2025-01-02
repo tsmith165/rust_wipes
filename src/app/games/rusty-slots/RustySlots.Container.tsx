@@ -101,6 +101,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     const [winners, setWinners] = useState<LocalWinner[]>([]);
     const [isLoadingWinners, setIsLoadingWinners] = useState(false);
     const [winnersError, setWinnersError] = useState<string | null>(null);
+    const [showTotalWinModal, setShowTotalWinModal] = useState(false);
 
     // Refs
     const winOverlayRef = useRef<HTMLDivElement>(null);
@@ -247,6 +248,11 @@ export const RustySlotsContainer = function RustySlotsContainer() {
 
     // Update handleSpin
     const handleSpin = async () => {
+        // Close any open overlays before starting new spin
+        setShowTotalWinModal(false);
+        setShowOverlay(false);
+        setShowConfetti(false);
+
         // Prevent multiple simultaneous spins
         if (spinInProgressRef.current) {
             console.log('Spin already in progress, ignoring...');
@@ -342,11 +348,30 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                     setShowBonusModal(true);
                     setShowConfetti(true);
                     playSoundSafely(() => soundManagerRef.current?.playBonusWon());
-                }, 1500); // Wait 1.5 seconds after spin completes to show bonus modal
+                }, 1500);
+                return; // Exit early as we don't want to show other win displays
             }
 
-            // Handle win case
-            if (spinResultData.payout.length > 0 || (spinResultData.bonusSpinsAwarded > 0 && freeSpins && freeSpins > 0)) {
+            console.log('Spins remaining:', spinResultData.freeSpinsAvailable);
+            console.log('Total win:', spinResultData.totalWin);
+
+            // Stop auto-spinning when we reach the last bonus spin
+            if (spinResultData.freeSpinsAvailable === 0) {
+                console.log('Last bonus spin coming up - stopping auto-spin');
+                setAutoSpinning(false);
+            }
+
+            // Check if this is the final bonus spin
+            if (spinResultData.freeSpinsAvailable === 0 && spinResultData.totalWin && spinResultData.totalWin.length > 0) {
+                // Show total win modal
+                setTimeout(() => {
+                    setShowTotalWinModal(true);
+                    setShowConfetti(true);
+                    playSoundSafely(() => soundManagerRef.current?.playBonusWon());
+                }, 1500);
+            }
+            // Then handle regular win case if it's not the final bonus spin
+            else if (spinResultData.payout.length > 0 || (spinResultData.bonusSpinsAwarded > 0 && freeSpins && freeSpins > 0)) {
                 setShowConfetti(true);
                 setShowOverlay(true);
 
@@ -551,6 +576,29 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 />
             </AnimatePresence>
 
+            {/* Total Win Overlay */}
+            <AnimatePresence>
+                <ModalWin<{ totalWin: Array<{ item: string; quantity: number; full_name: string }> }>
+                    isOpen={showTotalWinModal && result?.totalWin !== undefined}
+                    onClose={() => setShowTotalWinModal(false)}
+                    result={{ totalWin: result?.totalWin || [] }}
+                    showConfetti={showConfetti}
+                    onConfettiComplete={() => setShowConfetti(false)}
+                    containerRef={row1Ref}
+                    isTotalWin={true}
+                    customTitle="Total Bonus Winnings!"
+                    showCloseButton={true}
+                    mapResultToWinItems={(result) => {
+                        return (result.totalWin || []).map((item) => ({
+                            quantity: item.quantity,
+                            displayName: item.full_name,
+                            imagePath: SYMBOL_IMAGE_PATHS[item.item],
+                            inGameName: item.item,
+                        }));
+                    }}
+                />
+            </AnimatePresence>
+
             {/* Confetti Overlay */}
             <BaseGameConfettiOverlay
                 isVisible={showConfetti}
@@ -566,7 +614,6 @@ export const RustySlotsContainer = function RustySlotsContainer() {
 
             {/* Bonus Type Selection Modal */}
             <AnimatePresence>
-                {/* Bonus Type Selection Modal */}
                 <ModalBonus<'normal' | 'sticky'>
                     isOpen={showBonusModal}
                     onSelect={handleBonusTypeSelection}

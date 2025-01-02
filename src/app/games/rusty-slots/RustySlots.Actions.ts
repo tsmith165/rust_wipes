@@ -38,6 +38,7 @@ export interface SpinResult {
     winningLines: number[][][]; // [[x, y]]
     stickyMultipliers?: { x: number; y: number; multiplier: number }[];
     needsBonusTypeSelection?: boolean;
+    totalWin?: { item: string; full_name: string; quantity: number }[];
 }
 
 interface WinnerWithPictures {
@@ -80,11 +81,7 @@ function isStringDoubleArray(data: any): data is string[][] {
 /**
  * Standardized spinSlotMachine function with ActionResponse.
  */
-export async function spinSlotMachine(
-    steamId: string,
-    code: string,
-    bonusType?: 'normal' | 'sticky', // Optional parameter for bonus type
-): Promise<ActionResponse<SpinResult>> {
+export async function spinSlotMachine(steamId: string, code: string, bonusType?: 'normal' | 'sticky'): Promise<ActionResponse<SpinResult>> {
     try {
         // Verify authentication
         const isAuthValid = await verifyAuthCode(steamId, code);
@@ -108,6 +105,7 @@ export async function spinSlotMachine(
                 spins_remaining: 0,
                 bonus_type: '',
                 sticky_multipliers: [], // Assign as an empty array
+                total_win: [], // Initialize empty total wins
                 last_updated: new Date(),
             });
         }
@@ -190,7 +188,7 @@ export async function spinSlotMachine(
             .fill(0)
             .map(() => Math.floor(Math.random() * (MAX_SPIN - MIN_SPIN + 1)) + MIN_SPIN);
 
-        // Calculate winning cells and bonus cells
+        // Calculate payout and get win information
         const { payout, bonusCount, winningLines, winningCells, bonusCells } = calculatePayout(finalVisibleGrid);
 
         // Identify multipliers in the spin result
@@ -240,10 +238,6 @@ export async function spinSlotMachine(
                 spinsAwarded = bonusTable[selectedBonusType][bonusCountFinal as 3 | 4 | 5] || 0;
                 freeSpinsAvailable += spinsAwarded;
             }
-        } else if (freeSpinsAvailable > 0 && bonusCountFinal === 2 && selectedBonusType) {
-            // Remove this entire block to prevent awarding spins for 2 bonus symbols
-            // spinsAwarded = RETRIGGER_BONUS_SPINS[selectedBonusType][2];
-            // freeSpinsAvailable += spinsAwarded;
         }
 
         // Update user credits and bonus spins
@@ -251,15 +245,54 @@ export async function spinSlotMachine(
 
         if (freeSpinsAvailable > 0) {
             freeSpinsAvailable--;
-            // Update bonus_spins table to decrement spins_remaining
+
+            // Get existing total wins
+            let existingTotalWins: { item: string; full_name: string; quantity: number }[] = [];
+            if (bonusSpinsData.length > 0) {
+                try {
+                    existingTotalWins = bonusSpinsData[0].total_win as { item: string; full_name: string; quantity: number }[];
+                } catch (error) {
+                    console.warn('Error parsing existing total wins:', error);
+                }
+            }
+
+            // Aggregate new wins with existing wins
+            const updatedTotalWins = aggregateWins(existingTotalWins, payout);
+
+            // Update bonus_spins table to decrement spins_remaining and update total wins
             await db
                 .update(bonus_spins)
                 .set({
                     spins_remaining: freeSpinsAvailable,
                     sticky_multipliers: selectedBonusType === 'sticky' ? JSON.stringify(currentMultipliers) : '[]',
+                    total_win: updatedTotalWins,
                     last_updated: new Date(),
                 })
                 .where(eq(bonus_spins.user_id, user[0].id));
+
+            // If this is the final spin, we need to keep the total_win for display
+            // We'll reset it in a separate update after the client has shown it
+            if (freeSpinsAvailable === 0) {
+                // Reset bonus type and sticky multipliers, but keep total_win
+                await db
+                    .update(bonus_spins)
+                    .set({
+                        bonus_type: '',
+                        sticky_multipliers: '[]',
+                        last_updated: new Date(),
+                    })
+                    .where(eq(bonus_spins.id, bonusSpinsData[0].id));
+
+                // Schedule a cleanup of total_win after client has had time to display it
+                setTimeout(async () => {
+                    await db
+                        .update(bonus_spins)
+                        .set({
+                            total_win: '[]',
+                        })
+                        .where(eq(bonus_spins.id, bonusSpinsData[0].id));
+                }, 5000); // Give plenty of time for client to show the total win
+            }
         } else {
             updatedCredits -= 5;
         }
@@ -267,7 +300,7 @@ export async function spinSlotMachine(
         // Update user credits
         await db.update(user_playtime).set({ credits: updatedCredits }).where(eq(user_playtime.id, user[0].id));
 
-        // Reset bonus_type and sticky_multipliers if spins_remaining is zero
+        // Remove the reset of total_win from here since we handle it above
         if (freeSpinsAvailable === 0 && bonusSpinsData.length > 0) {
             await db
                 .update(bonus_spins)
@@ -284,7 +317,7 @@ export async function spinSlotMachine(
             user_id: user[0].id,
             result: finalVisibleGrid,
             payout: payout,
-            free_spins_won: needsBonusTypeSelection ? 0 : spinsAwarded, // Only record spins if not pending
+            free_spins_won: needsBonusTypeSelection ? 0 : spinsAwarded,
             free_spins_used: freeSpinsAvailable > 0 ? 1 : 0,
             redeemed: payout.length === 0,
         });
@@ -300,18 +333,18 @@ export async function spinSlotMachine(
             freeSpinsAvailable,
             winningCells,
             bonusCells,
-            winningLines: winningLines, // Update if necessary
-            stickyMultipliers: selectedBonusType === 'sticky' ? currentMultipliers : [], // Conditional assignment
-            needsBonusTypeSelection: needsBonusTypeSelection, // Make sure this is included
+            winningLines,
+            stickyMultipliers: selectedBonusType === 'sticky' ? currentMultipliers : [],
+            needsBonusTypeSelection,
+            totalWin:
+                freeSpinsAvailable > 0 || (freeSpinsAvailable === 0 && bonusSpinsData[0]?.total_win)
+                    ? (bonusSpinsData[0]?.total_win as { item: string; full_name: string; quantity: number }[])
+                    : undefined,
         };
-
-        if (needsBonusTypeSelection) {
-            spinResult.needsBonusTypeSelection = true;
-        }
 
         return { success: true, data: spinResult };
     } catch (error) {
-        console.error('Error spin slot machine:', error);
+        console.error('Error in spinSlotMachine:', error);
         return { success: false, error: 'An unexpected error occurred.' };
     }
 }
@@ -897,4 +930,37 @@ export async function checkPendingBonus(steamId: string, code: string): Promise<
         console.error('Error checking pending bonus:', error);
         return { success: false, error: 'An unexpected error occurred.' };
     }
+}
+
+// Add helper function for aggregating wins
+function aggregateWins(
+    existingWins: { item: string; full_name: string; quantity: number }[],
+    newWins: { item: string; full_name: string; quantity: number }[],
+): { item: string; full_name: string; quantity: number }[] {
+    const winMap = new Map<string, { full_name: string; quantity: number }>();
+
+    // First, add existing wins to the map
+    existingWins.forEach((win) => {
+        winMap.set(win.item, { full_name: win.full_name, quantity: win.quantity });
+    });
+
+    // Then, add or update with new wins
+    newWins.forEach((win) => {
+        if (winMap.has(win.item)) {
+            const existing = winMap.get(win.item)!;
+            winMap.set(win.item, {
+                ...existing,
+                quantity: existing.quantity + win.quantity,
+            });
+        } else {
+            winMap.set(win.item, { full_name: win.full_name, quantity: win.quantity });
+        }
+    });
+
+    // Convert map back to array
+    return Array.from(winMap.entries()).map(([item, { full_name, quantity }]) => ({
+        item,
+        full_name,
+        quantity,
+    }));
 }

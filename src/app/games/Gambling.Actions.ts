@@ -37,7 +37,6 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
 
 export async function fetchUserCredits(steamId: string, authCode: string) {
     try {
-        console.log('Fetching user credits for steamId:', steamId, 'and authCode:', authCode);
         // First verify the auth code matches
         const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
 
