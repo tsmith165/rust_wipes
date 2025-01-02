@@ -43,6 +43,8 @@ export const OverlayTitle: React.FC<OverlayTitleProps> = ({
           }
         : {};
 
+    console.log('Overlay Title size', size);
+
     return (
         <Component className={cn('font-semibold', SIZE_CLASSES[size], ALIGN_CLASSES[align], color, className)} {...animationProps}>
             {children}

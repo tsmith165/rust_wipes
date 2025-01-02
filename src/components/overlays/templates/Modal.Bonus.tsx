@@ -80,11 +80,11 @@ export function ModalBonus<T extends string>({
                     exit: { opacity: 0, scale: 0.8 },
                     transition: { duration: 0.2 },
                 }}
-                className={cn('m-4 bg-stone-900/95', className)}
+                className={cn('m-4', className)}
                 containerRef={containerRef}
                 showCloseButton={false}
             >
-                <div className="flex h-fit w-full flex-col items-center justify-center space-y-2 p-4 xs:flex-row xs:space-x-2 xs:space-y-0">
+                <div className="flex h-fit w-full flex-col items-center justify-center gap-4 xs:flex-row">
                     {options.map((option, index) => (
                         <motion.button
                             key={index}

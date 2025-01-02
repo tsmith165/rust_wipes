@@ -9,7 +9,7 @@ interface OverlayContentsProps {
 
 export const OverlayContents: React.FC<OverlayContentsProps> = ({ children }) => {
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex-1 overflow-y-auto p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex-1 overflow-y-auto">
             {children}
         </motion.div>
     );

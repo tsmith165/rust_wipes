@@ -12,6 +12,7 @@ export interface OverlayHeaderProps {
     onClose?: () => void;
     className?: string;
     titleProps?: Omit<OverlayTitleProps, 'children'>;
+    titleSize?: 'sm' | 'md' | 'lg' | 'xl';
     subtitleProps?: Omit<OverlaySubtitleProps, 'children'>;
     showBorder?: boolean;
     padding?: 'none' | 'sm' | 'md' | 'lg';
@@ -30,20 +31,35 @@ export const OverlayHeader: React.FC<OverlayHeaderProps> = ({
     onClose,
     className,
     titleProps,
+    titleSize,
     subtitleProps,
-    showBorder = true,
+    showBorder = false,
     padding = 'md',
 }) => {
     if (!title && !subtitle && !onClose) return null;
 
     return (
-        <div className={cn('relative flex flex-col', PADDING_CLASSES[padding], showBorder && 'border-b border-stone-800', className)}>
-            {title && (typeof title === 'string' ? <OverlayTitle {...titleProps}>{title}</OverlayTitle> : title)}
+        <div
+            className={cn(
+                'relative flex flex-col items-center',
+                PADDING_CLASSES[padding],
+                showBorder && 'border-b border-stone-800',
+                className,
+            )}
+        >
+            {title &&
+                (typeof title === 'string' ? (
+                    <OverlayTitle {...titleProps} size={titleSize}>
+                        {title}
+                    </OverlayTitle>
+                ) : (
+                    title
+                ))}
             {subtitle && (typeof subtitle === 'string' ? <OverlaySubtitle {...subtitleProps}>{subtitle}</OverlaySubtitle> : subtitle)}
             {onClose && (
                 <motion.button
                     onClick={onClose}
-                    className="absolute right-4 top-4 rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-800 hover:text-stone-200"
+                    className="absolute right-5 top-3 text-stone-400 transition-colors hover:text-primary_light"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                 >

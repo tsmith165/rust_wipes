@@ -10,6 +10,7 @@ export interface OverlayProps {
     isOpen: boolean;
     onClose?: () => void;
     title?: React.ReactNode;
+    titleSize?: 'sm' | 'md' | 'lg' | 'xl';
     subtitle?: React.ReactNode;
     format?: 'pill' | 'card' | 'fullscreen';
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'fit' | { width: string; height?: string };
@@ -98,6 +99,7 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
     subtitle,
     format = 'card',
     size = 'md',
+    titleSize = 'md',
     position = 'center',
     animation,
     showCloseButton = true,
@@ -116,11 +118,23 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
             {isOpen && (
                 <>
                     <motion.div
-                        className={cn('z-50 bg-stone-900 shadow-lg', sizeClasses, positionClasses, formatClasses, className)}
+                        className={cn(
+                            'radial-gradient-stone-600 z-50 bg-stone-950 shadow-lg',
+                            sizeClasses,
+                            positionClasses,
+                            formatClasses,
+                            className,
+                        )}
                         {...finalAnimation}
                     >
-                        <div className="flex h-full flex-col">
-                            <OverlayHeader title={title} subtitle={subtitle} onClose={showCloseButton ? onClose : undefined} />
+                        <div className="flex h-full flex-col gap-4 p-4">
+                            <OverlayHeader
+                                title={title}
+                                subtitle={subtitle}
+                                onClose={showCloseButton ? onClose : undefined}
+                                titleSize={titleSize}
+                                padding="none"
+                            />
                             <OverlayContents>{children}</OverlayContents>
                         </div>
                     </motion.div>

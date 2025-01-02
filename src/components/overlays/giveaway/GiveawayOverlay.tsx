@@ -59,7 +59,8 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
             <OverlayContainer
                 isOpen={isOpen}
                 onClose={onClose}
-                title={<span className="text-primary_light">Kit Giveaway!</span>}
+                title={'Kit Giveaway!'}
+                titleSize="xl"
                 subtitle={subtitle}
                 format="pill"
                 position={position}
