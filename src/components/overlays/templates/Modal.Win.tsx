@@ -17,7 +17,7 @@ interface WinItem {
     inGameName?: string;
 }
 
-interface ModalWinProps<T extends { payout: any }> {
+interface ModalWinProps<T extends { payout?: any; totalWin?: any }> {
     isOpen: boolean;
     onClose: () => void;
     result: T | null;
@@ -27,6 +27,9 @@ interface ModalWinProps<T extends { payout: any }> {
     className?: string;
     mapResultToWinItems: (result: T) => WinItem[];
     title?: string;
+    isTotalWin?: boolean;
+    customTitle?: string;
+    showCloseButton?: boolean;
 }
 
 /**
@@ -39,8 +42,9 @@ interface ModalWinProps<T extends { payout: any }> {
  * - Framer Motion animations
  * - Dynamic positioning relative to container
  * - Image support for won items
+ * - Support for both single spin and total bonus wins
  */
-export function ModalWin<T extends { payout: any }>({
+export function ModalWin<T extends { payout?: any; totalWin?: any }>({
     isOpen,
     onClose,
     result,
@@ -49,7 +53,10 @@ export function ModalWin<T extends { payout: any }>({
     containerRef,
     className,
     mapResultToWinItems,
-    title = 'You Won!',
+    title,
+    isTotalWin = false,
+    customTitle,
+    showCloseButton,
 }: ModalWinProps<T>) {
     const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
 
@@ -80,12 +87,15 @@ export function ModalWin<T extends { payout: any }>({
         return null;
     }
 
+    // Determine the title to display
+    const displayTitle = customTitle || (isTotalWin ? 'Total Bonus Wins!' : title || 'You Won!');
+
     return (
         <>
             <OverlayContainer
                 isOpen={isOpen}
                 onClose={onClose}
-                title={title}
+                title={displayTitle}
                 format="card"
                 size="fit"
                 position="none"
@@ -97,7 +107,7 @@ export function ModalWin<T extends { payout: any }>({
                 }}
                 className={cn('m-4 bg-stone-900/95', className)}
                 containerRef={containerRef}
-                showCloseButton={false}
+                showCloseButton={showCloseButton ?? !isTotalWin} // Use provided value or default based on isTotalWin
             >
                 <div className="flex flex-col space-y-2 p-4">
                     {winItems.map((item, index) => (
@@ -124,7 +134,7 @@ export function ModalWin<T extends { payout: any }>({
                     width={dimensions.width}
                     height={dimensions.height}
                     recycle={false}
-                    numberOfPieces={200}
+                    numberOfPieces={isTotalWin ? 300 : 200} // More confetti for total wins
                     onConfettiComplete={onConfettiComplete}
                     style={{
                         position: 'absolute',
