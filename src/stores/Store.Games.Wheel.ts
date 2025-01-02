@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { WheelResult } from './Wheel.Constants';
+import type { WheelResult } from '@/app/games/wheel/Wheel.Constants';
 
 interface WheelState {
     // Wheel state

@@ -21,7 +21,7 @@ import { BaseGameConfettiOverlay } from '@/components/games/base/BaseGame.Confet
 import { WheelDisplay } from '@/components/games/wheel/Wheel.Display';
 import { WheelRecentWinners } from '@/components/games/wheel/Wheel.RecentWinners';
 import { WheelSoundManager, WheelSoundManagerRef } from '@/components/games/wheel/Wheel.SoundManager';
-import { SPIN_COST, WheelPayout, ITEM_IMAGE_PATHS } from './Wheel.Constants';
+import { SPIN_COST, WheelPayout, ITEM_IMAGE_PATHS } from '@/app/games/wheel/Wheel.Constants';
 
 // Overlays
 import { ModalBonus } from '@/components/overlays/templates/Modal.Bonus';

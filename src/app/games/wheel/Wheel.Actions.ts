@@ -3,7 +3,7 @@
 import { db } from '@/db/db';
 import { user_playtime, wheel_spins, bonus_spins, slot_machine_spins } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor } from './Wheel.Constants';
+import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor } from '@/app/games/wheel/Wheel.Constants';
 import { verifyAuthCode } from '@/app/games/Gambling.Actions';
 import { INITIAL_BONUS_SPINS } from '@/app/games/rusty-slots/RustySlots.Constants';
 import { setSlotBonusType } from '@/app/games/rusty-slots/RustySlots.Actions';
