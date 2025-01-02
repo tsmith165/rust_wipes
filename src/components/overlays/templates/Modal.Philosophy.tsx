@@ -49,8 +49,8 @@ export const ModalPhilosophy: React.FC<ModalPhilosophyProps> = ({ isOpen, onClos
                     <div className="w-full rounded-lg bg-stone-800/50 p-4 sm:w-1/3">
                         <h3 className="mb-2 font-semibold text-primary_light">Time-Based Access</h3>
                         <p className="text-sm">
-                            Monthly kits have cooldown periods to prevent spam and maintain server economy. Single-use kits offer immediate
-                            value for specific needs.
+                            Kits have cooldown periods to prevent spam and maintain server economy. Single-use kits offer immediate value
+                            for specific needs.
                         </p>
                     </div>
                     <div className="w-full rounded-lg bg-stone-800/50 p-4 sm:w-1/3">
