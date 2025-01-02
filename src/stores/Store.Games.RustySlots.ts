@@ -100,7 +100,7 @@ export const useSlotGame = create<SlotGameState>((set) => ({
     showBonusModal: false,
     bonusSpinsRemaining: 0,
     isMuted: false,
-    volume: 0.1,
+    volume: 0.05,
     isAutoSpinning: false,
 
     // Actions

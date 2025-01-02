@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { getGiveawayData } from '@/app/actions/giveaway/Giveaway.Actions';
+import { getGiveawayData } from '@/actions/Giveaway.Actions';
 
 interface Player {
     player_name: string;

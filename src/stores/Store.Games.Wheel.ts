@@ -59,7 +59,7 @@ export const useWheelStore = create<WheelState>((set) => ({
     // Sound state
     soundEnabled: true,
     setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
-    volume: 0.1,
+    volume: 0.05,
     setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
 
     // Overlay state
