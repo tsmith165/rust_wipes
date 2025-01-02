@@ -39,6 +39,7 @@ export interface SpinResult {
     stickyMultipliers?: { x: number; y: number; multiplier: number }[];
     needsBonusTypeSelection?: boolean;
     totalWin?: { item: string; full_name: string; quantity: number }[];
+    inProgress?: boolean;
 }
 
 interface WinnerWithPictures {
@@ -107,6 +108,7 @@ export async function spinSlotMachine(steamId: string, code: string, bonusType?:
                 sticky_multipliers: [], // Assign as an empty array
                 total_win: [], // Initialize empty total wins
                 last_updated: new Date(),
+                in_progress: false, // Initialize as not in progress
             });
         }
 
@@ -280,6 +282,7 @@ export async function spinSlotMachine(steamId: string, code: string, bonusType?:
                         bonus_type: '',
                         sticky_multipliers: '[]',
                         last_updated: new Date(),
+                        in_progress: false, // Set to false when bonus ends
                     })
                     .where(eq(bonus_spins.id, bonusSpinsData[0].id));
 
@@ -340,6 +343,7 @@ export async function spinSlotMachine(steamId: string, code: string, bonusType?:
                 freeSpinsAvailable > 0 || (freeSpinsAvailable === 0 && bonusSpinsData[0]?.total_win)
                     ? (bonusSpinsData[0]?.total_win as { item: string; full_name: string; quantity: number }[])
                     : undefined,
+            inProgress: bonusSpinsData[0]?.in_progress || false,
         };
 
         return { success: true, data: spinResult };
@@ -583,6 +587,7 @@ export async function setSlotBonusType(steamId: string, code: string, bonusType:
                     pending_bonus: false,
                     pending_bonus_amount: 0,
                     last_updated: new Date(),
+                    in_progress: true, // Set to true when bonus starts
                 })
                 .where(eq(bonus_spins.user_id, user[0].id));
 

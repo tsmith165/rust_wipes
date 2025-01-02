@@ -356,7 +356,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             console.log('Total win:', spinResultData.totalWin);
 
             // Stop auto-spinning when we reach the last bonus spin
-            if (spinResultData.freeSpinsAvailable === 0) {
+            if (spinResultData.freeSpinsAvailable === 0 && spinResultData.inProgress) {
                 console.log('Last bonus spin coming up - stopping auto-spin');
                 setAutoSpinning(false);
             }
