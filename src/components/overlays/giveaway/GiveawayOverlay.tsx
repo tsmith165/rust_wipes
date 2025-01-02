@@ -44,8 +44,8 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
 
     const subtitle = (
         <span className="text-stone-300">
-            First 100 players with 10 hours of playtime on any of our servers get a free{' '}
-            <Link href="/kits?type=monthly&kit=4" className="text-primary_light underline transition-colors hover:text-primary">
+            First 100 players to be online for 10 hours on any of our servers get a free{' '}
+            <Link href="/kits?type=monthly&kit=4" className="text-blue-400 underline transition-colors hover:text-blue-600">
                 Captain Kit
             </Link>
             !

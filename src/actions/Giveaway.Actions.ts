@@ -28,7 +28,7 @@ export async function getGiveawayData(page: number = 0, playersPerPage: number =
     const qualifiedCount = await db
         .select({ count: sql<number>`count(*)` })
         .from(user_playtime)
-        .where(eq(user_playtime.minutes_played, 600))
+        .where(sql`${user_playtime.minutes_played} >= 600`)
         .then((result: QueryResult[]) => result[0].count);
 
     const totalPlayersResult = await db
