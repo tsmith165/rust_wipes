@@ -12,9 +12,10 @@ interface GiveawayOverlayProps {
     onClose?: () => void;
     position?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
     className?: string;
+    containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, position = 'right', className }) => {
+export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, position = 'top-right', className, containerRef }) => {
     const { fetchQualifiedCount, fetchPlayerPage, currentPage, playersByPage, qualifiedCount, totalPlayers, isLoading, setCurrentPage } =
         useGiveawayStore();
 
@@ -42,7 +43,7 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
     }, [isOpen, currentPage, fetchQualifiedCount, fetchPlayerPage]);
 
     const subtitle = (
-        <span>
+        <span className="text-stone-300">
             First 100 players with 10 hours of playtime on any of our servers get a free{' '}
             <Link href="/kits?type=monthly&kit=4" className="text-primary_light underline transition-colors hover:text-primary">
                 Captain Kit
@@ -54,7 +55,7 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
     const currentPlayers = playersByPage.get(currentPage) ?? [];
 
     return (
-        <div className={`relative ${className}`}>
+        <div className={`${className} relative`}>
             <OverlayContainer
                 isOpen={isOpen}
                 onClose={onClose}
@@ -63,8 +64,8 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
                 format="pill"
                 position={position}
                 size={{ width: 'w-72' }}
-                showBackground={true}
                 className="bg-gradient-to-br from-stone-800 via-stone-900 to-stone-950 shadow-2xl shadow-stone-900/50"
+                containerRef={containerRef}
             >
                 <div className="space-y-4">
                     <GiveawayProgress current={qualifiedCount} total={100} loading={isLoading} />

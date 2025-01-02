@@ -97,6 +97,7 @@ export function ModalWin<T extends { payout: any }>({
                 }}
                 className={cn('m-4 bg-stone-900/95', className)}
                 containerRef={containerRef}
+                showCloseButton={false}
             >
                 <div className="flex flex-col space-y-2 p-4">
                     {winItems.map((item, index) => (

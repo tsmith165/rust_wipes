@@ -82,6 +82,7 @@ export function ModalBonus<T extends string>({
                 }}
                 className={cn('m-4 bg-stone-900/95', className)}
                 containerRef={containerRef}
+                showCloseButton={false}
             >
                 <div className="flex h-fit w-full flex-col items-center justify-center space-y-2 p-4 xs:flex-row xs:space-x-2 xs:space-y-0">
                     {options.map((option, index) => (

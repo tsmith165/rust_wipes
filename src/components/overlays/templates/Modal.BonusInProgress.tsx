@@ -43,6 +43,7 @@ export function ModalBonusInProgress({ isOpen, onClose, bonusType, spinsRemainin
             }}
             className={cn('bg-stone-900/95', className)}
             containerRef={containerRef}
+            showCloseButton={false}
         >
             <div className="flex flex-col items-center space-y-4 p-4 text-center xs:p-8">
                 <Image

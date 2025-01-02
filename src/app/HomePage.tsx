@@ -16,8 +16,9 @@ interface LinkData {
 
 export default function HomePage() {
     const [isImageVisible, setImageVisible] = useState(true);
-    const [showGiveaway, setShowGiveaway] = useState(false);
+    const [showGiveaway, setShowGiveaway] = useState(true);
     const currentImageIndexRef = useRef(0);
+    const contentRef = useRef<HTMLDivElement>(null);
 
     const linkData: LinkData[] = [
         { href: '/servers', label: 'Our Servers' },
@@ -47,8 +48,8 @@ export default function HomePage() {
     };
 
     return (
-        <div className="relative min-h-[calc(100dvh-50px)] w-full overflow-y-auto">
-            <GiveawayOverlay isOpen={showGiveaway} onClose={() => setShowGiveaway(false)} className="absolute left-0 right-0 top-[9rem]" />
+        <div ref={contentRef} className="top-[50px] h-[calc(100dvh-50px)] w-full overflow-y-auto">
+            <GiveawayOverlay isOpen={showGiveaway} onClose={() => setShowGiveaway(false)} containerRef={contentRef} className="" />
 
             <div className="relative h-[60vh] w-full overflow-hidden">
                 <AnimatePresence>

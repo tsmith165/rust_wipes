@@ -42,8 +42,14 @@ export const OverlaySubtitle: React.FC<OverlaySubtitleProps> = ({
           }
         : {};
 
+    const sizeClass = size ? SIZE_CLASSES[size] : '';
+    const alignClass = align ? ALIGN_CLASSES[align] : '';
+    const colorClass = color ? color : '';
+
+    console.log('Subtitle color', colorClass);
+
     return (
-        <Component className={cn(SIZE_CLASSES[size], ALIGN_CLASSES[align], color, className)} {...animationProps}>
+        <Component className={cn(sizeClass, alignClass, colorClass, className)} {...animationProps}>
             {children}
         </Component>
     );

@@ -3,7 +3,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { OverlayBackground } from './Overlay.Background';
 import { OverlayHeader } from './Overlay.Header';
 import { OverlayContents } from './Overlay.Contents';
 
@@ -21,7 +20,7 @@ export interface OverlayProps {
         exit?: object;
         transition?: object;
     };
-    showBackground?: boolean;
+    showCloseButton?: boolean;
     className?: string;
     children: React.ReactNode;
     containerRef?: React.RefObject<HTMLDivElement | null>;
@@ -101,7 +100,7 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
     size = 'md',
     position = 'center',
     animation,
-    showBackground = true,
+    showCloseButton = true,
     className,
     children,
     containerRef,
@@ -116,13 +115,12 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {showBackground && <OverlayBackground onClick={onClose} containerRef={containerRef} />}
                     <motion.div
                         className={cn('z-50 bg-stone-900 shadow-lg', sizeClasses, positionClasses, formatClasses, className)}
                         {...finalAnimation}
                     >
                         <div className="flex h-full flex-col">
-                            <OverlayHeader title={title} subtitle={subtitle} onClose={onClose} />
+                            <OverlayHeader title={title} subtitle={subtitle} onClose={showCloseButton ? onClose : undefined} />
                             <OverlayContents>{children}</OverlayContents>
                         </div>
                     </motion.div>

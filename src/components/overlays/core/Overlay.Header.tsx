@@ -37,7 +37,7 @@ export const OverlayHeader: React.FC<OverlayHeaderProps> = ({
     if (!title && !subtitle && !onClose) return null;
 
     return (
-        <div className={cn('relative', PADDING_CLASSES[padding], showBorder && 'border-b border-stone-800', className)}>
+        <div className={cn('relative flex flex-col', PADDING_CLASSES[padding], showBorder && 'border-b border-stone-800', className)}>
             {title && (typeof title === 'string' ? <OverlayTitle {...titleProps}>{title}</OverlayTitle> : title)}
             {subtitle && (typeof subtitle === 'string' ? <OverlaySubtitle {...subtitleProps}>{subtitle}</OverlaySubtitle> : subtitle)}
             {onClose && (
