@@ -72,6 +72,7 @@ Planned changes:
 1. Schema Updates:
 
     - ✅ Add total_win field to bonus_spins table (jsonb type)
+    - ✅ Add in_progress field to bonus_spins table (boolean type)
 
 2. Win Tracking:
 
@@ -79,6 +80,7 @@ Planned changes:
     - ✅ Updated spinSlotMachine to track total wins
     - ✅ Implemented win aggregation logic
     - ✅ Added total_win to SpinResult interface
+    - ✅ Update auto-spin logic to use in_progress field
 
 3. UI Updates:
 
@@ -86,13 +88,18 @@ Planned changes:
     - ✅ Added new props for total win display
     - ✅ Updated RustySlots.Container.tsx to show total wins
     - ✅ Added total win modal state and display logic
+    - ✅ Update auto-spin pause logic to check in_progress
 
 ## Current Proposed Solution
 
 1. Schema Update:
 
     - ✅ Added total_win as jsonb field to track accumulated wins
-    - ✅ Format: { item: string, full_name: string, quantity: number }[]
+    - ✅ Added in_progress field:
+        - Boolean type, default false
+        - Set to true when bonus round starts
+        - Set to false when bonus round ends
+        - Used to control auto-spin behavior
 
 2. Win Display:
 
@@ -112,29 +119,34 @@ Planned changes:
     - ✅ Update bonus_spins table on each spin
     - ✅ Aggregate quantities for same items
     - ✅ Store in standardized format matching payout structure
+    - ✅ Update bonus round tracking:
+        - Set in_progress true when bonus starts
+        - Set in_progress false when bonus ends
+        - Use in_progress to control auto-spin pause
 
 ## Next Steps
 
-1. Testing and Validation:
+1. Testing:
 
-    - Test bonus round completion flow
-    - Verify win aggregation accuracy
-    - Test edge cases:
-        - Interrupted bonus rounds
-        - Multiple bonus rounds
-        - Server disconnections
-    - Manual review of UI/UX flow
+    - Test auto-spin behavior:
+        - Verify auto-spins continue outside bonus rounds
+        - Verify auto-spins pause on final bonus spin
+        - Test transition between normal and bonus play
+    - Test bonus round completion:
+        - Verify total win display
+        - Check in_progress state changes
+        - Validate win aggregation
 
 2. Documentation:
 
-    - Add comments explaining total win logic
-    - Document timing of modal displays
-    - Update component documentation
+    - Update comments in RustySlots.Actions.ts
+    - Document in_progress field usage
+    - Add debug logging for state transitions
 
 3. Future Improvements:
 
-    - Consider adding animation transitions between modals
-    - Add persistence for interrupted bonus rounds
+    - Consider adding persistence for interrupted bonus rounds
+    - Add visual indicator for bonus round state
     - Consider adding win history feature
 
 ## Current Unresolved Issues
@@ -146,6 +158,10 @@ Planned changes:
     - ✅ Modal conflicts prevented with timing delays
     - ✅ User departure handled by state reset
     - Future consideration: Add persistence for interrupted rounds
+5. ✅ Auto-spin state handling:
+    - ✅ Only pause on final bonus spin
+    - ✅ Allow normal auto-spin behavior outside bonus rounds
+    - ✅ Handle transition between bonus and normal play
 
 ## Change Log
 
@@ -239,3 +255,21 @@ Planned changes:
 -   Added overlay cleanup at start of spin
 -   Closes all overlays before starting new spin
 -   Added explicit showCloseButton for total win modal
+
+[2024-01-02] Auto-Spin Logic Enhancement with in_progress Field
+
+-   Added in_progress field to bonus_spins table:
+    -   Boolean type with default false
+    -   Tracks active bonus round state
+    -   Controls auto-spin pause behavior
+-   Updated auto-spin logic:
+    -   Only pause when spins_remaining === 0 AND in_progress === true
+    -   Allows normal auto-spin behavior outside bonus rounds
+-   Updated SpinResult interface:
+    -   Added inProgress field
+    -   Used for client-side auto-spin control
+-   Modified server actions:
+    -   Set in_progress true when bonus starts
+    -   Set in_progress false when bonus ends
+    -   Include in_progress in spin result
+-   Updated SPEC to reflect completed changes
