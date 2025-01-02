@@ -7,14 +7,14 @@ import Image from 'next/image';
 
 // Steam Sign in
 import SteamSignInModal from '@/components/SteamSignInModal';
-import { useSteamUser } from '@/stores/steam_user_store';
+import { useSteamUser } from '@/stores/Store.SteamUser';
 
 // Slot actions / state
-import { useSlotGame } from '@/stores/slot_game_store';
+import { useSlotGame } from '@/stores/Store.Games.RustySlots';
 import { spinSlotMachine, setSlotBonusType, checkPendingBonus, getRecentSlotWinners } from './RustySlots.Actions';
 
 // Slot Constants
-import { SYMBOL_IMAGE_PATHS } from '@/app/games/rusty-slots/RustySlots.Constants';
+import { BASE_PAYOUTS, SYMBOL_IMAGE_PATHS } from '@/app/games/rusty-slots/RustySlots.Constants';
 
 // Slot Utils
 import { getRandomSymbol } from '@/app/games/rusty-slots/RustySlots.Utils';
@@ -26,7 +26,10 @@ import { BaseGameControls } from '@/components/games/base/BaseGame.Controls';
 import { RustySlotsSoundManager } from '@/components/games/rusty-slots/RustySlots.SoundManager';
 import { SlotRecentWinners } from '@/components/games/rusty-slots/RustySlots.RecentWinners';
 import { BaseGameConfettiOverlay } from '@/components/games/base/BaseGame.ConfettiOverlay';
-import { RustySlotsBonusModal } from '@/components/games/rusty-slots/RustySlots.BonusModal';
+
+// Overlays
+import { ModalBonus } from '@/components/overlays/templates/Modal.Bonus';
+import { ModalWin } from '@/components/overlays/templates/Modal.Win';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -102,6 +105,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     // Refs
     const winOverlayRef = useRef<HTMLDivElement>(null);
     const autoSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const row1Ref = useRef<HTMLDivElement>(null);
     const soundManagerRef = useRef<{
         playHandlePull: () => void;
         playSpinStart: () => void;
@@ -474,9 +478,21 @@ export const RustySlotsContainer = function RustySlotsContainer() {
 
     const sound_manager = <RustySlotsSoundManager ref={soundManagerRef} isMuted={!soundEnabled} volume={volume} />;
 
+    // Add an effect to ensure volume is set on mount
+    useEffect(() => {
+        if (soundManagerRef.current) {
+            soundManagerRef.current.stopAllSounds();
+        }
+    }, []); // Empty dependency array means this runs once on mount
+
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
-            <SlotContainer slot_grid={slot_grid} slot_controls={slot_controls} slot_recent_winners={slot_recent_winners} />
+            <SlotContainer
+                slot_grid={slot_grid}
+                slot_controls={slot_controls}
+                slot_recent_winners={slot_recent_winners}
+                row1Ref={row1Ref}
+            />
 
             {/* Sound Manager */}
             {sound_manager}
@@ -497,51 +513,49 @@ export const RustySlotsContainer = function RustySlotsContainer() {
 
             {/* Win Overlay */}
             <AnimatePresence>
-                {showOverlay && result && (
-                    <div
-                        ref={winOverlayRef}
-                        className="absolute inset-0 z-50 flex items-center justify-center"
-                        style={{
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: '80%',
-                            maxWidth: '600px',
-                            height: 'auto',
-                            pointerEvents: 'none',
-                        }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            className="rounded-lg bg-stone-700 bg-opacity-90 p-8 text-center"
-                        >
-                            <h2 className="mb-4 text-4xl font-bold">You Won!</h2>
-                            <div className="space-y-2">
-                                {result.payout?.map((item: { quantity: number; full_name: string; item: string }, index: number) => (
-                                    <div key={index} className="flex items-center justify-center space-x-2">
-                                        <span className="text-2xl">{item.quantity}x</span>
-                                        <span className="text-2xl">{item.full_name}</span>
-                                        <Image src={SYMBOL_IMAGE_PATHS[item.item]} alt={item.full_name} width={32} height={32} />
-                                    </div>
-                                ))}
-                                {result.bonusSpinsAwarded > 0 && (
-                                    <div className="flex items-center justify-center space-x-2">
-                                        <span className="text-2xl text-yellow-400">{result.bonusSpinsAwarded}x Free Spins</span>
-                                        <Image src="/rust_icons/bonus_symbol.png" alt="Bonus Spins" width={32} height={32} />
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
+                <ModalWin<{ payout: Array<{ item: string; quantity: number; full_name: string }>; bonusSpinsAwarded: number }>
+                    isOpen={showOverlay && result !== null}
+                    onClose={() => setShowOverlay(false)}
+                    result={result}
+                    showConfetti={showConfetti}
+                    onConfettiComplete={() => setShowConfetti(false)}
+                    containerRef={row1Ref}
+                    mapResultToWinItems={(result) => {
+                        const winItems = [];
+
+                        // Add payout items
+                        if (result.payout) {
+                            result.payout.forEach((item) => {
+                                const baseItem = BASE_PAYOUTS[item.item];
+                                winItems.push({
+                                    quantity: item.quantity,
+                                    displayName: item.full_name,
+                                    imagePath: SYMBOL_IMAGE_PATHS[item.item],
+                                    inGameName: baseItem?.item,
+                                });
+                            });
+                        }
+
+                        // Add bonus spins if awarded
+                        if (result.bonusSpinsAwarded > 0) {
+                            winItems.push({
+                                quantity: result.bonusSpinsAwarded,
+                                displayName: 'Free Spins',
+                                imagePath: SYMBOL_IMAGE_PATHS.bonus,
+                                inGameName: 'bonus_spins',
+                            });
+                        }
+
+                        return winItems;
+                    }}
+                />
             </AnimatePresence>
 
             {/* Confetti Overlay */}
             <BaseGameConfettiOverlay
                 isVisible={showConfetti}
                 onComplete={() => setShowConfetti(false)}
+                containerRef={row1Ref}
                 config={{
                     numberOfPieces: 200,
                     gravity: 0.2,
@@ -552,13 +566,39 @@ export const RustySlotsContainer = function RustySlotsContainer() {
 
             {/* Bonus Type Selection Modal */}
             <AnimatePresence>
-                {showBonusModal && (
-                    <RustySlotsBonusModal
-                        onSelect={handleBonusTypeSelection}
-                        showConfetti={showConfetti}
-                        onConfettiComplete={() => setShowConfetti(false)}
-                    />
-                )}
+                {/* Bonus Type Selection Modal */}
+                <ModalBonus<'normal' | 'sticky'>
+                    isOpen={showBonusModal}
+                    onSelect={handleBonusTypeSelection}
+                    onClose={() => setShowBonusModal(false)}
+                    showConfetti={showConfetti}
+                    onConfettiComplete={() => setShowConfetti(false)}
+                    containerRef={row1Ref}
+                    title="You Won Free Spins!"
+                    subtitle="Select Your Bonus Type"
+                    options={[
+                        {
+                            type: 'normal',
+                            imagePath: '/rust_icons/normal_bonus_banner.png',
+                            imageAlt: 'Normal Bonus',
+                            description: 'More spins, lower volatility. Multipliers do not stick for all spins.',
+                            imageWidth: 300,
+                            imageHeight: 100,
+                            mobileImageWidth: 200,
+                            mobileImageHeight: 75,
+                        },
+                        {
+                            type: 'sticky',
+                            imagePath: '/rust_icons/sticky_bonus_banner.png',
+                            imageAlt: 'Sticky Bonus',
+                            description: 'Less spins, higher volatility. Multipliers will stay in place for all spins.',
+                            imageWidth: 300,
+                            imageHeight: 100,
+                            mobileImageWidth: 200,
+                            mobileImageHeight: 75,
+                        },
+                    ]}
+                />
             </AnimatePresence>
 
             {/* Error Message */}

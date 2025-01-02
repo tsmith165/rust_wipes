@@ -29,6 +29,16 @@ export const RustySlotsSoundManager = forwardRef<RustySlotsSoundManagerRef, Rust
     const win3Ref = useRef<HTMLAudioElement>(null);
     const bonusWonRef = useRef<HTMLAudioElement>(null);
 
+    // Set initial volume on mount and when volume changes
+    React.useEffect(() => {
+        const audioRefs = [handlePullRef, spinStartRef, spinEndRef, win1Ref, win2Ref, win3Ref, bonusWonRef];
+        audioRefs.forEach((ref) => {
+            if (ref.current) {
+                ref.current.volume = isMuted ? 0 : volume;
+            }
+        });
+    }, [volume, isMuted]);
+
     useImperativeHandle(ref, () => ({
         playHandlePull() {
             if (isMuted) return;

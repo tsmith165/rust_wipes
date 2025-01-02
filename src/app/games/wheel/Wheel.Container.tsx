@@ -4,13 +4,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Steam Auth
-import { useSteamUser } from '@/stores/steam_user_store';
+import { useSteamUser } from '@/stores/Store.SteamUser';
 import SteamSignInModal from '@/components/SteamSignInModal';
 
 // Wheel Game Logic / State
 import { spinWheel, createBonusSpinRecord, checkPendingBonus } from './Wheel.Actions';
 import { setSlotBonusType } from '@/app/games/rusty-slots/RustySlots.Actions';
-import { useWheelStore } from './Wheel.Store';
+import { useWheelStore } from '@/stores/Store.Games.Wheel';
 
 // Slot Game Components
 import { SlotContainer } from '@/components/games/base/BaseGame.Container';
@@ -18,14 +18,15 @@ import { BaseGameControls } from '@/components/games/base/BaseGame.Controls';
 import { BaseGameConfettiOverlay } from '@/components/games/base/BaseGame.ConfettiOverlay';
 
 // Wheel Game Components
-import { WheelBonusModal } from '@/components/games/wheel/Wheel.BonusModal';
 import { WheelDisplay } from '@/components/games/wheel/Wheel.Display';
-import { WheelWinOverlay } from '@/components/games/wheel/Wheel.WinOverlay';
 import { WheelRecentWinners } from '@/components/games/wheel/Wheel.RecentWinners';
 import { WheelSoundManager, WheelSoundManagerRef } from '@/components/games/wheel/Wheel.SoundManager';
+import { SPIN_COST, WheelPayout, ITEM_IMAGE_PATHS } from './Wheel.Constants';
 
-import { SPIN_COST, WheelPayout } from './Wheel.Constants';
-import { BonusInProgressOverlay } from '@/components/games/wheel/Wheel.BonusInProgressOverlay';
+// Overlays
+import { ModalBonus } from '@/components/overlays/templates/Modal.Bonus';
+import { ModalWin } from '@/components/overlays/templates/Modal.Win';
+import { ModalBonusInProgress } from '@/components/overlays/templates/Modal.BonusInProgress';
 
 export function WheelContainer() {
     const router = useRouter();
@@ -79,6 +80,7 @@ export function WheelContainer() {
 
     // Refs
     const soundManagerRef = useRef<WheelSoundManagerRef>(null);
+    const row1Ref = useRef<HTMLDivElement>(null);
 
     // Initialize user data and check bonus status
     useEffect(() => {
@@ -311,11 +313,22 @@ export function WheelContainer() {
     // Sound manager component
     const sound_manager = <WheelSoundManager ref={soundManagerRef} isMuted={!soundEnabled} volume={volume} />;
 
+    // Add an effect to ensure volume is set on mount
+    useEffect(() => {
+        if (soundManagerRef.current) {
+            soundManagerRef.current.stopAllSounds();
+        }
+    }, []); // Empty dependency array means this runs once on mount
+
     return (
         <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
-            <SlotContainer slot_grid={wheel_display} slot_controls={wheel_controls} slot_recent_winners={wheel_recent_winners} />
+            <SlotContainer
+                slot_grid={wheel_display}
+                slot_controls={wheel_controls}
+                slot_recent_winners={wheel_recent_winners}
+                row1Ref={row1Ref}
+            />
             {sound_manager}
-
             {/* Sign-In Modal */}
             {!isVerified && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -329,20 +342,70 @@ export function WheelContainer() {
                     />
                 </div>
             )}
-
             {/* Win Overlay */}
-            <WheelWinOverlay result={result} isVisible={showWinOverlay} onComplete={() => setShowWinOverlay(false)} />
-
+            <ModalWin<{ payout: { displayName: string; inGameName: string } }>
+                isOpen={showWinOverlay}
+                onClose={() => setShowWinOverlay(false)}
+                result={result}
+                showConfetti={showConfetti}
+                onConfettiComplete={() => setShowConfetti(false)}
+                containerRef={row1Ref}
+                mapResultToWinItems={(result) => [
+                    {
+                        displayName: result.payout.displayName,
+                        imagePath: ITEM_IMAGE_PATHS[result.payout.displayName as WheelPayout],
+                        inGameName: result.payout.inGameName,
+                    },
+                ]}
+            />
             {/* Bonus Modal */}
-            <WheelBonusModal isVisible={showBonusModal} onClose={() => setShowBonusModal(false)} onBonusSelect={handleBonusSelect} />
+            <ModalBonus<'normal' | 'sticky'>
+                isOpen={showBonusModal}
+                onSelect={handleBonusSelect}
+                onClose={() => setShowBonusModal(false)}
+                title="You Won a Bonus!"
+                subtitle="Choose Your Bonus Type"
+                options={[
+                    {
+                        type: 'normal',
+                        imagePath: '/rust_icons/normal_bonus_banner.png',
+                        imageAlt: 'Normal Bonus',
+                        description: 'More spins, lower volatility. Multipliers do not stick for all spins.',
+                        imageWidth: 300,
+                        imageHeight: 100,
+                        mobileImageWidth: 150,
+                        mobileImageHeight: 50,
+                    },
+                    {
+                        type: 'sticky',
+                        imagePath: '/rust_icons/sticky_bonus_banner.png',
+                        imageAlt: 'Sticky Bonus',
+                        description: 'Less spins, higher volatility. Multipliers will stay in place for all spins.',
+                        imageWidth: 300,
+                        imageHeight: 100,
+                        mobileImageWidth: 150,
+                        mobileImageHeight: 50,
+                    },
+                ]}
+                showConfetti={showConfetti}
+                onConfettiComplete={() => setShowConfetti(false)}
+                containerRef={row1Ref}
+            />
 
             {/* Bonus In Progress Overlay */}
-            <BonusInProgressOverlay isVisible={bonusInProgress} bonusType={bonusType} spinsRemaining={spinsRemaining} />
+            <ModalBonusInProgress
+                isOpen={bonusInProgress}
+                onClose={() => setBonusInProgress(false)}
+                bonusType={bonusType}
+                spinsRemaining={spinsRemaining}
+                containerRef={row1Ref}
+            />
 
             {/* Confetti Overlay */}
             <BaseGameConfettiOverlay
                 isVisible={showConfetti}
                 onComplete={() => setShowConfetti(false)}
+                containerRef={row1Ref}
                 config={{
                     numberOfPieces: 200,
                     gravity: 0.2,

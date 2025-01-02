@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { useSlotGame } from '@/stores/slot_game_store';
+import { useSlotGame } from '@/stores/Store.Games.RustySlots';
 import { RustySlotsWinningLines } from './RustySlots.WinningLines';
 
 // Constants

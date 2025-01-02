@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { BiSolidDownArrow } from 'react-icons/bi';
 import { cn } from '@/lib/utils';
-import { useWheelStore } from '@/app/games/wheel/Wheel.Store';
+import { useWheelStore } from '@/stores/Store.Games.Wheel';
 import { WHEEL_SLOTS, COLOR_CODES, ITEM_IMAGE_PATHS, PAYOUTS } from '@/app/games/wheel/Wheel.Constants';
 import { WheelSoundManagerRef } from './Wheel.SoundManager';
 

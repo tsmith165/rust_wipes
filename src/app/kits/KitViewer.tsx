@@ -12,7 +12,7 @@ import { KitsWithExtraImages } from '@/db/schema';
 import KitItemView from './KitItemView';
 import FullScreenView from './FullScreenView';
 import SelectedKitView from './SelectedKitView';
-import KitPhilosophy from './KitPhilosophy';
+import { ModalPhilosophy } from '@/components/overlays/templates/Modal.Philosophy';
 
 interface KitViewerProps {
     kits: KitsWithExtraImages[];
@@ -23,6 +23,7 @@ interface KitViewerProps {
 
 const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initialSelectedType, searchParams }) => {
     const router = useRouter();
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const [selectedKitIndex, setSelectedKitIndex] = useState<number | null>(null);
     const [selectedType, setSelectedType] = useState(initialSelectedType);
@@ -169,9 +170,10 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     }
 
     return (
-        <div className="radial-gradient-stone-600 flex h-fit w-full flex-col bg-stone-950">
-            <div className="mx-auto w-full max-w-7xl">
-                {showPhilosophy && <KitPhilosophy onClose={() => setShowPhilosophy(false)} />}
+        <div className="radial-gradient-stone-600 flex h-fit w-full flex-col items-center bg-stone-950">
+            <ModalPhilosophy isOpen={showPhilosophy} onClose={() => setShowPhilosophy(false)} containerRef={containerRef} />
+
+            <div ref={containerRef} className="w-full lg:w-[90dvw]">
                 <div className="flex justify-center space-x-2 pt-4 xs:space-x-4">
                     {typeOptions.map((type) => (
                         <button

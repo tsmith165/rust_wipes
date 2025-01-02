@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useSlotGame } from '@/stores/slot_game_store';
+import { useSlotGame } from '@/stores/Store.Games.RustySlots';
 import { WINNING_LINES } from '@/app/games/rusty-slots/RustySlots.Constants';
 import { cn } from '@/lib/utils';
 

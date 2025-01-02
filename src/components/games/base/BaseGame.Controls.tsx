@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { FaCoins, FaPlay, FaPause, FaInfoCircle, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
-import { useSlotGame } from '@/stores/slot_game_store';
+import { useSlotGame } from '@/stores/Store.Games.RustySlots';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 

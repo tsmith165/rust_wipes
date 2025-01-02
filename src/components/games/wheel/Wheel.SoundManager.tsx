@@ -23,9 +23,10 @@ export const WheelSoundManager = forwardRef<WheelSoundManagerRef, WheelSoundMana
     const spinStartRef = useRef<HTMLAudioElement>(null);
     const winSoundRef = useRef<HTMLAudioElement>(null);
 
-    // Update volume for all audio elements when it changes
+    // Set initial volume on mount and when volume changes
     React.useEffect(() => {
-        [spinStartRef, winSoundRef].forEach((ref) => {
+        const audioRefs = [spinStartRef, winSoundRef];
+        audioRefs.forEach((ref) => {
             if (ref.current) {
                 ref.current.volume = isMuted ? 0 : volume;
             }
