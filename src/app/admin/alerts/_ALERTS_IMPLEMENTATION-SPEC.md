@@ -68,8 +68,6 @@ Create an admin-protected alerts management system that:
         Alert.Header.Icon.tsx ✓
         Alert.Header.Title.tsx ✓
         Alert.Content.tsx ✓
-        Alert.Controls.tsx ✓
-        Alert.Controls.Button.tsx ✓
   /utils
     /emails
       /templates
@@ -78,6 +76,25 @@ Create an admin-protected alerts management system that:
     Store.Alerts.ts ✓
 ```
 
+### Database Schema
+
+New table `rw_alerts`:
+
+-   id: serial (primary key)
+-   server_id: varchar (server port)
+-   title: varchar
+-   message: text
+-   timestamp: timestamp (default: now)
+-   active: boolean (default: true)
+-   sent: boolean (default: false)
+-   icon: varchar (default icon from react-icons)
+-   severity: enum ('low', 'medium', 'high')
+-   type: enum ('system', 'user', 'maintenance')
+-   archived_at: timestamp (nullable)
+-   archived_by: varchar (clerk user id)
+
+## Current Proposed Solution
+
 ### Core Components
 
 1. Alert Container: Main wrapper with Framer Motion animations
@@ -85,19 +102,11 @@ Create an admin-protected alerts management system that:
 3. Alert Content: Displays message and archive info
 4. Alert Email Template: React Email component for consistent email styling
 5. Cron Job: Processes unsent alerts every minute (force-dynamic, no caching)
-6. Alert Controls: Manages alert actions with tooltips and icons
-7. Alert Control Button: Reusable button component with variants
-
-### Button Variants
-
-1. Default: `bg-stone-300 text-primary_light hover:bg-stone-500 hover:text-primary`
-2. Error: `bg-primary_light text-stone-950 hover:bg-primary_dark hover:text-stone-300`
-3. Disabled: `bg-stone-100 text-primary hover:bg-stone-300 hover:text-primary_dark`
 
 ### State Management
 
 -   Zustand store: Manages alerts and active tab
--   Server actions: Handle data mutations and email resending
+-   Server actions: Handle data mutations
 -   NUQS: URL state for tab management
 -   React cache: Server-side data caching
 -   Vercel Cron: Background alert processing (uncached)
@@ -112,24 +121,19 @@ Create an admin-protected alerts management system that:
     - Send emails via Resend
     - Update sent status
     - Return timestamped response
-4. User can manually trigger email resend:
-    - Checks admin permissions
-    - Sends email with (Resent) tag
-    - Updates alert status
-    - Revalidates page
+4. Returns data to client
 
 ## Next Steps
 
-1. Test resend email functionality
-2. Verify tooltip positioning
-3. Test button variants in different states
-4. Update documentation with new controls
+1. Deploy to Vercel to activate cron job
+2. Verify cron responses show different timestamps
+3. Monitor email sending in production
+4. Update documentation with cron job details
 
 ## Current Unresolved Issues
 
 1. Need to verify cron job processes fresh data each time
 2. Need to verify Resend email functionality in production environment
-3. Need to test tooltip behavior on mobile devices
 
 ## Change Log
 
@@ -157,9 +161,3 @@ Create an admin-protected alerts management system that:
 -   Added force-dynamic and no-store directives
 -   Added response timestamps for verification
 -   Updated documentation with caching prevention details
--   Added Alert.Controls.Button component with variants
--   Added Alert.Controls component for unified action management
--   Updated Alert.Container to use new controls
--   Added resendAlertEmail server action
--   Added tooltips and icons for better UX
--   Updated documentation with new control components
