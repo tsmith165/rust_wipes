@@ -341,7 +341,6 @@ export const giveaway_rewards = pgTable('giveaway_rewards', {
     player_name: varchar('player_name').notNull(),
     reward_permission: varchar('reward_permission').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
-    granted: boolean('granted').notNull().default(false),
 });
 
 export type GiveawayRewards = InferSelectModel<typeof giveaway_rewards>;
