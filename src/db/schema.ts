@@ -338,6 +338,7 @@ export type InsertPlayerStatsHistory = InferInsertModel<typeof player_stats_hist
 export const giveaway_rewards = pgTable('giveaway_rewards', {
     id: serial('id').primaryKey(),
     steam_id: varchar('steam_id').notNull(),
+    player_name: varchar('player_name').notNull(),
     reward_permission: varchar('reward_permission').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
     granted: boolean('granted').notNull().default(false),
