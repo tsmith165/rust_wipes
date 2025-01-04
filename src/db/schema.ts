@@ -345,3 +345,25 @@ export const giveaway_rewards = pgTable('giveaway_rewards', {
 
 export type GiveawayRewards = InferSelectModel<typeof giveaway_rewards>;
 export type InsertGiveawayRewards = InferInsertModel<typeof giveaway_rewards>;
+
+export const rw_alerts = pgTable('rw_alerts', {
+    id: serial('id').primaryKey(),
+    server_id: varchar('server_id').notNull(),
+    title: varchar('title').notNull(),
+    message: text('message').notNull(),
+    timestamp: timestamp('timestamp').defaultNow(),
+    active: boolean('active').default(true),
+    sent: boolean('sent').default(false),
+    icon: varchar('icon').notNull().default('FaBell'),
+    severity: varchar('severity', { enum: ['low', 'medium', 'high'] })
+        .notNull()
+        .default('low'),
+    type: varchar('type', { enum: ['system', 'user', 'maintenance'] })
+        .notNull()
+        .default('system'),
+    archived_at: timestamp('archived_at'),
+    archived_by: varchar('archived_by'),
+});
+
+export type RwAlerts = InferSelectModel<typeof rw_alerts>;
+export type InsertRwAlerts = InferInsertModel<typeof rw_alerts>;
