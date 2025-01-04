@@ -101,7 +101,7 @@ New table `rw_alerts`:
 2. Alert Header: Combines Icon and Title components
 3. Alert Content: Displays message and archive info
 4. Alert Email Template: React Email component for consistent email styling
-5. Cron Job: Processes unsent alerts every minute
+5. Cron Job: Processes unsent alerts every minute (force-dynamic, no caching)
 
 ### State Management
 
@@ -109,28 +109,30 @@ New table `rw_alerts`:
 -   Server actions: Handle data mutations
 -   NUQS: URL state for tab management
 -   React cache: Server-side data caching
--   Vercel Cron: Background alert processing
+-   Vercel Cron: Background alert processing (uncached)
 
 ### Data Flow
 
 1. Page uses React cache for data fetching
 2. Fetches latest 20 alerts
 3. Cron job runs every minute to:
-    - Process unsent alerts
+    - Force dynamic route execution
+    - Process unsent alerts with fresh data
     - Send emails via Resend
     - Update sent status
+    - Return timestamped response
 4. Returns data to client
 
 ## Next Steps
 
 1. Deploy to Vercel to activate cron job
-2. Test cron job functionality in production
+2. Verify cron responses show different timestamps
 3. Monitor email sending in production
 4. Update documentation with cron job details
 
 ## Current Unresolved Issues
 
-1. Need to verify cron job functionality in production
+1. Need to verify cron job processes fresh data each time
 2. Need to verify Resend email functionality in production environment
 
 ## Change Log
@@ -155,3 +157,7 @@ New table `rw_alerts`:
 -   Configured cron job to run every minute
 -   Removed alert processing from page load
 -   Updated documentation with new cron-based approach
+-   Updated cron endpoint to prevent caching
+-   Added force-dynamic and no-store directives
+-   Added response timestamps for verification
+-   Updated documentation with caching prevention details

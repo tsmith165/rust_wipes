@@ -6,16 +6,29 @@ import { ALERT_EMAIL_RECIPIENTS } from '@/app/admin/alerts/Alerts.Constants';
 import React from 'react';
 import { render } from '@react-email/render';
 import AlertEmail from '@/utils/emails/templates/AlertEmail';
+import { headers } from 'next/headers';
+
+// Force dynamic route to prevent caching
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 // Vercel cron job handler
 export async function GET() {
+    // Force headers() call to make route dynamic
+    headers();
+
     try {
-        console.log('Starting cron job to process unsent alerts...');
+        console.log('Starting cron job to process unsent alerts...', new Date().toISOString());
         const unsentAlerts = await db.select().from(rw_alerts).where(eq(rw_alerts.sent, false)).orderBy(desc(rw_alerts.timestamp));
 
         if (unsentAlerts.length === 0) {
             console.log('No unsent alerts found');
-            return NextResponse.json({ message: 'No unsent alerts found' });
+            return new NextResponse(JSON.stringify({ message: 'No unsent alerts found', timestamp: new Date().toISOString() }), {
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    'Content-Type': 'application/json',
+                },
+            });
         }
 
         console.log(`Found ${unsentAlerts.length} unsent alerts`);
@@ -81,9 +94,33 @@ export async function GET() {
             }
         }
         console.log('Finished processing unsent alerts');
-        return NextResponse.json({ message: 'Successfully processed alerts' });
+        return new NextResponse(
+            JSON.stringify({
+                message: 'Successfully processed alerts',
+                timestamp: new Date().toISOString(),
+                processedCount: unsentAlerts.length,
+            }),
+            {
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
     } catch (error) {
         console.error('Error in cron job:', error);
-        return NextResponse.json({ error: 'Failed to process alerts' }, { status: 500 });
+        return new NextResponse(
+            JSON.stringify({
+                error: 'Failed to process alerts',
+                timestamp: new Date().toISOString(),
+            }),
+            {
+                status: 500,
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
     }
 }
