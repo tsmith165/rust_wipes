@@ -334,3 +334,14 @@ export const player_stats_history = pgTable('player_stats_history', {
 
 export type PlayerStatsHistory = InferSelectModel<typeof player_stats_history>;
 export type InsertPlayerStatsHistory = InferInsertModel<typeof player_stats_history>;
+
+export const giveaway_rewards = pgTable('giveaway_rewards', {
+    id: serial('id').primaryKey(),
+    steam_id: varchar('steam_id').notNull(),
+    reward_permission: varchar('reward_permission').notNull(),
+    timestamp: timestamp('timestamp').defaultNow(),
+    granted: boolean('granted').notNull().default(false),
+});
+
+export type GiveawayRewards = InferSelectModel<typeof giveaway_rewards>;
+export type InsertGiveawayRewards = InferInsertModel<typeof giveaway_rewards>;

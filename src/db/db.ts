@@ -22,6 +22,7 @@ import {
     referrals,
     referral_rewards,
     player_stats_history,
+    giveaway_rewards,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -49,4 +50,5 @@ export {
     referrals,
     referral_rewards,
     player_stats_history,
+    giveaway_rewards,
 };
