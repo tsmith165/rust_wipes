@@ -3,7 +3,7 @@
 import { db, rw_alerts } from '@/db/db';
 import { RwAlerts } from '@/db/schema';
 import { desc, eq } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { auth } from '@clerk/nextjs/server';
 import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 import { sendEmail } from '@/utils/emails/resend_utils';
@@ -11,6 +11,7 @@ import { ALERT_EMAIL_RECIPIENTS } from './Alerts.Constants';
 import React from 'react';
 import { render } from '@react-email/render';
 import AlertEmail from '@/utils/emails/templates/AlertEmail';
+import { unstable_cache } from 'next/cache';
 
 async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string }> {
     const { userId } = await auth();
@@ -24,18 +25,25 @@ async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string }> {
     return { isAdmin: true };
 }
 
-export async function getAlerts(): Promise<RwAlerts[]> {
-    const { isAdmin, error } = await checkUserRole();
-    if (!isAdmin) {
-        console.error(error);
-        return [];
-    }
+export const getAlerts = unstable_cache(
+    async (): Promise<RwAlerts[]> => {
+        const { isAdmin, error } = await checkUserRole();
+        if (!isAdmin) {
+            console.error(error);
+            return [];
+        }
 
-    // Process any unsent alerts before returning
-    await processUnsentAlerts();
+        // Process any unsent alerts before returning
+        await processUnsentAlerts();
 
-    return await db.select().from(rw_alerts).orderBy(desc(rw_alerts.timestamp)).limit(20);
-}
+        return await db.select().from(rw_alerts).orderBy(desc(rw_alerts.timestamp)).limit(20);
+    },
+    ['alerts-list'],
+    {
+        revalidate: 60, // Revalidate every 60 seconds
+        tags: ['alerts'], // Tag for manual revalidation
+    },
+);
 
 export async function archiveAlert(alertId: number): Promise<void> {
     const { isAdmin, error } = await checkUserRole();
@@ -57,6 +65,7 @@ export async function archiveAlert(alertId: number): Promise<void> {
         .where(eq(rw_alerts.id, alertId));
 
     revalidatePath('/admin/alerts');
+    revalidateTag('alerts'); // Revalidate the cache
 }
 
 export async function restoreAlert(alertId: number): Promise<void> {
@@ -76,6 +85,7 @@ export async function restoreAlert(alertId: number): Promise<void> {
         .where(eq(rw_alerts.id, alertId));
 
     revalidatePath('/admin/alerts');
+    revalidateTag('alerts'); // Revalidate the cache
 }
 
 async function processUnsentAlerts(): Promise<void> {

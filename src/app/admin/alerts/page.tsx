@@ -41,5 +41,5 @@ export default async function AlertsPage() {
     );
 }
 
-// Enable revalidation every 60 seconds
+// This is still useful for static generation intervals
 export const revalidate = 60;
