@@ -10,7 +10,7 @@ interface AlertHeaderProps {
 
 export function AlertHeader({ alert }: AlertHeaderProps) {
     return (
-        <div className="flex items-start">
+        <div className="flex items-center">
             <AlertHeaderIcon severity={alert.severity} />
             <AlertHeaderTitle alert={alert} />
         </div>
