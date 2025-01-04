@@ -56,6 +56,10 @@ Create an admin-protected alerts management system that:
         Alerts.Container.tsx ✓
         Alerts.Actions.ts ✓
         Alerts.Constants.ts ✓
+    /api
+      /cron
+        /process-alerts
+          route.ts ✓
   /components
     /ui
       /alerts
@@ -97,37 +101,37 @@ New table `rw_alerts`:
 2. Alert Header: Combines Icon and Title components
 3. Alert Content: Displays message and archive info
 4. Alert Email Template: React Email component for consistent email styling
+5. Cron Job: Processes unsent alerts every minute
 
 ### State Management
 
 -   Zustand store: Manages alerts and active tab
--   Server actions: Handle data mutations and email sending
+-   Server actions: Handle data mutations
 -   NUQS: URL state for tab management
 -   React cache: Server-side data caching
+-   Vercel Cron: Background alert processing
 
 ### Data Flow
 
 1. Page uses React cache for data fetching
 2. Fetches latest 20 alerts
-3. Processes unsent alerts
-4. Sends emails via Resend using React Email template
-5. Updates sent status
-6. Returns data to client
+3. Cron job runs every minute to:
+    - Process unsent alerts
+    - Send emails via Resend
+    - Update sent status
+4. Returns data to client
 
 ## Next Steps
 
-1. Migrate from unstable_cache to use cache directive:
-    - Update Alerts.Actions.ts to use React cache
-    - Remove unstable_cache wrapper
-    - Update page.tsx to handle cached data
-2. Test caching behavior in development and production
-3. Verify admin protection works with new caching
-4. Update documentation with new caching approach
+1. Deploy to Vercel to activate cron job
+2. Test cron job functionality in production
+3. Monitor email sending in production
+4. Update documentation with cron job details
 
 ## Current Unresolved Issues
 
-1. Migration from unstable_cache to use cache directive required
-2. Need to verify Resend email functionality in development environment
+1. Need to verify cron job functionality in production
+2. Need to verify Resend email functionality in production environment
 
 ## Change Log
 
@@ -146,3 +150,8 @@ New table `rw_alerts`:
 -   Identified need to migrate from unstable_cache to use cache directive
 -   Updated SPEC to reflect new caching approach
 -   Planning implementation of React cache for data fetching
+-   Migrated alert processing to Vercel Cron job
+-   Created /api/cron/process-alerts endpoint
+-   Configured cron job to run every minute
+-   Removed alert processing from page load
+-   Updated documentation with new cron-based approach
