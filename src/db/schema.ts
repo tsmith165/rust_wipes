@@ -181,18 +181,19 @@ export type InsertServerPerformance = InferInsertModel<typeof server_performance
 
 export const next_wipe_info = pgTable('next_wipe_info', {
     id: serial('id').primaryKey(),
+    bm_id: varchar('bm_id'),
     server_id: varchar('server_id').notNull(),
+    server_name: varchar('server_name'),
     server_uuid: varchar('server_uuid'),
-    level_url: text('level_url').notNull(),
-    map_seed: integer('map_seed'),
-    map_size: integer('map_size'),
-    map_name: varchar('map_name'),
-    is_queued: boolean('is_queued').notNull().default(false),
     rcon_port: integer('rcon_port'),
     rcon_password: text('rcon_password'),
     last_restart: timestamp('last_restart'),
     last_wipe: timestamp('last_wipe'),
-    server_name: varchar('server_name'),
+    is_queued: boolean('is_queued').notNull().default(false),
+    level_url: text('level_url').notNull(),
+    map_seed: integer('map_seed'),
+    map_size: integer('map_size'),
+    map_name: varchar('map_name'),
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
