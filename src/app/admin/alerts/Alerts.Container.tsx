@@ -7,7 +7,7 @@ import { ALERT_TABS } from './Alerts.Constants';
 import { AlertContainer } from '@/components/ui/alerts/Alert.Container';
 import { AlertHeader } from '@/components/ui/alerts/Alert.Header';
 import { AlertContent } from '@/components/ui/alerts/Alert.Content';
-import { archiveAlert, resendAlertEmail, restoreAlert } from './Alerts.Actions';
+import { archiveAlert, restoreAlert, resendAlertEmail } from './Alerts.Actions';
 import { useQueryState } from 'nuqs';
 
 interface AlertsContainerProps {
@@ -36,10 +36,6 @@ export function AlertsContainer({ initialAlerts }: AlertsContainerProps) {
 
     const handleRestore = async (alertId: number) => {
         await restoreAlert(alertId);
-    };
-
-    const handleResendEmail = async (alertId: number) => {
-        await resendAlertEmail(alertId);
     };
 
     return (
@@ -77,7 +73,7 @@ export function AlertsContainer({ initialAlerts }: AlertsContainerProps) {
                             alert={alert}
                             onArchive={activeTab === ALERT_TABS.CURRENT ? () => handleArchive(alert.id) : undefined}
                             onRestore={activeTab === ALERT_TABS.HISTORY ? () => handleRestore(alert.id) : undefined}
-                            onResendEmail={() => handleResendEmail(alert.id)}
+                            onResendEmail={() => resendAlertEmail(alert.id)}
                         >
                             <AlertHeader alert={alert} />
                             <AlertContent alert={alert} />
