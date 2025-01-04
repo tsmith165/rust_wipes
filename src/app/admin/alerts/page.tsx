@@ -30,8 +30,11 @@ export const metadata: Metadata = {
 import { getAlerts } from './Alerts.Actions';
 import { AlertsContainer } from './Alerts.Container';
 import PageLayout from '@/components/layout/PageLayout';
+import { headers } from 'next/headers';
 
 export default async function AlertsPage() {
+    // Get headers outside of cached function
+    headers();
     const alerts = await getAlerts();
 
     return (

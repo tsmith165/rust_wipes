@@ -11,7 +11,7 @@ import { ALERT_EMAIL_RECIPIENTS } from './Alerts.Constants';
 import React from 'react';
 import { render } from '@react-email/render';
 import AlertEmail from '@/utils/emails/templates/AlertEmail';
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 
 async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string }> {
     const { userId } = await auth();
@@ -25,25 +25,18 @@ async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string }> {
     return { isAdmin: true };
 }
 
-export const getAlerts = unstable_cache(
-    async (): Promise<RwAlerts[]> => {
-        const { isAdmin, error } = await checkUserRole();
-        if (!isAdmin) {
-            console.error(error);
-            return [];
-        }
+export const getAlerts = cache(async (): Promise<RwAlerts[]> => {
+    const { isAdmin, error } = await checkUserRole();
+    if (!isAdmin) {
+        console.error(error);
+        return [];
+    }
 
-        // Process any unsent alerts before returning
-        await processUnsentAlerts();
+    // Process any unsent alerts before returning
+    await processUnsentAlerts();
 
-        return await db.select().from(rw_alerts).orderBy(desc(rw_alerts.timestamp)).limit(20);
-    },
-    ['alerts-list'],
-    {
-        revalidate: 60, // Revalidate every 60 seconds
-        tags: ['alerts'], // Tag for manual revalidation
-    },
-);
+    return await db.select().from(rw_alerts).orderBy(desc(rw_alerts.timestamp)).limit(20);
+});
 
 export async function archiveAlert(alertId: number): Promise<void> {
     const { isAdmin, error } = await checkUserRole();

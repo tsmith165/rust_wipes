@@ -13,10 +13,11 @@
 9. Update SPEC file with each change to maintain accurate documentation
 10. Review implementation overview and examine referenced files before making changes
 11. Make decisions beneficial for project longevity without over-abstracting
+12. Use NextJS 15's `use cache` directive instead of legacy `unstable_cache`
 
 ## Project Details
 
--   NextJS 15.0.1
+-   NextJS 15.0.1 (using `use cache` directive)
 -   TailwindCSS 3.4.14
 -   Drizzle ORM 0.30.10
 -   Server Actions (no API routes)
@@ -102,10 +103,11 @@ New table `rw_alerts`:
 -   Zustand store: Manages alerts and active tab
 -   Server actions: Handle data mutations and email sending
 -   NUQS: URL state for tab management
+-   React cache: Server-side data caching
 
 ### Data Flow
 
-1. Page revalidates every 60s
+1. Page uses React cache for data fetching
 2. Fetches latest 20 alerts
 3. Processes unsent alerts
 4. Sends emails via Resend using React Email template
@@ -114,25 +116,18 @@ New table `rw_alerts`:
 
 ## Next Steps
 
-1. Update schema.ts with rw_alerts table
-2. Create Zustand store
-3. Implement reusable alert components
-4. Create page.tsx with:
-    - Admin protection
-    - 60s revalidation
-    - Tab system using NUQS
-5. Implement Alerts.Actions.ts with:
-    - getAlerts (latest 20)
-    - archiveAlert
-    - restoreAlert
-    - processUnsentAlerts
-6. Create Alerts.Container.tsx using reusable components
-7. Add React Email template for alerts
-8. Test admin protection and email sending
+1. Migrate from unstable_cache to use cache directive:
+    - Update Alerts.Actions.ts to use React cache
+    - Remove unstable_cache wrapper
+    - Update page.tsx to handle cached data
+2. Test caching behavior in development and production
+3. Verify admin protection works with new caching
+4. Update documentation with new caching approach
 
 ## Current Unresolved Issues
 
--   None identified yet
+1. Migration from unstable_cache to use cache directive required
+2. Need to verify Resend email functionality in development environment
 
 ## Change Log
 
@@ -148,3 +143,6 @@ New table `rw_alerts`:
 -   Added React Email template for consistent email styling
 -   Updated alert processing to use React Email components
 -   Fixed duplicate email sending issue with double-check mechanism
+-   Identified need to migrate from unstable_cache to use cache directive
+-   Updated SPEC to reflect new caching approach
+-   Planning implementation of React cache for data fetching
