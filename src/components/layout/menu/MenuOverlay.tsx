@@ -12,7 +12,7 @@ export default function MenuOverlay({ currentPage, isAdmin }: MenuOverlayProps) 
     const menuList = isAdmin ? admin_menu_list : menu_list;
 
     return (
-        <div className="relative z-50 flex w-full flex-col">
+        <div className="relative z-[100] flex w-full flex-col">
             {menuList.map((menuItem) => {
                 const [className, menuItemString, urlEndpoint] = menuItem;
                 const isActive = urlEndpoint.includes(currentPage);
