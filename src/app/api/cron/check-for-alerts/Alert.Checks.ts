@@ -1,62 +1,80 @@
 import { NextWipeInfo } from '@/db/schema';
-import { SERVER_ALERT_IDS, ALERT_MESSAGES, ALERT_TYPE, AlertId } from '@/app/admin/alerts/Alerts.Constants';
 import { differenceInHours, differenceInDays } from 'date-fns';
+import { ALERT_CHECKS, ALERT_TIME_THRESHOLDS, getServerDisplayName } from './Alert.Constants';
 
 export interface AlertCheckResult {
     shouldAlert: boolean;
-    alertId: AlertId;
+    alertId: string;
     serverId: string;
     title: string;
     message: string;
+    severity: 'low' | 'medium' | 'high';
+    timeWindow: number;
 }
 
 export type AlertCheckFunction = (server: NextWipeInfo) => AlertCheckResult;
 
 export const check_server_uptime: AlertCheckFunction = (server: NextWipeInfo) => {
     const lastRestart = server.last_restart;
+    const serverName = getServerDisplayName(server.server_name, server.server_id);
+
     if (!lastRestart) {
+        const config = ALERT_CHECKS.MISSING_RESTART_DATA;
         return {
             shouldAlert: true,
-            alertId: SERVER_ALERT_IDS.MISSING_RESTART_DATA,
+            alertId: config.id,
             serverId: server.server_id,
-            title: `Missing Data - ${server.server_name || server.server_id}`,
-            message: ALERT_MESSAGES[SERVER_ALERT_IDS.MISSING_RESTART_DATA],
+            title: config.title(serverName),
+            message: config.message,
+            severity: config.severity,
+            timeWindow: config.timeWindow,
         };
     }
 
     const hoursSinceRestart = differenceInHours(new Date(), lastRestart);
-    const shouldAlert = hoursSinceRestart > 10;
+    const shouldAlert = hoursSinceRestart > ALERT_TIME_THRESHOLDS.SERVER_UPTIME;
+    const config = ALERT_CHECKS.UPTIME_WARNING;
 
     return {
         shouldAlert,
-        alertId: SERVER_ALERT_IDS.UPTIME_WARNING,
+        alertId: config.id,
         serverId: server.server_id,
-        title: `Server Uptime Warning - ${server.server_name || server.server_id}`,
-        message: `${ALERT_MESSAGES[SERVER_ALERT_IDS.UPTIME_WARNING]} (Current uptime: ${hoursSinceRestart} hours)`,
+        title: config.title(serverName),
+        message: `${config.message} (Current uptime: ${hoursSinceRestart} hours)`,
+        severity: config.severity,
+        timeWindow: config.timeWindow,
     };
 };
 
 export const check_last_wipe: AlertCheckFunction = (server: NextWipeInfo) => {
     const lastWipe = server.last_wipe;
+    const serverName = getServerDisplayName(server.server_name, server.server_id);
+
     if (!lastWipe) {
+        const config = ALERT_CHECKS.MISSING_WIPE_DATA;
         return {
             shouldAlert: true,
-            alertId: SERVER_ALERT_IDS.MISSING_WIPE_DATA,
+            alertId: config.id,
             serverId: server.server_id,
-            title: `Missing Data - ${server.server_name || server.server_id}`,
-            message: ALERT_MESSAGES[SERVER_ALERT_IDS.MISSING_WIPE_DATA],
+            title: config.title(serverName),
+            message: config.message,
+            severity: config.severity,
+            timeWindow: config.timeWindow,
         };
     }
 
-    const daysSinceWipe = differenceInDays(new Date(), lastWipe);
-    const shouldAlert = daysSinceWipe > 4;
+    const hoursSinceWipe = differenceInHours(new Date(), lastWipe);
+    const shouldAlert = hoursSinceWipe > ALERT_TIME_THRESHOLDS.WIPE_AGE;
+    const config = ALERT_CHECKS.WIPE_OVERDUE;
 
     return {
         shouldAlert,
-        alertId: SERVER_ALERT_IDS.WIPE_OVERDUE,
+        alertId: config.id,
         serverId: server.server_id,
-        title: `Wipe Overdue - ${server.server_name || server.server_id}`,
-        message: `${ALERT_MESSAGES[SERVER_ALERT_IDS.WIPE_OVERDUE]} (Days since last wipe: ${daysSinceWipe})`,
+        title: config.title(serverName),
+        message: `${config.message} (Hours since last wipe: ${hoursSinceWipe})`,
+        severity: config.severity,
+        timeWindow: config.timeWindow,
     };
 };
 

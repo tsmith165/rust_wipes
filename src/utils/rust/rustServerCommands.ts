@@ -72,6 +72,45 @@ async function sendCommandToRustServer(command: string, config: ServerConfig): P
     });
 }
 
+async function sendCommandToSingleServer(
+    command: string,
+    serverConfig: ServerConfig,
+): Promise<{ serverName: string; response: string; success: boolean; command: string }> {
+    try {
+        const response = await sendCommandToRustServer(command, serverConfig);
+        const success = isCommandSuccessful(response);
+        console.log(`Command executed on ${serverConfig.name}. Success: ${success}`);
+        return { serverName: serverConfig.name, response, success, command };
+    } catch (error) {
+        console.error(`Failed to execute command on ${serverConfig.name}:`, error);
+        return {
+            serverName: serverConfig.name,
+            response: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            success: false,
+            command,
+        };
+    }
+}
+
+async function sendCommandToAllServers(
+    command: string,
+): Promise<{ serverName: string; response: string; success: boolean; command: string }[]> {
+    const serverConfigs = getServerConfigs();
+    const results = await Promise.allSettled(serverConfigs.map((config) => sendCommandToRustServer(command, config)));
+
+    return results.map((result, index) => {
+        const serverName = serverConfigs[index].name;
+        if (result.status === 'fulfilled') {
+            const success = isCommandSuccessful(result.value);
+            console.log(`Command executed on ${serverName}. Success: ${success}`);
+            return { serverName, response: result.value, success, command };
+        } else {
+            console.error(`Failed to execute command on ${serverName}:`, result.reason);
+            return { serverName, response: `Error: ${result.reason.message}`, success: false, command };
+        }
+    });
+}
+
 function isCommandSuccessful(response: string): boolean {
     try {
         const parsedResponse = JSON.parse(response);
@@ -96,25 +135,7 @@ function isCommandSuccessful(response: string): boolean {
     }
 }
 
-async function sendCommandToAllServers(
-    command: string,
-): Promise<{ serverName: string; response: string; success: boolean; command: string }[]> {
-    const serverConfigs = getServerConfigs();
-    const results = await Promise.allSettled(serverConfigs.map((config) => sendCommandToRustServer(command, config)));
-
-    return results.map((result, index) => {
-        const serverName = serverConfigs[index].name;
-        if (result.status === 'fulfilled') {
-            const success = isCommandSuccessful(result.value);
-            console.log(`Command executed on ${serverName}. Success: ${success}`);
-            return { serverName, response: result.value, success, command };
-        } else {
-            console.error(`Failed to execute command on ${serverName}:`, result.reason);
-            return { serverName, response: `Error: ${result.reason.message}`, success: false, command };
-        }
-    });
-}
-
+// Existing exports for backwards compatibility
 export async function grantKitAccess(
     steamId: string,
     kitName: string,
@@ -188,4 +209,67 @@ export async function revokeKitAccess(
             serverResults: results,
         };
     }
+}
+
+// New server management commands
+export async function sendServerCommand(
+    serverId: string,
+    command: string,
+    serverConfig: ServerConfig,
+): Promise<{
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
+}> {
+    console.log(`Sending command '${command}' to server ${serverId}`);
+
+    const result = await sendCommandToSingleServer(command, serverConfig);
+    const serverResults = [result];
+
+    if (result.success) {
+        return {
+            success: true,
+            message: `Successfully executed command on server ${serverId}`,
+            serverResults,
+        };
+    } else {
+        return {
+            success: false,
+            message: `Failed to execute command on server ${serverId}: ${result.response}`,
+            serverResults,
+        };
+    }
+}
+
+export async function restartServer(
+    serverId: string,
+    serverConfig: ServerConfig,
+): Promise<{
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
+}> {
+    return sendServerCommand(serverId, 'servermanager.testrestart', serverConfig);
+}
+
+export async function regularWipe(
+    serverId: string,
+    serverConfig: ServerConfig,
+): Promise<{
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
+}> {
+    return sendServerCommand(serverId, 'servermanager.wipe regular immediate', serverConfig);
+}
+
+export async function bpWipe(
+    serverId: string,
+    serverConfig: ServerConfig,
+): Promise<{
+    success: boolean;
+    message: string;
+    serverResults: { serverName: string; response: string; success: boolean; command: string }[];
+}> {
+    return sendServerCommand(serverId, 'servermanager.wipe bp immediate', serverConfig);
 }

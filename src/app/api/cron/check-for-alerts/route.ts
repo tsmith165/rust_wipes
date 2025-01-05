@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, next_wipe_info, rw_alerts } from '@/db/db';
 import { headers } from 'next/headers';
 import { alertChecks } from './Alert.Checks';
-import { ALERT_ID_SEVERITY, ALERT_TIME_WINDOWS, ALERT_TYPE } from '@/app/admin/alerts/Alerts.Constants';
+import { ALERT_TYPES } from './Alert.Constants';
 import { and, eq, gt } from 'drizzle-orm';
 import { subMinutes } from 'date-fns';
 
@@ -34,8 +34,7 @@ export async function GET() {
                 }
 
                 // Check if a similar alert was generated recently
-                const timeWindow = ALERT_TIME_WINDOWS[checkResult.alertId];
-                const cutoffTime = subMinutes(new Date(), timeWindow);
+                const cutoffTime = subMinutes(new Date(), checkResult.timeWindow);
 
                 const recentAlerts = await db
                     .select()
@@ -61,8 +60,8 @@ export async function GET() {
                     title: checkResult.title,
                     message: checkResult.message,
                     alert_id: checkResult.alertId,
-                    severity: ALERT_ID_SEVERITY[checkResult.alertId],
-                    type: ALERT_TYPE.SYSTEM,
+                    severity: checkResult.severity,
+                    type: ALERT_TYPES.SYSTEM,
                     last_occurrence: new Date(),
                 });
 
