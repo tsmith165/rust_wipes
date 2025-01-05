@@ -59,7 +59,7 @@ export const OverlayHeader: React.FC<OverlayHeaderProps> = ({
             {onClose && (
                 <motion.button
                     onClick={onClose}
-                    className="absolute right-3 top-1 text-stone-400 transition-colors hover:text-primary_light"
+                    className="absolute right-2 top-1 text-xl text-stone-400 transition-colors hover:text-primary_light md:right-3 md:top-1 md:text-base"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                 >
