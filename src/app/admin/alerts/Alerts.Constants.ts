@@ -50,6 +50,8 @@ export const SERVER_ALERT_IDS = {
     WIPE_OVERDUE: 'server_wipe_overdue',
     MISSING_RESTART_DATA: 'server_missing_restart_data',
     MISSING_WIPE_DATA: 'server_missing_wipe_data',
+    WIPE_PROCESS_FAILURE: 'wipe_process_failure',
+    SERVER_START_FAILURE: 'server_start_failure',
 } as const;
 
 export type AlertId = (typeof SERVER_ALERT_IDS)[keyof typeof SERVER_ALERT_IDS];
@@ -60,6 +62,8 @@ export const ALERT_MESSAGES: Record<AlertId, string> = {
     [SERVER_ALERT_IDS.WIPE_OVERDUE]: 'Server has not been wiped for over 4 days',
     [SERVER_ALERT_IDS.MISSING_RESTART_DATA]: 'Server is missing last restart time data',
     [SERVER_ALERT_IDS.MISSING_WIPE_DATA]: 'Server is missing last wipe time data',
+    [SERVER_ALERT_IDS.WIPE_PROCESS_FAILURE]: 'Server wipe process failed',
+    [SERVER_ALERT_IDS.SERVER_START_FAILURE]: 'Server failed to start after wipe process',
 } as const;
 
 // Time windows for duplicate prevention (in minutes)
@@ -68,6 +72,8 @@ export const ALERT_TIME_WINDOWS: Record<AlertId, number> = {
     [SERVER_ALERT_IDS.WIPE_OVERDUE]: 360, // Check every 6 hours
     [SERVER_ALERT_IDS.MISSING_RESTART_DATA]: 1440, // Check once per day
     [SERVER_ALERT_IDS.MISSING_WIPE_DATA]: 1440, // Check once per day
+    [SERVER_ALERT_IDS.WIPE_PROCESS_FAILURE]: 60, // Check every hour
+    [SERVER_ALERT_IDS.SERVER_START_FAILURE]: 60, // Check every hour
 } as const;
 
 // Severity levels for each alert type
@@ -76,4 +82,6 @@ export const ALERT_ID_SEVERITY: Record<AlertId, (typeof ALERT_SEVERITY)[keyof ty
     [SERVER_ALERT_IDS.WIPE_OVERDUE]: ALERT_SEVERITY.HIGH,
     [SERVER_ALERT_IDS.MISSING_RESTART_DATA]: ALERT_SEVERITY.HIGH,
     [SERVER_ALERT_IDS.MISSING_WIPE_DATA]: ALERT_SEVERITY.HIGH,
+    [SERVER_ALERT_IDS.WIPE_PROCESS_FAILURE]: ALERT_SEVERITY.HIGH,
+    [SERVER_ALERT_IDS.SERVER_START_FAILURE]: ALERT_SEVERITY.HIGH,
 } as const;
