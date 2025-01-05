@@ -367,6 +367,8 @@ export const rw_alerts = pgTable('rw_alerts', {
         .default('system'),
     archived_at: timestamp('archived_at'),
     archived_by: varchar('archived_by'),
+    alert_id: varchar('alert_id', { length: 50 }),
+    last_occurrence: timestamp('last_occurrence').defaultNow(),
 });
 
 export type RwAlerts = InferSelectModel<typeof rw_alerts>;
