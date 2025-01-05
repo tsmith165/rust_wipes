@@ -40,8 +40,10 @@ Create an admin-protected server status dashboard that:
     - Current Rust version
     - Time since last restart
     - Time since last wipe
+    - Pterodactyl panel link (using truncated server UUID)
+    - BattleMetrics link (as control button)
 3. Uses reusable card components for consistent display
-4. Auto-revalidates every 60 seconds
+4. Auto-revalidates every 5 seconds
 5. Implements server-side caching
 6. Uses Zustand for state management
 
@@ -59,6 +61,7 @@ Create an admin-protected server status dashboard that:
         Status.Container.tsx
         Status.Actions.ts
         Status.Constants.ts
+        Status.Controls.tsx
   /components
     /ui
       /card
@@ -66,6 +69,10 @@ Create an admin-protected server status dashboard that:
         Card.Header.tsx
         Card.Title.tsx
         Card.Content.tsx
+        Card.Controls.tsx
+        Card.Controls.Button.tsx
+        Card.Error.tsx
+        Card.Success.tsx
   /stores
     Store.ServerStatus.ts
   /utils
@@ -73,20 +80,40 @@ Create an admin-protected server status dashboard that:
       BattleMetricsAPI.ts
 ```
 
-### Database Schema Changes
+### Component Refactoring
 
-Added to next_wipe_info table:
+1. Card.Controls.tsx:
 
--   bm_id: varchar (BattleMetrics server ID)
+    - Convert to generic wrapper component
+    - Accept children prop for buttons
+    - Maintain consistent spacing and layout
+    - Remove status-specific logic
 
-### BattleMetrics API Integration
+2. Status.Controls.tsx:
+    - New component for status-specific controls
+    - Contains server control buttons
+    - Uses Card.Controls.tsx as wrapper
+    - Handles server-specific logic
 
-Implemented:
+### Data Flow Updates
 
--   Public API endpoint integration
--   60-second response caching
--   Error handling for failed requests
--   Fallback values for offline servers
+1. Component Hierarchy:
+
+    ```
+    Status.Container.tsx
+    └── Card.Container.tsx
+        ├── Card.Header.tsx
+        ├── Card.Content.tsx
+        └── Status.Controls.tsx
+            └── Card.Controls.tsx
+                └── Card.Controls.Button.tsx
+    ```
+
+2. Props Flow:
+    - Status.Container.tsx passes server data to Status.Controls.tsx
+    - Status.Controls.tsx handles server-specific logic
+    - Card.Controls.tsx provides layout and spacing
+    - Card.Controls.Button.tsx remains unchanged
 
 ## Current Implementation Details
 
@@ -94,42 +121,78 @@ Implemented:
 
     - Added bm_id field to next_wipe_info table
     - Field is optional to maintain backward compatibility
+    - Using server_uuid field for Pterodactyl panel links
+    - Using bm_id for BattleMetrics deep links
 
 2. BattleMetrics API:
 
     - Using public API endpoint without authentication
     - Caching responses for 60 seconds using Next.js fetch cache
     - Graceful error handling with fallback values
+    - BattleMetrics link moved to control button for consistency
 
-3. Data Flow:
-    - Server-side data fetching with React cache
-    - Zustand store for client-side state management
-    - 60-second auto-revalidation
-    - Error states for offline/unreachable servers
+3. Component Structure:
+
+    - Card.Controls.tsx:
+
+        - Generic wrapper component
+        - Accepts children prop
+        - Provides consistent layout
+        - No business logic
+
+    - Status.Controls.tsx:
+        - Server-specific control component
+        - Contains external links
+        - Contains server control buttons
+        - Handles server-specific logic
+        - Uses Card.Controls.tsx as wrapper
+
+4. Revalidation Strategy:
+    - Auto-revalidation every 5 seconds
+    - Manual refresh capability
+    - Loading states during refresh
+    - Cache invalidation on command execution
 
 ## Next Steps
 
-1. Create database migration for bm_id column
-2. Add bm_id values for existing servers
-3. Test BattleMetrics API integration:
-    - Test with valid bm_id
-    - Test with invalid bm_id
-    - Test with rate limiting
-    - Test offline server handling
-4. Add loading states to UI
-5. Implement error boundaries
-6. Add retry mechanism for failed API calls
-7. Document BattleMetrics API usage
-8. Monitor API rate limits in production
+1. Refactor Card.Controls.tsx:
+
+    - Remove server-specific logic
+    - Convert to generic wrapper
+    - Add children prop
+    - Maintain spacing and layout
+
+2. Create Status.Controls.tsx:
+
+    - Move server controls from Card.Controls.tsx
+    - Implement external link buttons
+    - Handle server-specific logic
+    - Use Card.Controls.tsx as wrapper
+
+3. Update Card.Content.tsx:
+
+    - Update imports
+    - Replace Card.Controls with Status.Controls
+    - Maintain existing functionality
+
+4. Update Status.Container.tsx:
+
+    - Update component references
+    - Ensure proper prop passing
+    - Maintain state management
+
+5. Test Implementation:
+    - Verify all functionality works
+    - Check styling consistency
+    - Test revalidation timing
+    - Verify button behavior
 
 ## Current Unresolved Issues
 
-1. Need to create database migration
-2. Need to populate bm_id for existing servers
-3. Need to test rate limiting in production
-4. Need to implement proper error boundaries
-5. Need to add loading states
-6. Need to document API usage and limitations
+1. Need to ensure consistent spacing in generic Card.Controls
+2. Need to verify reusability of Card.Controls
+3. Need to test with different button configurations
+4. Previous issues remain...
 
 ## Change Log
 
@@ -149,3 +212,16 @@ Implemented:
 -   Implemented 60-second cache
 -   Updated SPEC with implementation details
 -   Added new next steps for testing and deployment
+-   Added Pterodactyl panel link button requirements
+-   Updated implementation details with Pterodactyl integration
+-   Added new next steps for panel link implementation
+-   Updated current issues with panel link considerations
+-   Moved BattleMetrics link to control button
+-   Updated external link handling strategy
+-   Consolidated external link styling
+-   Updated component structure for consistency
+-   Updated component structure for better reusability
+-   Created new Status.Controls.tsx component
+-   Converted Card.Controls.tsx to generic wrapper
+-   Updated revalidation time to 5 seconds
+-   Previous changes remain...

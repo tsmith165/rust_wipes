@@ -2,19 +2,27 @@
 
 import CopyToClipboardButton from '@/app/recent/CopyToClipboardButton';
 import Link from 'next/link';
+import { StatusControls } from '@/app/admin/status/Status.Controls';
+import { NextWipeInfo } from '@/db/schema';
 
 interface CardContentProps {
-    serverId: string;
+    server: NextWipeInfo;
     playerCount: number;
     maxPlayers: number;
     rustBuild: string;
-    lastRestart: Date | null;
-    lastWipe: Date | null;
-    bmId: string;
+    onRestart?: () => void;
+    onRegularWipe?: () => void;
+    onBpWipe?: () => void;
+    isRestartLoading?: boolean;
+    isRegularWipeLoading?: boolean;
+    isBpWipeLoading?: boolean;
 }
 
-function formatTimeDifference(date: Date | null): string {
-    if (!date) return 'Never';
+function formatTimeDifference(dateStr: string | Date | null): string {
+    if (!dateStr) return 'Never';
+
+    const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+    if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid date';
 
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -30,15 +38,26 @@ function formatTimeDifference(date: Date | null): string {
 
 const SERVER_IP = '104.128.48.138';
 
-export function CardContent({ serverId, playerCount, maxPlayers, rustBuild, lastRestart, lastWipe, bmId }: CardContentProps) {
+export function CardContent({
+    server,
+    playerCount,
+    maxPlayers,
+    rustBuild,
+    onRestart,
+    onRegularWipe,
+    onBpWipe,
+    isRestartLoading,
+    isRegularWipeLoading,
+    isBpWipeLoading,
+}: CardContentProps) {
     return (
         <div className="flex flex-col gap-2">
             <CardRow
                 label="Server IP"
-                value={`${SERVER_IP}:${serverId}`}
+                value={`${SERVER_IP}:${server.server_id}`}
                 extraContent={
                     <CopyToClipboardButton
-                        textToCopy={`${SERVER_IP}:${serverId}`}
+                        textToCopy={`${SERVER_IP}:${server.server_id}`}
                         defaultColor="text-stone-300"
                         hoverColor="hover:text-green-200"
                         successColor="text-emerald-500"
@@ -48,9 +67,18 @@ export function CardContent({ serverId, playerCount, maxPlayers, rustBuild, last
             />
             <CardRow label="Players" value={`${playerCount} / ${maxPlayers}`} />
             <CardRow label="Rust Version" value={rustBuild} />
-            <CardRow label="Last Restart" value={`${formatTimeDifference(lastRestart)} ago`} />
-            <CardRow label="Last Wipe" value={`${formatTimeDifference(lastWipe)} ago`} />
-            <CardRow label="Battlemetrics" value={bmId} isLink={`https://www.battlemetrics.com/servers/rust/${bmId}`} />
+            <CardRow label="Last Restart" value={`${formatTimeDifference(server.last_restart)} ago`} />
+            <CardRow label="Last Wipe" value={`${formatTimeDifference(server.last_wipe)} ago`} />
+
+            <StatusControls
+                server={server}
+                onRestart={onRestart}
+                onRegularWipe={onRegularWipe}
+                onBpWipe={onBpWipe}
+                isRestartLoading={isRestartLoading}
+                isRegularWipeLoading={isRegularWipeLoading}
+                isBpWipeLoading={isBpWipeLoading}
+            />
         </div>
     );
 }

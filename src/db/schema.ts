@@ -187,6 +187,7 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     server_uuid: varchar('server_uuid'),
     rcon_port: integer('rcon_port'),
     rcon_password: text('rcon_password'),
+    rcon_ip: varchar('rcon_ip'),
     last_restart: timestamp('last_restart'),
     last_wipe: timestamp('last_wipe'),
     is_queued: boolean('is_queued').notNull().default(false),

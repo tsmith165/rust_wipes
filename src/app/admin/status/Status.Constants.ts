@@ -31,7 +31,7 @@ export const STATUS_BORDERS = {
     [SERVER_STATUS.RESTARTING]: 'border-yellow-500',
 } as const;
 
-export const REFRESH_INTERVAL = 60000; // 60 seconds in milliseconds
+export const REFRESH_INTERVAL = 5000; // 5 seconds in milliseconds
 
 interface ServerGroup {
     group: string;
