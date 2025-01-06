@@ -13,9 +13,11 @@ interface CardContentProps {
     onRestart?: () => void;
     onRegularWipe?: () => void;
     onBpWipe?: () => void;
+    onCheckPlugins?: () => void;
     isRestartLoading?: boolean;
     isRegularWipeLoading?: boolean;
     isBpWipeLoading?: boolean;
+    isCheckPluginsLoading?: boolean;
 }
 
 function formatTimeDifference(dateStr: string | Date | null): string {
@@ -46,9 +48,11 @@ export function CardContent({
     onRestart,
     onRegularWipe,
     onBpWipe,
+    onCheckPlugins,
     isRestartLoading,
     isRegularWipeLoading,
     isBpWipeLoading,
+    isCheckPluginsLoading,
 }: CardContentProps) {
     return (
         <div className="flex flex-col gap-2">
@@ -75,9 +79,11 @@ export function CardContent({
                 onRestart={onRestart}
                 onRegularWipe={onRegularWipe}
                 onBpWipe={onBpWipe}
+                onCheckPlugins={onCheckPlugins}
                 isRestartLoading={isRestartLoading}
                 isRegularWipeLoading={isRegularWipeLoading}
                 isBpWipeLoading={isBpWipeLoading}
+                isCheckPluginsLoading={isCheckPluginsLoading}
             />
         </div>
     );

@@ -7,13 +7,25 @@ import { auth } from '@clerk/nextjs/server';
 import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 import { revalidatePath } from 'next/cache';
 import { fetchBattleMetricsServerData, BattleMetricsServerData } from '@/utils/battlemetrics/BattleMetricsAPI';
-import { restartServer as restartServerRcon, regularWipe as regularWipeRcon, bpWipe as bpWipeRcon } from '@/utils/rust/rustServerCommands';
+import {
+    restartServer as restartServerRcon,
+    regularWipe as regularWipeRcon,
+    bpWipe as bpWipeRcon,
+    sendServerCommand,
+} from '@/utils/rust/rustServerCommands';
+import { parsePluginOutput } from '@/app/api/cron/check-plugins/Plugin.Parser';
 
-export interface ServerStatusData extends NextWipeInfo {
+export interface ServerStatusData extends Omit<NextWipeInfo, 'installed_plugins' | 'plugins_updated_at'> {
     player_count?: number;
     max_players?: number;
     rust_build?: string;
     status: 'online' | 'offline' | 'restarting';
+    installed_plugins: Array<{
+        name: string;
+        version: string;
+        author: string;
+    }> | null;
+    plugins_updated_at: Date | null;
 }
 
 async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string }> {
@@ -152,4 +164,54 @@ export async function regularWipe(serverId: string): Promise<{ success: boolean;
 
 export async function bpWipe(serverId: string): Promise<{ success: boolean; error?: string; successMessage?: string }> {
     return executeRconCommand(serverId, bpWipeRcon);
+}
+
+export async function checkPlugins(serverId: string): Promise<{ success: boolean; error?: string; successMessage?: string }> {
+    const { isAdmin, error: authError } = await checkUserRole();
+    if (!isAdmin) {
+        return { success: false, error: authError };
+    }
+
+    const server = await db.select().from(next_wipe_info).where(eq(next_wipe_info.server_id, serverId)).limit(1);
+
+    if (!server || server.length === 0) {
+        return { success: false, error: 'Server not found' };
+    }
+
+    try {
+        const config = await getServerConfig(server[0]);
+        const result = await sendServerCommand(serverId, 'oxide.plugins', config);
+
+        if (!result.success) {
+            return { success: false, error: result.message };
+        }
+
+        // Parse the plugin data from the first response
+        const parsedPlugins = parsePluginOutput(JSON.stringify(result.serverResults[0]));
+
+        if (!parsedPlugins.success) {
+            return { success: false, error: parsedPlugins.error };
+        }
+
+        // Update the database with the parsed plugin data
+        await db
+            .update(next_wipe_info)
+            .set({
+                installed_plugins: parsedPlugins.plugins,
+                plugins_updated_at: new Date(),
+            })
+            .where(eq(next_wipe_info.server_id, serverId));
+
+        // Revalidate the path
+        revalidatePath('/admin/status');
+
+        return {
+            success: true,
+            successMessage: `Successfully updated ${parsedPlugins.totalPlugins} plugins`,
+        };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Failed to check plugins for server ${serverId}:`, errorMessage);
+        return { success: false, error: errorMessage };
+    }
 }

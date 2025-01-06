@@ -3,16 +3,18 @@
 import { NextWipeInfo } from '@/db/schema';
 import { CardControls } from '@/components/ui/card/Card.Controls';
 import { CardControlButton } from '@/components/ui/card/Card.Controls.Button';
-import { FaSync, FaEraser, FaBroom, FaServer, FaChartLine } from 'react-icons/fa';
+import { FaSync, FaEraser, FaBroom, FaServer, FaChartLine, FaPlug } from 'react-icons/fa';
 
 interface StatusControlsProps {
     server: NextWipeInfo;
     onRestart?: () => void;
     onRegularWipe?: () => void;
     onBpWipe?: () => void;
+    onCheckPlugins?: () => void;
     isRestartLoading?: boolean;
     isRegularWipeLoading?: boolean;
     isBpWipeLoading?: boolean;
+    isCheckPluginsLoading?: boolean;
 }
 
 export function StatusControls({
@@ -20,9 +22,11 @@ export function StatusControls({
     onRestart,
     onRegularWipe,
     onBpWipe,
+    onCheckPlugins,
     isRestartLoading = false,
     isRegularWipeLoading = false,
     isBpWipeLoading = false,
+    isCheckPluginsLoading = false,
 }: StatusControlsProps) {
     const hasRconAccess = server.rcon_ip && server.rcon_port && server.rcon_password;
     const pterodactylUrl = server.server_uuid ? `https://panel.rustwipes.net/server/${server.server_uuid.split('-')[0]}` : undefined;
@@ -53,6 +57,17 @@ export function StatusControls({
             )}
 
             {/* Server Controls */}
+            {onCheckPlugins && (
+                <CardControlButton
+                    id={`plugins-${server.server_id}`}
+                    icon={FaPlug}
+                    tooltip="Check Installed Plugins"
+                    onClick={onCheckPlugins}
+                    variant="default"
+                    disabled={!hasRconAccess}
+                    loading={isCheckPluginsLoading}
+                />
+            )}
             {onRestart && (
                 <CardControlButton
                     id={`restart-${server.server_id}`}

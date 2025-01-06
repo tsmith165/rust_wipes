@@ -12,9 +12,11 @@ interface CardContainerProps {
     onRestart?: () => void;
     onRegularWipe?: () => void;
     onBpWipe?: () => void;
+    onCheckPlugins?: () => void;
     isRestartLoading?: boolean;
     isRegularWipeLoading?: boolean;
     isBpWipeLoading?: boolean;
+    isCheckPluginsLoading?: boolean;
 }
 
 export function CardContainer({
@@ -24,9 +26,11 @@ export function CardContainer({
     onRestart,
     onRegularWipe,
     onBpWipe,
+    onCheckPlugins,
     isRestartLoading,
     isRegularWipeLoading,
     isBpWipeLoading,
+    isCheckPluginsLoading,
 }: CardContainerProps) {
     return (
         <motion.div

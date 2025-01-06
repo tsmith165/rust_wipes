@@ -27,6 +27,10 @@
         {
             "path": "/api/cron/check-for-alerts",
             "schedule": "*/1 * * * *"
+        },
+        {
+            "path": "/api/cron/check-plugins",
+            "schedule": "*/5 * * * *"
         }
     ]
 }
