@@ -1,7 +1,7 @@
 import { FaBell, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 
-export const ALERT_EMAIL_RECIPIENTS = ['torreysmith165@gmail.com'];
+export const ALERT_EMAIL_RECIPIENTS = ['torreysmith165@gmail.com', 'ianmsmith01@gmail.com', 'seankeyesocc@gmail.com'];
 
 export const ALERT_SEVERITY = {
     LOW: 'low',
