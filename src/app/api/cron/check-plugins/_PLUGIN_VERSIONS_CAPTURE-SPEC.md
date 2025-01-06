@@ -159,7 +159,7 @@ Listing 30 plugins:
 1. Update Database Schema
 
     - Add `installed_plugins` JSONB field to `next_wipe_info`
-    - Add `plugins_last_updated` timestamp field
+    - Add `plugins_updated_at` timestamp field
     - Create migration script
 
 2. Create Plugin Types and Parser

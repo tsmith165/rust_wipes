@@ -30,7 +30,7 @@
         },
         {
             "path": "/api/cron/check-plugins",
-            "schedule": "*/60 * * * *"
+            "schedule": "*/5 * * * *"
         }
     ]
 }
