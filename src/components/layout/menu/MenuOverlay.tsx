@@ -12,13 +12,19 @@ export default function MenuOverlay({ currentPage, isAdmin }: MenuOverlayProps) 
     const menuList = isAdmin ? admin_menu_list : menu_list;
 
     return (
-        <div className="relative z-[100] flex w-full flex-col">
-            {menuList.map((menuItem) => {
+        <div className="relative flex w-full flex-col">
+            {menuList.map((menuItem, index) => {
                 const [className, menuItemString, urlEndpoint] = menuItem;
                 const isActive = urlEndpoint.includes(currentPage);
                 return (
                     <div key={className}>
-                        <MenuOverlayButton id={className} menu_name={menuItemString} url_endpoint={urlEndpoint} isActive={isActive} />
+                        <MenuOverlayButton
+                            id={className}
+                            menu_name={menuItemString}
+                            url_endpoint={urlEndpoint}
+                            isActive={isActive}
+                            isLastItem={false}
+                        />
                     </div>
                 );
             })}

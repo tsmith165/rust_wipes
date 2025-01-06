@@ -38,7 +38,7 @@ export const admin_menu_list: [string, string, string][] = [
     ['manage', 'Manage', '/admin/manage'],
     ['edit', 'Edit', '/admin/edit'],
     ['users', 'Users', '/admin/users'],
-    ['performance', 'Performance', '/admin/hosting/performance'],
+    // ['performance', 'Performance', '/admin/hosting/performance'],
     ['tests', 'Tests', '/admin/test'],
 ];
 

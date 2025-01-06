@@ -21,7 +21,7 @@ export default function NavbarClient({ page }: NavbarClientProps) {
         >
             {showMenu && (
                 <div
-                    className={`absolute right-0 top-full z-50 h-fit w-[160px] rounded-bl-lg ${isAdmin ? 'border-primary_dark bg-secondary_light' : 'border-stone-500 bg-stone-500'}`}
+                    className={`absolute right-0 top-full z-[100] h-fit w-[160px] rounded-bl-lg ${isAdmin ? 'border-primary_dark bg-secondary_light' : 'border-stone-500 bg-stone-500'}`}
                 >
                     <DynamicMenuOverlay currentPage={page} isAdmin={isAdmin} />
                 </div>

@@ -2,6 +2,7 @@
 
 import React, { memo, useCallback } from 'react';
 import { useClerk, useSession } from '@clerk/nextjs';
+import Link from 'next/link';
 
 const MenuOverlaySignOutButton: React.FC = memo(() => {
     const { signOut } = useClerk();
@@ -11,18 +12,23 @@ const MenuOverlaySignOutButton: React.FC = memo(() => {
         signOut();
     }, [signOut]);
 
-    if (!isLoaded || !isSignedIn) {
-        return null;
+    if (!isLoaded) return null;
+
+    const commonClasses =
+        'relative z-50 flex h-[40px] items-center justify-center rounded-bl-xl border-b-0 border-stone-500 bg-stone-300 px-[5px] font-bold text-stone-800 hover:bg-primary hover:text-stone-300';
+
+    if (isSignedIn) {
+        return (
+            <div className={commonClasses} id="sign_out_button" onClick={handleSignOut}>
+                Sign Out
+            </div>
+        );
     }
 
     return (
-        <div
-            className="relative z-50 flex h-[50px] items-center justify-center border-b-2 border-primary_dark bg-primary px-[5px] font-bold text-secondary_dark last:rounded-bl-sm last:border-b-0 hover:bg-secondary_dark hover:text-primary"
-            id="sign_out_button"
-            onClick={handleSignOut}
-        >
-            Sign Out
-        </div>
+        <Link href="/signin" className={commonClasses} id="sign_in_button">
+            Sign In
+        </Link>
     );
 });
 
