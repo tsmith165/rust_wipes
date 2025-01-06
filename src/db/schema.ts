@@ -195,6 +195,8 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     map_seed: integer('map_seed'),
     map_size: integer('map_size'),
     map_name: varchar('map_name'),
+    installed_plugins: jsonb('installed_plugins'),
+    plugins_updated_at: timestamp('plugins_updated_at'),
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;

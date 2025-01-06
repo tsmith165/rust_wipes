@@ -42,10 +42,12 @@ Create an admin-protected server status dashboard that:
     - Time since last wipe
     - Pterodactyl panel link (using truncated server UUID)
     - BattleMetrics link (as control button)
+    - Installed plugins and their versions (NEW)
 3. Uses reusable card components for consistent display
 4. Auto-revalidates every 5 seconds
 5. Implements server-side caching
 6. Uses Zustand for state management
+7. Provides manual plugin re-pull functionality (NEW)
 
 ## Updated Implementation Overview
 
@@ -79,6 +81,46 @@ Create an admin-protected server status dashboard that:
     /battlemetrics
       BattleMetricsAPI.ts
 ```
+
+### New Features
+
+1. Plugin Re-pull Button:
+
+    - Added to Status.Controls.tsx
+    - Uses FaSync icon with custom tooltip
+    - Triggers manual plugin check via RCON
+    - Updates database with latest plugin info
+    - Shows loading state during check
+
+2. Store Updates:
+
+    - Added plugin re-pull loading state
+    - Added plugin re-pull error/success handling
+    - Integrated with existing command handling
+
+3. Action Updates:
+    - Added checkPlugins server action
+    - Reuses existing RCON command infrastructure
+    - Updates installed_plugins field in database
+
+### Component Updates
+
+1. Status.Controls.tsx:
+
+    - Added plugin re-pull button
+    - Integrated with loading states
+    - Added error handling
+
+2. Store.ServerStatus.ts:
+
+    - Added plugin command type
+    - Updated loading state handling
+    - Added plugin-specific error states
+
+3. Status.Actions.ts:
+    - Added checkPlugins function
+    - Integrated with RCON commands
+    - Added error handling
 
 ### Component Refactoring
 
@@ -148,51 +190,89 @@ Create an admin-protected server status dashboard that:
         - Uses Card.Controls.tsx as wrapper
 
 4. Revalidation Strategy:
+
     - Auto-revalidation every 5 seconds
     - Manual refresh capability
     - Loading states during refresh
     - Cache invalidation on command execution
 
+5. Plugin Check Implementation:
+
+    - Button UI and state management working correctly
+    - RCON command successfully retrieving plugin data
+    - Parser not integrated into Status.Actions.ts
+    - Database update not implemented for plugin data
+    - Need to import and use Plugin.Parser.ts
+
+6. Plugin Data Structure:
+
+    ```typescript
+    interface PluginInfo {
+        name: string;
+        version: string;
+        author: string;
+    }
+
+    type InstalledPlugins = PluginInfo[];
+    ```
+
+7. Plugin Parsing Strategy:
+    - Simple line-by-line parsing
+    - Split on known delimiters
+    - Capture only name, version, and author
+    - Store as array of plugin info objects
+    - No regex or complex parsing
+
 ## Next Steps
 
-1. Refactor Card.Controls.tsx:
+1. Update Plugin Parser:
 
-    - Remove server-specific logic
-    - Convert to generic wrapper
-    - Add children prop
-    - Maintain spacing and layout
+    - Remove regex-based parsing
+    - Implement simple string splitting
+    - Extract only required fields
+    - Add basic validation
+    - Update error handling
 
-2. Create Status.Controls.tsx:
+2. Update Database Schema:
 
-    - Move server controls from Card.Controls.tsx
-    - Implement external link buttons
-    - Handle server-specific logic
-    - Use Card.Controls.tsx as wrapper
+    - Simplify JSONB structure
+    - Update type definitions
+    - Add migration if needed
 
-3. Update Card.Content.tsx:
+3. Update Status.Actions.ts:
 
-    - Update imports
-    - Replace Card.Controls with Status.Controls
-    - Maintain existing functionality
+    - Use new parser
+    - Update database calls
+    - Update success message
 
-4. Update Status.Container.tsx:
+4. Add Plugin Data Display:
 
-    - Update component references
-    - Ensure proper prop passing
-    - Maintain state management
+    - Create new CardRow for plugins
+    - Show plugin count
+    - Add last update time
+    - Consider collapsible list for details
 
-5. Test Implementation:
-    - Verify all functionality works
-    - Check styling consistency
-    - Test revalidation timing
-    - Verify button behavior
+5. Update Documentation:
+    - Document simplified data structure
+    - Update component documentation
+    - Add usage examples
 
 ## Current Unresolved Issues
 
 1. Need to ensure consistent spacing in generic Card.Controls
 2. Need to verify reusability of Card.Controls
 3. Need to test with different button configurations
-4. Previous issues remain...
+4. Need to verify plugin data format consistency
+5. Consider rate limiting for plugin checks
+6. Handle large plugin lists gracefully
+7. Plugin data not being stored in database
+8. Parser not integrated into action handler
+9. Need to validate JSONB data structure
+10. Need to implement plugin data display
+11. Parser is overly complex
+12. Storing unnecessary plugin data
+13. Need to validate simplified data structure
+14. Need to implement plugin data display
 
 ## Change Log
 
@@ -225,3 +305,19 @@ Create an admin-protected server status dashboard that:
 -   Converted Card.Controls.tsx to generic wrapper
 -   Updated revalidation time to 5 seconds
 -   Previous changes remain...
+-   Added plugin re-pull functionality to spec
+-   Updated component structure for plugin checks
+-   Added store updates for plugin commands
+-   Added action updates for plugin re-pull
+-   Updated next steps for implementation
+-   Added new unresolved issues for plugin handling
+-   Identified missing parser integration in Status.Actions.ts
+-   Added database update requirements to spec
+-   Updated next steps for parser integration
+-   Added new unresolved issues for plugin data storage
+-   Added plugin data display requirements
+-   Simplified plugin data structure
+-   Removed regex-based parsing
+-   Updated parser implementation plan
+-   Reduced stored plugin information
+-   Updated next steps for simpler implementation

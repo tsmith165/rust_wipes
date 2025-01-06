@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { ServerStatusData } from '@/app/admin/status/Status.Actions';
 
-type CommandType = 'restart' | 'regularWipe' | 'bpWipe';
+type CommandType = 'restart' | 'regularWipe' | 'bpWipe' | 'checkPlugins';
 
 interface ServerStatusStore {
     servers: ServerStatusData[];
