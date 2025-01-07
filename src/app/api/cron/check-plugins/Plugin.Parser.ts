@@ -1,6 +1,6 @@
 import { PluginInfo, PluginParseResult } from './Plugin.Types';
 
-const DEBUG_ENABLED = true;
+const DEBUG_ENABLED = false;
 
 function debug(...args: any[]) {
     if (DEBUG_ENABLED) {

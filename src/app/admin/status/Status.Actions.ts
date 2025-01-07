@@ -177,40 +177,24 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
     }
 
     try {
-        console.log(`[checkPlugins] Starting plugin check for server ${serverId}`);
         const config = await getServerConfig(server[0]);
         const result = await sendServerCommand(serverId, 'oxide.plugins', config);
 
         if (!result.success) {
-            console.error(`[checkPlugins] RCON command failed:`, result.message);
             return { success: false, error: result.message };
         }
 
-        console.log(`[checkPlugins] Got RCON response:`, result.serverResults[0]);
-
         // Parse the plugin data from the first response
         const parsedPlugins = parsePluginOutput(JSON.stringify(result.serverResults[0]));
-        console.log(`[checkPlugins] Parsed plugins result:`, {
-            success: parsedPlugins.success,
-            totalPlugins: parsedPlugins.totalPlugins,
-            error: parsedPlugins.error,
-            pluginsFound: parsedPlugins.plugins?.length || 0,
-        });
-
         if (!parsedPlugins.success || !parsedPlugins.plugins) {
             return { success: false, error: parsedPlugins.error || 'No plugins found in response' };
         }
 
         // Get existing plugins from plugin_data table
         const existingPlugins = await db.select().from(plugin_data);
-        console.log(`[checkPlugins] Found ${existingPlugins.length} existing plugins in database`);
 
         // Compare and update plugin versions
         const comparisonResults = comparePluginVersions(parsedPlugins.plugins, existingPlugins);
-        console.log(`[checkPlugins] Comparison results:`, {
-            totalComparisons: comparisonResults.length,
-            pluginsNeedingUpdate: comparisonResults.filter((r) => r.needsUpdate).length,
-        });
 
         // Update plugin_data table
         let newPluginsCreated = 0;
@@ -218,11 +202,6 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
 
         for (const result of comparisonResults) {
             const existingPlugin = existingPlugins.find((p) => p.name === result.name);
-            console.log(`[checkPlugins] Processing plugin ${result.name}:`, {
-                exists: !!existingPlugin,
-                currentVersion: result.currentVersion,
-                highestSeen: existingPlugin?.highest_seen_version || 'none',
-            });
 
             if (!existingPlugin) {
                 // New plugin - create record
@@ -233,15 +212,9 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
                     author: result.author,
                 });
                 newPluginsCreated++;
-                console.log(`[checkPlugins] Created new plugin record for ${result.name}`);
             } else {
                 // Existing plugin - check if we need to update highest_seen_version
                 const versionComparison = compareVersions(result.currentVersion, existingPlugin.highest_seen_version);
-                console.log(`[checkPlugins] Version comparison for ${result.name}:`, {
-                    current: result.currentVersion,
-                    highest: existingPlugin.highest_seen_version,
-                    comparison: versionComparison,
-                });
 
                 if (versionComparison > 0) {
                     await db
@@ -252,16 +225,9 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
                         })
                         .where(eq(plugin_data.name, result.name));
                     pluginsUpdated++;
-                    console.log(`[checkPlugins] Updated highest seen version for ${result.name} to ${result.currentVersion}`);
                 }
             }
         }
-
-        console.log(`[checkPlugins] Plugin updates summary:`, {
-            newPluginsCreated,
-            pluginsUpdated,
-            totalPluginsProcessed: comparisonResults.length,
-        });
 
         // Update the next_wipe_info table with the parsed plugin data
         await db
@@ -271,8 +237,6 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
                 plugins_updated_at: new Date(),
             })
             .where(eq(next_wipe_info.server_id, serverId));
-
-        console.log(`[checkPlugins] Updated next_wipe_info table for server ${serverId}`);
 
         // Revalidate multiple paths to ensure fresh data
         revalidatePath('/admin/status');

@@ -2,7 +2,6 @@ import { clerkClient } from '@clerk/nextjs/server';
 import type { OrganizationMembership } from '@clerk/nextjs/server';
 
 async function captureClerkUserOrganizationMemberships(userId: string): Promise<OrganizationMembership[]> {
-    console.log("Capturing user's organization memberships...");
     try {
         // Get the clerk client instance first
         const clerk = await clerkClient();
