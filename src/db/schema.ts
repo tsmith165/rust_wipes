@@ -376,3 +376,16 @@ export const rw_alerts = pgTable('rw_alerts', {
 
 export type RwAlerts = InferSelectModel<typeof rw_alerts>;
 export type InsertRwAlerts = InferInsertModel<typeof rw_alerts>;
+
+export const plugin_data = pgTable('plugin_data', {
+    id: serial('id').primaryKey(),
+    name: varchar('name').notNull().unique(),
+    current_version: varchar('current_version').notNull().default('none'),
+    highest_seen_version: varchar('highest_seen_version').notNull(),
+    author: varchar('author'),
+    updated_at: timestamp('updated_at').defaultNow(),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export type PluginData = InferSelectModel<typeof plugin_data>;
+export type InsertPluginData = InferInsertModel<typeof plugin_data>;

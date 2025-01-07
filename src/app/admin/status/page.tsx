@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export const metadata: Metadata = {
     title: 'Rust Wipes - Server Status',
@@ -30,11 +32,13 @@ export const metadata: Metadata = {
 import { getServerStatus } from './Status.Actions';
 import { StatusContainer } from './Status.Container';
 import PageLayout from '@/components/layout/PageLayout';
-import { headers } from 'next/headers';
 
 export default async function StatusPage() {
-    // Get headers outside of cached function
-    headers();
+    // Force dynamic route and no caching
+    const headersList = headers();
+    const response = new NextResponse();
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
     const serverStatus = await getServerStatus();
 
     return (
@@ -44,5 +48,7 @@ export default async function StatusPage() {
     );
 }
 
-// This is still useful for static generation intervals
-export const revalidate = 60;
+// Force dynamic behavior
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;

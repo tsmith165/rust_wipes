@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaSync } from 'react-icons/fa';
+import { FaSync, FaExclamationTriangle, FaCheckCircle } from 'react-icons/fa';
 import { OverlayContainer } from '../core/Overlay.Container';
-import { PluginInfo } from '@/app/api/cron/check-plugins/Plugin.Types';
+import { VersionComparisonResult } from '@/app/api/cron/check-plugins/Plugin.Versions';
 
 interface ModalPluginsProps {
     isOpen: boolean;
     onClose: () => void;
-    plugins: PluginInfo[];
+    plugins: VersionComparisonResult[];
     onRefresh?: () => void;
     isRefreshing?: boolean;
     lastUpdated?: Date;
@@ -58,13 +58,31 @@ export function ModalPlugins({ isOpen, onClose, plugins, onRefresh, isRefreshing
                             transition={{ delay: index * 0.05 }}
                             className="flex flex-col space-y-1 rounded-lg bg-stone-800 p-3"
                         >
-                            <div className="text-lg font-semibold text-primary_light">{plugin.name}</div>
-                            <div className="text-sm text-stone-400">
-                                <span className="font-medium text-stone-300">Version:</span> {plugin.version}
+                            <div className="flex items-center justify-between">
+                                <div className="text-lg font-semibold text-primary_light">{plugin.name}</div>
+                                {plugin.needsUpdate ? (
+                                    <FaExclamationTriangle className="h-5 w-5 text-red-500" />
+                                ) : (
+                                    <FaCheckCircle className="h-5 w-5 text-green-500" />
+                                )}
                             </div>
                             <div className="text-sm text-stone-400">
-                                <span className="font-medium text-stone-300">Author:</span> {plugin.author}
+                                <span className="font-medium text-stone-300">Current Version:</span>{' '}
+                                <span className={plugin.needsUpdate ? 'text-red-400' : 'text-green-400'}>{plugin.currentVersion}</span>
                             </div>
+                            <div className="text-sm text-stone-400">
+                                <span className="font-medium text-stone-300">Expected Version:</span>{' '}
+                                <span className="text-blue-400">{plugin.expectedVersion}</span>
+                            </div>
+                            <div className="text-sm text-stone-400">
+                                <span className="font-medium text-stone-300">Highest Seen:</span>{' '}
+                                <span className="text-purple-400">{plugin.highestSeenVersion}</span>
+                            </div>
+                            {plugin.author && (
+                                <div className="text-sm text-stone-400">
+                                    <span className="font-medium text-stone-300">Author:</span> {plugin.author}
+                                </div>
+                            )}
                         </motion.div>
                     ))}
                 </div>

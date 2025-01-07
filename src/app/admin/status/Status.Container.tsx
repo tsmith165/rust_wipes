@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useServerStatusStore } from '@/stores/Store.ServerStatus';
-import { ServerStatusData, restartServer, regularWipe, bpWipe, checkPlugins } from './Status.Actions';
+import { ServerStatusData, restartServer, regularWipe, bpWipe, checkPlugins, getPluginVersions } from './Status.Actions';
 import { CardContainer } from '@/components/ui/card/Card.Container';
 import { CardHeader } from '@/components/ui/card/Card.Header';
 import { CardContent } from '@/components/ui/card/Card.Content';
@@ -12,6 +12,9 @@ import { CardError } from '@/components/ui/card/Card.Error';
 import { CardSuccess } from '@/components/ui/card/Card.Success';
 import { SERVER_GROUPS } from './Status.Constants';
 import { ModalPlugins } from '@/components/overlays/templates/Modal.Plugins';
+import { comparePluginVersions } from '@/app/api/cron/check-plugins/Plugin.Versions';
+import { plugin_data } from '@/db/db';
+import type { PluginData } from '@/db/schema';
 
 const AUTO_REFRESH_SECONDS = 5;
 const AUTO_REFRESH_INTERVAL = AUTO_REFRESH_SECONDS * 1000;
@@ -27,6 +30,7 @@ export function StatusContainer({ initialStatus }: StatusContainerProps) {
     const [showPluginsOverlay, setShowPluginsOverlay] = useState(false);
     const [selectedServer, setSelectedServer] = useState<ServerStatusData | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [pluginVersionData, setPluginVersionData] = useState<PluginData[]>([]);
 
     const {
         servers,
@@ -108,28 +112,34 @@ export function StatusContainer({ initialStatus }: StatusContainerProps) {
     };
 
     const handleViewPlugins = async (server: ServerStatusData) => {
-        // If no plugins in database, fetch them first
-        if (!server.installed_plugins) {
-            await handleRconCommand(server.server_id, 'checkPlugins', checkPlugins);
-            // After fetching, get the updated server data
-            const updatedServer = servers.find((s) => s.server_id === server.server_id);
-            if (updatedServer) {
-                setSelectedServer(updatedServer);
-                setShowPluginsOverlay(true);
-            }
-        } else {
-            // If plugins exist in database, show immediately
-            setSelectedServer(server);
+        // Always check plugins first to ensure fresh data
+        await handleRconCommand(server.server_id, 'checkPlugins', checkPlugins);
+
+        // After fetching, get the updated server data
+        const updatedServer = servers.find((s) => s.server_id === server.server_id);
+        if (updatedServer) {
+            setSelectedServer(updatedServer);
             setShowPluginsOverlay(true);
+            // Fetch fresh plugin version data
+            const result = await getPluginVersions();
+            if (result.success && result.data) {
+                setPluginVersionData(result.data);
+            }
         }
     };
 
     const handleCheckPlugins = async (serverId: string) => {
+        console.log('Checking plugins for server:', serverId);
         await handleRconCommand(serverId, 'checkPlugins', checkPlugins);
         // After refreshing plugins, update the selected server data
         const updatedServer = servers.find((s) => s.server_id === serverId);
         if (updatedServer) {
             setSelectedServer(updatedServer);
+            // Fetch fresh plugin version data
+            const result = await getPluginVersions();
+            if (result.success && result.data) {
+                setPluginVersionData(result.data);
+            }
         }
         handleManualRefresh();
     };
@@ -143,6 +153,21 @@ export function StatusContainer({ initialStatus }: StatusContainerProps) {
             }
         }
     }, [servers, selectedServer]);
+
+    // Fetch plugin version data on mount
+    useEffect(() => {
+        const fetchPluginData = async () => {
+            try {
+                const result = await getPluginVersions();
+                if (result.success && result.data) {
+                    setPluginVersionData(result.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch plugin version data:', error);
+            }
+        };
+        fetchPluginData();
+    }, []);
 
     const renderServerCard = (server: ServerStatusData) => {
         const serverLoadingState = loadingCommands[server.server_id] || {};
@@ -208,7 +233,9 @@ export function StatusContainer({ initialStatus }: StatusContainerProps) {
             <ModalPlugins
                 isOpen={showPluginsOverlay}
                 onClose={() => setShowPluginsOverlay(false)}
-                plugins={selectedServer?.installed_plugins || []}
+                plugins={
+                    selectedServer?.installed_plugins ? comparePluginVersions(selectedServer.installed_plugins, pluginVersionData) : []
+                }
                 onRefresh={selectedServer ? () => handleCheckPlugins(selectedServer.server_id) : undefined}
                 isRefreshing={loadingCommands[selectedServer?.server_id || '']?.checkPlugins}
                 lastUpdated={selectedServer?.plugins_updated_at ? new Date(selectedServer.plugins_updated_at) : undefined}

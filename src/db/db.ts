@@ -24,6 +24,7 @@ import {
     player_stats_history,
     giveaway_rewards,
     rw_alerts,
+    plugin_data,
 } from './schema';
 
 const sql = neon(process.env.NEON_DATABASE_URL!);
@@ -53,4 +54,5 @@ export {
     player_stats_history,
     giveaway_rewards,
     rw_alerts,
+    plugin_data,
 };

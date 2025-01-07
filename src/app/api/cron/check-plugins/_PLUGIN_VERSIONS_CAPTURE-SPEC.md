@@ -35,14 +35,13 @@
 Create a system that:
 
 1. Captures installed plugin information from Rust servers using RCON
-2. Parses plugin data into structured format
-3. Stores plugin data in database
-4. Updates automatically via cron job
-5. Provides data for UI display (future implementation)
+2. Tracks plugin versions over time in a dedicated table
+3. Compares current versions against expected versions
+4. Provides visual feedback on version mismatches
+5. Updates automatically via cron job
+6. Provides data for UI display with version comparison
 
 ## Previous Implementation Overview
-
-Similar cron job implementation exists in `/api/cron/check-for-alerts`:
 
 ### File Structure
 
@@ -51,18 +50,13 @@ Similar cron job implementation exists in `/api/cron/check-for-alerts`:
   /app
     /api
       /cron
-        /check-for-alerts
+        /check-plugins
           route.ts
-          Alert.Checks.ts
-          Alert.Constants.ts
+          Plugin.Parser.ts
+          Plugin.Types.ts
+          Plugin.Constants.ts
+          _PLUGIN_VERSIONS_CAPTURE-SPEC.md
 ```
-
-### Key Files
-
-1. `route.ts`: Main cron handler that processes server checks
-2. `Alert.Checks.ts`: Contains check functions and types
-3. `Alert.Constants.ts`: Constants and configurations
-4. `rustServerCommands.ts`: RCON command utilities
 
 ## Updated Implementation Overview
 
@@ -78,130 +72,192 @@ Similar cron job implementation exists in `/api/cron/check-for-alerts`:
           Plugin.Parser.ts
           Plugin.Types.ts
           Plugin.Constants.ts
+          Plugin.Versions.ts
           _PLUGIN_VERSIONS_CAPTURE-SPEC.md
+    /admin
+      /status
+        Status.Container.tsx
+        Status.Controls.tsx
+        Status.Types.ts
+  /components
+    /overlays
+      /templates
+        Modal.Plugins.tsx
+  /db
+    db.ts
+    schema.ts
 ```
 
 ### Database Changes
 
-Add to `next_wipe_info` table:
+1. New `plugin_data` table:
 
--   `installed_plugins`: JSONB (stores plugin name/version mapping)
--   `plugins_last_updated`: timestamp (tracks last plugin check)
+```typescript
+export const plugin_data = pgTable('plugin_data', {
+    id: serial('id').primaryKey(),
+    name: varchar('name').notNull().unique(),
+    current_version: varchar('current_version').notNull().default('none'),
+    highest_seen_version: varchar('highest_seen_version').notNull(),
+    author: varchar('author'),
+    updated_at: timestamp('updated_at').defaultNow(),
+    created_at: timestamp('created_at').defaultNow(),
+});
+```
+
+2. Types:
+
+```typescript
+export type PluginData = InferSelectModel<typeof plugin_data>;
+export type InsertPluginData = InferInsertModel<typeof plugin_data>;
+```
 
 ## Current Proposed Solution
 
-### Plugin Data Capture
+### Plugin Version Tracking
 
-1. Use `oxide.plugins` RCON command via `rustServerCommands.ts`
-2. Parse text output into structured JSON
-3. Store in database with timestamp
+1. Data Collection Flow:
 
-### Data Structure
+    - Fetch current plugin data via RCON
+    - Parse response into structured format
+    - Query existing `plugin_data` table from database for expected plugin versions
+    - Compare versions and update as needed
 
-```typescript
-interface PluginInfo {
-    name: string;
-    version: string;
-    isLoaded: boolean;
-}
+2. Version Comparison Logic:
 
-type InstalledPlugins = Record<string, PluginInfo>;
-```
+    - Track current installed version
+    - Track highest seen version
+    - Compare versions for UI display
+    - Update database when new versions found
 
-### `oxide.plugins` Command Output
+3. UI Updates:
+    - Show current vs expected version
+    - Color-code based on version comparison
+    - Add version mismatch indicators
+    - Include last update timestamp
 
-```
-oxide.plugins
-Listing 30 plugins:
-  01 "AdvancedEntityLimit" (1.0.5) by M&B-Studios (1.93s / 294 MB) - AdvancedEntityLimit.cs
-  02 "BetterLootPlus" (4.1.0) by Extinkt (38.36s / 321 MB) - BetterLootPlus.cs
-  03 "Clans" (0.2.6) by k1lly0u (0.01s / 336 KB) - Clans.cs
-  04 "Creative" (2.0.25) by Ryuk_ (3.54s / 61 MB) - Creative.cs
-  05 "CustomPerms" (1.5.0) by Extinkt (0.02s / 3 MB) - CustomPerms.cs
-  06 "EntityTrackDown" (1.0.0) by Extinkt (0.00s / 0 B) - EntityTrackDown.cs
-  07 "Gather Manager" (2.2.78) by Mughisi (0.29s / 16 KB) - GatherManager.cs
-  08 "Giveaway" (1.0.0) by Extinkt (0.00s / 0 B) - Giveaway.cs
-  09 "Group Limits" (3.0.4) by misticos (0.00s / 0 B) - GroupLimits.cs
-  10 "Image Library" (2.0.62) by Absolut & K1lly0u (0.02s / 6 MB) - ImageLibrary.cs
-  11 "Kit Redemption" (1.3.1) by Extinkt (0.03s / 560 KB) - KitRedemption.cs
-  12 "Kits" (4.4.1) by k1lly0u (0.07s / 3 MB) - Kits.cs
-  13 "MapVoting" (1.2.4) by Extinkt (0.00s / 28 KB) - MapVoting.cs
-  14 "No Give Notices" (0.3.0) by Wulf (0.00s / 0 B) - NoGiveNotices.cs
-  15 "PlayerAdministration" (1.6.9) by ThibmoRozier (0.00s / 0 B) - PlayerAdministration.cs
-  16 "PlayerStats" (1.2.6) by Extinkt (29.27s / 41 MB) - PlayerStats.cs
-  17 "PrivateMessages" (1.1.11) by MisterPixie (0.00s / 0 B) - PrivateMessages.cs
-  18 "Quick Smelt" (5.1.5) by misticos (0.84s / 2 MB) - QuickSmelt.cs
-  19 "Referrals" (1.5.3) by Extinkt (0.00s / 24 KB) - Referrals.cs
-  20 "ServerConfigEnforcer" (1.1.3) by YourName (0.00s / 120 KB) - ServerConfigEnforcer.cs
-  21 "ServerManager" (1.4.2) by Extinkt (1.31s / 4 MB) - ServerManager.cs
-  22 "SimpleAdminCommandStatus" (1.0.13) by Extinkt (0.18s / 16 KB) - SimpleAdminCommandStatus.cs
-  23 "Simple Kill Feed" (2.2.8) by Krungh Crow (0.01s / 24 KB) - SimpleKillFeed.cs
-  24 "SimpleStatus" (1.2.7) by mr01sam (0.01s / 1012 KB) - SimpleStatus.cs
-  25 "Site Gambling Hook" (1.2.1) by Extinkt (0.00s / 0 B) - SiteGamblingHook.cs
-  26 "Stack Size Controller" (4.1.3) by AnExiledDev/patched by chrome (0.35s / 116 KB) - StackSizeController.cs
-  27 "Teleport" (2.2.5) by Extinkt (0.00s / 0 B) - Teleport.cs
-  28 "TradePlus" (1.3.1) by Calytic (0.00s / 4 KB) - TradePlus.cs
-  29 "Ultimate Queue" (1.0.4) by Bobakanoosh (0.00s / 0 B) - UltimateQueue.cs
-  30 "XSkinMenu" (1.5.9) by Monster (1.42s / 9 MB) - XSkinMenu.cs
-```
+### Version Comparison Rules
 
-### Cron Implementation
+1. New Plugin Detection:
 
-1. Fetch all servers from `next_wipe_info`
-2. For each server:
-    - Send RCON command
-    - Parse response
-    - Update database
-3. Run every 60 minutes
+    - If plugin not in database:
+        - Create new record
+        - Set current_version to "none"
+        - Set highest_seen_version to discovered version
+
+2. Version Updates:
+
+    - If plugin exists:
+        - Compare current version with database version
+        - Update highest_seen_version if current is higher
+        - Maintain version history
+
+3. UI Display:
+    - Green: current >= expected version
+    - Red: current < expected version
+    - Show both versions in plugin list
+
+## Current Implementation Details
+
+### Implemented Components
+
+1. Database Schema
+
+    - Added `plugin_data` table to schema.ts
+    - Added table exports to db.ts
+    - Table structure matches specification
+
+2. Version Comparison Logic
+
+    - Created `Plugin.Versions.ts`
+    - Implemented semantic version comparison
+    - Added plugin comparison logic
+    - Handles missing plugins
+    - Sorts results alphabetically
+
+3. Route Handler Updates
+
+    - Modified check-plugins/route.ts
+    - Added plugin_data table integration
+    - Implemented version tracking logic
+    - Added error handling for version comparisons
+    - Added detailed logging
+
+4. UI Implementation
+
+    - Updated Modal.Plugins.tsx with version comparison display
+    - Added color-coded status indicators
+    - Added version comparison information
+    - Implemented version mismatch indicators
+    - Added last update timestamp
+
+5. API Endpoints
+
+    - Added /api/plugins/versions endpoint
+    - Implemented admin-only access
+    - Added error handling
+    - Added caching headers
+
+### Version Display Implementation
+
+The UI now shows:
+
+1. Current version with color status
+    - Green: Up to date
+    - Red: Needs update
+2. Expected version in blue
+3. Highest seen version in purple
+4. Status icons
+    - Check mark for up-to-date plugins
+    - Warning triangle for outdated plugins
+5. Last update timestamp
 
 ## Next Steps
 
-1. Update Database Schema
+1. Testing and Validation
 
-    - Add `installed_plugins` JSONB field to `next_wipe_info`
-    - Add `plugins_updated_at` timestamp field
-    - Create migration script
+    - Test version comparison edge cases
+    - Verify database updates
+    - Check UI rendering
+    - Validate color coding logic
+    - Test admin access controls
 
-2. Create Plugin Types and Parser
+2. Documentation
 
-    - Define TypeScript interfaces for plugin data
-    - Create parser function for RCON output
-    - Add validation and error handling
+    - Add API documentation
+    - Document version comparison logic
+    - Add UI component documentation
+    - Update monitoring guidelines
 
-3. Implement RCON Command Handler
+3. Performance Optimization
 
-    - Create function to send `oxide.plugins` command
-    - Handle connection timeouts
-    - Add error logging
-
-4. Create Main Runner Function
-
-    - Implement cron handler in `route.ts`
-    - Add server iteration logic
-    - Implement error handling and logging
-
-5. Update Vercel Configuration
-
-    - Add new cron job to `vercel.json`
-    - Set 60-minute schedule
-
-6. Testing and Monitoring
-    - Deploy to staging
-    - Verify plugin data capture
-    - Monitor database performance
-    - Check RCON reliability
+    - Consider caching plugin version data
+    - Optimize database queries
+    - Add loading states
+    - Consider pagination for large plugin lists
 
 ## Current Unresolved Issues
 
-1. Plan for large plugin lists
+1. Need to handle invalid version strings gracefully
+2. Consider adding version history tracking
+3. Plan for plugin removal detection
+4. Consider adding bulk update capabilities
+5. Need to implement proper error handling in version comparison
+6. Consider adding version rollback detection
+7. Need to handle version format variations
+8. Consider adding version update notifications
+9. Consider adding search/filter functionality
+10. Consider adding sorting options
 
 ## Change Log
 
--   Initial spec creation with project structure and requirements
--   Defined database schema changes
--   Outlined plugin parsing strategy
--   Specified cron job implementation
--   Added data structure definitions
+### 2024-01-XX (Latest)
+
+-   Implemented version comparison UI
+-   Added color-coded status indicators
+-   Created plugin versions API endpoint
+-   Added version comparison display
+-   Updated Modal.Plugins component
+-   Added status icons and indicators
 
 ```
 

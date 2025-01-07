@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { db, next_wipe_info } from '@/db/db';
+import { db, next_wipe_info, plugin_data } from '@/db/db';
 import { headers } from 'next/headers';
 import { parsePluginOutput } from './Plugin.Parser';
 import { PluginCheckResult } from './Plugin.Types';
 import { getServerConfigs, sendServerCommand } from '@/utils/rust/rustServerCommands';
 import { eq } from 'drizzle-orm';
+import { comparePluginVersions, compareVersions } from './Plugin.Versions';
 
 // Force dynamic route to prevent caching
 export const dynamic = 'force-dynamic';
@@ -15,11 +16,15 @@ export async function GET() {
     headers();
 
     try {
-        console.log('Starting cron job to check plugins...', new Date().toISOString());
+        console.log('Starting job to check plugins...', new Date().toISOString());
 
         // Fetch all servers from next_wipe_info
         const servers = await db.select().from(next_wipe_info);
         console.log(`Found ${servers.length} servers to check`);
+
+        // Fetch existing plugin data
+        const existingPlugins = await db.select().from(plugin_data);
+        console.log(`Found ${existingPlugins.length} existing plugins in database`);
 
         const results: PluginCheckResult[] = [];
         const serverConfigs = getServerConfigs();
@@ -70,11 +75,42 @@ export async function GET() {
                     continue;
                 }
 
-                // Update database
+                // Compare and update plugin versions
+                const comparisonResults = comparePluginVersions(parsedPlugins.plugins || [], existingPlugins);
+
+                // Update plugin_data table
+                for (const result of comparisonResults) {
+                    const existingPlugin = existingPlugins.find((p) => p.name === result.name);
+
+                    if (!existingPlugin) {
+                        // New plugin - create record
+                        await db.insert(plugin_data).values({
+                            name: result.name,
+                            current_version: result.currentVersion,
+                            highest_seen_version: result.highestSeenVersion,
+                            author: result.author,
+                        });
+                        console.log(`Created new plugin record for ${result.name}`);
+                    } else {
+                        // Existing plugin - check if we need to update highest_seen_version
+                        if (compareVersions(result.currentVersion, existingPlugin.highest_seen_version) > 0) {
+                            await db
+                                .update(plugin_data)
+                                .set({
+                                    highest_seen_version: result.currentVersion,
+                                    updated_at: new Date(),
+                                })
+                                .where(eq(plugin_data.name, result.name));
+                            console.log(`Updated highest seen version for ${result.name} to ${result.currentVersion}`);
+                        }
+                    }
+                }
+
+                // Update next_wipe_info with current plugin data
                 await db
                     .update(next_wipe_info)
                     .set({
-                        installed_plugins: { installed_plugins: parsedPlugins.plugins },
+                        installed_plugins: parsedPlugins.plugins,
                         plugins_updated_at: new Date(),
                     })
                     .where(eq(next_wipe_info.server_id, server.server_id));

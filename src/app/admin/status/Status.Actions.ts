@@ -1,12 +1,14 @@
 'use server';
 
-import { db, next_wipe_info } from '@/db/db';
-import { NextWipeInfo, type next_wipe_info as NextWipeInfoTable } from '@/db/schema';
+import { db, next_wipe_info, plugin_data } from '@/db/db';
+import { NextWipeInfo, type next_wipe_info as NextWipeInfoTable, type PluginData } from '@/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 import { revalidatePath } from 'next/cache';
-import { fetchBattleMetricsServerData, BattleMetricsServerData } from '@/utils/battlemetrics/BattleMetricsAPI';
+import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { fetchBattleMetricsServers } from '@/app/actions';
 import {
     restartServer as restartServerRcon,
     regularWipe as regularWipeRcon,
@@ -14,17 +16,20 @@ import {
     sendServerCommand,
 } from '@/utils/rust/rustServerCommands';
 import { parsePluginOutput } from '@/app/api/cron/check-plugins/Plugin.Parser';
+import { comparePluginVersions, compareVersions } from '@/app/api/cron/check-plugins/Plugin.Versions';
+
+interface PluginInfo {
+    name: string;
+    version: string;
+    author: string;
+}
 
 export interface ServerStatusData extends Omit<NextWipeInfo, 'installed_plugins' | 'plugins_updated_at'> {
     player_count?: number;
     max_players?: number;
     rust_build?: string;
     status: 'online' | 'offline' | 'restarting';
-    installed_plugins: Array<{
-        name: string;
-        version: string;
-        author: string;
-    }> | null;
+    installed_plugins: PluginInfo[] | null;
     plugins_updated_at: Date | null;
 }
 
@@ -40,33 +45,6 @@ async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string }> {
     return { isAdmin: true };
 }
 
-async function fetchBattleMetricsData(serverId: string, bmId: string | null): Promise<Partial<ServerStatusData>> {
-    if (!bmId) {
-        console.warn(`No BattleMetrics ID found for server ${serverId}`);
-        return {
-            player_count: 0,
-            max_players: 0,
-            rust_build: 'Unknown',
-            status: 'offline',
-        };
-    }
-
-    try {
-        const bmData = await fetchBattleMetricsServerData(bmId);
-        return {
-            ...bmData,
-        };
-    } catch (error) {
-        console.error(`Failed to fetch BattleMetrics data for server ${serverId}:`, error);
-        return {
-            status: 'offline',
-            player_count: 0,
-            max_players: 0,
-            rust_build: 'Unknown',
-        };
-    }
-}
-
 export async function getServerStatus(): Promise<ServerStatusData[]> {
     const { isAdmin, error } = await checkUserRole();
     if (!isAdmin) {
@@ -75,20 +53,33 @@ export async function getServerStatus(): Promise<ServerStatusData[]> {
     }
 
     try {
+        // Get all servers from the database
         const servers = await db.select().from(next_wipe_info).orderBy(desc(next_wipe_info.server_id));
 
-        const serverStatus = await Promise.all(
-            servers.map(async (server) => {
-                const bmData = await fetchBattleMetricsData(server.server_id, server.bm_id);
-                // Ensure dates are properly serialized
-                return {
-                    ...server,
-                    ...bmData,
-                    last_restart: server.last_restart ? new Date(server.last_restart).toISOString() : null,
-                    last_wipe: server.last_wipe ? new Date(server.last_wipe).toISOString() : null,
-                } as ServerStatusData;
-            }),
-        );
+        // Extract server IDs and filter out any without BM IDs
+        const serverIds = servers.filter((server) => server.bm_id).map((server) => parseInt(server.bm_id!, 10));
+
+        // Fetch all BattleMetrics data in one request
+        const bmServers = await fetchBattleMetricsServers(serverIds, serverIds.length);
+
+        // Map the servers with their BattleMetrics data
+        const serverStatus = servers.map((server) => {
+            const bmServer = server.bm_id ? bmServers.find((bm) => bm.id === server.bm_id) : null;
+
+            const status: ServerStatusData = {
+                ...server,
+                player_count: bmServer?.attributes.players || 0,
+                max_players: bmServer?.attributes.maxPlayers || 0,
+                rust_build: 'Unknown', // BattleMetrics API doesn't provide rust_build in bulk fetch
+                status: bmServer ? 'online' : 'offline',
+                last_restart: server.last_restart,
+                last_wipe: server.last_wipe,
+                installed_plugins: server.installed_plugins as PluginInfo[] | null,
+                plugins_updated_at: server.plugins_updated_at,
+            };
+
+            return status;
+        });
 
         return serverStatus;
     } catch (error) {
@@ -167,6 +158,13 @@ export async function bpWipe(serverId: string): Promise<{ success: boolean; erro
 }
 
 export async function checkPlugins(serverId: string): Promise<{ success: boolean; error?: string; successMessage?: string }> {
+    // Force dynamic route and no caching
+    headers();
+
+    // Add no-cache headers using NextResponse
+    const response = new NextResponse();
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
     const { isAdmin, error: authError } = await checkUserRole();
     if (!isAdmin) {
         return { success: false, error: authError };
@@ -179,21 +177,93 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
     }
 
     try {
+        console.log(`[checkPlugins] Starting plugin check for server ${serverId}`);
         const config = await getServerConfig(server[0]);
         const result = await sendServerCommand(serverId, 'oxide.plugins', config);
 
         if (!result.success) {
+            console.error(`[checkPlugins] RCON command failed:`, result.message);
             return { success: false, error: result.message };
         }
 
+        console.log(`[checkPlugins] Got RCON response:`, result.serverResults[0]);
+
         // Parse the plugin data from the first response
         const parsedPlugins = parsePluginOutput(JSON.stringify(result.serverResults[0]));
+        console.log(`[checkPlugins] Parsed plugins result:`, {
+            success: parsedPlugins.success,
+            totalPlugins: parsedPlugins.totalPlugins,
+            error: parsedPlugins.error,
+            pluginsFound: parsedPlugins.plugins?.length || 0,
+        });
 
-        if (!parsedPlugins.success) {
-            return { success: false, error: parsedPlugins.error };
+        if (!parsedPlugins.success || !parsedPlugins.plugins) {
+            return { success: false, error: parsedPlugins.error || 'No plugins found in response' };
         }
 
-        // Update the database with the parsed plugin data
+        // Get existing plugins from plugin_data table
+        const existingPlugins = await db.select().from(plugin_data);
+        console.log(`[checkPlugins] Found ${existingPlugins.length} existing plugins in database`);
+
+        // Compare and update plugin versions
+        const comparisonResults = comparePluginVersions(parsedPlugins.plugins, existingPlugins);
+        console.log(`[checkPlugins] Comparison results:`, {
+            totalComparisons: comparisonResults.length,
+            pluginsNeedingUpdate: comparisonResults.filter((r) => r.needsUpdate).length,
+        });
+
+        // Update plugin_data table
+        let newPluginsCreated = 0;
+        let pluginsUpdated = 0;
+
+        for (const result of comparisonResults) {
+            const existingPlugin = existingPlugins.find((p) => p.name === result.name);
+            console.log(`[checkPlugins] Processing plugin ${result.name}:`, {
+                exists: !!existingPlugin,
+                currentVersion: result.currentVersion,
+                highestSeen: existingPlugin?.highest_seen_version || 'none',
+            });
+
+            if (!existingPlugin) {
+                // New plugin - create record
+                await db.insert(plugin_data).values({
+                    name: result.name,
+                    current_version: result.currentVersion,
+                    highest_seen_version: result.highestSeenVersion,
+                    author: result.author,
+                });
+                newPluginsCreated++;
+                console.log(`[checkPlugins] Created new plugin record for ${result.name}`);
+            } else {
+                // Existing plugin - check if we need to update highest_seen_version
+                const versionComparison = compareVersions(result.currentVersion, existingPlugin.highest_seen_version);
+                console.log(`[checkPlugins] Version comparison for ${result.name}:`, {
+                    current: result.currentVersion,
+                    highest: existingPlugin.highest_seen_version,
+                    comparison: versionComparison,
+                });
+
+                if (versionComparison > 0) {
+                    await db
+                        .update(plugin_data)
+                        .set({
+                            highest_seen_version: result.currentVersion,
+                            updated_at: new Date(),
+                        })
+                        .where(eq(plugin_data.name, result.name));
+                    pluginsUpdated++;
+                    console.log(`[checkPlugins] Updated highest seen version for ${result.name} to ${result.currentVersion}`);
+                }
+            }
+        }
+
+        console.log(`[checkPlugins] Plugin updates summary:`, {
+            newPluginsCreated,
+            pluginsUpdated,
+            totalPluginsProcessed: comparisonResults.length,
+        });
+
+        // Update the next_wipe_info table with the parsed plugin data
         await db
             .update(next_wipe_info)
             .set({
@@ -202,16 +272,41 @@ export async function checkPlugins(serverId: string): Promise<{ success: boolean
             })
             .where(eq(next_wipe_info.server_id, serverId));
 
-        // Revalidate the path
+        console.log(`[checkPlugins] Updated next_wipe_info table for server ${serverId}`);
+
+        // Revalidate multiple paths to ensure fresh data
         revalidatePath('/admin/status');
+        revalidatePath('/admin/status', 'layout');
 
         return {
             success: true,
-            successMessage: `Successfully updated ${parsedPlugins.totalPlugins} plugins`,
+            successMessage: `Successfully updated ${parsedPlugins.totalPlugins} plugins (${newPluginsCreated} new, ${pluginsUpdated} updated)`,
         };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`Failed to check plugins for server ${serverId}:`, errorMessage);
+        console.error(`[checkPlugins] Error checking plugins for server ${serverId}:`, errorMessage);
         return { success: false, error: errorMessage };
+    }
+}
+
+export async function getPluginVersions(): Promise<{ success: boolean; data?: PluginData[]; error?: string }> {
+    // Force headers() call to make route dynamic
+    headers();
+
+    // Add no-cache headers using NextResponse
+    const response = new NextResponse();
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+    const { isAdmin, error: authError } = await checkUserRole();
+    if (!isAdmin) {
+        return { success: false, error: authError };
+    }
+
+    try {
+        const plugins = await db.select().from(plugin_data);
+        return { success: true, data: plugins };
+    } catch (error) {
+        console.error('Error fetching plugin versions:', error);
+        return { success: false, error: 'Failed to fetch plugin versions' };
     }
 }
