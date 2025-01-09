@@ -9,6 +9,8 @@ export const columns: ColumnDef<VersionComparisonResult>[] = [
     {
         id: 'status',
         header: 'Status',
+        enableSorting: true,
+        accessorFn: (row) => !row.needsUpdate, // Convert needsUpdate to boolean for sorting
         cell: ({ row }) => {
             const plugin = row.original;
             const isUpToDate = !plugin.needsUpdate;
@@ -24,10 +26,6 @@ export const columns: ColumnDef<VersionComparisonResult>[] = [
                     </div>
                 </div>
             );
-        },
-        enableSorting: true,
-        sortingFn: (rowA, rowB) => {
-            return rowA.original.needsUpdate === rowB.original.needsUpdate ? 0 : rowA.original.needsUpdate ? 1 : -1;
         },
     },
     // Name Column
