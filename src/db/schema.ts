@@ -134,6 +134,7 @@ export type InsertVerifiedTransactions = InferInsertModel<typeof verified_transa
 export const rw_servers = pgTable('rw_servers', {
     id: serial('id').primaryKey(),
     o_id: integer('o_id').notNull(),
+    server_id: integer('server_id').notNull().default(0),
     name: varchar('name').notNull(),
     short_title: varchar('short_title'),
     rate: varchar('rate').notNull(),
