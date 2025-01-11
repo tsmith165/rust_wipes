@@ -58,7 +58,7 @@ Create an admin-protected alerts management system that:
         Alerts.Constants.ts ✓
     /api
       /cron
-        /process-alerts
+        /process/alerts
           route.ts ✓
   /components
     /ui
@@ -153,7 +153,7 @@ New table `rw_alerts`:
 -   Updated SPEC to reflect new caching approach
 -   Planning implementation of React cache for data fetching
 -   Migrated alert processing to Vercel Cron job
--   Created /api/cron/process-alerts endpoint
+-   Created /api/cron/process/alerts endpoint
 -   Configured cron job to run every minute
 -   Removed alert processing from page load
 -   Updated documentation with new cron-based approach
