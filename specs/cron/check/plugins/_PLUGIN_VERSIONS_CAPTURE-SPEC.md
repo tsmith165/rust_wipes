@@ -50,7 +50,7 @@ Create a system that:
   /app
     /api
       /cron
-        /check-plugins
+        /check/plugins
           route.ts
           Plugin.Parser.ts
           Plugin.Types.ts
@@ -67,7 +67,7 @@ Create a system that:
   /app
     /api
       /cron
-        /check-plugins
+        /check/plugins
           route.ts
           Plugin.Parser.ts
           Plugin.Types.ts
@@ -176,7 +176,7 @@ export type InsertPluginData = InferInsertModel<typeof plugin_data>;
 
 3. Route Handler Updates
 
-    - Modified check-plugins/route.ts
+    - Modified check/plugins/route.ts
     - Added plugin_data table integration
     - Implemented version tracking logic
     - Added error handling for version comparisons

@@ -15,7 +15,7 @@ import {
     bpWipe as bpWipeRcon,
     sendServerCommand,
 } from '@/utils/rust/rustServerCommands';
-import { parsePluginOutput } from '@/app/api/cron/check-plugins/Plugin.Parser';
+import { parsePluginOutput } from '@/app/api/cron/check/plugins/Plugin.Parser';
 import { comparePluginVersions, compareVersions } from '@/app/api/cron/check/plugins/Plugin.Versions';
 
 interface PluginInfo {
