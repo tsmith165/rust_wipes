@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { FaSync } from 'react-icons/fa';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { VersionComparisonResult } from '@/app/api/cron/check-plugins/Plugin.Versions';
+import { VersionComparisonResult } from '@/app/api/cron/check/plugins/Plugin.Versions';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 interface PluginsTableProps {

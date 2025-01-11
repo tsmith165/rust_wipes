@@ -56,7 +56,7 @@ Create a robust alert checking system that:
         Alerts.Constants.ts
     /api
       /cron
-        /process-alerts
+        /process/alerts
           route.ts
   /db
     db.ts
@@ -69,7 +69,7 @@ Create a robust alert checking system that:
 2. `Alerts.Constants.ts`: Alert-related constants and configurations
 3. `Alerts.Container.tsx`: Alert display and management UI
 4. `Alerts.Actions.ts`: Server actions for alert management
-5. `process-alerts/route.ts`: Cron job for processing and sending alert emails
+5. `process/alerts/route.ts`: Cron job for processing and sending alert emails
 
 ## Updated Implementation Overview
 
@@ -89,9 +89,9 @@ Create a robust alert checking system that:
         Alert.Types.ts
     /api
       /cron
-        /process-alerts
+        /process/alerts
           route.ts
-        /check-for-alerts
+        /check/alerts
           route.ts
           Alert.Checks.ts
   /db
@@ -116,7 +116,7 @@ Add to `rw_alerts` table:
 
 ### Check Runner System
 
-1. Main runner function in `check-for-alerts/route.ts`
+1. Main runner function in `check/alerts/route.ts`
 2. Individual check functions in `Alert.Checks.ts`
 3. Array of check functions to be executed
 4. Shared data fetching for efficiency

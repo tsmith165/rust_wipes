@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { OverlayContainer } from '../core/Overlay.Container';
-import { VersionComparisonResult } from '@/app/api/cron/check-plugins/Plugin.Versions';
+import { VersionComparisonResult } from '@/app/api/cron/check/plugins/Plugin.Versions';
 import { PluginsTable } from '@/app/admin/status/plugins/Plugins.Table';
 import { columns } from '@/app/admin/status/plugins/Plugins.Columns';
 

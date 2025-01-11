@@ -2,7 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import { VersionComparisonResult } from '@/app/api/cron/check-plugins/Plugin.Versions';
+import { VersionComparisonResult } from '@/app/api/cron/check/plugins/Plugin.Versions';
 
 export const columns: ColumnDef<VersionComparisonResult>[] = [
     // Status Icon Column
