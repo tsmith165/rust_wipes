@@ -12,7 +12,7 @@ import { CardError } from '@/components/ui/card/Card.Error';
 import { CardSuccess } from '@/components/ui/card/Card.Success';
 import { SERVER_GROUPS } from './Status.Constants';
 import { ModalPlugins } from '@/components/overlays/templates/Modal.Plugins';
-import { comparePluginVersions } from '@/app/api/cron/check-plugins/Plugin.Versions';
+import { comparePluginVersions } from '@/app/api/cron/check/plugins/Plugin.Versions';
 import { plugin_data } from '@/db/db';
 import type { PluginData } from '@/db/schema';
 

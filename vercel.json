@@ -21,15 +21,15 @@
     ],
     "crons": [
         {
-            "path": "/api/cron/process-alerts",
+            "path": "/api/cron/process/alerts",
             "schedule": "*/1 * * * *"
         },
         {
-            "path": "/api/cron/check-for-alerts",
+            "path": "/api/cron/check/alerts",
             "schedule": "*/1 * * * *"
         },
         {
-            "path": "/api/cron/check-plugins",
+            "path": "/api/cron/check/plugins",
             "schedule": "*/5 * * * *"
         }
     ]
