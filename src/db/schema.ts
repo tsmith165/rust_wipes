@@ -142,7 +142,7 @@ export const rw_servers = pgTable('rw_servers', {
     wipe_days: varchar('wipe_days').notNull(),
     wipe_time: integer('wipe_time').default(11),
     bp_wipe_time: integer('bp_wipe_time').default(14),
-    restart_time: integer('bp_wipe_time').default(4),
+    restart_time: integer('restart_time').default(4),
     connection_url: varchar('connection_url').notNull(),
 });
 
@@ -203,8 +203,9 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     next_event_name: varchar('next_event_name'),
     next_event_time: timestamp('next_event_time'),
     next_event_command: text('next_event_command'),
-    next_wipe_timestamp: timestamp('next_wipe_timestamp'),
-    next_bp_wipe_timestamp: timestamp('next_bp_wipe_timestamp'),
+    next_wipe_time: timestamp('next_wipe_time'),
+    next_bp_wipe_time: timestamp('next_bp_wipe_time'),
+    next_restart_time: timestamp('next_restart_time'),
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
