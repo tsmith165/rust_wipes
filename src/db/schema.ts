@@ -131,22 +131,6 @@ export const verified_transactions_table = pgTable('verified_transactions', {
 export type VerifiedTransactions = InferSelectModel<typeof verified_transactions_table>;
 export type InsertVerifiedTransactions = InferInsertModel<typeof verified_transactions_table>;
 
-export const rw_servers = pgTable('rw_servers', {
-    id: serial('id').primaryKey(),
-    o_id: integer('o_id').notNull(),
-    server_id: integer('server_id').notNull().default(0),
-    name: varchar('name').notNull(),
-    short_title: varchar('short_title'),
-    rate: varchar('rate').notNull(),
-    group_size: integer('group_size'),
-    wipe_days: varchar('wipe_days').notNull(),
-    wipe_time: integer('wipe_time').default(11),
-    connection_url: varchar('connection_url').notNull(),
-});
-
-export type RwServer = InferSelectModel<typeof rw_servers>;
-export type InsertRwServer = InferInsertModel<typeof rw_servers>;
-
 export const player_stats = pgTable('player_stats', {
     id: serial('id').primaryKey(),
     steam_id: varchar('steam_id').notNull(),
@@ -179,6 +163,24 @@ export const server_performance = pgTable('server_performance', {
 
 export type ServerPerformance = InferSelectModel<typeof server_performance>;
 export type InsertServerPerformance = InferInsertModel<typeof server_performance>;
+
+export const rw_servers = pgTable('rw_servers', {
+    id: serial('id').primaryKey(),
+    o_id: integer('o_id').notNull(),
+    server_id: integer('server_id').notNull().default(0),
+    name: varchar('name').notNull(),
+    short_title: varchar('short_title'),
+    rate: varchar('rate').notNull(),
+    group_size: integer('group_size'),
+    wipe_days: varchar('wipe_days').notNull(),
+    wipe_time: integer('wipe_time').default(11),
+    bp_wipe_time: integer('bp_wipe_time').default(14),
+    restart_time: integer('restart_time').default(4),
+    connection_url: varchar('connection_url').notNull(),
+});
+
+export type RwServer = InferSelectModel<typeof rw_servers>;
+export type InsertRwServer = InferInsertModel<typeof rw_servers>;
 
 export const next_wipe_info = pgTable('next_wipe_info', {
     id: serial('id').primaryKey(),
