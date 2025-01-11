@@ -200,6 +200,11 @@ export const next_wipe_info = pgTable('next_wipe_info', {
     map_name: varchar('map_name'),
     installed_plugins: jsonb('installed_plugins'),
     plugins_updated_at: timestamp('plugins_updated_at'),
+    next_event_name: varchar('next_event_name'),
+    next_event_time: timestamp('next_event_time'),
+    next_event_command: text('next_event_command'),
+    next_wipe_timestamp: timestamp('next_wipe_timestamp'),
+    next_bp_wipe_timestamp: timestamp('next_bp_wipe_timestamp'),
 });
 
 export type NextWipeInfo = InferSelectModel<typeof next_wipe_info>;
