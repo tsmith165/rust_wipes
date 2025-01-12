@@ -173,9 +173,9 @@ export const rw_servers = pgTable('rw_servers', {
     rate: varchar('rate').notNull(),
     group_size: integer('group_size'),
     wipe_days: varchar('wipe_days').notNull(),
-    wipe_time: integer('wipe_time').default(11),
-    bp_wipe_time: integer('bp_wipe_time').default(14),
-    restart_time: integer('restart_time').default(4),
+    wipe_time: varchar('wipe_time').default('1100'),
+    bp_wipe_time: varchar('bp_wipe_time').default('1400'),
+    restart_time: varchar('restart_time').default('0400'),
     connection_url: varchar('connection_url').notNull(),
 });
 
