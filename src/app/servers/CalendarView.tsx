@@ -10,7 +10,7 @@ interface CalendarViewProps {
 
 interface WipeEvent {
     serverName: string;
-    wipeTime: number;
+    wipeTime: string;
     shortTitle?: string;
 }
 
@@ -40,7 +40,7 @@ export function CalendarView({ servers }: CalendarViewProps) {
             if (wipeDays.includes(dayOfWeek) && server.wipe_time !== null) {
                 wipeEvents.push({
                     serverName: server.name,
-                    wipeTime: server.wipe_time,
+                    wipeTime: server.wipe_time.toString(),
                     shortTitle: server.short_title || undefined, // Convert null to undefined
                 });
             }
@@ -49,13 +49,13 @@ export function CalendarView({ servers }: CalendarViewProps) {
         return wipeEvents;
     };
 
-    const formatWipeTime = (wipeTime: number): string => {
+    const formatWipeTime = (wipeTime: string): string => {
         switch (wipeTime) {
-            case 11:
+            case '11':
                 return '11 AM PST';
-            case 13:
+            case '13':
                 return '1 PM PST';
-            case 15:
+            case '15':
                 return '3 PM PST';
             default:
                 return `${wipeTime} PST`;
