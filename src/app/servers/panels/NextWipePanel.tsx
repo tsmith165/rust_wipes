@@ -19,7 +19,7 @@ export function NextWipePanel({ server }: { server: RwServer }) {
     const countdown = useCountdown(server);
 
     // convert wipe time to non-military time
-    const wipe_time = server.wipe_time ? server.wipe_time : 11;
+    const wipe_time = parseInt(server.wipe_time || '11', 10);
     let wipe_time_string = wipe_time > 11 ? `${wipe_time - 12}:00PM PST` : `${wipe_time}:00AM PST`;
     if (wipe_time_string === '0:00AM PST') wipe_time_string = '12:00PM PST';
 
