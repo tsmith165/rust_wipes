@@ -20,12 +20,13 @@ export function useCountdown(server: RwServer): string {
                 daysUntilWipe += 7;
             }
 
-            if (daysUntilWipe === 0 && currentHour >= (server.wipe_time || 11)) {
+            const wipeTimeNum = parseInt(server.wipe_time || '11', 10);
+            if (daysUntilWipe === 0 && currentHour >= wipeTimeNum) {
                 daysUntilWipe = 7;
             }
 
             const nextWipe = new Date(now.getTime() + daysUntilWipe * 24 * 60 * 60 * 1000);
-            nextWipe.setHours(server.wipe_time || 11, 0, 0, 0);
+            nextWipe.setHours(wipeTimeNum, 0, 0, 0);
 
             return nextWipe;
         };
