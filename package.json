@@ -17,6 +17,7 @@
         "@clerk/types": "^4.28.0",
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
+        "@modelcontextprotocol/server-postgres": "^0.6.2",
         "@neondatabase/serverless": "^0.9.5",
         "@radix-ui/react-dropdown-menu": "^2.1.4",
         "@radix-ui/react-slot": "^1.1.1",
@@ -75,6 +76,7 @@
         "zustand": "^4.5.5"
     },
     "devDependencies": {
+        "@neondatabase/mcp-server-neon": "^0.3.3",
         "@next/env": "15.0.1",
         "@stripe/stripe-js": "^1.54.2",
         "@types/js-cookie": "^3.0.6",

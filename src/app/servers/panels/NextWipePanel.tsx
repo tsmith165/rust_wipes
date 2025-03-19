@@ -19,9 +19,21 @@ export function NextWipePanel({ server }: { server: RwServer }) {
     const countdown = useCountdown(server);
 
     // convert wipe time to non-military time
-    const wipe_time = parseInt(server.wipe_time || '11', 10);
-    let wipe_time_string = wipe_time > 11 ? `${wipe_time - 12}:00PM PST` : `${wipe_time}:00AM PST`;
-    if (wipe_time_string === '0:00AM PST') wipe_time_string = '12:00PM PST';
+    const formatWipeTime = (wipeTime: string): string => {
+        // Convert military time string to hours and minutes
+        const hours = parseInt(wipeTime.slice(0, -2));
+        const minutes = parseInt(wipeTime.slice(-2));
+
+        // Convert to 12-hour format
+        let period = hours >= 12 ? 'PM' : 'AM';
+        let standardHours = hours % 12;
+        if (standardHours === 0) standardHours = 12;
+
+        // Format the time string
+        return `${standardHours}:${minutes.toString().padStart(2, '0')} ${period} PST`;
+    };
+
+    const wipe_time_string = formatWipeTime(server.wipe_time || '1100');
 
     return (
         <div className="flex flex-col space-y-4">

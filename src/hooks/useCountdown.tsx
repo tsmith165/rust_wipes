@@ -11,22 +11,39 @@ export function useCountdown(server: RwServer): string {
             const now = new Date();
             const currentDay = now.getDay();
             const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
 
             const wipeDays = server.wipe_days.split(',').map(Number);
-            let nextWipeDay = wipeDays.find((day) => day > currentDay) || wipeDays[0];
-            let daysUntilWipe = nextWipeDay - currentDay;
+            const wipeTimeHour = parseInt(server.wipe_time?.slice(0, -2) || '11', 10);
+            const wipeTimeMinute = parseInt(server.wipe_time?.slice(-2) || '00', 10);
 
+            // First check if we're on a wipe day before wipe time
+            if (wipeDays.includes(currentDay)) {
+                if (currentHour < wipeTimeHour || (currentHour === wipeTimeHour && currentMinute < wipeTimeMinute)) {
+                    // We're on a wipe day before wipe time, so next wipe is today
+                    const nextWipe = new Date(now);
+                    nextWipe.setHours(wipeTimeHour, wipeTimeMinute, 0, 0);
+                    return nextWipe;
+                }
+            }
+
+            // If we're past today's wipe time or it's not a wipe day, find the next wipe day
+            let nextWipeDay = wipeDays.find((day) => day > currentDay);
+
+            // If no next wipe day found in current week, wrap to first day of next week
+            if (nextWipeDay === undefined) {
+                nextWipeDay = wipeDays[0];
+            }
+
+            // Calculate days until next wipe
+            let daysUntilWipe = nextWipeDay - currentDay;
             if (daysUntilWipe <= 0) {
                 daysUntilWipe += 7;
             }
 
-            const wipeTimeNum = parseInt(server.wipe_time || '11', 10);
-            if (daysUntilWipe === 0 && currentHour >= wipeTimeNum) {
-                daysUntilWipe = 7;
-            }
-
-            const nextWipe = new Date(now.getTime() + daysUntilWipe * 24 * 60 * 60 * 1000);
-            nextWipe.setHours(wipeTimeNum, 0, 0, 0);
+            const nextWipe = new Date(now);
+            nextWipe.setDate(nextWipe.getDate() + daysUntilWipe);
+            nextWipe.setHours(wipeTimeHour, wipeTimeMinute, 0, 0);
 
             return nextWipe;
         };

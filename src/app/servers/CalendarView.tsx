@@ -50,16 +50,17 @@ export function CalendarView({ servers }: CalendarViewProps) {
     };
 
     const formatWipeTime = (wipeTime: string): string => {
-        switch (wipeTime) {
-            case '11':
-                return '11 AM PST';
-            case '13':
-                return '1 PM PST';
-            case '15':
-                return '3 PM PST';
-            default:
-                return `${wipeTime} PST`;
-        }
+        // Convert military time string to hours and minutes
+        const hours = parseInt(wipeTime.slice(0, -2));
+        const minutes = parseInt(wipeTime.slice(-2));
+
+        // Convert to 12-hour format
+        let period = hours >= 12 ? 'PM' : 'AM';
+        let standardHours = hours % 12;
+        if (standardHours === 0) standardHours = 12;
+
+        // Format the time string
+        return `${standardHours}:${minutes.toString().padStart(2, '0')} ${period} PST`;
     };
 
     return (
