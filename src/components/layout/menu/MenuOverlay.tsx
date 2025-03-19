@@ -53,7 +53,7 @@ export default function MenuOverlay({ currentPage, isAdmin }: MenuOverlayProps) 
 
     return (
         <motion.div
-            className="fixed right-0 top-[50px] z-50 h-fit max-h-[calc(100dvh-50px)] w-[350px] overflow-y-auto rounded-lg border border-stone-700/30 bg-stone-900 p-2 shadow-xl sm:w-[420px] md:max-h-[calc(100dvh-50px)] lg:w-[500px]"
+            className="fixed right-0 top-[50px] z-[100] h-fit max-h-[calc(100dvh-50px)] w-[350px] overflow-y-auto rounded-lg border border-stone-700/30 bg-stone-900 p-2 shadow-xl sm:w-[420px] md:max-h-[calc(100dvh-50px)] lg:w-[500px]"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}

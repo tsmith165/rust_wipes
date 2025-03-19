@@ -70,7 +70,7 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
                 position: 'fixed',
                 top: '60px', // Position below navbar
                 right: '20px', // Position at right with padding
-                zIndex: 9999, // Ensure it's above everything
+                zIndex: 40, // Lower than MenuOverlay's z-index (50)
                 width: '18rem', // Width similar to w-72
                 maxWidth: '95vw', // Ensure it doesn't overflow on small screens
             }}
