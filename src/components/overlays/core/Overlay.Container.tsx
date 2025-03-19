@@ -44,17 +44,23 @@ const SIZE_CLASSES = {
 };
 
 const getPositionClasses = (position: OverlayPosition, containerRef: React.RefObject<HTMLDivElement | null> | undefined): string => {
+    // Use absolute positioning when a container ref is provided, otherwise fixed
     const positionType = containerRef?.current ? 'absolute' : 'fixed';
+
+    // For top positions, add extra spacing to account for navbar when using fixed positioning
+    const topOffset = positionType === 'fixed' ? 'top-[54px]' : 'top-4';
+    const topLeftOffset = positionType === 'fixed' ? 'top-[54px] left-4' : 'top-4 left-4';
+    const topRightOffset = positionType === 'fixed' ? 'top-[54px] right-4' : 'top-4 right-4';
 
     const positions: Record<OverlayPosition, string> = {
         none: '',
         center: `${positionType} left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`,
-        top: `${positionType} top-4 left-1/2 -translate-x-1/2`,
+        top: `${positionType} ${topOffset} left-1/2 -translate-x-1/2`,
         bottom: `${positionType} bottom-4 left-1/2 -translate-x-1/2`,
         left: `${positionType} left-4 top-1/2 -translate-y-1/2`,
         right: `${positionType} right-4 top-1/2 -translate-y-1/2`,
-        'top-left': `${positionType} top-4 left-4`,
-        'top-right': `${positionType} top-4 right-4`,
+        'top-left': `${positionType} ${topLeftOffset}`,
+        'top-right': `${positionType} ${topRightOffset}`,
         'bottom-left': `${positionType} bottom-4 left-4`,
         'bottom-right': `${positionType} bottom-4 right-4`,
     };
@@ -176,7 +182,7 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
                     {showBackdrop && (
                         <motion.div
                             className={cn(
-                                'fixed inset-x-0 bottom-0 top-[50px] z-40 h-[calc(100dvh-50px)] bg-black/60',
+                                'fixed inset-0 z-40 bg-black/60',
                                 backdropBlur && 'backdrop-blur-sm',
                                 shouldUseFlexPositioning && 'flex items-center justify-center',
                             )}

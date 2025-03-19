@@ -15,23 +15,30 @@ interface GiveawayOverlayProps {
     containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, position = 'top-right', className, containerRef }) => {
-    const { fetchQualifiedCount, fetchPlayerPage, currentPage, playersByPage, qualifiedCount, totalPlayers, isLoading, setCurrentPage } =
-        useGiveawayStore();
+export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, className }) => {
+    const {
+        fetchQualifiedCount,
+        fetchAllTopPlayers,
+        currentPage,
+        playersByPage,
+        qualifiedCount,
+        totalPlayers,
+        isLoading,
+        setCurrentPage,
+        allTopPlayers,
+    } = useGiveawayStore();
 
     useEffect(() => {
         if (isOpen) {
-            // Fetch initial data
+            // Fetch all data at once
             fetchQualifiedCount();
-            fetchPlayerPage(currentPage);
+            fetchAllTopPlayers();
 
-            // Refresh player data every 5 minutes
+            // Set up refresh interval
             const interval = setInterval(
                 () => {
-                    fetchPlayerPage(currentPage);
-                    // Also refresh qualified count occasionally
+                    // Only refresh qualified count occasionally
                     if (Math.random() < 0.2) {
-                        // 20% chance to refresh qualified count
                         fetchQualifiedCount();
                     }
                 },
@@ -40,7 +47,7 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
 
             return () => clearInterval(interval);
         }
-    }, [isOpen, currentPage, fetchQualifiedCount, fetchPlayerPage]);
+    }, [isOpen, fetchQualifiedCount, fetchAllTopPlayers]);
 
     const subtitle = (
         <span className="text-stone-300">
@@ -54,27 +61,52 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
 
     const currentPlayers = playersByPage.get(currentPage) ?? [];
 
+    // If not open, don't render anything
+    if (!isOpen) return null;
+
     return (
-        <div className={`${className} relative`}>
-            <OverlayContainer
-                isOpen={isOpen}
-                onClose={onClose}
-                title={'Kit Giveaway!'}
-                titleSize="xl"
-                subtitle={subtitle}
-                format="pill"
-                position={position}
-                size={{ width: 'w-72' }}
-                className="bg-gradient-to-br from-stone-800 via-stone-900 to-stone-950 shadow-2xl shadow-stone-900/50"
-                containerRef={containerRef}
-                showBackdrop={false}
-                useFlexPositioning={false}
-            >
-                <div className="space-y-4">
-                    <GiveawayProgress current={qualifiedCount} total={100} loading={isLoading} />
-                    <PlayerList players={currentPlayers} loading={isLoading} onPageChange={setCurrentPage} totalPlayers={totalPlayers} />
+        <div
+            style={{
+                position: 'fixed',
+                top: '60px', // Position below navbar
+                right: '20px', // Position at right with padding
+                zIndex: 9999, // Ensure it's above everything
+                width: '18rem', // Width similar to w-72
+                maxWidth: '95vw', // Ensure it doesn't overflow on small screens
+            }}
+            className={`${className} pointer-events-auto`}
+        >
+            <div className="w-full rounded-3xl border border-stone-700/30 bg-gradient-to-br from-stone-800 via-stone-900 to-stone-950 shadow-2xl shadow-stone-900/50">
+                <div className="flex h-full flex-col gap-4 p-4">
+                    {/* Header */}
+                    <div className="flex items-start justify-between">
+                        <div className="flex flex-col">
+                            <h2 className="text-xl font-bold text-primary_light">Kit Giveaway!</h2>
+                            {subtitle}
+                        </div>
+                        {onClose && (
+                            <button
+                                onClick={onClose}
+                                className="ml-2 rounded-full p-1 text-stone-400 hover:bg-stone-800 hover:text-stone-200"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-4">
+                        <GiveawayProgress current={qualifiedCount} total={100} loading={isLoading} />
+                        <PlayerList
+                            players={currentPlayers}
+                            loading={isLoading}
+                            onPageChange={setCurrentPage}
+                            totalPlayers={totalPlayers}
+                            currentPage={currentPage}
+                        />
+                    </div>
                 </div>
-            </OverlayContainer>
+            </div>
         </div>
     );
 };

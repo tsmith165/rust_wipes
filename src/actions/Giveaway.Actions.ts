@@ -16,14 +16,20 @@ export interface GiveawayData {
     qualifiedCount: number;
     topPlayers: Player[];
     totalPlayers: number;
+    allTopPlayers?: Player[];
 }
 
 interface QueryResult {
     count: number;
 }
 
-export async function getGiveawayData(page: number = 0, playersPerPage: number = 3): Promise<GiveawayData> {
+export async function getGiveawayData(
+    page: number = 0,
+    playersPerPage: number = 3,
+    fetchAllPlayers: boolean = false,
+): Promise<GiveawayData> {
     const offset = page * playersPerPage;
+    const maxPlayers = fetchAllPlayers ? 30 : playersPerPage;
 
     const qualifiedCount = await db
         .select({ count: sql<number>`count(*)` })
@@ -45,10 +51,10 @@ export async function getGiveawayData(page: number = 0, playersPerPage: number =
         })
         .from(user_playtime)
         .orderBy(sql`${user_playtime.minutes_played} DESC`)
-        .limit(playersPerPage)
-        .offset(offset);
+        .limit(fetchAllPlayers ? maxPlayers : playersPerPage)
+        .offset(fetchAllPlayers ? 0 : offset);
 
-    const topPlayers: Player[] = await Promise.all(
+    const processedPlayers = await Promise.all(
         rawPlayers.map(async (player) => {
             let profilePicture = player.profile_picture_url;
             if (player.steam_id && !profilePicture) {
@@ -63,9 +69,19 @@ export async function getGiveawayData(page: number = 0, playersPerPage: number =
         }),
     );
 
+    if (fetchAllPlayers) {
+        const currentPagePlayers = processedPlayers.slice(offset, offset + playersPerPage);
+        return {
+            qualifiedCount,
+            topPlayers: currentPagePlayers,
+            totalPlayers: totalPlayersResult,
+            allTopPlayers: processedPlayers,
+        };
+    }
+
     return {
         qualifiedCount,
-        topPlayers,
+        topPlayers: processedPlayers,
         totalPlayers: totalPlayersResult,
     };
 }
