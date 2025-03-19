@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OverlayTitle, OverlayTitleProps } from './Overlay.Title';
 import { OverlaySubtitle, OverlaySubtitleProps } from './Overlay.Subtitle';
@@ -25,6 +26,14 @@ const PADDING_CLASSES = {
     lg: 'p-6',
 };
 
+// Animation variants for the close button
+const closeButtonVariants = {
+    initial: { opacity: 0, scale: 0.8 },
+    animate: { opacity: 1, scale: 1 },
+    hover: { scale: 1.1, backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+    tap: { scale: 0.95 },
+};
+
 export const OverlayHeader: React.FC<OverlayHeaderProps> = ({
     title,
     subtitle,
@@ -39,13 +48,16 @@ export const OverlayHeader: React.FC<OverlayHeaderProps> = ({
     if (!title && !subtitle && !onClose) return null;
 
     return (
-        <div
+        <motion.div
             className={cn(
                 'relative flex flex-col items-center',
                 PADDING_CLASSES[padding],
-                showBorder && 'border-b border-stone-800',
+                showBorder && 'border-b border-stone-700/30',
                 className,
             )}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
         >
             {title &&
                 (typeof title === 'string' ? (
@@ -59,13 +71,18 @@ export const OverlayHeader: React.FC<OverlayHeaderProps> = ({
             {onClose && (
                 <motion.button
                     onClick={onClose}
-                    className="absolute right-2 top-1 text-xl text-stone-400 transition-colors hover:text-primary_light md:right-3 md:top-1 md:text-base"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-stone-400 transition-colors hover:text-primary_light md:right-3 md:top-2"
+                    variants={closeButtonVariants}
+                    initial="initial"
+                    animate="animate"
+                    whileHover="hover"
+                    whileTap="tap"
+                    transition={{ duration: 0.2 }}
+                    aria-label="Close"
                 >
-                    ✕
+                    <X size={18} strokeWidth={2} />
                 </motion.button>
             )}
-        </div>
+        </motion.div>
     );
 };

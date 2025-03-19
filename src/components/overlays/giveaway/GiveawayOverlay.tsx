@@ -67,6 +67,8 @@ export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClos
                 size={{ width: 'w-72' }}
                 className="bg-gradient-to-br from-stone-800 via-stone-900 to-stone-950 shadow-2xl shadow-stone-900/50"
                 containerRef={containerRef}
+                showBackdrop={false}
+                useFlexPositioning={false}
             >
                 <div className="space-y-4">
                     <GiveawayProgress current={qualifiedCount} total={100} loading={isLoading} />

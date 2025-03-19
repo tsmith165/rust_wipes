@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { OverlayHeader } from './Overlay.Header';
@@ -25,16 +25,21 @@ export interface OverlayProps {
     className?: string;
     children: React.ReactNode;
     containerRef?: React.RefObject<HTMLDivElement | null>;
+    showBackdrop?: boolean;
+    preventBodyScroll?: boolean;
+    backdropBlur?: boolean;
+    useFlexPositioning?: boolean;
 }
 
 type OverlayFormat = 'pill' | 'card' | 'fullscreen';
 type OverlayPosition = 'none' | 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
+// Responsive size classes that work better on mobile and desktop
 const SIZE_CLASSES = {
-    sm: 'w-[50dvw]',
-    md: 'w-[70dvw]',
-    lg: 'w-[80dvw]',
-    xl: 'w-[90dvw]',
+    sm: 'w-[90%] sm:w-[400px]',
+    md: 'w-[95%] sm:w-[600px]',
+    lg: 'w-[95%] sm:w-[800px]',
+    xl: 'w-[95%] sm:w-[1000px]',
     fit: 'w-fit',
 };
 
@@ -43,7 +48,7 @@ const getPositionClasses = (position: OverlayPosition, containerRef: React.RefOb
 
     const positions: Record<OverlayPosition, string> = {
         none: '',
-        center: `${positionType}`,
+        center: `${positionType} left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`,
         top: `${positionType} top-4 left-1/2 -translate-x-1/2`,
         bottom: `${positionType} bottom-4 left-1/2 -translate-x-1/2`,
         left: `${positionType} left-4 top-1/2 -translate-y-1/2`,
@@ -60,7 +65,7 @@ const getPositionClasses = (position: OverlayPosition, containerRef: React.RefOb
 const getFormatClasses = (format: OverlayFormat): string => {
     const formats: Record<OverlayFormat, string> = {
         pill: 'rounded-3xl',
-        card: 'rounded-lg',
+        card: 'rounded-xl',
         fullscreen: '',
     };
     return formats[format] || formats.card;
@@ -80,16 +85,23 @@ const getDefaultAnimation = (format: string, position: string) => {
             initial: { opacity: 0 },
             animate: { opacity: 1 },
             exit: { opacity: 0 },
-            transition: { duration: 0.2 },
+            transition: { duration: 0.3, ease: 'easeInOut' },
         };
     }
 
     return {
         initial: { opacity: 0, scale: isCenter ? 0.95 : 1, y: isCenter ? 0 : 20 },
         animate: { opacity: 1, scale: 1, y: 0 },
-        exit: { opacity: 0, scale: isCenter ? 0.95 : 1, y: isCenter ? 0 : 20 },
-        transition: { duration: 0.2 },
+        exit: { opacity: 0, scale: isCenter ? 0.98 : 1, y: isCenter ? 0 : 10 },
+        transition: { duration: 0.3, type: 'spring', stiffness: 300, damping: 30 },
     };
+};
+
+// Animation variants for the backdrop
+const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
 };
 
 export const OverlayContainer: React.FC<OverlayProps> = ({
@@ -106,6 +118,10 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
     className,
     children,
     containerRef,
+    showBackdrop = true,
+    preventBodyScroll = true,
+    backdropBlur = true,
+    useFlexPositioning = true,
 }) => {
     const positionClasses = getPositionClasses(position, containerRef);
     const formatClasses = getFormatClasses(format);
@@ -113,31 +129,100 @@ export const OverlayContainer: React.FC<OverlayProps> = ({
     const defaultAnimation = getDefaultAnimation(format, position);
     const finalAnimation = animation || defaultAnimation;
 
+    // Handle body scroll locking when the overlay is open
+    useEffect(() => {
+        if (!preventBodyScroll) return;
+
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, preventBodyScroll]);
+
+    // Handle clicking outside to close if onClose is provided
+    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget && onClose) {
+            onClose();
+        }
+    };
+
+    // Determine if we should use flex positioning or direct positioning
+    const shouldUseFlexPositioning = useFlexPositioning && position === 'center';
+
+    // The content of the overlay
+    const overlayContent = (
+        <div className="flex h-full flex-col gap-4 p-4">
+            <OverlayHeader
+                title={title}
+                subtitle={subtitle}
+                onClose={showCloseButton ? onClose : undefined}
+                titleSize={titleSize}
+                padding="none"
+            />
+            <OverlayContents>{children}</OverlayContents>
+        </div>
+    );
+
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
-                    <motion.div
-                        className={cn(
-                            'radial-gradient-stone-600 z-50 bg-stone-950 shadow-lg',
-                            sizeClasses,
-                            positionClasses,
-                            formatClasses,
-                            className,
-                        )}
-                        {...finalAnimation}
-                    >
-                        <div className="flex h-full flex-col gap-4 p-4">
-                            <OverlayHeader
-                                title={title}
-                                subtitle={subtitle}
-                                onClose={showCloseButton ? onClose : undefined}
-                                titleSize={titleSize}
-                                padding="none"
-                            />
-                            <OverlayContents>{children}</OverlayContents>
-                        </div>
-                    </motion.div>
+                    {/* Backdrop */}
+                    {showBackdrop && (
+                        <motion.div
+                            className={cn(
+                                'fixed inset-x-0 bottom-0 top-[50px] z-40 h-[calc(100dvh-50px)] bg-black/60',
+                                backdropBlur && 'backdrop-blur-sm',
+                                shouldUseFlexPositioning && 'flex items-center justify-center',
+                            )}
+                            variants={backdropVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            transition={{ duration: 0.2 }}
+                            onClick={handleBackdropClick}
+                            key="backdrop"
+                        >
+                            {/* If using flex positioning, render the overlay inside the backdrop */}
+                            {shouldUseFlexPositioning && (
+                                <motion.div
+                                    className={cn(
+                                        'z-50 max-h-[90%] border border-stone-700/30 bg-stone-950/95 shadow-xl',
+                                        sizeClasses,
+                                        formatClasses,
+                                        className,
+                                    )}
+                                    {...finalAnimation}
+                                    key="overlay-flex"
+                                    onClick={(e) => e.stopPropagation()} // Prevent clicks from reaching backdrop
+                                >
+                                    {overlayContent}
+                                </motion.div>
+                            )}
+                        </motion.div>
+                    )}
+
+                    {/* For directly positioned overlays or when backdrop is disabled */}
+                    {(!shouldUseFlexPositioning || !showBackdrop) && (
+                        <motion.div
+                            className={cn(
+                                'z-50 border border-stone-700/30 bg-stone-950/95 shadow-xl',
+                                positionClasses,
+                                sizeClasses,
+                                formatClasses,
+                                className,
+                            )}
+                            {...finalAnimation}
+                            key="overlay-positioned"
+                        >
+                            {overlayContent}
+                        </motion.div>
+                    )}
                 </>
             )}
         </AnimatePresence>

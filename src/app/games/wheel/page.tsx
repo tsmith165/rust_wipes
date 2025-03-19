@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function WheelPage() {
     return (
-        <PageLayout page="/gambling/slots/wheel">
+        <PageLayout page="wheel">
             <div className="relative flex flex-col md:flex-row">
                 <div className="relative z-10 h-full w-full">
                     <WheelContainer />

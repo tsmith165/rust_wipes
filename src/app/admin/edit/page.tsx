@@ -54,7 +54,7 @@ export default async function Page(props: { searchParams: Promise<{ id?: string 
             redirect(`/admin/edit?id=${mostRecentId}`);
         } else {
             return (
-                <PageLayout page="/edit">
+                <PageLayout page="edit">
                     <div className="text-center text-xl">No kits found</div>
                 </PageLayout>
             );
@@ -64,7 +64,7 @@ export default async function Page(props: { searchParams: Promise<{ id?: string 
     const kitDataPromise = fetchKitData(id);
 
     return (
-        <PageLayout page={`/edit?id=${id}`}>
+        <PageLayout page="edit">
             <Suspense fallback={<LoadingSpinner page="Edit" />}>
                 <Edit kitDataPromise={kitDataPromise} current_id={id} />
             </Suspense>

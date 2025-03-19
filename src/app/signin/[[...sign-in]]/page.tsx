@@ -33,7 +33,7 @@ import Sign_In from '@/app/signin/Sign_In';
 
 export default async function Page() {
     return (
-        <PageLayout page="/signin">
+        <PageLayout page="signin">
             <Sign_In />
         </PageLayout>
     );

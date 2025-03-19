@@ -10,7 +10,9 @@ export interface OverlaySubtitleProps {
     color?: string;
     align?: 'left' | 'center' | 'right';
     className?: string;
-    animation?: boolean;
+    animation?: boolean | 'fade' | 'slide' | 'scale';
+    weight?: 'light' | 'normal' | 'medium' | 'semibold';
+    opacity?: number;
 }
 
 const SIZE_CLASSES = {
@@ -25,6 +27,40 @@ const ALIGN_CLASSES = {
     right: 'text-right',
 };
 
+const WEIGHT_CLASSES = {
+    light: 'font-light',
+    normal: 'font-normal',
+    medium: 'font-medium',
+    semibold: 'font-semibold',
+};
+
+const OPACITY_CLASSES: Record<string, string> = {
+    '90': 'opacity-90',
+    '80': 'opacity-80',
+    '70': 'opacity-70',
+    '60': 'opacity-60',
+    '50': 'opacity-50',
+};
+
+// Animation variants
+const animationVariants = {
+    fade: {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        transition: { duration: 0.3 },
+    },
+    slide: {
+        initial: { opacity: 0, y: -10 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.4, type: 'spring', stiffness: 300, damping: 30 },
+    },
+    scale: {
+        initial: { opacity: 0, scale: 0.9 },
+        animate: { opacity: 1, scale: 1 },
+        transition: { duration: 0.3 },
+    },
+};
+
 export const OverlaySubtitle: React.FC<OverlaySubtitleProps> = ({
     children,
     size = 'md',
@@ -32,24 +68,34 @@ export const OverlaySubtitle: React.FC<OverlaySubtitleProps> = ({
     align = 'left',
     className,
     animation = true,
+    weight = 'normal',
+    opacity,
 }) => {
     const Component = animation ? motion.p : 'p';
-    const animationProps = animation
-        ? {
-              initial: { opacity: 0, y: -5 },
-              animate: { opacity: 1, y: 0 },
-              transition: { duration: 0.2, delay: 0.2 },
-          }
-        : {};
 
-    const sizeClass = size ? SIZE_CLASSES[size] : '';
-    const alignClass = align ? ALIGN_CLASSES[align] : '';
-    const colorClass = color ? color : '';
+    // Set animation props based on the animation type
+    let animationProps = {};
+    if (animation) {
+        if (typeof animation === 'string' && animation in animationVariants) {
+            animationProps = animationVariants[animation];
+        } else {
+            // Default animation
+            animationProps = {
+                initial: { opacity: 0, y: -5 },
+                animate: { opacity: 1, y: 0 },
+                transition: { duration: 0.3, delay: 0.2 },
+            };
+        }
+    }
 
-    console.log('Subtitle color', colorClass);
+    // Get opacity class if provided
+    const opacityClass = opacity ? OPACITY_CLASSES[opacity.toString()] || '' : '';
 
     return (
-        <Component className={cn(sizeClass, alignClass, colorClass, className)} {...animationProps}>
+        <Component
+            className={cn(SIZE_CLASSES[size], ALIGN_CLASSES[align], WEIGHT_CLASSES[weight], color, opacityClass, className)}
+            {...animationProps}
+        >
             {children}
         </Component>
     );
