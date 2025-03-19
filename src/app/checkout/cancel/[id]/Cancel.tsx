@@ -31,7 +31,7 @@ const Cancel: React.FC<CancelProps> = ({ current_kit, current_id }) => {
                         />
                     )}
                 </div>
-                <div className="flex h-full w-fit items-center justify-center rounded-lg text-white shadow-lg md:justify-start">
+                <div className="flex h-full w-fit items-center justify-center rounded-lg text-st_white shadow-lg md:justify-start">
                     <div className="flex flex-col items-center justify-center space-y-2">
                         <h1 className="w-full text-center text-2xl font-bold text-primary">
                             {current_kit ? `"${current_kit.full_name || current_kit.name}"` : ''}

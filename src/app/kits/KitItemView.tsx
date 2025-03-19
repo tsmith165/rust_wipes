@@ -21,12 +21,12 @@ const KitItemView = ({ kit, handleKitClick, isSelected }: KitItemProps) => {
         >
             <div className="flex flex-row justify-between p-2 pb-0">
                 <b
-                    className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
+                    className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-st_white-text`} group-hover:gradient-primary-text-opp`}
                 >
                     {kit.full_name || kit.name}
                 </b>
                 <b
-                    className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-white-text`} group-hover:gradient-primary-text-opp`}
+                    className={`text-lg ${isSelected ? `gradient-primary-text-opp` : `gradient-st_white-text`} group-hover:gradient-primary-text-opp`}
                 >{`$${kit.price?.toString().includes('.') ? `${kit.price}0` : `${kit.price}.00`}`}</b>
             </div>
             <Image

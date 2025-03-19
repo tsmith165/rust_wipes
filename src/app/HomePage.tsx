@@ -85,8 +85,8 @@ export default function HomePage() {
                     ></motion.div>
 
                     <div className="absolute inset-0 flex justify-center">
-                        <div className="radial-gradient-stone-900-large h-fit w-fit rounded-b-12xl bg-stone-900 bg-opacity-15 px-4 shadow-xl sm:w-fit sm:px-16">
-                            <h1 className="radial-gradient-stone-300 bg-stone-500 bg-clip-text px-4 py-4 pb-2 text-center text-2xl font-bold text-transparent sm:pb-4 sm:text-4xl">
+                        <div className="radial-gradient-stone-900-large bg-st_darkest h-fit w-fit rounded-b-12xl bg-opacity-15 px-4 shadow-xl sm:w-fit sm:px-16">
+                            <h1 className="gradient-st_white-text bg-st_darkest bg-clip-text px-4 py-4 pb-2 text-center text-2xl font-bold text-transparent sm:pb-4 sm:text-4xl">
                                 {`Find Your `}
                                 <span className="radial-gradient-primary_dark-large w-fit bg-primary_light bg-clip-text text-transparent">
                                     Perfect

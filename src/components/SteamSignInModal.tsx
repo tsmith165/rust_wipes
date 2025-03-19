@@ -64,7 +64,7 @@ export default function SteamSignInModal({ steamInput, setSteamInput, code, setC
     return (
         <div className="h-fit w-fit rounded-lg bg-stone-700 p-4">
             <div className="mb-4 flex h-full w-[90vw] flex-col items-center justify-center space-y-2 sm:w-[80vw] md:w-[60vw] lg:w-[40vw]">
-                <h2 className="mb-4 text-2xl font-bold text-white">Steam Profile Sign-In</h2>
+                <h2 className="mb-4 text-2xl font-bold text-st_white">Steam Profile Sign-In</h2>
 
                 <InputTextbox
                     idName="steam_input"

@@ -170,7 +170,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ kitId }) => {
                                 'relative rounded-md px-4 py-1 text-lg font-bold ' +
                                 (isFormValid
                                     ? ' bg-primary_dark text-stone-300 hover:bg-primary hover:text-stone-950'
-                                    : 'cursor-not-allowed bg-stone-300 text-secondary_dark hover:bg-stone-300 hover:text-red-600')
+                                    : 'cursor-not-allowed bg-stone-300 text-st_darkest hover:bg-stone-300 hover:text-red-600')
                             }
                         >
                             {isSubmitting ? 'Submitting...' : 'Submit'}
@@ -183,7 +183,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ kitId }) => {
                                 'relative rounded-md px-4 py-1 text-lg font-bold ' +
                                 (isFormValid
                                     ? ' bg-primary_dark text-stone-300 hover:bg-primary hover:text-stone-950'
-                                    : 'cursor-not-allowed bg-stone-300 text-secondary_dark hover:bg-stone-300 hover:text-red-600')
+                                    : 'cursor-not-allowed bg-stone-300 text-st_darkest hover:bg-stone-300 hover:text-red-600')
                             }
                         >
                             {isSubmitting ? 'Submitting...' : 'Submit & Edit'}

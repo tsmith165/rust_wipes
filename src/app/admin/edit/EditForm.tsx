@@ -154,8 +154,8 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                     <button
                         type="submit"
                         className={
-                            'rounded-md bg-secondary px-3 py-1 text-center font-bold text-stone-400 ' +
-                            'hover:bg-primary hover:text-secondary_dark'
+                            'rounded-md bg-st px-3 py-1 text-center font-bold text-stone-400 ' +
+                            'hover:bg-primary hover:text-st_darkest'
                         }
                     >
                         Submit Changes
@@ -163,8 +163,8 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                     <Link
                         href="/admin/edit/new"
                         className={
-                            'rounded-md bg-secondary px-3 py-1 text-center font-bold text-stone-400 ' +
-                            ' hover:bg-primary hover:text-secondary_dark'
+                            'rounded-md bg-st px-3 py-1 text-center font-bold text-stone-400 ' +
+                            ' hover:bg-primary hover:text-st_darkest'
                         }
                     >
                         Create New Kit
@@ -172,8 +172,8 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                     <Link
                         href={`/admin/edit/images/${formData.kit_id}`}
                         className={
-                            'rounded-md bg-secondary px-3 py-1 text-center font-bold text-stone-400 ' +
-                            'hover:bg-primary hover:text-secondary_dark'
+                            'rounded-md bg-st px-3 py-1 text-center font-bold text-stone-400 ' +
+                            'hover:bg-primary hover:text-st_darkest'
                         }
                     >
                         Edit Images
@@ -194,7 +194,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                 )}
 
                 {submitMessage && (
-                    <div className={`mt-2 rounded-md p-2 ${submitMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                    <div className={`mt-2 rounded-md p-2 ${submitMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-st_white`}>
                         <p>{submitMessage.text}</p>
                         {submitMessage.type === 'success' && submittedChanges.length > 0 && (
                             <div className="mt-2">

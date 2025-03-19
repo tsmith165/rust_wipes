@@ -34,7 +34,7 @@ const RecentWipesSidebar: React.FC<RecentWipesSidebarProps> = ({
         filterColumnAdContainer = (
             <div className={'h-full w-full'}>
                 <div className={'p-2.5'}>{/* Ad script and elements */}</div>
-                <div className={'flex h-full w-full space-x-2 bg-secondary p-2.5'}>
+                <div className={'flex h-full w-full space-x-2 bg-st p-2.5'}>
                     <div className={'styles.ad_blocked_message'}>Please Disable Ad-Block To Support The Developers</div>
                     <FaRegThumbsUp className={'h-10 w-10 rounded-md bg-primary_light p-2'} />
                 </div>

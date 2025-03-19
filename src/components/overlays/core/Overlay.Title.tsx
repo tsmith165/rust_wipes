@@ -11,7 +11,7 @@ export interface OverlayTitleProps {
     align?: 'left' | 'center' | 'right';
     className?: string;
     animation?: boolean | 'fade' | 'slide' | 'scale';
-    gradient?: boolean | 'primary' | 'secondary' | 'accent';
+    gradient?: boolean | 'primary' | 'st' | 'accent';
     weight?: 'light' | 'normal' | 'medium' | 'semibold' | 'bold';
 }
 
@@ -38,7 +38,7 @@ const WEIGHT_CLASSES = {
 
 const GRADIENT_CLASSES: Record<string, string> = {
     primary: 'bg-gradient-to-r from-primary_light to-amber-300 bg-clip-text text-transparent',
-    secondary: 'bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent',
+    st: 'bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent',
     accent: 'bg-gradient-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent',
     default: 'bg-gradient-to-r from-primary_light to-amber-300 bg-clip-text text-transparent',
 };

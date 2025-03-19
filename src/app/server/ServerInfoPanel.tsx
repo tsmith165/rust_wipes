@@ -71,17 +71,17 @@ export default function ServerInfoPanel({ bm_api_attributes, database_data, ip, 
             >
                 <div className="m-0 flex flex-row space-x-1.5 p-0" key={'ip'}>
                     <b className="text-primary_light">{`IP: `}</b>
-                    <p className="hover:text-bold text-secondary_light hover:font-bold hover:text-primary_light">{`${ip}:${port}`}</p>
-                    {copySuccess && <div className="rounded bg-green-400 px-3 py-0 font-bold text-secondary_dark">Copy Success!</div>}
+                    <p className="hover:text-bold text-st_lightest hover:font-bold hover:text-primary_light">{`${ip}:${port}`}</p>
+                    {copySuccess && <div className="rounded bg-green-400 px-3 py-0 font-bold text-st_darkest">Copy Success!</div>}
                     {hover && !copySuccess && (
-                        <div className="rounded bg-green-600 px-3 py-0 text-secondary_dark">Click to copy server IP</div>
+                        <div className="rounded bg-green-600 px-3 py-0 text-st_darkest">Click to copy server IP</div>
                     )}
                 </div>
             </div>
             {server_info_data.map(({ title, value }) => (
                 <div className="m-0 flex flex-row space-x-1.5 p-0" key={title}>
                     <b className="text-primary_light">{`${title}: `}</b>
-                    <p className="text-secondary_light hover:font-bold hover:text-primary_light">{value}</p>
+                    <p className="text-st_lightest hover:font-bold hover:text-primary_light">{value}</p>
                 </div>
             ))}
         </div>

@@ -23,11 +23,11 @@ export function BonusInProgressOverlay({ isVisible, bonusType, spinsRemaining }:
                 <h2 className="text-2xl font-bold text-primary_light">
                     Slot {bonusType.charAt(0).toUpperCase() + bonusType.slice(1)} Bonus In Progress!
                 </h2>
-                <p className="text-lg text-white">You have {spinsRemaining} free spins remaining.</p>
+                <p className="text-lg text-st_white">You have {spinsRemaining} free spins remaining.</p>
                 <Link
                     href="/games/rusty-slots"
                     className={cn(
-                        'rounded-lg px-6 py-3 font-semibold text-white transition-colors',
+                        'rounded-lg px-6 py-3 font-semibold text-st_white transition-colors',
                         'bg-primary_light hover:bg-primary_light/80',
                     )}
                 >

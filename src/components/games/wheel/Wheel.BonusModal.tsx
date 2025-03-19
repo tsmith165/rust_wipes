@@ -24,7 +24,7 @@ export function WheelBonusModal({ isVisible, onClose, onBonusSelect }: WheelBonu
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.8, opacity: 0 }}
-                        className="relative w-full max-w-lg rounded-lg bg-stone-800 p-6 text-white shadow-lg"
+                        className="relative w-full max-w-lg rounded-lg bg-stone-800 p-6 text-st_white shadow-lg"
                     >
                         <div className="mb-6 text-center">
                             <h2 className="mb-2 text-2xl font-bold text-primary_light">Choose Your Bonus Type</h2>
@@ -67,7 +67,7 @@ export function WheelBonusModal({ isVisible, onClose, onBonusSelect }: WheelBonu
                             </button>
                         </div>
 
-                        <button onClick={onClose} className="absolute right-4 top-4 text-gray-400 transition-colors hover:text-white">
+                        <button onClick={onClose} className="absolute right-4 top-4 text-gray-400 transition-colors hover:text-st_white">
                             ✕
                         </button>
                     </motion.div>

@@ -35,7 +35,7 @@ export default function MapInfoPanel({ mapData, name }: MapInfoPanelProps) {
                 {map_info_data.map(({ title, value }) => (
                     <div className="m-0 flex flex-row space-x-1.5 p-0" key={title}>
                         <b className="text-primary_light">{`${title}: `}</b>
-                        <p className="text-secondary_light hover:font-bold hover:text-primary_light">{value}</p>
+                        <p className="text-st_lightest hover:font-bold hover:text-primary_light">{value}</p>
                     </div>
                 ))}
             </div>

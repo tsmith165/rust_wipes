@@ -511,7 +511,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     }, []); // Empty dependency array means this runs once on mount
 
     return (
-        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
+        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-st_white">
             <SlotContainer
                 slot_grid={slot_grid}
                 slot_controls={slot_controls}
@@ -649,7 +649,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             </AnimatePresence>
 
             {/* Error Message */}
-            {error && <div className="fixed bottom-4 left-4 z-50 rounded-lg bg-red-500 p-4 text-white">{error}</div>}
+            {error && <div className="fixed bottom-4 left-4 z-50 rounded-lg bg-red-500 p-4 text-st_white">{error}</div>}
         </div>
     );
 };

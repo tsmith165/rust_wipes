@@ -18,7 +18,7 @@ export interface SlotContainerProps {
  */
 export function SlotContainer({ slot_grid, slot_controls, slot_recent_winners, className, row1Ref }: SlotContainerProps) {
     return (
-        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
+        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-st_white">
             {/* Row 1: Characters and Slot Grid */}
             <div ref={row1Ref} className={cn('z-10 flex w-full flex-row items-center', className)}>
                 <BaseGameCharacter side="left" />
