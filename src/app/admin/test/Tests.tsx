@@ -70,15 +70,15 @@ export function Tests({ kits, activeTab }: TestsProps) {
 
     return (
         <div className="flex h-full w-full flex-col items-center overflow-y-auto py-4">
-            <div className="w-[95%] rounded-lg bg-stone-700 text-lg font-bold text-secondary_dark md:w-4/5">
-                <div className="w-full rounded-t-md bg-primary_dark text-lg font-bold text-secondary_dark">
+            <div className="w-[95%] rounded-lg bg-stone-700 text-lg font-bold text-st_darkest md:w-4/5">
+                <div className="w-full rounded-t-md bg-primary_dark text-lg font-bold text-st_darkest">
                     <div className="flex pt-1">
                         <Link
                             href="/admin/test?tab=kit-access"
                             className={`rounded-t-md px-2 py-1 ${
                                 activeTab === 'kit-access'
-                                    ? 'bg-secondary_dark text-primary'
-                                    : 'bg-primary text-secondary_dark hover:bg-secondary_dark hover:text-primary'
+                                    ? 'bg-st_darkest text-primary'
+                                    : 'bg-primary text-st_darkest hover:bg-st_darkest hover:text-primary'
                             }`}
                         >
                             Kit Access
@@ -116,7 +116,7 @@ export function Tests({ kits, activeTab }: TestsProps) {
                                 />
                                 <button
                                     onClick={handleSteamProfileVerification}
-                                    className="flex flex-row items-center justify-center rounded-r-md bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
+                                    className="flex flex-row items-center justify-center rounded-r-md bg-blue-500 px-2 py-1 text-sm text-st_white hover:bg-blue-600"
                                 >
                                     <FaSteam className="mr-1.5 flex h-[16px] w-[16px] " />
                                     Verify
@@ -138,14 +138,14 @@ export function Tests({ kits, activeTab }: TestsProps) {
                         <div className="flex flex-row space-x-4">
                             <button
                                 onClick={handleGrantAccess}
-                                className="rounded bg-green-800 px-4 py-2 font-bold text-white hover:bg-green-700 hover:text-stone-950 disabled:opacity-50"
+                                className="rounded bg-green-800 px-4 py-2 font-bold text-st_white hover:bg-green-700 hover:text-stone-950 disabled:opacity-50"
                                 disabled={!steamProfile || selectedKitId === ''}
                             >
                                 Grant Access
                             </button>
                             <button
                                 onClick={handleRevokeAccess}
-                                className="rounded bg-red-800 px-4 py-2 font-bold text-white hover:bg-red-700 hover:text-stone-950 disabled:opacity-50"
+                                className="rounded bg-red-800 px-4 py-2 font-bold text-st_white hover:bg-red-700 hover:text-stone-950 disabled:opacity-50"
                                 disabled={!steamProfile || selectedKitId === ''}
                             >
                                 Revoke Access

@@ -23,13 +23,18 @@ export default withUt({
                 primary_light: '#dc2626',
                 primary: '#991b1b',
                 primary_dark: '#7f1d1d',
-                secondary_light: '#a8a29e',
-                secondary: '#3f3f46',
-                secondary_dark: '#1c1917',
+
+                st_darkest: '#0c0a09', // Dark slate
+                st_dark: '#292524', // Slate
+                st: '#44403c', // Medium slate
+                st_light: '#78716c', // Light slate
+                st_lightest: '#d6d3d1', // Lightest slate
+                st_white: '#fafaf9', // Off-white
+
                 hot_wipe: '#dc2626',
                 cool_wipe: '#f97316',
                 cold_wipe: '#fde047',
-                white: '#ffffff',
+
                 link: '#57aaf3',
                 visited: '#be23ae',
             },
@@ -72,7 +77,7 @@ export default withUt({
                 '.gradient-primary-text-opp': {
                     '@apply text-transparent bg-clip-text bg-gradient-to-t from-primary_light to-primary': {},
                 },
-                '.gradient-white-text': {
+                '.gradient-st_white-text': {
                     '@apply text-transparent bg-clip-text bg-gradient-to-t from-stone-300 to-stone-500': {},
                 },
             };

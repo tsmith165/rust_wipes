@@ -321,7 +321,7 @@ export function WheelContainer() {
     }, []); // Empty dependency array means this runs once on mount
 
     return (
-        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-white">
+        <div className="relative flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-800 text-st_white">
             <SlotContainer
                 slot_grid={wheel_display}
                 slot_controls={wheel_controls}

@@ -20,7 +20,7 @@ interface OptionType {
 const DropdownIndicator = (props: any) => {
     return (
         <components.DropdownIndicator {...props}>
-            <FaArrowDown className="fill-secondary_dark" />
+            <FaArrowDown className="fill-st_darkest" />
         </components.DropdownIndicator>
     );
 };
@@ -57,7 +57,7 @@ const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name,
 
     return (
         <div className="m-0 flex w-full p-0">
-            <div className="flex min-w-28 max-w-28 items-center justify-center rounded-l-md bg-secondary_dark px-2.5 py-1.5 text-secondary_light">
+            <div className="flex min-w-28 max-w-28 items-center justify-center rounded-l-md bg-st_darkest px-2.5 py-1.5 text-st_lightest">
                 <div className="text-primary">{formatted_name}</div>
             </div>
             <Select<OptionType, true>
@@ -65,7 +65,7 @@ const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name,
                 isMulti={true}
                 id={id}
                 name={id}
-                className="h-full flex-grow rounded-r-md border-none bg-primary text-sm font-bold text-secondary_dark"
+                className="h-full flex-grow rounded-r-md border-none bg-primary text-sm font-bold text-st_darkest"
                 classNamePrefix="select"
                 components={{
                     DropdownIndicator,

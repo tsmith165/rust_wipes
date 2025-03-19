@@ -170,7 +170,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
     }
 
     return (
-        <div className="radial-gradient-stone-600 flex h-fit w-full flex-col items-center bg-stone-950">
+        <div className="radial-gradient-stone-600 flex h-[calc(100dvh-50px)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-stone-950">
             <ModalPhilosophy isOpen={showPhilosophy} onClose={() => setShowPhilosophy(false)} containerRef={containerRef} />
 
             <div ref={containerRef} className="w-full lg:w-[90dvw]">
@@ -190,7 +190,7 @@ const KitViewer: React.FC<KitViewerProps> = ({ kits, initialSelectedKitId, initi
                     ))}
                 </div>
                 <motion.div
-                    className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden"
+                    className="flex h-full w-full flex-col"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 2 }}

@@ -22,11 +22,12 @@ const AlertEmail: React.FC<AlertEmailProps> = ({ title, severity, type, message,
                     theme: {
                         extend: {
                             colors: {
-                                primary: '#cd412b',
-                                primary_dark: '#a33322',
-                                secondary_light: '#f0a58f',
-                                secondary: '#e8836a',
-                                secondary_dark: '#b56552',
+                                primary_light: '#ff6b6b',
+                                primary: '#fa5252',
+                                primary_dark: '#f03e3e',
+                                st_lightest: '#f0a58f',
+                                st: '#e8836a',
+                                st_darkest: '#b56552',
                             },
                         },
                     },

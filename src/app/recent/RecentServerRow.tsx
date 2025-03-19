@@ -55,7 +55,7 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
 
     return (
         <div
-            className={`flex h-9 w-full items-center border-b border-secondary_dark pr-2 ${heat_class} ${
+            className={`flex h-9 w-full items-center border-b border-st_darkest pr-2 ${heat_class} ${
                 offline ? 'hidden bg-primary_light opacity-80' : 'flex w-full bg-stone-400'
             } hover:bg-stone-300`}
         >

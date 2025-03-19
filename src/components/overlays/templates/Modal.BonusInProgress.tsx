@@ -60,7 +60,7 @@ export function ModalBonusInProgress({ isOpen, onClose, bonusType, spinsRemainin
                 <Link
                     href="/games/rusty-slots"
                     className={cn(
-                        'rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors xs:px-6 xs:py-3 xs:text-base',
+                        'rounded-lg px-4 py-2 text-sm font-semibold text-st_white transition-colors xs:px-6 xs:py-3 xs:text-base',
                         'bg-primary_light hover:bg-primary_light/80',
                     )}
                 >

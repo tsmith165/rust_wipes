@@ -86,7 +86,7 @@ export default function Rules() {
                     <p className="mb-3 text-stone-300">If you have any questions about these rules, please join our Discord community:</p>
                     <a
                         href="https://discord.gg/rustwipes"
-                        className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary_light px-4 py-2 font-medium text-white transition-transform hover:scale-105"
+                        className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary_light px-4 py-2 font-medium text-st_white transition-transform hover:scale-105"
                         target="_blank"
                         rel="noopener noreferrer"
                     >

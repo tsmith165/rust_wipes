@@ -85,33 +85,33 @@ const Edit: React.FC<EditProps> = ({ kitDataPromise, current_id }) => {
                 <div className="flex h-fit flex-row items-center space-x-2 p-2">
                     <div className="flex h-[48px] flex-col space-y-1">
                         <Link href={`/admin/edit?id=${next_id}`}>
-                            <IoIosArrowUp className="h-[22px] w-8 cursor-pointer rounded-lg bg-secondary fill-stone-400 hover:bg-primary hover:fill-secondary_dark" />
+                            <IoIosArrowUp className="h-[22px] w-8 cursor-pointer rounded-lg bg-st fill-stone-400 hover:bg-primary hover:fill-st_darkest" />
                         </Link>
                         <Link href={`/admin/edit?id=${last_id}`}>
-                            <IoIosArrowDown className="h-[22px] w-8 cursor-pointer rounded-lg bg-secondary fill-stone-400 hover:bg-primary hover:fill-secondary_dark" />
+                            <IoIosArrowDown className="h-[22px] w-8 cursor-pointer rounded-lg bg-st fill-stone-400 hover:bg-primary hover:fill-st_darkest" />
                         </Link>
                     </div>
                     <Link href={`/kits/?kit=${current_id}`}>
-                        <MdPageview className="h-[48px] w-[48px] cursor-pointer rounded-lg bg-secondary fill-stone-400 p-1 hover:bg-primary hover:fill-secondary_dark" />
+                        <MdPageview className="h-[48px] w-[48px] cursor-pointer rounded-lg bg-st fill-stone-400 p-1 hover:bg-primary hover:fill-st_darkest" />
                     </Link>
-                    <form onSubmit={handleTitleUpdateSubmit} className="flex w-full flex-grow flex-row rounded-lg bg-secondary_dark">
+                    <form onSubmit={handleTitleUpdateSubmit} className="flex w-full flex-grow flex-row rounded-lg bg-st_darkest">
                         <input
                             type="text"
                             name="newTitle"
                             value={titleInput}
                             onChange={handleTitleInputChange}
-                            className="m-0 flex w-full flex-grow rounded-lg border-none bg-secondary_dark px-3 py-1 text-2xl font-bold text-stone-400 outline-none"
+                            className="m-0 flex w-full flex-grow rounded-lg border-none bg-st_darkest px-3 py-1 text-2xl font-bold text-stone-400 outline-none"
                         />
                         <button
                             type="submit"
-                            className="ml-2 rounded-md bg-secondary px-3 py-1 font-bold text-stone-400 hover:bg-primary_dark hover:text-secondary_dark"
+                            className="ml-2 rounded-md bg-st px-3 py-1 font-bold text-stone-400 hover:bg-primary_dark hover:text-st_darkest"
                         >
                             Save
                         </button>
                     </form>
                 </div>
                 {submitMessage && (
-                    <div className={`mt-2 rounded-md p-2 ${submitMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                    <div className={`mt-2 rounded-md p-2 ${submitMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-st_white`}>
                         {submitMessage.text}
                     </div>
                 )}

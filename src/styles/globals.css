@@ -17,7 +17,7 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-    background-color: theme('colors.secondary_light');
+    background-color: theme('colors.st_lightest');
 }
 
 ::-webkit-scrollbar-thumb {

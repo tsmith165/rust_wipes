@@ -137,7 +137,7 @@ export const PlayerList: React.FC<PlayerListProps> = ({ players, loading, onPage
             </div>
 
             {/* Page indicator */}
-            <div className="mt-1 text-center text-xs text-secondary">
+            <div className="text-st mt-1 text-center text-xs">
                 Page {currentPage + 1} of {totalPages}
             </div>
         </div>

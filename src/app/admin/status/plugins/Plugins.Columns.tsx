@@ -22,7 +22,7 @@ export const columns: ColumnDef<VersionComparisonResult>[] = [
                             isUpToDate ? 'bg-green-500' : 'bg-red-500'
                         }`}
                     >
-                        {isUpToDate ? <FaCheckCircle className="h-4 w-4 text-white" /> : <FaTimesCircle className="h-4 w-4 text-white" />}
+                        {isUpToDate ? <FaCheckCircle className="h-4 w-4 text-st_white" /> : <FaTimesCircle className="h-4 w-4 text-st_white" />}
                     </div>
                 </div>
             );

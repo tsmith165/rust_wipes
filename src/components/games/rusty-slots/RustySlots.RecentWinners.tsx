@@ -84,7 +84,7 @@ const WinnerProfile: React.FC<WinnerProfileProps> = ({ steamId, playerName, prof
                 }}
             />
             <div className="flex flex-col">
-                <span className="text-sm font-semibold text-white">{playerName}</span>
+                <span className="text-sm font-semibold text-st_white">{playerName}</span>
                 <span className="text-xs text-gray-400">Steam ID: {steamId}</span>
             </div>
         </motion.div>
@@ -123,7 +123,7 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
                             height={24}
                             className="rounded-sm"
                         />
-                        <span className="text-sm text-white">
+                        <span className="text-sm text-st_white">
                             {item.quantity}x {item.full_name}
                         </span>
                     </motion.div>
@@ -137,7 +137,7 @@ const WinnerCard: React.FC<WinnerCardProps> = ({ winner, className, animate = tr
                 {winner.bonusAmount !== undefined && winner.bonusAmount > 0 && winner.bonusType && (
                     <motion.div initial={animate ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="flex items-center gap-2">
                         <Image src={ITEM_ICON_PATHS.bonus} alt="Bonus" width={24} height={24} className="rounded-sm" />
-                        <span className="text-sm text-white">
+                        <span className="text-sm text-st_white">
                             {winner.bonusAmount}x {winner.bonusType === 'sticky' ? 'Sticky' : 'Normal'} Bonus Spins
                         </span>
                     </motion.div>
@@ -234,14 +234,14 @@ export function SlotRecentWinners({ winners: incomingWinners, onRefresh, isLoadi
     return (
         <div className={cn('flex h-full flex-col space-y-4', className)}>
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white">Recent Winners</h2>
+                <h2 className="text-lg font-bold text-st_white">Recent Winners</h2>
                 {onRefresh && (
                     <motion.button
                         onClick={() => !isLoading && onRefresh()}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className={cn(
-                            'rounded-full p-2 text-white transition-colors hover:bg-stone-700',
+                            'rounded-full p-2 text-st_white transition-colors hover:bg-stone-700',
                             isLoading && 'cursor-wait opacity-50',
                         )}
                         disabled={isLoading}

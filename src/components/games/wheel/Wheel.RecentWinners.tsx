@@ -101,7 +101,7 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
                     onClick={() => !isLoading && fetchWinners()}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`rounded-full p-2 text-white transition-colors hover:bg-stone-700 ${
+                    className={`rounded-full p-2 text-st_white transition-colors hover:bg-stone-700 ${
                         isLoading ? 'cursor-wait opacity-50' : ''
                     }`}
                     disabled={isLoading}

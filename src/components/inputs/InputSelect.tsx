@@ -11,7 +11,7 @@ interface OptionType {
 const DropdownIndicator = (props: any) => {
     return (
         <components.DropdownIndicator {...props}>
-            <FaArrowDown className="fill-secondary_dark" />
+            <FaArrowDown className="fill-st_darkest" />
         </components.DropdownIndicator>
     );
 };

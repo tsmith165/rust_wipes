@@ -22,7 +22,7 @@ export function RustySlotsBonusModal({ onSelect, showConfetti, onConfettiComplet
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.8 }}
-                className="relative w-full max-w-lg rounded-lg bg-stone-800 p-6 text-white shadow-lg"
+                className="relative w-full max-w-lg rounded-lg bg-stone-800 p-6 text-st_white shadow-lg"
             >
                 <h2 className="mb-2 text-center text-4xl font-bold text-primary_light">You Won Free Spins!</h2>
                 <h3 className="mb-6 text-center text-2xl">Select Your Bonus Type</h3>

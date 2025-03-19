@@ -15,7 +15,7 @@ const HeatIndexKeyMap: React.FC = () => {
                 {heatIndexItems.map((item, index) => (
                     <div key={index} className="flex items-center space-x-2">
                         <div className={`h-3 w-3 rounded-full ${item.color}`}></div>
-                        <span className="text-white">{item.time}</span>
+                        <span className="text-st_white">{item.time}</span>
                     </div>
                 ))}
             </div>

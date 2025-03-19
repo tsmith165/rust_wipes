@@ -75,7 +75,7 @@ export function BaseGameControls({
                 </div>
                 <div className="flex space-x-2" data-tooltip-id="credits-tooltip">
                     <FaCoins className="h-10 w-10 text-primary_light" />
-                    <span className="text-xl font-bold text-white">{credits || '0'}</span>
+                    <span className="text-xl font-bold text-st_white">{credits || '0'}</span>
                 </div>
                 <Tooltip id="credits-tooltip" className="z-[200]" place="top" offset={8} classNameArrow="!left-[calc(50%-14px)]">
                     Credits
