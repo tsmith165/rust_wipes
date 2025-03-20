@@ -29,11 +29,10 @@ const isTooRecent = (timestamp: string): boolean => {
  * Recent winners component for the wheel.
  * Displays recent winning spins with animations and Steam profile integration.
  */
-export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className }: WheelRecentWinnersProps) {
+export function WheelRecentWinners({ shouldRefetch, onRefetchComplete }: WheelRecentWinnersProps) {
     const [winners, setWinners] = useState<WinnerWithPictures[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [pendingWinners, setPendingWinners] = useState<WinnerWithPictures[]>([]);
 
     const fetchWinners = async () => {
         setIsLoading(true);
@@ -42,7 +41,7 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
             if (response.success && response.data) {
                 // Filter out any wins that are too recent
                 const currentWinners = response.data;
-                const [recent, older] = currentWinners.reduce<[WinnerWithPictures[], WinnerWithPictures[]]>(
+                const [, older] = currentWinners.reduce<[WinnerWithPictures[], WinnerWithPictures[]]>(
                     (acc, winner) => {
                         if (isTooRecent(winner.timestamp)) {
                             acc[0].push(winner);
@@ -54,8 +53,6 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
                     [[], []],
                 );
 
-                // Store recent wins for next update
-                setPendingWinners(recent);
                 // Show only older wins
                 setWinners(older);
                 setError(null);
@@ -63,6 +60,7 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
                 setError(response.error || 'Failed to fetch winners');
             }
         } catch (err) {
+            console.error('Error fetching winners:', err);
             setError('An error occurred while fetching winners');
         } finally {
             setIsLoading(false);
@@ -74,14 +72,6 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
         fetchWinners();
         const interval = setInterval(() => {
             fetchWinners();
-            // Add pending winners to the main list when refreshing
-            setPendingWinners((prev) => {
-                if (prev.length > 0) {
-                    setWinners((current) => [...prev, ...current]);
-                    return [];
-                }
-                return prev;
-            });
         }, 10000); // Update every 10 seconds
         return () => clearInterval(interval);
     }, []);
@@ -149,7 +139,7 @@ export function WheelRecentWinners({ shouldRefetch, onRefetchComplete, className
                             </motion.div>
                         ))
                     ) : winners.length > 0 ? (
-                        winners.map((winner, index) => (
+                        winners.map((winner) => (
                             <motion.div
                                 key={`${winner.steam_id}-${winner.timestamp}`}
                                 initial={{ opacity: 0, y: -20 }}
