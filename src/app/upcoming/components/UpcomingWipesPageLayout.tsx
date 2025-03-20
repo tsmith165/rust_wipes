@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import UpcomingWipesHero from './UpcomingWipesHero';
-import FilterFormSection from './FilterFormSection';
+import FilterFormOverlay from './FilterFormOverlay';
+import LegendOverlay from './LegendOverlay';
 import ServersTableSection from './ServersTableSection';
 import InfoCardsSection from './InfoCardsSection';
 import { DEFAULT_PARAMS } from '../constants';
@@ -29,6 +30,8 @@ interface UpcomingWipesPageLayoutProps {
 
 export default function UpcomingWipesPageLayout({ initialData }: UpcomingWipesPageLayoutProps) {
     const router = useRouter();
+    const [isFilterOverlayOpen, setIsFilterOverlayOpen] = useState(false);
+    const [isLegendOverlayOpen, setIsLegendOverlayOpen] = useState(false);
 
     // Store the current filter values in refs to persist them across renders
     const regionRef = useRef<string>(DEFAULT_PARAMS.region);
@@ -126,26 +129,42 @@ export default function UpcomingWipesPageLayout({ initialData }: UpcomingWipesPa
         fetchData();
     }, [searchParams]);
 
-    const handleRefresh = () => {
-        fetchData();
+    const handleOpenFilterOverlay = () => {
+        setIsFilterOverlayOpen(true);
+    };
+
+    const handleCloseFilterOverlay = () => {
+        setIsFilterOverlayOpen(false);
+    };
+
+    const handleOpenLegendOverlay = () => {
+        setIsLegendOverlayOpen(true);
+    };
+
+    const handleCloseLegendOverlay = () => {
+        setIsLegendOverlayOpen(false);
     };
 
     return (
         <div className="min-h-screen bg-st_darkest">
             <UpcomingWipesHero />
 
-            <FilterFormSection
+            <FilterFormOverlay
                 searchParams={searchParamsObject}
-                onRefresh={handleRefresh}
-                isLoading={isLoading}
+                isOpen={isFilterOverlayOpen}
+                onClose={handleCloseFilterOverlay}
                 onUpdateSearchParams={updateSearchParams}
             />
+
+            <LegendOverlay isOpen={isLegendOverlayOpen} onClose={handleCloseLegendOverlay} />
 
             <ServersTableSection
                 searchParams={searchParamsObject}
                 server_list={serverList}
                 onUpdateSearchParams={updateSearchParams}
                 isLoading={isLoading}
+                onOpenFilterOverlay={handleOpenFilterOverlay}
+                onOpenLegendOverlay={handleOpenLegendOverlay}
             />
 
             <InfoCardsSection />
