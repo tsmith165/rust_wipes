@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
-import RecentConfirmedWipesPage from '@/app/recent/RecentConfirmedWipesPage';
+import RecentWipesPageLayout from './components/RecentWipesPageLayout';
 import { DEFAULT_PARAMS } from './constants';
 
 const PAGE_NAME = 'Recent Wipes';
@@ -58,7 +58,7 @@ export default async function Page({ searchParams }: PageProps) {
 
     return (
         <PageLayout page="recent">
-            <RecentConfirmedWipesPage initialSearchParams={initialParams} />
+            <RecentWipesPageLayout initialSearchParams={initialParams} />
         </PageLayout>
     );
 }

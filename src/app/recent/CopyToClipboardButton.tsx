@@ -13,10 +13,10 @@ interface CopyToClipboardButtonProps {
 
 const CopyToClipboardButton: React.FC<CopyToClipboardButtonProps> = ({
     textToCopy,
-    defaultColor = 'text-stone-300',
-    hoverColor = 'hover:text-red-600',
-    successColor = 'text-green-600',
-    hoverSuccessColor = 'hover:text-green-800',
+    defaultColor = 'text-st_lightest',
+    hoverColor = 'hover:text-primary_light',
+    successColor = 'text-hot_wipe',
+    hoverSuccessColor = 'hover:text-primary_light',
 }) => {
     const [isCopied, setIsCopied] = useState(false);
 

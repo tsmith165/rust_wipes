@@ -1,6 +1,6 @@
-import React, { useId } from 'react';
+import React, { useId, ReactElement } from 'react';
 import Select, { components, StylesConfig, InputProps } from 'react-select';
-import { FaArrowDown } from 'react-icons/fa';
+import { ChevronDown } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 
 interface OptionType {
@@ -11,7 +11,7 @@ interface OptionType {
 const DropdownIndicator = (props: any) => {
     return (
         <components.DropdownIndicator {...props}>
-            <FaArrowDown className="fill-st_darkest" />
+            <ChevronDown size={16} className="text-st_light" />
         </components.DropdownIndicator>
     );
 };
@@ -23,6 +23,7 @@ interface InputSelectProps<T extends string> {
     select_options: [T, string][];
     value?: T;
     onChange?: (value: T) => void;
+    icon?: ReactElement;
 }
 
 // Custom Input component that removes aria-activedescendant when empty
@@ -34,7 +35,7 @@ const Input = (props: InputProps<OptionType, false>) => {
     return <components.Input {...newProps} />;
 };
 
-const InputSelect = <T extends string>({ defaultValue, idName, name, select_options, value, onChange }: InputSelectProps<T>) => {
+const InputSelect = <T extends string>({ defaultValue, idName, name, select_options, value, onChange, icon }: InputSelectProps<T>) => {
     const uniqueId = useId();
     const selectId = `react-select-${idName}-${uniqueId}`;
 
@@ -53,19 +54,63 @@ const InputSelect = <T extends string>({ defaultValue, idName, name, select_opti
     const customStyles: StylesConfig<OptionType, false> = {
         control: (baseStyles) => ({
             ...baseStyles,
-            borderColor: '',
-            backgroundColor: 'var(--tw-bg-stone-400)',
+            backgroundColor: '#292524', // st_dark
+            borderColor: 'transparent',
+            boxShadow: 'none',
+            height: '40px',
+            '&:hover': {
+                borderColor: '#991b1b', // primary
+            },
+        }),
+        option: (baseStyles, { isFocused, isSelected }) => ({
+            ...baseStyles,
+            backgroundColor: isSelected
+                ? '#991b1b' // primary
+                : isFocused
+                  ? '#292524' // st_dark
+                  : '#44403c', // st
+            color: isSelected ? 'white' : '#d6d3d1', // st_lightest
+            cursor: 'pointer',
+            '&:hover': {
+                backgroundColor: '#7f1d1d', // primary_dark
+            },
+        }),
+        menu: (baseStyles) => ({
+            ...baseStyles,
+            backgroundColor: '#44403c', // st
+            zIndex: 50,
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+        }),
+        menuList: (baseStyles) => ({
+            ...baseStyles,
+            backgroundColor: '#44403c', // st
+            padding: '4px',
+        }),
+        singleValue: (baseStyles) => ({
+            ...baseStyles,
+            color: '#d6d3d1', // st_lightest
+        }),
+        input: (baseStyles) => ({
+            ...baseStyles,
+            color: '#d6d3d1', // st_lightest
+        }),
+        dropdownIndicator: (baseStyles) => ({
+            ...baseStyles,
+            color: '#78716c', // st_light
+            '&:hover': {
+                color: '#d6d3d1', // st_lightest
+            },
         }),
     };
 
     return (
         <div className="m-0 flex w-full p-0">
             <div
-                className="flex min-w-28 max-w-28 items-center justify-center rounded-l-md bg-gradient-to-r from-primary_light to-primary_dark px-2.5 py-1.5"
+                className="flex h-10 min-w-12 max-w-12 items-center justify-center rounded-l-md bg-primary px-2.5 text-white"
                 data-tooltip-id={`tooltip-${idName}`}
                 data-tooltip-content={formatted_name}
             >
-                <div className="font-bold text-stone-950">{formatted_name}</div>
+                {icon}
             </div>
             <Tooltip id={`tooltip-${idName}`} place="top" />
             <Select<OptionType, false>
@@ -75,7 +120,7 @@ const InputSelect = <T extends string>({ defaultValue, idName, name, select_opti
                 value={react_select_options.find((option) => option.value === value)}
                 isMulti={false}
                 name={idName}
-                className="h-full flex-grow rounded-r-md border-none bg-stone-400 text-sm font-bold text-stone-950"
+                className="h-full flex-grow rounded-r-md border-none bg-st_dark text-sm font-medium text-st_lightest"
                 classNamePrefix="select"
                 components={{
                     DropdownIndicator,

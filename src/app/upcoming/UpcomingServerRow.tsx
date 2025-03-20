@@ -1,9 +1,8 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
 
-const BM_SERVER_BASE_URL = 'https://www.battlemetrics.com/servers/rust';
-
-interface server {
+interface ServerData {
     id: number;
     rank: number;
     title: string;
@@ -11,42 +10,75 @@ interface server {
     last_wipe: string;
     next_wipe: string;
     is_full_wipe: boolean;
+    is_bp_wipe: boolean;
+    wipe_schedule?: string;
 }
 
 interface UpcomingServerRowProps {
     id: string;
-    server: server;
+    server: ServerData;
 }
 
-const col_1_width =
-    'w-[calc(calc(100%-16px)*0.20)] xs:w-[calc(calc(100%-16px)*0.12)] sm:w-[calc(calc(100%-16px)*0.10)] md:w-[calc(calc(100%-16px)*0.12)] lg:!w-[calc(calc(100%-16px)*0.10)]';
-const col_2_width = 'hidden lg:!block lg:!w-[calc(calc(100%-16px)*0.175)]';
-const col_3_width =
-    'w-[calc(calc(100%-16px)*0.35)] xs:w-[calc(calc(100%-16px)*0.18)] sm:w-[calc(calc(100%-16px)*0.20)] md:w-[calc(calc(100%-16px)*0.23)] lg:!w-[calc(calc(100%-16px)*0.175)]';
-const col_4_width =
-    'w-[calc(calc(100%-16px)*0.40)] xs:w-[calc(calc(100%-16px)*0.70)] sm:w-[calc(calc(100%-16px)*0.70)] md:w-[calc(calc(100%-16px)*0.65)] lg:!w-[calc(calc(100%-16px)*0.55)]';
-
 export default function UpcomingServerRow({ id, server }: UpcomingServerRowProps) {
+    const url = `https://www.battlemetrics.com/servers/rust/${server.id}`;
+
+    // Format dates with improved fallback handling
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return 'TBD';
+
+        try {
+            const date = new Date(dateStr);
+
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                return 'TBD';
+            }
+
+            return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+            });
+        } catch (error) {
+            return 'TBD';
+        }
+    };
+
+    const formattedLastWipe = formatDate(server.last_wipe);
+    const formattedNextWipe = formatDate(server.next_wipe);
+
+    // Determine wipe type and styling
+    let wipeType = 'Normal Wipe';
+    let wipeTypeClass = 'text-green-400 font-semibold bg-green-900/30 px-2 py-0.5 rounded';
+
+    if (server.is_full_wipe) {
+        wipeType = 'Full Wipe';
+        wipeTypeClass = 'text-hot_wipe font-semibold bg-red-900/30 px-2 py-0.5 rounded';
+    } else if (server.is_bp_wipe) {
+        wipeType = 'BP Wipe';
+        wipeTypeClass = 'text-cool_wipe font-semibold bg-orange-900/30 px-2 py-0.5 rounded';
+    }
+
     return (
-        <div className="flex h-10 border-b border-stone-500 bg-stone-400 text-stone-950 last:rounded-b-lg last:shadow-xl hover:bg-primary hover:text-stone-300">
-            <Link
-                href={`/server/${server.id}`}
-                className="flex w-full flex-row items-center space-x-2 px-4 text-current  hover:cursor-pointer"
-            >
-                <div className={`overflow-hidden whitespace-nowrap ${col_1_width}`} title={`#${server.rank}`}>
-                    {`#${server.rank}`}
+        <div id={id} className="border-b border-stone-700 transition-all duration-200 hover:bg-stone-700">
+            <div className="grid grid-cols-12 items-center gap-2 px-4 py-3 text-stone-200">
+                <div className="col-span-2 text-left font-semibold sm:col-span-1">#{server.rank}</div>
+
+                <div className="col-span-3 text-left font-medium sm:col-span-2">{formattedLastWipe}</div>
+
+                <div className="justify-left col-span-3 flex items-center space-x-2 sm:col-span-3">
+                    <span className="font-medium">{formattedNextWipe}</span>
+                    <span className={wipeTypeClass}>{wipeType}</span>
                 </div>
-                <div className={`overflow-hidden whitespace-nowrap ${col_2_width}`} title={server.last_wipe}>
-                    {server.last_wipe}
-                </div>
-                <div className={`overflow-hidden whitespace-nowrap ${col_3_width}`} title={`${server.next_wipe}`}>
-                    {server.next_wipe}
-                </div>
-                <div className={`overflow-hidden whitespace-nowrap ${col_4_width}`} title={server.title}>
-                    {server.is_full_wipe && <span className="ml-1 font-bold text-primary">[BP Wipe]</span>}
-                    {` ${server.title}`}
-                </div>
-            </Link>
+
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="col-span-4 truncate font-medium text-stone-100 transition-colors duration-200 hover:text-primary_light sm:col-span-6"
+                >
+                    {server.title}
+                </a>
+            </div>
         </div>
     );
 }

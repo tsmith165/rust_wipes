@@ -1,44 +1,31 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import RecentWipesSidebar from './RecentWipesSidebar';
-import RecentWipesTable from './RecentWipesTable';
+import RecentWipesHero from './RecentWipesHero';
+import FilterFormSection from './FilterFormSection';
+import ServersTableSection from './ServersTableSection';
+import InfoCardsSection from './InfoCardsSection';
+import { DEFAULT_PARAMS } from '../constants';
 import { getRecentWipesData } from '@/app/actions';
-import { DEFAULT_PARAMS } from './constants';
 
-interface BattleMetricsServer {
-    id: string;
-    attributes: {
-        ip: string | null;
-        port: number | null;
-        name: string | null;
-        rank: number | null;
-        details: {
-            rust_last_wipe: string | null;
-        };
-        players: number | null;
-        maxPlayers: number | null;
-    };
-}
-
-interface Server {
+interface ServerListItem {
     id: number;
     attributes: {
-        players: number | null;
-        maxPlayers: number | null;
         ip: string | null;
         port: number | null;
         name: string | null;
         rank: number | null;
+        players: number | null;
+        maxPlayers: number | null;
         details: {
             rust_last_wipe: string | null;
         };
     };
-    offline: boolean;
+    offline?: boolean;
 }
 
-interface RecentConfirmedWipesPageProps {
+interface RecentWipesPageLayoutProps {
     initialSearchParams: {
         country?: string;
         minPlayers?: string;
@@ -52,8 +39,12 @@ interface RecentConfirmedWipesPageProps {
     };
 }
 
-export default function RecentConfirmedWipesPage({ initialSearchParams }: RecentConfirmedWipesPageProps) {
+export default function RecentWipesPageLayout({ initialSearchParams }: RecentWipesPageLayoutProps) {
     const router = useRouter();
+
+    // Store the current page and numServers values in refs to persist them across renders
+    const pageRef = useRef<number>(parseInt(initialSearchParams.page || DEFAULT_PARAMS.page));
+    const numServersRef = useRef<number>(parseInt(initialSearchParams.numServers || DEFAULT_PARAMS.numServers));
 
     // Initialize searchParams using the initialSearchParams and DEFAULT_PARAMS
     const [searchParams, setSearchParams] = useState(() => {
@@ -68,14 +59,22 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
         return params;
     });
 
-    const [serverList, setServerList] = useState<Server[]>([]);
+    const [serverList, setServerList] = useState<ServerListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [autoRefreshActive, setAutoRefreshActive] = useState(true);
 
-    const searchParamsObject = useMemo(() => {
+    const searchParamsObject = React.useMemo(() => {
         const obj: { [key: string]: string } = {};
         searchParams.forEach((value, key) => {
             obj[key] = value;
+
+            // Keep our refs in sync with the URL when it changes
+            if (key === 'page') {
+                pageRef.current = parseInt(value);
+            }
+            if (key === 'numServers') {
+                numServersRef.current = parseInt(value);
+            }
         });
         return obj;
     }, [searchParams]);
@@ -89,10 +88,13 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
         const maxRank = parseInt(searchParams.get('maxRank') || '10000');
         const groupLimit = searchParams.get('groupLimit') || 'any';
         const resourceRate = searchParams.get('resourceRate') || 'any';
-        const numServers = parseInt(searchParams.get('numServers') || '10');
-        const page = parseInt(searchParams.get('page') || '1');
+
+        // Always use the refs for page and numServers - they persist across renders
+        const numServers = numServersRef.current;
+        const page = pageRef.current;
 
         try {
+            console.log(`Fetching data with page=${page}, numServers=${numServers}`);
             const combinedData = await getRecentWipesData({
                 country,
                 minPlayers,
@@ -115,15 +117,27 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
 
     const updateSearchParams = (updates: Record<string, string>) => {
         const newSearchParams = new URLSearchParams(searchParams);
+
         Object.entries(updates).forEach(([key, value]) => {
             if (value) {
                 newSearchParams.set(key, value);
+
+                // Update our refs when page or numServers change
+                if (key === 'page') {
+                    pageRef.current = parseInt(value);
+                }
+                if (key === 'numServers') {
+                    numServersRef.current = parseInt(value);
+                }
             } else {
                 newSearchParams.delete(key);
             }
         });
+
         setSearchParams(newSearchParams);
-        router.push(`/recent?${newSearchParams.toString()}`);
+
+        // Use replace with scroll:false instead of push to prevent scroll position changes
+        router.replace(`/recent?${newSearchParams.toString()}`, { scroll: false });
     };
 
     useEffect(() => {
@@ -147,18 +161,29 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
     };
 
     return (
-        <div className="h-full w-full overflow-hidden">
-            <div className="flex h-full w-full flex-col md:flex-row">
-                <RecentWipesSidebar
-                    searchParams={searchParamsObject}
-                    onRefresh={handleRefresh}
-                    isLoading={isLoading}
-                    autoRefreshActive={autoRefreshActive}
-                    setAutoRefreshActive={setAutoRefreshActive}
-                    onUpdateSearchParams={updateSearchParams}
-                />
-                <RecentWipesTable searchParams={searchParamsObject} server_list={serverList} onUpdateSearchParams={updateSearchParams} />
-            </div>
+        <div className="min-h-screen bg-st_darkest">
+            <RecentWipesHero />
+
+            <FilterFormSection
+                searchParams={searchParamsObject}
+                onRefresh={handleRefresh}
+                isLoading={isLoading}
+                autoRefreshActive={autoRefreshActive}
+                setAutoRefreshActive={setAutoRefreshActive}
+                onUpdateSearchParams={updateSearchParams}
+            />
+
+            <ServersTableSection
+                searchParams={searchParamsObject}
+                server_list={serverList}
+                onUpdateSearchParams={updateSearchParams}
+                isLoading={isLoading}
+                autoRefreshActive={autoRefreshActive}
+                setAutoRefreshActive={setAutoRefreshActive}
+                onRefresh={handleRefresh}
+            />
+
+            <InfoCardsSection />
         </div>
     );
 }

@@ -6,6 +6,6 @@ export const DEFAULT_PARAMS = {
     maxRank: '10000',
     groupLimit: 'any',
     resourceRate: 'any',
-    numServers: '25',
+    numServers: '10',
     page: '1',
 } as const;

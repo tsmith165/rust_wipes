@@ -37,10 +37,10 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
         let hrs = Math.floor((totalDiffSeconds % (60 * 60 * 24)) / (60 * 60));
         let mins = Math.floor((totalDiffSeconds % (60 * 60)) / 60);
 
-        if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-green-700';
-        else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-blue-700';
-        else if (totalDiffSeconds < COLD_WIPE) heat_class = 'text-purple-700';
-        else heat_class = 'text-stone-950';
+        if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-hot_wipe font-bold';
+        else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-cool_wipe font-bold';
+        else if (totalDiffSeconds < COLD_WIPE) heat_class = 'text-cold_wipe font-bold';
+        else heat_class = 'text-st_lightest';
 
         if (days > 0) {
             final_date = `${days}d ${hrs}h`;
@@ -55,14 +55,16 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
 
     return (
         <div
-            className={`flex h-9 w-full items-center border-b border-st_darkest pr-2 ${heat_class} ${
-                offline ? 'hidden bg-primary_light opacity-80' : 'flex w-full bg-stone-400'
-            } hover:bg-stone-300`}
+            className={`flex h-9 w-full items-center border-b border-st_darkest pr-2 text-st_lightest ${heat_class} ${
+                offline ? 'hidden bg-primary_dark opacity-80' : 'flex w-full bg-st'
+            } hover:bg-st_dark`}
         >
             <Link href={`/server/${bm_id}`} className="group flex w-[calc(100%-3rem)]">
                 <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank || 'N/A'}</div>
                 <div className="flex-1 overflow-hidden whitespace-nowrap p-1.5 text-left">
-                    <b className="group-hover:cursor-pointer group-hover:underline">{className || 'Unknown'}</b>
+                    <b className="text-st_white group-hover:cursor-pointer group-hover:text-primary_light group-hover:underline">
+                        {className || 'Unknown'}
+                    </b>
                 </div>
                 <div className="w-24 overflow-hidden whitespace-nowrap p-1.5 text-center">
                     {!players || players === 0 || maxPlayers === 0 ? 'Offline' : `${players} / ${maxPlayers}`}

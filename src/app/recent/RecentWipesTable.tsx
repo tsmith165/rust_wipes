@@ -34,7 +34,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     console.log('Creating Recent Wipes Table...');
 
     const page = parseInt((searchParams?.page as string) || '1');
-    const numServers = parseInt((searchParams?.numServers as string) || '25');
+    const numServers = parseInt((searchParams?.numServers as string) || '10');
     const minPlayers = parseInt((searchParams?.minPlayers as string) || '2');
     const maxDist = parseInt((searchParams?.maxDist as string) || '5000');
     const minRank = parseInt((searchParams?.minRank as string) || '0');
@@ -63,7 +63,7 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     if (server_list == undefined) {
         console.log('NO SERVERS FOUND.  Returning empty table...');
-        return <div className="max-h-full min-w-full bg-stone-500 md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
+        return <div className="max-h-full min-w-full bg-st_dark md:min-w-[461px]" style={{ flex: '1 1 60%' }}></div>;
     }
 
     const server_list_length = server_list.length;
@@ -106,41 +106,14 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     if (server_list == null || server_list.length === 0) {
         return (
-            <div className="max-h-full w-full min-w-full bg-stone-500 md:min-w-[461px]">
+            <div className="max-h-full w-full min-w-full bg-st_dark md:min-w-[461px]">
                 {/* Loader can be implemented with Tailwind CSS or any other library */}
             </div>
         );
     }
 
-    const decrementPage = page > 1 ? page - 1 : 1;
-    const incrementPage = page + 1;
-
-    const pagination_container = (
-        <div className="flex items-center space-x-2 rounded-lg bg-primary_dark">
-            <button
-                onClick={() => onUpdateSearchParams({ page: decrementPage.toString() })}
-                className="group flex items-center justify-center rounded-l-lg p-1 hover:!bg-primary"
-                disabled={page <= 1}
-            >
-                <IoIosArrowForward className="rotate-180 cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
-            </button>
-            <span className="flex items-center justify-center text-lg font-bold">{page}</span>
-            <button
-                onClick={() => onUpdateSearchParams({ page: incrementPage.toString() })}
-                className="group flex items-center justify-center rounded-r-lg p-1 hover:!bg-primary"
-            >
-                <IoIosArrowForward className="cursor-pointer fill-stone-950 text-xl group-hover:fill-stone-300" />
-            </button>
-        </div>
-    );
-
-    // Update NumServersSelect to use onUpdateSearchParams
-    const num_servers_select = (
-        <NumServersSelect defaultValue={numServers} searchParams={searchParams} onUpdateSearchParams={onUpdateSearchParams} />
-    );
-
     const server_list_table_header = (
-        <div className="flex bg-stone-600 pr-2 font-bold text-stone-300">
+        <div className="flex bg-st_dark pr-2 font-bold text-st_lightest">
             <div className="w-16 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
             <div className="w-24 p-1.5 text-center">Players</div>
@@ -150,26 +123,17 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
     );
 
     const server_list_table_row_container = (
-        <div className="grow overflow-y-auto">
-            <div className="flex-1 bg-stone-400">{servers_jsx_array}</div>
-        </div>
-    );
-
-    const server_list_table_menu = (
-        <div className="flex w-full items-center justify-between bg-stone-800 px-2 py-2">
-            {pagination_container /* Pagination */}
-            <div className="flex-grow"></div>
-            {num_servers_select /* Number of servers selector */}
+        <div className="grow overflow-y-auto bg-st">
+            <div className="flex-1">{servers_jsx_array}</div>
         </div>
     );
 
     console.log('Returning Recent Wipes Table...');
     return (
-        <div className="flex h-[calc(100%-254px)] w-full flex-grow bg-stone-400 md:h-full md:min-w-[461px]">
+        <div className="flex h-full w-full flex-grow overflow-hidden">
             <div className="flex w-full flex-col overflow-y-hidden">
                 {server_list_table_header}
                 {server_list_table_row_container}
-                {server_list_table_menu}
             </div>
         </div>
     );
