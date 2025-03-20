@@ -64,7 +64,23 @@ export async function spinWheel(steamId: string, code: string, currentRotation: 
         }
 
         if (user[0].credits < 5) {
-            return { success: false, error: 'Not enough credits (5 required)' };
+            // Return the current credit amount so the client can update
+            return {
+                success: false,
+                error: 'Not enough credits (5 required)',
+                data: {
+                    credits: user[0].credits,
+                    userId: user[0].id,
+                    result: {
+                        color: 'Red' as WheelColor,
+                        start: 0,
+                        end: 0,
+                        payout: PAYOUTS['Red'],
+                    },
+                    totalRotation: 0,
+                    finalDegree: 0,
+                },
+            };
         }
 
         // Calculate spin result

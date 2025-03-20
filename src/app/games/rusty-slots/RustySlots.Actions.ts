@@ -134,7 +134,23 @@ export async function spinSlotMachine(steamId: string, code: string, bonusType?:
         }
 
         if (user[0].credits < 5 && freeSpinsAvailable === 0) {
-            return { success: false, error: 'Not enough credits or free spins' };
+            // Return the current credit amount so the client can update
+            return {
+                success: false,
+                error: 'Not enough credits or free spins',
+                data: {
+                    finalVisibleGrid: [[]],
+                    spinAmounts: [],
+                    payout: [],
+                    bonusTriggered: false,
+                    bonusSpinsAwarded: 0,
+                    credits: user[0].credits,
+                    freeSpinsAvailable: freeSpinsAvailable,
+                    winningCells: [],
+                    bonusCells: [],
+                    winningLines: [],
+                },
+            };
         }
 
         // Determine the selected bonus type
