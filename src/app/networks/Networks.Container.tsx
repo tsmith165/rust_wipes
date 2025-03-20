@@ -1,8 +1,9 @@
-import React from 'react';
-import { NetworksDesktopForm } from './Networks.Desktop.Form';
-import { NetworksDesktopContent } from './Networks.Desktop.Content';
-import { NetworksMobileForm } from './Networks.Mobile.Form';
-import { NetworksMobileContent } from './Networks.Mobile.Content';
+'use client';
+
+import React, { useState } from 'react';
+import NetworksHero from './components/NetworksHero';
+import NetworksTableSection from './components/NetworksTableSection';
+import LegendOverlay from './components/LegendOverlay';
 import type { ServerNetwork } from './types';
 
 interface NetworksDisplayProps {
@@ -11,21 +12,30 @@ interface NetworksDisplayProps {
 }
 
 export function NetworksContainer({ networks, selectedNetworkId }: NetworksDisplayProps) {
+    const [isLegendOverlayOpen, setIsLegendOverlayOpen] = useState(false);
+
     const selectedNetwork = networks.find((n) => n.id === selectedNetworkId) ?? networks[0];
+
+    const handleOpenLegendOverlay = () => {
+        setIsLegendOverlayOpen(true);
+    };
+
+    const handleCloseLegendOverlay = () => {
+        setIsLegendOverlayOpen(false);
+    };
 
     return (
         <>
-            {/* Desktop View */}
-            <div className="hidden h-full w-full md:!flex">
-                <NetworksDesktopForm networks={networks} selectedNetworkId={selectedNetworkId} />
-                <NetworksDesktopContent network={selectedNetwork} />
-            </div>
+            <NetworksHero />
 
-            {/* Mobile View */}
-            <div className="flex h-full w-full flex-col md:!hidden">
-                <NetworksMobileForm networks={networks} selectedNetworkId={selectedNetworkId} />
-                <NetworksMobileContent network={selectedNetwork} />
-            </div>
+            <NetworksTableSection
+                network={selectedNetwork}
+                networks={networks}
+                selectedNetworkId={selectedNetworkId}
+                onOpenLegendOverlay={handleOpenLegendOverlay}
+            />
+
+            <LegendOverlay isOpen={isLegendOverlayOpen} onClose={handleCloseLegendOverlay} />
         </>
     );
 }
