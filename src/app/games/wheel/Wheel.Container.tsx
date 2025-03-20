@@ -261,6 +261,7 @@ export function WheelContainer() {
         setAutoSpinning,
         updateCreditsFromServerResponse,
         steamProfile,
+        setShowBonusModal,
     ]);
 
     // Handle auto-spin logic

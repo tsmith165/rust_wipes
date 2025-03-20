@@ -44,7 +44,7 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }: Upcomi
         <div className="mb-4 overflow-hidden rounded-lg border border-stone-700 bg-stone-800 shadow-md transition-all duration-200">
             {/* Header section */}
             <div
-                className="flex cursor-pointer items-center justify-between bg-stone-800 px-4 py-3 transition-all duration-200 hover:bg-stone-700"
+                className="flex cursor-pointer items-center justify-between bg-stone-800 px-4 py-3 transition-all duration-200 hover:bg-st_darkest"
                 onClick={toggleExpanded}
             >
                 <div className="flex items-center space-x-3">
@@ -65,7 +65,7 @@ export default function UpcomingServerHourGroup({ wipe_dict, wipe_hour }: Upcomi
                 }`}
             >
                 {/* Header row */}
-                <div className="bg-stone-700 px-4 py-3 text-sm font-semibold text-stone-200">
+                <div className="bg-st_darker px-4 py-3 text-sm font-semibold text-stone-200">
                     <div className="grid grid-cols-12 gap-2">
                         <div className="col-span-2 sm:col-span-1">Rank</div>
                         <div className="col-span-3 sm:col-span-2">Last Wipe</div>

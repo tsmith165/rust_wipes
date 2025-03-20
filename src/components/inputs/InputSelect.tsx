@@ -2,6 +2,13 @@ import React, { useId, ReactElement } from 'react';
 import Select, { components, StylesConfig, InputProps, DropdownIndicatorProps } from 'react-select';
 import { ChevronDown } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
+import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from 'clsx';
+
+// Utility function for class name composition
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 
 interface OptionType {
     value: string;
@@ -24,6 +31,7 @@ interface InputSelectProps<T extends string> {
     value?: T;
     onChange?: (value: T) => void;
     icon?: ReactElement;
+    className?: string;
 }
 
 // Custom Input component that removes aria-activedescendant when empty
@@ -35,7 +43,16 @@ const Input = (props: InputProps<OptionType, false>) => {
     return <components.Input {...newProps} />;
 };
 
-const InputSelect = <T extends string>({ defaultValue, idName, name, select_options, value, onChange, icon }: InputSelectProps<T>) => {
+const InputSelect = <T extends string>({
+    defaultValue,
+    idName,
+    name,
+    select_options,
+    value,
+    onChange,
+    icon,
+    className,
+}: InputSelectProps<T>) => {
     const uniqueId = useId();
     const selectId = `react-select-${idName}-${uniqueId}`;
 
@@ -51,10 +68,14 @@ const InputSelect = <T extends string>({ defaultValue, idName, name, select_opti
         }
     };
 
+    // Check if the bg-st_darkest class is included
+    const hasDarkestBg = className?.includes('bg-st_darkest');
+    const bgColor = hasDarkestBg ? '#1c1917' : '#292524'; // st_darkest or st_dark
+
     const customStyles: StylesConfig<OptionType, false> = {
         control: (baseStyles) => ({
             ...baseStyles,
-            backgroundColor: '#292524', // st_dark
+            backgroundColor: bgColor,
             borderColor: 'transparent',
             boxShadow: 'none',
             height: '40px',
@@ -120,7 +141,7 @@ const InputSelect = <T extends string>({ defaultValue, idName, name, select_opti
                 value={react_select_options.find((option) => option.value === value)}
                 isMulti={false}
                 name={idName}
-                className="h-full flex-grow rounded-r-md border-none bg-st_dark text-sm font-medium text-st_lightest"
+                className={cn('h-full flex-grow rounded-r-md border-none bg-st_dark text-sm font-medium text-st_lightest', className)}
                 classNamePrefix="select"
                 components={{
                     DropdownIndicator,

@@ -3,6 +3,13 @@
 import React from 'react';
 import Select, { components, StylesConfig, DropdownIndicatorProps } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
+import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from 'clsx';
+
+// Utility function for class name composition
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 
 interface InputMultiSelectProps {
     defaultValue?: { value: string; label: string }[];
@@ -10,6 +17,7 @@ interface InputMultiSelectProps {
     select_options: [string, string][];
     onChange?: (selectedOptions: { value: string; label: string }[]) => void;
     inputId?: string;
+    className?: string;
 }
 
 interface OptionType {
@@ -25,7 +33,7 @@ const DropdownIndicator = (props: DropdownIndicatorProps<OptionType, true>) => {
     );
 };
 
-const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name, select_options, onChange, inputId }) => {
+const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name, select_options, onChange, inputId, className }) => {
     const id = inputId;
     const formatted_name = name
         .split('_')
@@ -65,7 +73,7 @@ const InputMultiSelect: React.FC<InputMultiSelectProps> = ({ defaultValue, name,
                 isMulti={true}
                 id={id}
                 name={id}
-                className="h-full flex-grow rounded-r-md border-none bg-primary text-sm font-bold text-st_darkest"
+                className={cn('h-full flex-grow rounded-r-md border-none bg-primary text-sm font-bold text-st_darkest', className)}
                 classNamePrefix="select"
                 components={{
                     DropdownIndicator,

@@ -20,6 +20,7 @@ export default withUt({
                 primary_dark: '#7f1d1d',
 
                 st_darkest: '#0c0a09', // Dark slate
+                st_darker: '#1c1917', // Darker slate
                 st_dark: '#292524', // Slate
                 st: '#44403c', // Medium slate
                 st_light: '#78716c', // Light slate

@@ -4,16 +4,24 @@ import React, { useState, useEffect } from 'react';
 import { Tooltip } from 'react-tooltip';
 import DatePicker from 'react-datepicker';
 import moment from 'moment-timezone';
+import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from 'clsx';
 import 'react-datepicker/dist/react-datepicker.css';
+
+// Utility function for class name composition
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 
 interface InputDatePickerProps {
     idName: string;
     name: string;
     defaultValue?: string;
     onChange?: (date: Date) => void;
+    className?: string;
 }
 
-const InputDatePicker: React.FC<InputDatePickerProps> = ({ idName, name, defaultValue, onChange }) => {
+const InputDatePicker: React.FC<InputDatePickerProps> = ({ idName, name, defaultValue, onChange, className }) => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     useEffect(() => {
@@ -54,7 +62,10 @@ const InputDatePicker: React.FC<InputDatePickerProps> = ({ idName, name, default
             <DatePicker
                 id={idName}
                 name={idName}
-                className="h-8 rounded-r-md border-none bg-stone-400 px-2.5 text-sm font-bold text-stone-950 placeholder-stone-600"
+                className={cn(
+                    'h-8 rounded-r-md border-none bg-stone-400 px-2.5 text-sm font-bold text-stone-950 placeholder-stone-600',
+                    className,
+                )}
                 selected={selectedDate}
                 onChange={handleDateChange}
                 dateFormat="yyyy-MM-dd"

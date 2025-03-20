@@ -2,6 +2,13 @@
 
 import React, { useEffect, useRef, ReactElement } from 'react';
 import { Tooltip } from 'react-tooltip';
+import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from 'clsx';
+
+// Utility function for class name composition
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 
 interface InputTextboxProps {
     idName: string;
@@ -11,11 +18,30 @@ interface InputTextboxProps {
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     labelWidth?: 'sm' | 'md' | 'lg' | 'xl';
     icon?: ReactElement;
+    className?: string;
 }
 
-const InputTextbox: React.FC<InputTextboxProps> = ({ idName, name, value = '', placeholder, onChange, labelWidth = 'md', icon }) => {
+const InputTextbox: React.FC<InputTextboxProps> = ({
+    idName,
+    name,
+    value = '',
+    placeholder,
+    onChange,
+    labelWidth = 'md',
+    icon,
+    className,
+}) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const isControlled = onChange !== undefined;
+
+    // Special handling for controlled components to deal with empty values
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (onChange) {
+            // If the input is cleared, pass the empty value to parent
+            // This allows for proper handling of empty/null values
+            onChange(e);
+        }
+    };
 
     useEffect(() => {
         if (!isControlled && inputRef.current && value !== inputRef.current.value) {
@@ -49,8 +75,14 @@ const InputTextbox: React.FC<InputTextboxProps> = ({ idName, name, value = '', p
                 ref={inputRef}
                 id={idName}
                 name={idName}
-                className="flex h-10 w-full rounded-r-md border-none bg-st_dark px-3 text-sm font-medium text-st_lightest placeholder-st_light focus:outline-none focus:ring-2 focus:ring-primary"
-                {...(isControlled ? { value, onChange } : { defaultValue: value })}
+                className={cn(
+                    'flex h-10 w-full rounded-r-md border-none bg-st_dark px-3 text-sm font-medium text-st_lightest placeholder-st_light outline-none transition-all duration-150',
+                    'hover:ring-1 hover:ring-inset hover:ring-primary focus:ring-2 focus:ring-inset focus:ring-primary',
+                    className,
+                )}
+                value={isControlled ? value : undefined}
+                defaultValue={!isControlled ? value : undefined}
+                onChange={handleChange}
                 placeholder={placeholder || ''}
                 autoComplete="on"
             />

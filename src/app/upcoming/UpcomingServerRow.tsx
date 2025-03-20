@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 interface ServerData {
@@ -60,26 +61,23 @@ export default function UpcomingServerRow({ id, server }: UpcomingServerRowProps
     }
 
     return (
-        <div id={id} className="border-b border-stone-700 transition-all duration-200 hover:bg-stone-700">
-            <div className="grid grid-cols-12 items-center gap-2 px-4 py-3 text-stone-200">
-                <div className="col-span-2 text-left font-semibold sm:col-span-1">#{server.rank}</div>
+        <div id={id} className="border-b border-stone-700 transition-all duration-200 hover:bg-st_darkest">
+            <Link href={url} target="_blank" rel="noopener noreferrer">
+                <div className="grid grid-cols-12 items-center gap-2 px-4 py-3 text-stone-200">
+                    <div className="col-span-2 text-left font-semibold sm:col-span-1">#{server.rank}</div>
 
-                <div className="col-span-3 text-left font-medium sm:col-span-2">{formattedLastWipe}</div>
+                    <div className="col-span-3 text-left font-medium sm:col-span-2">{formattedLastWipe}</div>
 
-                <div className="justify-left col-span-3 flex items-center space-x-2 sm:col-span-3">
-                    <span className="font-medium">{formattedNextWipe}</span>
-                    <span className={wipeTypeClass}>{wipeType}</span>
+                    <div className="justify-left col-span-3 flex items-center space-x-2 sm:col-span-3">
+                        <span className="font-medium">{formattedNextWipe}</span>
+                        <span className={wipeTypeClass}>{wipeType}</span>
+                    </div>
+
+                    <span className="col-span-4 truncate font-medium text-stone-100 transition-colors duration-200 hover:text-primary_light sm:col-span-6">
+                        {server.title}
+                    </span>
                 </div>
-
-                <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="col-span-4 truncate font-medium text-stone-100 transition-colors duration-200 hover:text-primary_light sm:col-span-6"
-                >
-                    {server.title}
-                </a>
-            </div>
+            </Link>
         </div>
     );
 }

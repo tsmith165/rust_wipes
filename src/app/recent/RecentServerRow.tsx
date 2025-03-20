@@ -28,7 +28,8 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ ip, className, url, r
 
     const today = new Date();
     let final_date = 'Offline';
-    let heat_class: string | null = null;
+    let wipe_color = ''; // Default to no indicator for old wipes
+    let showWipeIndicator = false;
 
     if (wipe_date != null) {
         const totalDiffSeconds = Math.floor((today.getTime() - new Date(wipe_date).getTime()) / 1000);
@@ -37,10 +38,13 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ ip, className, url, r
         const hrs = Math.floor((totalDiffSeconds % (60 * 60 * 24)) / (60 * 60));
         const mins = Math.floor((totalDiffSeconds % (60 * 60)) / 60);
 
-        if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-hot_wipe font-bold';
-        else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-cool_wipe font-bold';
-        else if (totalDiffSeconds < COLD_WIPE) heat_class = 'text-cold_wipe font-bold';
-        else heat_class = 'text-st_lightest';
+        // Only show indicator if wiped less than 60 mins ago
+        if (totalDiffSeconds < COLD_WIPE) {
+            showWipeIndicator = true;
+            if (totalDiffSeconds < HOT_WIPE) wipe_color = 'bg-hot_wipe';
+            else if (totalDiffSeconds < COOL_WIPE) wipe_color = 'bg-cool_wipe';
+            else wipe_color = 'bg-cold_wipe';
+        }
 
         if (days > 0) {
             final_date = `${days}d ${hrs}h`;
@@ -53,23 +57,48 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ ip, className, url, r
         }
     }
 
+    // Determine rank color
+    let rank_color = 'bg-red-500'; // Default for unknown
+    if (rank) {
+        if (rank <= 100) rank_color = 'bg-blue-500';
+        else if (rank <= 500) rank_color = 'bg-green-500';
+        else if (rank <= 1000) rank_color = 'bg-yellow-500';
+        else if (rank <= 5000) rank_color = 'bg-orange-500';
+    }
+
+    // Determine population color - Reversed so high population is good (green)
+    let pop_color = 'bg-red-500'; // Default for low population
+    if (maxPlayers > 0) {
+        const population_percentage = (players / maxPlayers) * 100;
+        if (population_percentage > 75) pop_color = 'bg-green-500';
+        else if (population_percentage > 50) pop_color = 'bg-yellow-500';
+        else if (population_percentage > 25) pop_color = 'bg-orange-500';
+    }
+
     return (
         <div
-            className={`flex h-9 w-full items-center border-b border-st_darkest pr-2 text-st_lightest ${heat_class} ${
+            className={`flex h-9 w-full items-center border-b border-st_darkest pr-2 text-st_lightest ${
                 offline ? 'hidden bg-primary_dark opacity-80' : 'flex w-full bg-st'
             } hover:bg-st_dark`}
         >
             <Link href={`/server/${bm_id}`} className="group flex w-[calc(100%-3rem)]">
-                <div className="w-16 overflow-hidden whitespace-nowrap p-1.5 text-center">#{rank || 'N/A'}</div>
+                <div className="flex w-20 items-center justify-center overflow-hidden whitespace-nowrap p-1.5">
+                    <div className={`mr-1.5 h-2.5 w-2.5 rounded-full ${rank_color}`}></div>
+                    <span>{rank || 'N/A'}</span>
+                </div>
                 <div className="flex-1 overflow-hidden whitespace-nowrap p-1.5 text-left">
-                    <b className="text-st_white group-hover:cursor-pointer group-hover:text-primary_light group-hover:underline">
+                    <span className="text-st_white group-hover:cursor-pointer group-hover:text-primary_light group-hover:underline">
                         {className || 'Unknown'}
-                    </b>
+                    </span>
                 </div>
-                <div className="w-24 overflow-hidden whitespace-nowrap p-1.5 text-center">
-                    {!players || players === 0 || maxPlayers === 0 ? 'Offline' : `${players} / ${maxPlayers}`}
+                <div className="flex w-28 items-center justify-center overflow-hidden whitespace-nowrap p-1.5">
+                    <div className={`mr-1.5 h-2.5 w-2.5 rounded-full ${pop_color}`}></div>
+                    <span>{!players || players === 0 || maxPlayers === 0 ? 'Offline' : `${players} / ${maxPlayers}`}</span>
                 </div>
-                <div className="w-20 overflow-hidden whitespace-nowrap p-1.5 text-center">{final_date}</div>
+                <div className="flex w-24 items-center justify-center overflow-hidden whitespace-nowrap p-1.5">
+                    {showWipeIndicator && <div className={`mr-1.5 h-2.5 w-2.5 rounded-full ${wipe_color}`}></div>}
+                    <span>{final_date}</span>
+                </div>
             </Link>
             <div className="flex w-12 justify-center overflow-hidden whitespace-nowrap p-1.5">
                 {ip && <CopyToClipboardButton textToCopy={`client.connect ${ip}`} />}

@@ -111,10 +111,10 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
 
     const server_list_table_header = (
         <div className="flex bg-st_dark pr-2 font-bold text-st_lightest">
-            <div className="w-16 p-1.5 text-center">Rank</div>
+            <div className="w-20 p-1.5 text-center">Rank</div>
             <div className="flex-1 p-1.5 text-left">Name</div>
-            <div className="w-24 p-1.5 text-center">Players</div>
-            <div className="w-20 p-1.5 text-center">Wiped</div>
+            <div className="w-28 p-1.5 text-center">Players</div>
+            <div className="w-24 p-1.5 text-center">Wiped</div>
             <div className={`${numServers > 10 ? 'mr-1' : ''} w-12 p-1.5 text-center`}>Copy</div>
         </div>
     );

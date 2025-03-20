@@ -3,15 +3,23 @@
 import React from 'react';
 import PlacesAutocomplete from 'react-places-autocomplete';
 import { Tooltip } from 'react-tooltip';
+import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from 'clsx';
+
+// Utility function for class name composition
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 
 interface InputAutoCompleteProps {
     idName: string;
     name: string;
     value?: string;
     onChange?: (value: string) => void;
+    className?: string;
 }
 
-const InputAutoComplete: React.FC<InputAutoCompleteProps> = ({ idName, name, value, onChange }) => {
+const InputAutoComplete: React.FC<InputAutoCompleteProps> = ({ idName, name, value, onChange, className }) => {
     const formatted_name = name
         .split('_')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -23,8 +31,10 @@ const InputAutoComplete: React.FC<InputAutoCompleteProps> = ({ idName, name, val
                 {({ getInputProps, suggestions, getSuggestionItemProps }) => {
                     const inputProps = getInputProps({
                         placeholder: 'Enter Address...',
-                        className:
+                        className: cn(
                             'w-full h-8 px-2.5 text-stone-950 bg-stone-400 rounded-r-md border-none pl-1.5 font-bold placeholder-stone-600',
+                            className,
+                        ),
                         autoComplete: 'rutjfkde',
                         name: idName,
                         id: idName,

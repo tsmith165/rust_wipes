@@ -1,11 +1,23 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import RecentWipesTable from '../RecentWipesTable';
-import NumServersSelect from '../NumServersSelect';
-import { RefreshCw, ChevronUp, ChevronDown } from 'lucide-react';
+import { RefreshCw, ChevronUp, ChevronDown, FilterIcon, BookOpen } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
+import { PrimaryToggle } from '@/components/ui/toggle';
+
+// Default values for filters to calculate active count
+const DEFAULT_FILTER_VALUES = {
+    minPlayers: '0',
+    maxDist: '5000',
+    country: 'US',
+    minRank: '0',
+    maxRank: '10000',
+    groupLimit: 'any',
+    resourceRate: 'any',
+    numServers: '10',
+};
 
 interface ServerListItem {
     id: number;
@@ -25,27 +37,68 @@ interface ServerListItem {
 
 interface ServersTableHeaderProps {
     page: number;
-    numServers: number;
     onUpdatePage: (page: number) => void;
-    onUpdateNumServers: (numServers: string) => void;
     isLoading: boolean;
     autoRefreshActive: boolean;
-    onToggleAutoRefresh: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    lastRefreshTime: number;
+    onToggleAutoRefresh: (e: React.ChangeEvent<HTMLInputElement>) => void;
     searchParams: {
         [key: string]: string | string[] | undefined;
     };
+    onOpenFilterOverlay: () => void;
+    onOpenLegendOverlay: () => void;
 }
 
 function ServersTableHeader({
     page,
-    numServers,
     onUpdatePage,
-    onUpdateNumServers,
     isLoading,
     autoRefreshActive,
+    lastRefreshTime,
     onToggleAutoRefresh,
     searchParams,
+    onOpenFilterOverlay,
+    onOpenLegendOverlay,
 }: ServersTableHeaderProps) {
+    // State to track whether data is stale (>30 seconds old)
+    const [dataState, setDataState] = useState<'live' | 'stale'>('live');
+    const [dataAge, setDataAge] = useState<number>(0);
+
+    // Calculate active filter count
+    const activeFilterCount = useMemo(() => {
+        let count = 0;
+
+        // Check each filter param against defaults
+        Object.entries(DEFAULT_FILTER_VALUES).forEach(([key, defaultValue]) => {
+            if (key === 'page') return; // Skip page param
+            const currentValue = searchParams[key] as string;
+            if (currentValue && currentValue !== defaultValue) {
+                count++;
+            }
+        });
+
+        return count;
+    }, [searchParams]);
+
+    // Update data state based on last refresh time
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const timeSinceLastRefresh = now - lastRefreshTime;
+            setDataAge(Math.floor(timeSinceLastRefresh / 1000)); // age in seconds
+            setDataState(timeSinceLastRefresh > 30000 ? 'stale' : 'live');
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [lastRefreshTime]);
+
+    // Handle manual refresh click
+    const handleManualRefresh = () => {
+        if (!isLoading) {
+            window.dispatchEvent(new CustomEvent('manual-refresh'));
+        }
+    };
+
     return (
         <div className="relative mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <h2 className="text-2xl font-bold text-primary_light">Recently Wiped Servers</h2>
@@ -77,33 +130,79 @@ function ServersTableHeader({
                 <Tooltip id="prev-page-tooltip" place="top" />
                 <Tooltip id="next-page-tooltip" place="top" />
 
-                {/* Show Controls */}
-                <div className="flex h-10 items-center space-x-1 rounded-lg bg-st_dark px-2 text-st_lightest">
-                    <span className="flex items-center justify-center">Show:</span>
-                    <div>
-                        <NumServersSelect
-                            defaultValue={numServers}
-                            searchParams={searchParams}
-                            onUpdateSearchParams={(updates) => onUpdateNumServers(updates.numServers)}
-                        />
-                    </div>
-                </div>
-
-                {/* Auto Refresh Button */}
+                {/* Legend Button */}
                 <button
-                    onClick={onToggleAutoRefresh}
-                    className={`flex h-10 items-center justify-center rounded-lg px-3 transition-colors duration-200 focus:outline-none ${
-                        autoRefreshActive ? 'bg-st_dark text-primary_light' : 'bg-st_dark text-st_lightest hover:text-primary_light'
-                    }`}
-                    disabled={isLoading}
-                    data-tooltip-id="auto-refresh-tooltip"
-                    data-tooltip-content={autoRefreshActive ? 'Auto-Refresh Active' : 'Click to Enable Auto-Refresh'}
+                    onClick={onOpenLegendOverlay}
+                    className="flex h-10 items-center rounded-lg bg-st_dark px-3 text-st_lightest transition-colors hover:text-primary_light"
+                    data-tooltip-id="legend-tooltip"
+                    data-tooltip-content="Open Legend"
                 >
-                    <RefreshCw
-                        size={18}
-                        className={`${isLoading ? 'animate-spin' : ''} ${autoRefreshActive ? 'text-primary_light' : ''}`}
-                    />
+                    <BookOpen size={18} />
                 </button>
+                <Tooltip id="legend-tooltip" place="top" />
+
+                {/* Filter Button */}
+                <button
+                    onClick={onOpenFilterOverlay}
+                    className="flex h-10 items-center rounded-lg bg-st_dark px-3 text-st_lightest transition-colors hover:text-primary_light"
+                    data-tooltip-id="filter-tooltip"
+                    data-tooltip-content="Open Filters"
+                >
+                    <FilterIcon size={18} />
+                    {activeFilterCount > 0 && (
+                        <span className="ml-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-st_white">
+                            {activeFilterCount}
+                        </span>
+                    )}
+                </button>
+                <Tooltip id="filter-tooltip" place="top" />
+
+                {/* Auto Refresh Toggle and Status Indicator Combined */}
+                <div className="flex h-10 items-center rounded-lg bg-st_dark px-3 text-st_lightest">
+                    <button
+                        onClick={handleManualRefresh}
+                        disabled={isLoading}
+                        className="mr-2 flex items-center justify-center text-st_lightest transition-colors duration-200 hover:text-primary_light disabled:opacity-50"
+                        data-tooltip-id="manual-refresh-tooltip"
+                        data-tooltip-content="Click to refresh data manually"
+                    >
+                        <RefreshCw size={18} className={`${isLoading ? 'animate-spin text-primary_light' : ''}`} />
+                    </button>
+                    <Tooltip id="manual-refresh-tooltip" place="top" />
+
+                    <PrimaryToggle
+                        checked={autoRefreshActive}
+                        onChange={onToggleAutoRefresh}
+                        disabled={isLoading}
+                        data-tooltip-id="auto-refresh-tooltip"
+                        data-tooltip-content={autoRefreshActive ? 'Auto-Refresh Active' : 'Click to Enable Auto-Refresh'}
+                        className="mr-2"
+                    />
+
+                    {/* Status indicator with fixed width to prevent layout shift */}
+                    <div className="flex h-6 w-16 items-center justify-center">
+                        {isLoading ? (
+                            <div className="flex items-center">
+                                <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-primary_light"></span>
+                                <span className="text-xs text-primary_light">Loading</span>
+                            </div>
+                        ) : (
+                            <div
+                                className="flex items-center"
+                                data-tooltip-id="data-age-tooltip"
+                                data-tooltip-content={`This data is ${dataAge} seconds old`}
+                            >
+                                <span
+                                    className={`mr-1.5 h-1.5 w-1.5 ${autoRefreshActive ? 'animate-pulse' : ''} rounded-full ${dataState === 'live' ? 'bg-primary_light' : 'bg-cool_wipe'}`}
+                                ></span>
+                                <span className={`text-xs ${dataState === 'live' ? 'text-primary_light' : 'text-cool_wipe'}`}>
+                                    {dataState === 'live' ? 'Live' : 'Stale'}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                    <Tooltip id="data-age-tooltip" place="top" />
+                </div>
                 <Tooltip id="auto-refresh-tooltip" place="top" />
             </div>
         </div>
@@ -120,6 +219,8 @@ interface ServersTableSectionProps {
     autoRefreshActive: boolean;
     setAutoRefreshActive: (active: boolean) => void;
     onRefresh: () => void;
+    onOpenFilterOverlay: () => void;
+    onOpenLegendOverlay: () => void;
 }
 
 export default function ServersTableSection({
@@ -130,10 +231,13 @@ export default function ServersTableSection({
     autoRefreshActive,
     setAutoRefreshActive,
     onRefresh,
+    onOpenFilterOverlay,
+    onOpenLegendOverlay,
 }: ServersTableSectionProps) {
     const router = useRouter();
     const pathname = usePathname();
     const urlSearchParams = useSearchParams();
+    const [lastRefreshTime, setLastRefreshTime] = useState(Date.now());
 
     const numServers = parseInt((searchParams?.numServers as string) || '10');
     const page = parseInt((searchParams?.page as string) || '1');
@@ -141,10 +245,27 @@ export default function ServersTableSection({
     // Use this ref to preserve scroll position
     const tableRef = React.useRef<HTMLDivElement>(null);
 
-    const handleRefreshClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        setAutoRefreshActive(!autoRefreshActive);
-        if (!autoRefreshActive) {
+    // Update lastRefreshTime whenever data is refreshed
+    useEffect(() => {
+        if (!isLoading) {
+            setLastRefreshTime(Date.now());
+        }
+    }, [isLoading, server_list]);
+
+    // Handle manual refresh events
+    useEffect(() => {
+        const handleManualRefresh = () => {
+            onRefresh();
+        };
+
+        window.addEventListener('manual-refresh', handleManualRefresh);
+        return () => window.removeEventListener('manual-refresh', handleManualRefresh);
+    }, [onRefresh]);
+
+    const handleRefreshToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newState = e.target.checked;
+        setAutoRefreshActive(newState);
+        if (newState) {
             onRefresh();
         }
     };
@@ -172,22 +293,19 @@ export default function ServersTableSection({
         updateUrlParams({ page: newPage.toString() });
     };
 
-    const handleUpdateNumServers = (numServers: string) => {
-        updateUrlParams({ numServers });
-    };
-
     return (
         <section className="bg-st_darkest py-8" id="servers-table" ref={tableRef}>
             <div className="container mx-auto px-4">
                 <ServersTableHeader
                     page={page}
-                    numServers={numServers}
                     onUpdatePage={handleUpdatePage}
-                    onUpdateNumServers={handleUpdateNumServers}
                     isLoading={isLoading}
                     autoRefreshActive={autoRefreshActive}
-                    onToggleAutoRefresh={handleRefreshClick}
+                    lastRefreshTime={lastRefreshTime}
+                    onToggleAutoRefresh={handleRefreshToggle}
                     searchParams={searchParams}
+                    onOpenFilterOverlay={onOpenFilterOverlay}
+                    onOpenLegendOverlay={onOpenLegendOverlay}
                 />
 
                 <div className="overflow-hidden rounded-lg shadow-lg">

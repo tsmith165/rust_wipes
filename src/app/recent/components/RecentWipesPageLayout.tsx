@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import RecentWipesHero from './RecentWipesHero';
-import FilterFormSection from './FilterFormSection';
+import FilterFormOverlay from './FilterFormOverlay';
+import LegendOverlay from './LegendOverlay';
 import ServersTableSection from './ServersTableSection';
 import InfoCardsSection from './InfoCardsSection';
 import { DEFAULT_PARAMS } from '../constants';
@@ -62,6 +63,8 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
     const [serverList, setServerList] = useState<ServerListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [autoRefreshActive, setAutoRefreshActive] = useState(true);
+    const [isFilterOverlayOpen, setIsFilterOverlayOpen] = useState(false);
+    const [isLegendOverlayOpen, setIsLegendOverlayOpen] = useState(false);
 
     const searchParamsObject = React.useMemo(() => {
         const obj: { [key: string]: string } = {};
@@ -143,6 +146,22 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
         router.replace(`/recent?${newSearchParams.toString()}`, { scroll: false });
     };
 
+    const handleOpenFilterOverlay = () => {
+        setIsFilterOverlayOpen(true);
+    };
+
+    const handleCloseFilterOverlay = () => {
+        setIsFilterOverlayOpen(false);
+    };
+
+    const handleOpenLegendOverlay = () => {
+        setIsLegendOverlayOpen(true);
+    };
+
+    const handleCloseLegendOverlay = () => {
+        setIsLegendOverlayOpen(false);
+    };
+
     useEffect(() => {
         fetchData();
     }, [searchParams, fetchData]);
@@ -167,15 +186,6 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
         <div className="min-h-screen bg-st_darkest">
             <RecentWipesHero />
 
-            <FilterFormSection
-                searchParams={searchParamsObject}
-                onRefresh={handleRefresh}
-                isLoading={isLoading}
-                autoRefreshActive={autoRefreshActive}
-                setAutoRefreshActive={setAutoRefreshActive}
-                onUpdateSearchParams={updateSearchParams}
-            />
-
             <ServersTableSection
                 searchParams={searchParamsObject}
                 server_list={serverList}
@@ -184,7 +194,18 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
                 autoRefreshActive={autoRefreshActive}
                 setAutoRefreshActive={setAutoRefreshActive}
                 onRefresh={handleRefresh}
+                onOpenFilterOverlay={handleOpenFilterOverlay}
+                onOpenLegendOverlay={handleOpenLegendOverlay}
             />
+
+            <FilterFormOverlay
+                searchParams={searchParamsObject}
+                isOpen={isFilterOverlayOpen}
+                onClose={handleCloseFilterOverlay}
+                onUpdateSearchParams={updateSearchParams}
+            />
+
+            <LegendOverlay isOpen={isLegendOverlayOpen} onClose={handleCloseLegendOverlay} />
 
             <InfoCardsSection />
         </div>
