@@ -1,5 +1,3 @@
-import { AlertCheckFunction } from './Alert.Checks';
-
 // Time thresholds for alerts (in hours)
 export const ALERT_TIME_THRESHOLDS = {
     SERVER_UPTIME: 24, // Server should be restarted every 24 hours

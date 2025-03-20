@@ -2,7 +2,7 @@ import { PluginInfo, PluginParseResult } from './Plugin.Types';
 
 const DEBUG_ENABLED = false;
 
-function debug(...args: any[]) {
+function debug(...args: unknown[]) {
     if (DEBUG_ENABLED) {
         console.log('[Plugin Parser Debug]', ...args);
     }

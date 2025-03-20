@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { OverlayContainer } from '../core/Overlay.Container';
 import { GiveawayProgress } from './GiveawayProgress';
 import { PlayerList } from './PlayerList';
 import Link from 'next/link';
@@ -16,17 +15,8 @@ interface GiveawayOverlayProps {
 }
 
 export const GiveawayOverlay: React.FC<GiveawayOverlayProps> = ({ isOpen, onClose, className }) => {
-    const {
-        fetchQualifiedCount,
-        fetchAllTopPlayers,
-        currentPage,
-        playersByPage,
-        qualifiedCount,
-        totalPlayers,
-        isLoading,
-        setCurrentPage,
-        allTopPlayers,
-    } = useGiveawayStore();
+    const { fetchQualifiedCount, fetchAllTopPlayers, currentPage, playersByPage, qualifiedCount, totalPlayers, isLoading, setCurrentPage } =
+        useGiveawayStore();
 
     useEffect(() => {
         if (isOpen) {

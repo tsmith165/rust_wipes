@@ -6,22 +6,6 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { PlayerStats, PlayerStatsHistory } from '@/db/schema';
 
-interface BaseStats {
-    steamUsername: string;
-    avatarUrl: string;
-    id: number;
-    steam_id: string;
-    server_id: string;
-    kills: number;
-    deaths: number;
-    stone_gathered: number;
-    wood_gathered: number;
-    metal_ore_gathered: number;
-    sulfur_ore_gathered: number;
-    scrap_wagered: number;
-    scrap_won: number;
-}
-
 type ExtendedPlayerStats = (PlayerStats | PlayerStatsHistory) & {
     steamUsername: string;
     avatarUrl: string;

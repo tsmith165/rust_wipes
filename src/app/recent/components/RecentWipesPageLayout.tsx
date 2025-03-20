@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import RecentWipesHero from './RecentWipesHero';
 import FilterFormSection from './FilterFormSection';
@@ -79,41 +79,44 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
         return obj;
     }, [searchParams]);
 
-    const fetchData = async (forceRefresh: boolean = false) => {
-        setIsLoading(true);
-        const country = searchParams.get('country') || 'US';
-        const minPlayers = parseInt(searchParams.get('minPlayers') || '0');
-        const maxDist = parseInt(searchParams.get('maxDist') || '5000');
-        const minRank = parseInt(searchParams.get('minRank') || '0');
-        const maxRank = parseInt(searchParams.get('maxRank') || '10000');
-        const groupLimit = searchParams.get('groupLimit') || 'any';
-        const resourceRate = searchParams.get('resourceRate') || 'any';
+    const fetchData = useCallback(
+        async (forceRefresh: boolean = false) => {
+            setIsLoading(true);
+            const country = searchParams.get('country') || 'US';
+            const minPlayers = parseInt(searchParams.get('minPlayers') || '0');
+            const maxDist = parseInt(searchParams.get('maxDist') || '5000');
+            const minRank = parseInt(searchParams.get('minRank') || '0');
+            const maxRank = parseInt(searchParams.get('maxRank') || '10000');
+            const groupLimit = searchParams.get('groupLimit') || 'any';
+            const resourceRate = searchParams.get('resourceRate') || 'any';
 
-        // Always use the refs for page and numServers - they persist across renders
-        const numServers = numServersRef.current;
-        const page = pageRef.current;
+            // Always use the refs for page and numServers - they persist across renders
+            const numServers = numServersRef.current;
+            const page = pageRef.current;
 
-        try {
-            console.log(`Fetching data with page=${page}, numServers=${numServers}`);
-            const combinedData = await getRecentWipesData({
-                country,
-                minPlayers,
-                maxDist,
-                minRank,
-                maxRank,
-                groupLimit,
-                resourceRate,
-                numServers,
-                page,
-                forceRefresh,
-            });
+            try {
+                console.log(`Fetching data with page=${page}, numServers=${numServers}`);
+                const combinedData = await getRecentWipesData({
+                    country,
+                    minPlayers,
+                    maxDist,
+                    minRank,
+                    maxRank,
+                    groupLimit,
+                    resourceRate,
+                    numServers,
+                    page,
+                    forceRefresh,
+                });
 
-            setServerList(combinedData);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-        setIsLoading(false);
-    };
+                setServerList(combinedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+            setIsLoading(false);
+        },
+        [searchParams],
+    );
 
     const updateSearchParams = (updates: Record<string, string>) => {
         const newSearchParams = new URLSearchParams(searchParams);
@@ -142,7 +145,7 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
 
     useEffect(() => {
         fetchData();
-    }, [searchParams]);
+    }, [searchParams, fetchData]);
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
@@ -154,7 +157,7 @@ export default function RecentWipesPageLayout({ initialSearchParams }: RecentWip
         return () => {
             if (intervalId) clearInterval(intervalId);
         };
-    }, [autoRefreshActive]);
+    }, [autoRefreshActive, fetchData]);
 
     const handleRefresh = () => {
         fetchData(true);

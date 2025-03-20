@@ -3,6 +3,7 @@
 import React from 'react';
 import { LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
+import Link from 'next/link';
 
 interface MenuOverlaySignOutButtonProps {
     compact?: boolean;
@@ -45,7 +46,7 @@ export default function MenuOverlaySignOutButton({ compact = false, currentPage 
                     </div>
                 </button>
             ) : (
-                <a
+                <Link
                     href="/signin"
                     className={`group flex w-full items-center gap-2 border-b border-stone-700/20 ${
                         isSignInActive ? 'bg-stone-800/80 text-primary_light' : 'bg-stone-900/70 text-stone-300'
@@ -64,7 +65,7 @@ export default function MenuOverlaySignOutButton({ compact = false, currentPage 
                             <span className="mt-0.5 text-xs text-stone-400 group-hover:text-stone-300">Log in to your account</span>
                         )}
                     </div>
-                </a>
+                </Link>
             )}
         </>
     );

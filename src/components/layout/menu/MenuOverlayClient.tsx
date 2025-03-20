@@ -2,7 +2,6 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { LogOut, LogIn } from 'lucide-react';
 
 const DynamicMenuOverlaySignOutButton = dynamic(() => import('./MenuOverlaySignOutButton'), { ssr: false });
 
@@ -11,7 +10,7 @@ interface MenuOverlayClientProps {
     currentPage: string;
 }
 
-export default function MenuOverlayClient({ isSignedIn, currentPage }: MenuOverlayClientProps) {
+export default function MenuOverlayClient({ currentPage }: MenuOverlayClientProps) {
     return (
         <div className="flex flex-col border-t border-stone-700/30 pt-2">
             <div className="mb-1 px-2">

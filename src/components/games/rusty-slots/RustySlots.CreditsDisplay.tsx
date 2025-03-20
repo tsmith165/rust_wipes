@@ -95,7 +95,6 @@ export function SlotCreditsDisplay({
 
             // Create particles if showing a win
             if (showParticles && diff > 0 && containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
                 const newParticles = Array.from({ length: Math.min(5, Math.ceil(diff / 100)) }, () => ({
                     id: particleCount.current++,
                     value: Math.ceil(diff / 5),

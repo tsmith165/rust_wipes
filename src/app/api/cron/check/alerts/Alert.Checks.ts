@@ -1,5 +1,5 @@
 import { NextWipeInfo } from '@/db/schema';
-import { differenceInHours, differenceInDays } from 'date-fns';
+import { differenceInHours } from 'date-fns';
 import { ALERT_CHECKS, ALERT_TIME_THRESHOLDS, getServerDisplayName } from './Alert.Constants';
 
 export interface AlertCheckResult {

@@ -7,22 +7,22 @@ import { grantKitAccess as grantKitAccessRust, revokeKitAccess as revokeKitAcces
 
 import { verified_transactions_table } from '@/db/schema';
 
-import { auth } from '@clerk/nextjs/server';
-import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
+// import { auth } from '@clerk/nextjs/server';
+// import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';
 
-async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string | undefined }> {
-    const { userId } = await auth();
-    if (!userId) {
-        return { isAdmin: false, error: 'User is not authenticated. Cannot edit kit.' };
-    }
-    console.log(`User ID: ${userId}`);
-    const hasAdminRole = await isClerkUserIdAdmin(userId);
-    console.log(`User hasAdminRole: ${hasAdminRole}`);
-    if (!hasAdminRole) {
-        return { isAdmin: false, error: 'User does not have the admin role. Cannot edit kit.' };
-    }
-    return { isAdmin: true };
-}
+// async function checkUserRole(): Promise<{ isAdmin: boolean; error?: string | undefined }> {
+//     const { userId } = await auth();
+//     if (!userId) {
+//         return { isAdmin: false, error: 'User is not authenticated. Cannot edit kit.' };
+//     }
+//     console.log(`User ID: ${userId}`);
+//     const hasAdminRole = await isClerkUserIdAdmin(userId);
+//     console.log(`User hasAdminRole: ${hasAdminRole}`);
+//     if (!hasAdminRole) {
+//         return { isAdmin: false, error: 'User does not have the admin role. Cannot edit kit.' };
+//     }
+//     return { isAdmin: true };
+// }
 
 export async function getKits(): Promise<Kits[]> {
     return await db.select().from(kits).where(eq(kits.active, true)).orderBy(kits.name);

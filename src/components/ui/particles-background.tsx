@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface Particle {
     x: number;
@@ -36,7 +36,7 @@ export function ParticlesBackground({
     const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
     // Initialize particles
-    const initParticles = () => {
+    const initParticles = useCallback(() => {
         if (!canvasRef.current) return;
 
         const width = canvasRef.current.width;
@@ -56,10 +56,34 @@ export function ParticlesBackground({
         }
 
         particlesRef.current = particles;
-    };
+    }, [particleCount, particleSize, particleColor]);
+
+    // Handle mouse move
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        mouseRef.current = { x: e.clientX, y: e.clientY };
+    }, []);
+
+    // Handle touch move
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        if (e.touches.length > 0) {
+            mouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+    }, []);
+
+    // Handle resize
+    const handleResize = useCallback(() => {
+        if (!canvasRef.current) return;
+
+        const canvas = canvasRef.current;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        setDimensions({ width: canvas.width, height: canvas.height });
+
+        initParticles();
+    }, [initParticles]);
 
     // Draw particles and connections
-    const drawParticles = () => {
+    const drawParticles = useCallback(() => {
         if (!canvasRef.current) return;
 
         const canvas = canvasRef.current;
@@ -128,31 +152,7 @@ export function ParticlesBackground({
         });
 
         animationRef.current = requestAnimationFrame(drawParticles);
-    };
-
-    // Handle resize
-    const handleResize = () => {
-        if (!canvasRef.current) return;
-
-        const canvas = canvasRef.current;
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        setDimensions({ width: canvas.width, height: canvas.height });
-
-        initParticles();
-    };
-
-    // Handle mouse move
-    const handleMouseMove = (e: MouseEvent) => {
-        mouseRef.current = { x: e.clientX, y: e.clientY };
-    };
-
-    // Handle touch move
-    const handleTouchMove = (e: TouchEvent) => {
-        if (e.touches.length > 0) {
-            mouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
-    };
+    }, [connectionDistance, connectionOpacity, particleColor]);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && canvasRef.current) {
@@ -175,7 +175,7 @@ export function ParticlesBackground({
                 cancelAnimationFrame(animationRef.current);
             };
         }
-    }, []);
+    }, [drawParticles, handleResize, handleMouseMove, handleTouchMove]);
 
     return (
         <div className={`absolute inset-0 overflow-hidden ${className}`}>

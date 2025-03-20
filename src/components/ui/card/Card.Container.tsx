@@ -19,19 +19,7 @@ interface CardContainerProps {
     isCheckPluginsLoading?: boolean;
 }
 
-export function CardContainer({
-    children,
-    status,
-    server,
-    onRestart,
-    onRegularWipe,
-    onBpWipe,
-    onCheckPlugins,
-    isRestartLoading,
-    isRegularWipeLoading,
-    isBpWipeLoading,
-    isCheckPluginsLoading,
-}: CardContainerProps) {
+export function CardContainer({ children, status }: CardContainerProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}

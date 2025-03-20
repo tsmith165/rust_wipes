@@ -3,7 +3,7 @@
 import React from 'react';
 import InputSelect from '@/components/inputs/InputSelect';
 import type { ServerNetwork } from './types';
-2;
+
 interface MobileFormProps {
     networks: ServerNetwork[];
     selectedNetworkId: number;

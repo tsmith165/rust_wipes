@@ -69,7 +69,6 @@ export default function HeroSection({
     particleCount = 80, // Default particle count
     particleConnectionOpacity = 0.15, // Default particle connection opacity
     contentBgOpacity = 0.85, // Default opacity for content background
-    glowColor = 'primary', // Default glow color
     glowSize = '80px', // Default glow size
 }: HeroSectionProps) {
     // Track animation completion state to avoid elements disappearing

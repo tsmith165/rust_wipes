@@ -17,7 +17,7 @@ interface WinItem {
     inGameName?: string;
 }
 
-interface ModalWinProps<T extends { payout?: any; totalWin?: any }> {
+interface ModalWinProps<T> {
     isOpen: boolean;
     onClose: () => void;
     result: T | null;
@@ -44,7 +44,7 @@ interface ModalWinProps<T extends { payout?: any; totalWin?: any }> {
  * - Image support for won items
  * - Support for both single spin and total bonus wins
  */
-export function ModalWin<T extends { payout?: any; totalWin?: any }>({
+export function ModalWin<T>({
     isOpen,
     onClose,
     result,

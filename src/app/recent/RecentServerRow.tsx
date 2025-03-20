@@ -23,7 +23,7 @@ interface RecentServerRowProps {
     offline?: boolean;
 }
 
-const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, url, rank, players, maxPlayers, wipe_date, offline }) => {
+const RecentServerRow: React.FC<RecentServerRowProps> = ({ ip, className, url, rank, players, maxPlayers, wipe_date, offline }) => {
     const bm_id = url.split('/').pop() || '';
 
     const today = new Date();
@@ -31,11 +31,11 @@ const RecentServerRow: React.FC<RecentServerRowProps> = ({ id, ip, className, ur
     let heat_class: string | null = null;
 
     if (wipe_date != null) {
-        let totalDiffSeconds = Math.floor((today.getTime() - new Date(wipe_date).getTime()) / 1000);
+        const totalDiffSeconds = Math.floor((today.getTime() - new Date(wipe_date).getTime()) / 1000);
 
-        let days = Math.floor(totalDiffSeconds / (60 * 60 * 24));
-        let hrs = Math.floor((totalDiffSeconds % (60 * 60 * 24)) / (60 * 60));
-        let mins = Math.floor((totalDiffSeconds % (60 * 60)) / 60);
+        const days = Math.floor(totalDiffSeconds / (60 * 60 * 24));
+        const hrs = Math.floor((totalDiffSeconds % (60 * 60 * 24)) / (60 * 60));
+        const mins = Math.floor((totalDiffSeconds % (60 * 60)) / 60);
 
         if (totalDiffSeconds < HOT_WIPE) heat_class = 'text-hot_wipe font-bold';
         else if (totalDiffSeconds < COOL_WIPE) heat_class = 'text-cool_wipe font-bold';

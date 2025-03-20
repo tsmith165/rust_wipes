@@ -162,13 +162,11 @@ export function SlotRecentWinners({ winners: incomingWinners, onRefresh, isLoadi
     // Use React's useRef to keep track of the previous winners for diffing
     const prevWinnersRef = React.useRef<Winner[]>([]);
     const [displayedWinners, setDisplayedWinners] = React.useState<Winner[]>([]);
-    const [pendingWinners, setPendingWinners] = React.useState<Winner[]>([]);
 
     // Update winners list with diffing
     React.useEffect(() => {
         if (incomingWinners.length === 0) {
             setDisplayedWinners([]);
-            setPendingWinners([]);
             prevWinnersRef.current = [];
             return;
         }
@@ -184,7 +182,7 @@ export function SlotRecentWinners({ winners: incomingWinners, onRefresh, isLoadi
         const newWinners = incomingWinners.filter(isNewWinner);
 
         // Split new winners into recent (pending) and older ones
-        const [recent, older] = newWinners.reduce<[Winner[], Winner[]]>(
+        const [, older] = newWinners.reduce<[Winner[], Winner[]]>(
             (acc, winner) => {
                 if (isTooRecent(winner.timestamp)) {
                     acc[0].push(winner);
@@ -209,27 +207,9 @@ export function SlotRecentWinners({ winners: incomingWinners, onRefresh, isLoadi
             return [...older, ...currentWinners];
         });
 
-        // Store recent wins for next update
-        setPendingWinners((prev) => [...prev, ...recent]);
-
         // Update the previous winners reference
         prevWinnersRef.current = incomingWinners;
     }, [incomingWinners]);
-
-    // Effect to add pending winners after delay
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            setPendingWinners((prev) => {
-                if (prev.length > 0) {
-                    setDisplayedWinners((current) => [...prev, ...current]);
-                    return [];
-                }
-                return prev;
-            });
-        }, 10000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     return (
         <div className={cn('flex h-full flex-col space-y-4', className)}>

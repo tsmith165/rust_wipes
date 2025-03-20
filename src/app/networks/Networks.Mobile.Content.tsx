@@ -77,7 +77,7 @@ export function NetworksMobileContent({ network }: MobileContentProps) {
                         </a>
                     </h1>
                     {Object.entries(groupedServers)
-                        .filter(([_, servers]) => servers.length > 0)
+                        .filter(([, servers]) => servers.length > 0)
                         .map(([group, servers]) => (
                             <div key={group} className="mb-6">
                                 <h3 className="mb-2 text-center text-lg font-semibold text-stone-300">{group}</h3>

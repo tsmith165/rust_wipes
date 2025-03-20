@@ -5,12 +5,22 @@ import { verifyAndGetCredits } from '@/app/games/Gambling.Actions';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 
+interface SteamProfileData {
+    profile: {
+        name: string;
+        avatarUrl: string;
+        steamId: string;
+    };
+    credits: number;
+    freeSpins?: number;
+}
+
 interface SteamSignInModalProps {
     steamInput: string;
     setSteamInput: (value: string) => void;
     code: string;
     setCode: (value: string) => void;
-    onVerify: (profileData: any) => void;
+    onVerify: (profileData: SteamProfileData) => void;
     error?: string;
 }
 
@@ -82,7 +92,7 @@ export default function SteamSignInModal({ steamInput, setSteamInput, code, setC
                     placeholder="Enter your code"
                     labelWidth="lg"
                 />
-                <p className="text-center text-primary_light">Type '/auth' in game to get your auth code</p>
+                <p className="text-center text-primary_light">Type &apos;/auth&apos; in game to get your auth code</p>
                 <p className="text-center text-stone-400">Earn credits for every hour you spend on our servers!</p>
                 <button
                     onClick={handleVerify}

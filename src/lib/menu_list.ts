@@ -179,4 +179,5 @@ export const admin_menu_items: MenuItem[] = [
 export const menu_list: [string, string, string][] = menu_items.map((item) => [item.id, item.label, item.href]);
 export const admin_menu_list: [string, string, string][] = admin_menu_items.map((item) => [item.id, item.label, item.href]);
 
-export default { navbar_menu_list, menu_list, admin_menu_list, menu_items, admin_menu_items };
+const menuExports = { navbar_menu_list, menu_list, admin_menu_list, menu_items, admin_menu_items };
+export default menuExports;

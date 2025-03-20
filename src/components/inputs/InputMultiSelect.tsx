@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Select, { components, StylesConfig, ControlProps, MultiValueProps, OptionProps, GroupBase } from 'react-select';
+import Select, { components, StylesConfig, DropdownIndicatorProps } from 'react-select';
 import { FaArrowDown } from 'react-icons/fa';
 
 interface InputMultiSelectProps {
@@ -17,7 +17,7 @@ interface OptionType {
     label: string;
 }
 
-const DropdownIndicator = (props: any) => {
+const DropdownIndicator = (props: DropdownIndicatorProps<OptionType, true>) => {
     return (
         <components.DropdownIndicator {...props}>
             <FaArrowDown className="fill-st_darkest" />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -52,13 +52,10 @@ export function SlotGrid({ onSpinComplete, className, soundManagerRef }: SlotGri
         spinAmounts,
         spinKey,
         isSpinning,
-        lastResult: result,
         winningCells,
         bonusCells,
         winningLines: { lines, isVisible },
         possibleLines: { isVisible: isPossibleLinesVisible },
-        currentWinningLine,
-        currentWinningLineFlashCount,
         gridDimensions,
         setGridDimensions,
         incrementWinningLineFlashCount,

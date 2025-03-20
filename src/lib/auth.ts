@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 /**
  * Verifies a user's auth code against their stored code.
  */
-export async function verifyAuthCode(steamId: string, code: string): Promise<boolean> {
+export async function verifyAuthCode(steamId: string): Promise<boolean> {
     try {
         const user = await db.select().from(user_playtime).where(eq(user_playtime.steam_id, steamId)).limit(1);
         if (!user.length) {

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import PlacesAutocomplete, { Suggestion } from 'react-places-autocomplete';
+import PlacesAutocomplete from 'react-places-autocomplete';
 import { Tooltip } from 'react-tooltip';
 
 interface InputAutoCompleteProps {
@@ -21,7 +21,7 @@ const InputAutoComplete: React.FC<InputAutoCompleteProps> = ({ idName, name, val
         <div className="m-0 flex w-full p-0">
             <PlacesAutocomplete value={value || ''} onChange={onChange}>
                 {({ getInputProps, suggestions, getSuggestionItemProps }) => {
-                    const inputProps: ReturnType<typeof getInputProps> = getInputProps({
+                    const inputProps = getInputProps({
                         placeholder: 'Enter Address...',
                         className:
                             'w-full h-8 px-2.5 text-stone-950 bg-stone-400 rounded-r-md border-none pl-1.5 font-bold placeholder-stone-600',
@@ -44,18 +44,20 @@ const InputAutoComplete: React.FC<InputAutoCompleteProps> = ({ idName, name, val
                                 <input {...inputProps} />
                             </div>
                             <div className="ml-[calc(20%+5px)] w-[calc(80%-20px)]">
-                                {suggestions.map((suggestion: Suggestion) => {
-                                    const style = suggestion.active
-                                        ? { backgroundColor: '#42a5f5', cursor: 'pointer' }
-                                        : { backgroundColor: '#ffffff', cursor: 'pointer' };
-                                    const suggestionItemProps: ReturnType<typeof getSuggestionItemProps> = getSuggestionItemProps(
-                                        suggestion,
-                                        'w-full h-8 px-2.5 py-1.5 text-stone-950 bg-stone-400 rounded-b-md border-none pl-1.5 font-bold placeholder-stone-600',
-                                    );
+                                {suggestions.map((suggestion, index) => {
+                                    // Use a unique index as a fallback key
+                                    const uniqueKey = `suggestion-${index}-${suggestion.description.substring(0, 10)}`;
+
+                                    // Apply suggestion props while ensuring key doesn't get overridden
+                                    const itemProps = getSuggestionItemProps(suggestion);
+
                                     return (
                                         <div
+                                            key={uniqueKey}
                                             className="h-8 bg-stone-400 px-3 text-stone-950 last:rounded-b-md hover:bg-stone-500 hover:text-stone-950"
-                                            {...suggestionItemProps}
+                                            onClick={itemProps.onClick}
+                                            onMouseEnter={itemProps.onMouseEnter}
+                                            onMouseLeave={itemProps.onMouseLeave}
                                         >
                                             {suggestion.description}
                                         </div>

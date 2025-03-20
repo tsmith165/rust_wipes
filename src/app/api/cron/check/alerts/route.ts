@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { db, next_wipe_info, rw_alerts } from '@/db/db';
 import { headers } from 'next/headers';
 import { alertChecks } from './Alert.Checks';
-import { ALERT_TYPES } from './Alert.Constants';
 import { and, eq, gt } from 'drizzle-orm';
 import { subMinutes } from 'date-fns';
 
@@ -55,15 +54,15 @@ export async function GET() {
 
                 // Generate new alert
                 console.log(`Generating new alert for ${checkResult.alertId}`);
-                const newAlert = await db.insert(rw_alerts).values({
-                    server_id: checkResult.serverId,
-                    title: checkResult.title,
-                    message: checkResult.message,
-                    alert_id: checkResult.alertId,
-                    severity: checkResult.severity,
-                    type: ALERT_TYPES.SYSTEM,
-                    last_occurrence: new Date(),
-                });
+                // const newAlert = await db.insert(rw_alerts).values({
+                //     server_id: checkResult.serverId,
+                //     title: checkResult.title,
+                //     message: checkResult.message,
+                //     alert_id: checkResult.alertId,
+                //     severity: checkResult.severity,
+                //     type: ALERT_TYPES.SYSTEM,
+                //     last_occurrence: new Date(),
+                // });
 
                 alertsGenerated.push({
                     alert_id: checkResult.alertId,

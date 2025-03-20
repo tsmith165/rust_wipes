@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 interface Player {
@@ -137,7 +137,7 @@ export const PlayerList: React.FC<PlayerListProps> = ({ players, loading, onPage
             </div>
 
             {/* Page indicator */}
-            <div className="text-st mt-1 text-center text-xs">
+            <div className="mt-1 text-center text-xs text-st">
                 Page {currentPage + 1} of {totalPages}
             </div>
         </div>

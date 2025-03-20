@@ -51,7 +51,6 @@ export async function getUsers(): Promise<UserWithKits[]> {
         .leftJoin(verified_transactions_table, eq(users.id, verified_transactions_table.user_id));
 
     const userMap = new Map<number, UserWithKits>();
-    const currentDate = new Date();
 
     result.forEach((row) => {
         if (!userMap.has(row.id)) {

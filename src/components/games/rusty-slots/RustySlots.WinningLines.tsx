@@ -3,7 +3,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useSlotGame } from '@/stores/Store.Games.RustySlots';
-import { WINNING_LINES } from '@/app/games/rusty-slots/RustySlots.Constants';
 import { cn } from '@/lib/utils';
 
 interface RustySlotsWinningLinesProps {
@@ -19,7 +18,7 @@ const LINE_COLORS = {
 
 function getLineType(line: number[][]): keyof typeof LINE_COLORS {
     // Convert coordinates to y-values
-    const yValues = line.map(([_, y]) => y);
+    const yValues = line.map(([, y]) => y);
 
     // Check if it's a horizontal line (all y values are the same)
     if (yValues.every((y) => y === yValues[0])) {
@@ -51,9 +50,6 @@ export function RustySlotsWinningLines({ className }: RustySlotsWinningLinesProp
         cyclePossibleLines,
     } = useSlotGame();
 
-    // If neither type of lines should be visible, return null
-    if ((!winLinesVisible || winLines.length === 0) && !possibleLinesVisible) return null;
-
     // Effect to cycle winning lines
     React.useEffect(() => {
         if (winLinesVisible && winLines.length > 0) {
@@ -73,6 +69,9 @@ export function RustySlotsWinningLines({ className }: RustySlotsWinningLinesProp
             return () => clearInterval(interval);
         }
     }, [possibleLinesVisible, cyclePossibleLines]);
+
+    // If neither type of lines should be visible, return null
+    if ((!winLinesVisible || winLines.length === 0) && !possibleLinesVisible) return null;
 
     // Generate path data for a line
     const generatePathFromLine = (line: number[][]) => {

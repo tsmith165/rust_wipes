@@ -1,5 +1,5 @@
 import React, { useId, ReactElement } from 'react';
-import Select, { components, StylesConfig, InputProps } from 'react-select';
+import Select, { components, StylesConfig, InputProps, DropdownIndicatorProps } from 'react-select';
 import { ChevronDown } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 
@@ -8,7 +8,7 @@ interface OptionType {
     label: string;
 }
 
-const DropdownIndicator = (props: any) => {
+const DropdownIndicator = (props: DropdownIndicatorProps<OptionType, false>) => {
     return (
         <components.DropdownIndicator {...props}>
             <ChevronDown size={16} className="text-st_light" />

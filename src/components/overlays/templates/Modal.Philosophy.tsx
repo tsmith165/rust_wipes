@@ -56,8 +56,8 @@ export const ModalPhilosophy: React.FC<ModalPhilosophyProps> = ({ isOpen, onClos
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.5 }}
                 >
-                    Our kits are carefully designed to enhance your Rust experience without disrupting the game's core survival mechanics.
-                    We believe in providing value while maintaining competitive balance.
+                    Our kits are carefully designed to enhance your Rust experience without disrupting the game&apos;s core survival
+                    mechanics. We believe in providing value while maintaining competitive balance.
                 </motion.p>
 
                 <motion.div className="mb-2 mt-4" variants={containerVariants} initial="hidden" animate="visible">

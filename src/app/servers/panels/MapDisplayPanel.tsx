@@ -1,6 +1,7 @@
 'use client';
 
 import { NextWipeInfo, MapOptions } from '@/db/schema';
+import Image from 'next/image';
 
 interface MapDisplayPanelProps {
     nextWipeInfo: NextWipeInfo | null;
@@ -29,7 +30,14 @@ export function MapDisplayPanel({ nextWipeInfo, mapOptions }: MapDisplayPanelPro
                 rel="noopener noreferrer"
                 className="flex h-[calc(100%-32px)] w-full items-center justify-center"
             >
-                <img src={currentMap.rust_maps_image} alt={currentMap.map_name} className="h-full w-fit rounded-lg object-contain" />
+                <Image
+                    src={currentMap.rust_maps_image}
+                    alt={currentMap.map_name}
+                    className="h-full w-fit rounded-lg object-contain"
+                    width={400}
+                    height={300}
+                    unoptimized={true}
+                />
             </a>
         </div>
     );

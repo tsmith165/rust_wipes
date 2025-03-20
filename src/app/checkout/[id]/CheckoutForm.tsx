@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
 import { createStripeSession, verifySteamProfile } from '../actions';
 import StripeBrandedButton from '@/components/svg/StripeBrandedButton';
@@ -116,7 +117,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ current_kit }) => {
                     </div>
                     {steamProfile && (
                         <div className="flex items-start space-x-2">
-                            <img src={steamProfile.avatarUrl} alt="Steam Avatar" className="h-8 w-8 rounded-full" />
+                            <Image
+                                src={steamProfile.avatarUrl}
+                                alt="Steam Avatar"
+                                className="h-8 w-8 rounded-full"
+                                width={32}
+                                height={32}
+                            />
                             <span className="text-md leading-8 text-gray-300">{steamProfile.name}</span>
                             <span className="text-md leading-8 text-gray-400">({steamProfile.steamId})</span>
                         </div>
