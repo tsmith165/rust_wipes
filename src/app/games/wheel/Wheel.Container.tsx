@@ -46,6 +46,7 @@ export function WheelContainer() {
         isVerified,
         error: steamError,
         setError: setSteamError,
+        updateCreditsFromServerResponse,
     } = useSteamUser();
 
     // Wheel Game Store
@@ -86,6 +87,7 @@ export function WheelContainer() {
             console.log('Initializing user with:', { steamId, authCode, isVerified });
             try {
                 if (steamId && authCode) {
+                    // Only load user data once on initial mount
                     await loadUserData();
 
                     // Only check bonus status if user is verified
@@ -118,6 +120,8 @@ export function WheelContainer() {
         };
 
         initializeUser();
+        // We need these dependencies for the effect to work properly
+        // Only run this effect once on mount
     }, [steamId, authCode, isVerified, loadUserData, setIsVerified, setSteamError, setShowBonusModal]);
 
     // Add auto-spin timeout ref
@@ -158,8 +162,8 @@ export function WheelContainer() {
                 throw new Error('No free spins were awarded');
             }
 
-            // Update local state
-            await loadUserData();
+            // Update free spins count only
+            updateCreditsFromServerResponse(credits, spinsAwarded);
 
             // Navigate to slot machine without bonus type parameter
             router.push('/games/rusty-slots');
@@ -205,8 +209,8 @@ export function WheelContainer() {
             setCurrentRotation(currentRotation + totalRotation);
             setResult(wheelResult);
 
-            // Update local credits state
-            await loadUserData();
+            // Update local credits state directly from server response
+            updateCreditsFromServerResponse(updatedCredits);
 
             // After 5 seconds (matching wheel animation), show results
             setTimeout(() => {
@@ -249,18 +253,14 @@ export function WheelContainer() {
         credits,
         currentRotation,
         authCode,
-        steamProfile,
         setSteamError,
-        setSpinning,
-        setAutoSpinning,
-        setShowOverlay,
-        setShowWinOverlay,
-        setShowConfetti,
-        setShouldRefetchWinners,
-        loadUserData,
         setCurrentRotation,
         setResult,
-        setShowBonusModal,
+        setSpinning,
+        setShowOverlay,
+        setAutoSpinning,
+        updateCreditsFromServerResponse,
+        steamProfile,
     ]);
 
     // Handle auto-spin logic

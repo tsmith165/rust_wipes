@@ -65,7 +65,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         steamId,
         setIsVerified,
         isVerified,
-        setFreeSpins,
+        updateCreditsFromServerResponse,
     } = useSteamUser();
 
     // Slot Game Store
@@ -119,7 +119,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     useEffect(() => {
         const initializeUser = async () => {
             if (steamId && authCode) {
-                // Attempt to load user data
+                // Load user data once on initial mount
                 await loadUserData();
             } else {
                 // If no steamId or code, make sure isVerified is false
@@ -128,13 +128,8 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         };
 
         initializeUser();
-    }, [authCode, steamId, loadUserData, setIsVerified]); // Run once on mount
-
-    useEffect(() => {
-        if (steamProfile?.steamId && steamProfile.code) {
-            loadUserData();
-        }
-    }, [steamProfile, loadUserData]);
+        // Only run this effect once on mount
+    }, [steamId, authCode, loadUserData, setIsVerified]);
 
     // Function to fetch winners
     const fetchWinners = async () => {
@@ -202,7 +197,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                     .map(() => getRandomSymbol()),
             );
         slotGame.setGrid(initialGrid);
-    }, [slotGame.currentGrid.length, slotGame.setGrid]);
+    }, [slotGame.currentGrid.length, slotGame]);
 
     const playSoundSafely = useCallback((soundFunction: () => void) => {
         if (document.visibilityState === 'visible' && document.hasFocus()) {
@@ -257,12 +252,22 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             const spinResult = await spinSlotMachine(steamProfile.steamId, steamProfile.code);
 
             if (!spinResult?.success || !spinResult.data) {
+                // Check if we got credit data even in an error case
+                if (spinResult?.data?.credits !== undefined) {
+                    // Update credits directly from server response even in error case
+                    updateCreditsFromServerResponse(spinResult.data.credits, spinResult.data.freeSpinsAvailable);
+                }
                 setError(spinResult?.error || 'An error occurred during the spin.');
                 setSpinning(false);
+                spinInProgressRef.current = false;
+                setAutoSpinning(false);
                 return;
             }
 
             const spinResultData = spinResult.data;
+
+            // Update credits directly from server response
+            updateCreditsFromServerResponse(spinResultData.credits, spinResultData.freeSpinsAvailable);
 
             // Play spin start sound safely
             playSoundSafely(() => soundManagerRef.current?.playSpinStart());
@@ -380,6 +385,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         playSoundSafely,
         steamProfile?.code,
         steamProfile?.steamId,
+        updateCreditsFromServerResponse,
     ]);
 
     // Functions
@@ -404,9 +410,9 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 return;
             }
 
-            // Update free spins count
+            // Update free spins count using our new method
             if (response.data) {
-                setFreeSpins(response.data);
+                updateCreditsFromServerResponse(credits, response.data);
             }
 
             // Fetch winners to update with the selected bonus type

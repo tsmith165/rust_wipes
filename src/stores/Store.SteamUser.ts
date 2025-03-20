@@ -39,6 +39,9 @@ interface SteamUserState {
     setIsVerified: (verified: boolean) => void;
     setError: (error: string) => void;
 
+    // Update credits from game action responses
+    updateCreditsFromServerResponse: (credits: number, freeSpins?: number) => void;
+
     // Complex actions
     loadUserData: () => Promise<void>;
     clearUserData: () => void;
@@ -67,6 +70,14 @@ export const useSteamUser = create<SteamUserState>()(
             setFreeSpins: (spins) => set({ freeSpins: spins }),
             setIsVerified: (verified) => set({ isVerified: verified }),
             setError: (error) => set({ error }),
+
+            // Update credits directly from server responses
+            updateCreditsFromServerResponse: (credits, freeSpins) => {
+                set({
+                    credits,
+                    freeSpins: freeSpins !== undefined ? freeSpins : get().freeSpins,
+                });
+            },
 
             // Complex actions
             loadUserData: async () => {

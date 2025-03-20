@@ -35,6 +35,8 @@ export async function verifyAndGetCredits(profileUrl: string, authCode: string) 
     }
 }
 
+// This function should only be called on initial page load, not periodically.
+// Credit updates will be returned directly from game action responses instead.
 export async function fetchUserCredits(steamId: string, authCode: string) {
     try {
         // First verify the auth code matches
