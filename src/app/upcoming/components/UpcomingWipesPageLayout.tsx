@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import moment from 'moment-timezone';
 import UpcomingWipesHero from './UpcomingWipesHero';
 import FilterFormSection from './FilterFormSection';
 import ServersTableSection from './ServersTableSection';

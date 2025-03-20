@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import dynamic from 'next/dynamic';
-import Image from 'next/image';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 
 // Steam Sign in
 import SteamSignInModal from '@/components/SteamSignInModal';
@@ -30,8 +28,6 @@ import { BaseGameConfettiOverlay } from '@/components/games/base/BaseGame.Confet
 // Overlays
 import { ModalBonus } from '@/components/overlays/templates/Modal.Bonus';
 import { ModalWin } from '@/components/overlays/templates/Modal.Win';
-
-const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 interface Winner {
     player_name: string;
@@ -83,13 +79,13 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     const volume = slotGame.volume;
     const setVolume = slotGame.setVolume;
     const result = slotGame.lastResult;
-    const setResult = slotGame.setLastResult;
+    // const setResult = slotGame.setLastResult;
     const spinKey = slotGame.spinKey;
-    const setSpinKey = slotGame.setSpinKey;
-    const currentWinningLine = slotGame.currentWinningLine;
-    const setCurrentWinningLine = slotGame.setCurrentWinningLine;
-    const currentWinningLineFlashCount = slotGame.currentWinningLineFlashCount;
-    const incrementWinningLineFlashCount = slotGame.incrementWinningLineFlashCount;
+    // const setSpinKey = slotGame.setSpinKey;
+    // const currentWinningLine = slotGame.currentWinningLine;
+    // const setCurrentWinningLine = slotGame.setCurrentWinningLine;
+    // const currentWinningLineFlashCount = slotGame.currentWinningLineFlashCount;
+    // const incrementWinningLineFlashCount = slotGame.incrementWinningLineFlashCount;
     const showOverlay = slotGame.showWinOverlay;
     const setShowOverlay = slotGame.setShowWinOverlay;
     const showBonusModal = slotGame.showBonusModal;
@@ -104,7 +100,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
     const [showTotalWinModal, setShowTotalWinModal] = useState(false);
 
     // Refs
-    const winOverlayRef = useRef<HTMLDivElement>(null);
+    // const winOverlayRef = useRef<HTMLDivElement>(null);
     const autoSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const row1Ref = useRef<HTMLDivElement>(null);
     const soundManagerRef = useRef<{
@@ -132,32 +128,13 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         };
 
         initializeUser();
-    }, []); // Run once on mount
+    }, [authCode, steamId, loadUserData, setIsVerified]); // Run once on mount
 
     useEffect(() => {
         if (steamProfile?.steamId && steamProfile.code) {
             loadUserData();
         }
     }, [steamProfile, loadUserData]);
-
-    useEffect(() => {
-        if (autoSpinning) {
-            handleSpin();
-            startAutoSpin();
-        } else {
-            if (autoSpinTimeoutRef.current) {
-                clearTimeout(autoSpinTimeoutRef.current);
-                autoSpinTimeoutRef.current = null;
-            }
-        }
-
-        return () => {
-            if (autoSpinTimeoutRef.current) {
-                clearTimeout(autoSpinTimeoutRef.current);
-                autoSpinTimeoutRef.current = null;
-            }
-        };
-    }, [autoSpinning]);
 
     // Function to fetch winners
     const fetchWinners = async () => {
@@ -184,6 +161,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 setWinnersError(response.error || 'Failed to fetch winners');
             }
         } catch (err) {
+            console.error('Error fetching winners:', err);
             setWinnersError('An error occurred while fetching winners');
         } finally {
             setIsLoadingWinners(false);
@@ -221,22 +199,9 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                     .map(() => getRandomSymbol()),
             );
         slotGame.setGrid(initialGrid);
-    }, []);
+    }, [slotGame]);
 
-    // Functions
-    const startAutoSpin = () => {
-        if (autoSpinning) {
-            autoSpinTimeoutRef.current = setTimeout(() => {
-                handleSpin();
-                if (autoSpinning) {
-                    startAutoSpin();
-                }
-            }, 10000);
-        }
-    };
-
-    // Add helper function for safe sound playing
-    const playSoundSafely = (soundFunction: () => void) => {
+    const playSoundSafely = useCallback((soundFunction: () => void) => {
         if (document.visibilityState === 'visible' && document.hasFocus()) {
             try {
                 soundFunction();
@@ -244,10 +209,9 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 console.warn('Failed to play sound:', err);
             }
         }
-    };
+    }, []);
 
-    // Update handleSpin
-    const handleSpin = async () => {
+    const handleSpin = useCallback(async () => {
         // Close any open overlays before starting new spin
         setShowTotalWinModal(false);
         setShowOverlay(false);
@@ -399,7 +363,33 @@ export const RustySlotsContainer = function RustySlotsContainer() {
             setSpinning(false);
             spinInProgressRef.current = false;
         }
-    };
+    }, [
+        freeSpins,
+        setShowBonusModal,
+        setShowConfetti,
+        setShowOverlay,
+        setShowTotalWinModal,
+        setSpinning,
+        slotGame,
+        spinKey,
+        setAutoSpinning,
+        soundManagerRef,
+        playSoundSafely,
+        steamProfile?.code,
+        steamProfile?.steamId,
+    ]);
+
+    // Functions
+    const startAutoSpin = useCallback(() => {
+        if (autoSpinning) {
+            autoSpinTimeoutRef.current = setTimeout(() => {
+                handleSpin();
+                if (autoSpinning) {
+                    startAutoSpin();
+                }
+            }, 10000);
+        }
+    }, [autoSpinning, handleSpin]);
 
     const handleBonusTypeSelection = async (type: 'normal' | 'sticky') => {
         if (!steamProfile?.steamId || !steamProfile.code) return;
@@ -427,6 +417,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                 setAutoSpinning(true);
             }
         } catch (err) {
+            console.error('Error setting bonus type:', err);
             setError('Failed to set bonus type. Please try again.');
         }
     };
@@ -450,19 +441,26 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         };
 
         checkForPendingBonus();
-    }, [steamProfile]);
+    }, [steamProfile, setShowBonusModal]);
 
-    const handleTogglePossibleLines = () => {
-        // Stop all currently playing sounds
-        soundManagerRef.current?.stopAllSounds();
-
-        // Stop auto-spinning when showing possible lines
-        if (!slotGame.possibleLines.isVisible) {
-            setAutoSpinning(false);
+    useEffect(() => {
+        if (autoSpinning) {
+            handleSpin();
+            startAutoSpin();
+        } else {
+            if (autoSpinTimeoutRef.current) {
+                clearTimeout(autoSpinTimeoutRef.current);
+                autoSpinTimeoutRef.current = null;
+            }
         }
 
-        slotGame.setPossibleLinesVisibility(!slotGame.possibleLines.isVisible);
-    };
+        return () => {
+            if (autoSpinTimeoutRef.current) {
+                clearTimeout(autoSpinTimeoutRef.current);
+                autoSpinTimeoutRef.current = null;
+            }
+        };
+    }, [autoSpinning, handleSpin, startAutoSpin]);
 
     // Define the three main sections
     const slot_grid = (

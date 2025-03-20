@@ -57,7 +57,10 @@ interface BattleMetricsServerData {
             ip: string;
             port: number;
             details?: {
-                rust_maps: any;
+                rust_maps: {
+                    thumbnailUrl?: string;
+                    [key: string]: unknown;
+                };
                 rust_description: string;
             };
         };

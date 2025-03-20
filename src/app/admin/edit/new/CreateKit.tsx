@@ -27,7 +27,7 @@ export default function CreateKit() {
     const [smallHeight, setSmallHeight] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-    const [type, _] = useState('monthly');
+    const [type] = useState('monthly');
 
     const router = useRouter();
 

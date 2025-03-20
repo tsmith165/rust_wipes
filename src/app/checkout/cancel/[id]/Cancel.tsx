@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import PROJECT_CONSTANTS from '@/lib/constants';
 import { KitsWithExtraImages } from '@/db/schema';
 
 interface CancelProps {

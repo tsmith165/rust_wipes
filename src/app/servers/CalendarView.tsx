@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RwServer, NextWipeInfo } from '@/db/schema';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isEqual, parseISO, addMonths, subMonths, setHours, getDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, getDay } from 'date-fns';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 
 interface CalendarViewProps {
@@ -55,7 +55,7 @@ export function CalendarView({ servers }: CalendarViewProps) {
         const minutes = parseInt(wipeTime.slice(-2));
 
         // Convert to 12-hour format
-        let period = hours >= 12 ? 'PM' : 'AM';
+        const period = hours >= 12 ? 'PM' : 'AM';
         let standardHours = hours % 12;
         if (standardHours === 0) standardHours = 12;
 

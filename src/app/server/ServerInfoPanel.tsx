@@ -1,10 +1,25 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-
+import { ParsedServer } from '@/db/schema';
 interface ServerInfoPanelProps {
-    bm_api_attributes: any;
-    database_data: any;
+    bm_api_attributes: {
+        players: number;
+        maxPlayers: number;
+        name: string;
+        ip: string;
+        port: number;
+        details?: {
+            rust_maps?: {
+                thumbnailUrl?: string;
+                [key: string]: unknown;
+            };
+            rust_description?: string;
+            rust_last_wipe?: string;
+        };
+        rank?: number;
+    };
+    database_data: ParsedServer[];
     ip: string;
     port: number;
     players: number;
@@ -23,7 +38,10 @@ export default function ServerInfoPanel({ bm_api_attributes, database_data, ip, 
     const server_info_data = useMemo(() => {
         const { details, rank } = bm_api_attributes;
         const { rust_last_wipe } = details || {};
-        const { resource_rate, group_limit, region } = database_data[0] || {};
+        const serverData = database_data[0];
+        const resource_rate = serverData?.resource_rate || '';
+        const group_limit = serverData?.group_limit || '';
+        const region = serverData?.region || '';
 
         const last_wipe_date = rust_last_wipe ? new Date(rust_last_wipe) : new Date();
         const seconds_since_last_wipe = Math.floor((new Date().getTime() - last_wipe_date.getTime()) / 1000);
@@ -73,9 +91,7 @@ export default function ServerInfoPanel({ bm_api_attributes, database_data, ip, 
                     <b className="text-primary_light">{`IP: `}</b>
                     <p className="hover:text-bold text-st_lightest hover:font-bold hover:text-primary_light">{`${ip}:${port}`}</p>
                     {copySuccess && <div className="rounded bg-green-400 px-3 py-0 font-bold text-st_darkest">Copy Success!</div>}
-                    {hover && !copySuccess && (
-                        <div className="rounded bg-green-600 px-3 py-0 text-st_darkest">Click to copy server IP</div>
-                    )}
+                    {hover && !copySuccess && <div className="rounded bg-green-600 px-3 py-0 text-st_darkest">Click to copy server IP</div>}
                 </div>
             </div>
             {server_info_data.map(({ title, value }) => (

@@ -15,7 +15,7 @@ interface FilterFormSectionProps {
     onUpdateSearchParams: (updates: Record<string, string>) => void;
 }
 
-export default function FilterFormSection({ searchParams, onRefresh, isLoading, onUpdateSearchParams }: FilterFormSectionProps) {
+export default function FilterFormSection({ searchParams, onUpdateSearchParams }: FilterFormSectionProps) {
     // Get current date for the date picker
     const currentDate = (searchParams.date as string) || new Date().toISOString().split('T')[0];
 

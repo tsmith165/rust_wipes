@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Steam Auth
@@ -8,7 +8,7 @@ import { useSteamUser } from '@/stores/Store.SteamUser';
 import SteamSignInModal from '@/components/SteamSignInModal';
 
 // Wheel Game Logic / State
-import { spinWheel, createBonusSpinRecord, checkPendingBonus } from './Wheel.Actions';
+import { spinWheel, checkPendingBonus } from './Wheel.Actions';
 import { setSlotBonusType } from '@/app/games/rusty-slots/RustySlots.Actions';
 import { useWheelStore } from '@/stores/Store.Games.Wheel';
 
@@ -62,11 +62,9 @@ export function WheelContainer() {
         setSoundEnabled,
         volume,
         setVolume,
-        showOverlay,
         setShowOverlay,
         showBonusModal,
         setShowBonusModal,
-        pendingBonusType,
         setPendingBonusType,
     } = useWheelStore();
 
@@ -120,7 +118,7 @@ export function WheelContainer() {
         };
 
         initializeUser();
-    }, [steamId, authCode, isVerified, loadUserData, setIsVerified, setSteamError]);
+    }, [steamId, authCode, isVerified, loadUserData, setIsVerified, setSteamError, setShowBonusModal]);
 
     // Add auto-spin timeout ref
     const autoSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -133,15 +131,6 @@ export function WheelContainer() {
             }
         };
     }, []);
-
-    // Handle auto-spin logic
-    useEffect(() => {
-        if (isAutoSpinning && !isSpinning && credits !== null && credits >= 5) {
-            autoSpinTimeoutRef.current = setTimeout(() => {
-                handleSpin();
-            }, autoSpinInterval);
-        }
-    }, [isAutoSpinning, isSpinning, credits]);
 
     // Add confetti state
     const [showConfetti, setShowConfetti] = useState(false);
@@ -182,16 +171,8 @@ export function WheelContainer() {
         }
     };
 
-    // Add cleanup function near other sound-related code
-    const cleanupCurrentSpin = () => {
-        if (soundManagerRef.current) {
-            soundManagerRef.current.stopAllSounds();
-        }
-        setShowWinOverlay(false);
-    };
-
     // Update handleSpin to handle bonus wins
-    const handleSpin = async () => {
+    const handleSpin = useCallback(async () => {
         if (!isVerified || isSpinning || credits < SPIN_COST) return;
 
         // Stop all currently playing sounds
@@ -214,7 +195,7 @@ export function WheelContainer() {
                 return;
             }
 
-            const { result: wheelResult, totalRotation, finalDegree, credits: updatedCredits } = spinResult.data!;
+            const { result: wheelResult, totalRotation, credits: updatedCredits } = spinResult.data!;
 
             // Immediately disable auto-spin if it's a bonus win
             if (wheelResult.payout.displayName === '3x Bonus') {
@@ -262,7 +243,34 @@ export function WheelContainer() {
             setSpinning(false);
             setAutoSpinning(false);
         }
-    };
+    }, [
+        isVerified,
+        isSpinning,
+        credits,
+        currentRotation,
+        authCode,
+        steamProfile,
+        setSteamError,
+        setSpinning,
+        setAutoSpinning,
+        setShowOverlay,
+        setShowWinOverlay,
+        setShowConfetti,
+        setShouldRefetchWinners,
+        loadUserData,
+        setCurrentRotation,
+        setResult,
+        setShowBonusModal,
+    ]);
+
+    // Handle auto-spin logic
+    useEffect(() => {
+        if (isAutoSpinning && !isSpinning && credits !== null && credits >= 5) {
+            autoSpinTimeoutRef.current = setTimeout(() => {
+                handleSpin();
+            }, autoSpinInterval);
+        }
+    }, [isAutoSpinning, isSpinning, credits, autoSpinInterval, handleSpin]);
 
     // Define the three main sections
     const wheel_display = (

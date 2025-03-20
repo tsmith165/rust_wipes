@@ -2,7 +2,7 @@
 
 import { db } from '@/db/db';
 import { rw_parsed_server } from '@/db/schema';
-import { eq, and, or, between, lte, isNotNull, gte, sql } from 'drizzle-orm';
+import { eq, and, lte, isNotNull, sql } from 'drizzle-orm';
 import moment from 'moment-timezone';
 
 interface ServerData {

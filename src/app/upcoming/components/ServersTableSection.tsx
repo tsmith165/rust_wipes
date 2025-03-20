@@ -4,7 +4,6 @@ import React, { useRef } from 'react';
 import UpcomingServerHourGroup from '../UpcomingServerHourGroup';
 import { Calendar } from 'lucide-react';
 import moment from 'moment-timezone';
-import { standardTimeOptions } from '../constants';
 
 interface ServerData {
     id: number;
@@ -29,18 +28,13 @@ interface ServersTableSectionProps {
     isLoading: boolean;
 }
 
-export default function ServersTableSection({ searchParams, server_list, onUpdateSearchParams, isLoading }: ServersTableSectionProps) {
+export default function ServersTableSection({ searchParams, server_list, isLoading }: ServersTableSectionProps) {
     // Use this ref to preserve scroll position
     const tableRef = useRef<HTMLDivElement>(null);
 
     // Get the selected date and timezone
     const selectedDate = (searchParams.date as string) || new Date().toISOString().split('T')[0];
     const timeZoneOffset = (searchParams.time_zone as string) || '-7';
-
-    // Get timezone name for display
-    const timeZoneLabel =
-        standardTimeOptions.find(([offset]) => offset === timeZoneOffset)?.[1] ||
-        `UTC${timeZoneOffset.startsWith('-') ? timeZoneOffset : `+${timeZoneOffset}`}`;
 
     // Short display name of timezone
     const shortTimeZoneLabel = `UTC${timeZoneOffset.startsWith('-') ? timeZoneOffset : `+${timeZoneOffset}`}`;

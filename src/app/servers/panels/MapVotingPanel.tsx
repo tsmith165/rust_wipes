@@ -12,6 +12,7 @@ import {
     ChartOptions,
     ChartEvent,
     ActiveElement,
+    TooltipItem,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -59,7 +60,7 @@ export function MapVotingPanel({ mapOptions, mapVotes }: MapVotingPanelProps) {
             },
             tooltip: {
                 callbacks: {
-                    label: (context: any) => {
+                    label: (context: TooltipItem<'bar'>) => {
                         return `Votes: ${context.raw}`;
                     },
                 },

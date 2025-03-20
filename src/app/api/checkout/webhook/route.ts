@@ -7,10 +7,9 @@ import { sendEmail } from '@/utils/emails/resend_utils';
 import CheckoutSuccessEmail from '@/utils/emails/templates/CheckoutSuccessEmail';
 import SubscriptionCanceledEmail from '@/utils/emails/templates/SubscriptionCanceledEmail';
 import ErrorEmailTemplate from '@/utils/emails/templates/ErrorEmailTemplate';
-import { grantKitAccess, revokeKitAccess } from '@/utils/rust/rustServerCommands';
+import { grantKitAccess } from '@/utils/rust/rustServerCommands';
 
 import PROJECT_CONSTANTS from '@/lib/constants';
-import { parse } from 'path';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' });
 
@@ -237,9 +236,14 @@ export async function POST(request: Request) {
             const unhandledData = event.data.object;
             console.log('Unhandled Event Data:', unhandledData);
         }
-    } catch (err: any) {
-        console.error(`Webhook Error: ${err.message}`);
-        return new Response(JSON.stringify({ error: `Webhook Error: ${err.message}` }), { status: 400 });
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            console.error(`Webhook Error: ${err.message}`);
+            return new Response(JSON.stringify({ error: `Webhook Error: ${err.message}` }), { status: 400 });
+        } else {
+            console.error(`Webhook Error: ${err}`);
+            return new Response(JSON.stringify({ error: `Webhook Error: ${err}` }), { status: 400 });
+        }
     }
 
     return new Response(JSON.stringify({ received: true }), { status: 200 });

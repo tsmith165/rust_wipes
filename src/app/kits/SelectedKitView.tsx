@@ -9,12 +9,12 @@ import { Protect } from '@clerk/nextjs';
 import AdminProtect from '@/utils/auth/AdminProtect';
 import StripeBrandedButton from '@/components/svg/StripeBrandedButton';
 
-// Define the structure of the contents field
-interface KitContents {
-    [category: string]: {
-        [item: string]: number;
-    };
-}
+// // Define the structure of the contents field
+// interface KitContents {
+//     [category: string]: {
+//         [item: string]: number;
+//     };
+// }
 
 interface SelectedKitViewProps {
     selectedKit: KitsWithExtraImages;
@@ -37,7 +37,6 @@ interface SelectedKitViewProps {
 const SelectedKitView: React.FC<SelectedKitViewProps> = ({
     selectedKit,
     currentImageIndex,
-    imageList,
     smallImageList,
     imageLoadStates,
     handleImageLoad,
@@ -71,7 +70,7 @@ const SelectedKitView: React.FC<SelectedKitViewProps> = ({
             return selectedKit.contents;
         }
         return null;
-    }, [selectedKit.contents]);
+    }, [selectedKit]);
 
     const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newSpeed = parseInt(e.target.value, 10);

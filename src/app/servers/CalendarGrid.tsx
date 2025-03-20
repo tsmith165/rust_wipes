@@ -8,6 +8,6 @@ interface CalendarGridProps {
     currentDate: Date;
 }
 
-export function CalendarGrid({ servers, nextWipeInfoMap, currentDate }: CalendarGridProps) {
+export function CalendarGrid({ servers, nextWipeInfoMap }: CalendarGridProps) {
     return <CalendarView servers={servers} nextWipeInfoMap={nextWipeInfoMap} />;
 }

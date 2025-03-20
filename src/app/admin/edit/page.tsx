@@ -29,18 +29,43 @@ export const metadata: Metadata = {
 };
 
 import React, { Suspense } from 'react';
-
 import { fetchKitById, fetchAdjacentKitIds, getMostRecentKitId } from '@/app/actions';
-
 import PageLayout from '@/components/layout/PageLayout';
 import Edit from '@/app/admin/edit/Edit';
 import LoadingSpinner from '@/components/layout/LoadingSpinner';
 import { redirect } from 'next/navigation';
+import { KitsWithExtraImages } from '@/db/schema';
 
-async function fetchKitData(id: number) {
+// Import the KitData interface from Edit.tsx
+interface KitData extends KitsWithExtraImages {
+    next_id?: number;
+    last_id?: number;
+}
+
+async function fetchKitData(id: number): Promise<KitData> {
     const kit = await fetchKitById(id);
+    if (!kit) {
+        throw new Error(`Kit with ID ${id} not found`);
+    }
+
     const { next_id, last_id } = await fetchAdjacentKitIds(id);
-    return { ...kit, next_id, last_id };
+
+    // Ensure all required properties exist with proper types
+    return {
+        ...kit,
+        next_id,
+        last_id,
+        description: kit.description ?? null,
+        id: kit.id,
+        name: kit.name ?? '',
+        image_path: kit.image_path ?? '',
+        small_image_path: kit.small_image_path ?? '',
+        width: kit.width ?? 0,
+        height: kit.height ?? 0,
+        small_width: kit.small_width ?? 0,
+        small_height: kit.small_height ?? 0,
+        extraImages: kit.extraImages ?? [],
+    };
 }
 
 export default async function Page(props: { searchParams: Promise<{ id?: string }> }) {

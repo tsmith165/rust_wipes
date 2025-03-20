@@ -25,11 +25,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ kitId }) => {
 
     const router = useRouter();
 
-    useEffect(() => {
-        console.log('ImageEditor mounted or kitId changed:', kitId);
-        resetInputs();
-    }, [kitId]);
-
     const resetInputs = useCallback(() => {
         console.log('Resetting inputs');
         setImageUrl('Not yet uploaded');
@@ -42,6 +37,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ kitId }) => {
         setIsSubmitting(false);
         setStatusMessage(null);
     }, []);
+
+    useEffect(() => {
+        console.log('ImageEditor mounted or kitId changed:', kitId);
+        resetInputs();
+    }, [kitId, resetInputs]);
 
     const handleUploadComplete = useCallback(
         (

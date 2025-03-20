@@ -102,7 +102,6 @@ export default function Rules() {
 function RuleCategory({
     category,
     rules,
-    index,
     icon,
     isOpen,
     onToggle,

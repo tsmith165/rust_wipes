@@ -9,7 +9,7 @@ interface MapData {
 }
 
 interface MapInfoPanelProps {
-    mapData: MapData;
+    mapData: Partial<MapData>;
     name: string;
 }
 

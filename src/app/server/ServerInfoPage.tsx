@@ -3,12 +3,13 @@ import MapInfoPanel from './MapInfoPanel';
 import ServerInfoPanel from './ServerInfoPanel';
 import ServerDescriptionPanel from './ServerDescriptionPanel';
 import PlayerCountPanel from './PlayerCountPanel';
+import { ParsedServer } from '@/db/schema';
 
 interface ServerInfoPageProps {
     params?: {
         server_id?: string;
     };
-    database_data: any;
+    database_data: ParsedServer[];
     bm_api_server_data: {
         attributes: {
             players: number;
@@ -17,7 +18,10 @@ interface ServerInfoPageProps {
             ip: string;
             port: number;
             details?: {
-                rust_maps: any;
+                rust_maps: {
+                    thumbnailUrl?: string;
+                    [key: string]: unknown;
+                };
                 rust_description: string;
             };
         };
@@ -28,7 +32,7 @@ interface ServerInfoPageProps {
     }>;
 }
 
-export default function ServerInfoPage({ database_data, bm_api_server_data, player_history, params }: ServerInfoPageProps) {
+export default function ServerInfoPage({ database_data, bm_api_server_data, player_history }: ServerInfoPageProps) {
     console.log('Player history data:', player_history);
     if (!player_history || player_history.length === 0) {
         console.warn('No player history data available');

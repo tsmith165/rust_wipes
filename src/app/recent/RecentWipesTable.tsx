@@ -1,8 +1,6 @@
 import React, { type JSX } from 'react';
 import queryString from 'query-string';
-import { IoIosArrowForward } from 'react-icons/io';
 import RecentServerRow from './RecentServerRow';
-import NumServersSelect from './NumServersSelect';
 
 const DEBUG = false;
 
@@ -30,7 +28,7 @@ interface RecentWipesTableProps {
     onUpdateSearchParams: (updates: Record<string, string>) => void;
 }
 
-const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, server_list, onUpdateSearchParams }) => {
+const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, server_list }) => {
     console.log('Creating Recent Wipes Table...');
 
     const page = parseInt((searchParams?.page as string) || '1');
@@ -75,7 +73,6 @@ const RecentWipesTable: React.FC<RecentWipesTableProps> = ({ searchParams, serve
         const offline = current_server_json.offline || false;
         const id = current_server_json.id;
         const ip = current_server_json.attributes.ip;
-        const port = current_server_json.attributes.port;
         const name = current_server_json.attributes.name;
         const rank = current_server_json.attributes.rank;
         const players = current_server_json.attributes.players;

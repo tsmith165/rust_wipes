@@ -1,7 +1,7 @@
 'use server';
 
 import { db, next_wipe_info, plugin_data } from '@/db/db';
-import { NextWipeInfo, type next_wipe_info as NextWipeInfoTable, type PluginData } from '@/db/schema';
+import { NextWipeInfo, type PluginData } from '@/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { isClerkUserIdAdmin } from '@/utils/auth/ClerkUtils';

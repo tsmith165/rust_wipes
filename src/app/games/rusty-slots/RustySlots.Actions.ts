@@ -11,7 +11,7 @@ import {
     INITIAL_BONUS_SPINS,
     RETRIGGER_BONUS_SPINS,
 } from '@/app/games/rusty-slots/RustySlots.Constants';
-import { getRandomSymbol, getRandomSymbolExcludingBonus, getWrappedSlice } from '@/app/games/rusty-slots/RustySlots.Utils';
+import { getRandomSymbol, getRandomSymbolExcludingBonus } from '@/app/games/rusty-slots/RustySlots.Utils';
 
 // **Define a standardized response interface**
 interface ActionResponse<T> {
@@ -21,7 +21,7 @@ interface ActionResponse<T> {
 }
 
 const REEL_SIZE = 5;
-const VISIBLE_ITEMS = 5;
+// const VISIBLE_ITEMS = 5;
 const MIN_SPIN = 80;
 const MAX_SPIN = 120;
 
@@ -62,18 +62,18 @@ interface SteamProfile {
 /**
  * Type Guard to verify if data is of type { x: number; y: number; multiplier: number }[]
  */
-function isStickyMultipliersArray(
-    data: { x: number; y: number; multiplier: number }[],
-): data is { x: number; y: number; multiplier: number }[] {
-    return Array.isArray(data) && data.every((item) => typeof item === 'object' && 'x' in item && 'y' in item && 'multiplier' in item);
-}
+// function isStickyMultipliersArray(
+//     data: { x: number; y: number; multiplier: number }[],
+// ): data is { x: number; y: number; multiplier: number }[] {
+//     return Array.isArray(data) && data.every((item) => typeof item === 'object' && 'x' in item && 'y' in item && 'multiplier' in item);
+// }
 
 /**
  * Type Guard to verify if data is of type string[][]
  */
-function isStringDoubleArray(data: unknown): data is string[][] {
-    return Array.isArray(data) && data.every((row) => Array.isArray(row) && row.every((cell) => typeof cell === 'string'));
-}
+// function isStringDoubleArray(data: unknown): data is string[][] {
+//     return Array.isArray(data) && data.every((row) => Array.isArray(row) && row.every((cell) => typeof cell === 'string'));
+// }
 
 /**
  * Standardized spinSlotMachine function with ActionResponse.
@@ -187,7 +187,7 @@ export async function spinSlotMachine(steamId: string, code: string, bonusType?:
             .map(() => Math.floor(Math.random() * (MAX_SPIN - MIN_SPIN + 1)) + MIN_SPIN);
 
         // Calculate payout and get win information
-        const { payout, bonusCount, winningLines, winningCells, bonusCells } = calculatePayout(finalVisibleGrid);
+        const { payout, winningLines, winningCells, bonusCells } = calculatePayout(finalVisibleGrid);
 
         // Identify multipliers in the spin result
         const currentMultipliers: { x: number; y: number; multiplier: number }[] = [];
@@ -370,8 +370,6 @@ function calculatePayout(grid: string[][]): {
     bonusCells: number[][];
 } {
     const payout: { item: string; full_name: string; quantity: number }[] = [];
-    const lineMultipliers: { line: number; multiplier: number }[] = [];
-    const lineMatches: { line: number; symbol: string; count: number }[] = [];
     const winningLines: number[][][] = [];
     const winningCells: number[][] = [];
     const bonusCells: number[][] = [];
@@ -392,8 +390,8 @@ function calculatePayout(grid: string[][]): {
         let consecutiveCount = 0;
         let primarySymbol: string | null = null;
         let shouldMultiply = true;
-        let lineMultipliers: number[] = [];
-        let lineMatches: number[][] = [];
+        const lineMultipliers: number[] = [];
+        const lineMatches: number[][] = [];
 
         for (let i = 0; i < line.length; i++) {
             const [x, y] = line[i];
@@ -473,7 +471,7 @@ function calculatePayout(grid: string[][]): {
     }
 
     // Count the number of bonus symbols in the final grid
-    let bonusCount = bonusCells.length;
+    const bonusCount = bonusCells.length;
 
     return { payout, bonusCount, winningLines, winningCells, bonusCells };
 }
@@ -540,28 +538,6 @@ export async function setSlotBonusType(steamId: string, code: string, bonusType:
         if (last_win.length === 0) {
             console.error('No previous wins found');
             return { success: false, error: 'No previous wins found' };
-        }
-
-        // Count the number of bonus symbols in the last win
-        let number_of_bonus_symbols_in_last_win = 0;
-        try {
-            const lastResultGridData = last_win[0].result;
-            if (isStringDoubleArray(lastResultGridData)) {
-                const lastResultGrid: string[][] = lastResultGridData;
-                lastResultGrid.forEach((reel) => {
-                    reel.forEach((cell_value) => {
-                        if (cell_value === 'bonus') {
-                            number_of_bonus_symbols_in_last_win++;
-                        }
-                    });
-                });
-            } else {
-                console.error('Invalid format for lastResultGrid');
-                return { success: false, error: 'Invalid last spin result format' };
-            }
-        } catch (parseError) {
-            console.error('Error parsing last spin result:', parseError);
-            return { success: false, error: 'Invalid last spin result format' };
         }
 
         // Retrieve bonus spins data to check for pending bonus

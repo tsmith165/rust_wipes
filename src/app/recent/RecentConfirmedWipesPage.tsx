@@ -1,26 +1,26 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import RecentWipesSidebar from './RecentWipesSidebar';
 import RecentWipesTable from './RecentWipesTable';
 import { getRecentWipesData } from '@/app/actions';
 import { DEFAULT_PARAMS } from './constants';
 
-interface BattleMetricsServer {
-    id: string;
-    attributes: {
-        ip: string | null;
-        port: number | null;
-        name: string | null;
-        rank: number | null;
-        details: {
-            rust_last_wipe: string | null;
-        };
-        players: number | null;
-        maxPlayers: number | null;
-    };
-}
+// interface BattleMetricsServer {
+//     id: string;
+//     attributes: {
+//         ip: string | null;
+//         port: number | null;
+//         name: string | null;
+//         rank: number | null;
+//         details: {
+//             rust_last_wipe: string | null;
+//         };
+//         players: number | null;
+//         maxPlayers: number | null;
+//     };
+// }
 
 interface Server {
     id: number;
@@ -80,38 +80,41 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
         return obj;
     }, [searchParams]);
 
-    const fetchData = async (forceRefresh: boolean = false) => {
-        setIsLoading(true);
-        const country = searchParams.get('country') || 'US';
-        const minPlayers = parseInt(searchParams.get('minPlayers') || '0');
-        const maxDist = parseInt(searchParams.get('maxDist') || '5000');
-        const minRank = parseInt(searchParams.get('minRank') || '0');
-        const maxRank = parseInt(searchParams.get('maxRank') || '10000');
-        const groupLimit = searchParams.get('groupLimit') || 'any';
-        const resourceRate = searchParams.get('resourceRate') || 'any';
-        const numServers = parseInt(searchParams.get('numServers') || '10');
-        const page = parseInt(searchParams.get('page') || '1');
+    const fetchData = useCallback(
+        async (forceRefresh: boolean = false) => {
+            setIsLoading(true);
+            const country = searchParams.get('country') || 'US';
+            const minPlayers = parseInt(searchParams.get('minPlayers') || '0');
+            const maxDist = parseInt(searchParams.get('maxDist') || '5000');
+            const minRank = parseInt(searchParams.get('minRank') || '0');
+            const maxRank = parseInt(searchParams.get('maxRank') || '10000');
+            const groupLimit = searchParams.get('groupLimit') || 'any';
+            const resourceRate = searchParams.get('resourceRate') || 'any';
+            const numServers = parseInt(searchParams.get('numServers') || '10');
+            const page = parseInt(searchParams.get('page') || '1');
 
-        try {
-            const combinedData = await getRecentWipesData({
-                country,
-                minPlayers,
-                maxDist,
-                minRank,
-                maxRank,
-                groupLimit,
-                resourceRate,
-                numServers,
-                page,
-                forceRefresh,
-            });
+            try {
+                const combinedData = await getRecentWipesData({
+                    country,
+                    minPlayers,
+                    maxDist,
+                    minRank,
+                    maxRank,
+                    groupLimit,
+                    resourceRate,
+                    numServers,
+                    page,
+                    forceRefresh,
+                });
 
-            setServerList(combinedData);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-        setIsLoading(false);
-    };
+                setServerList(combinedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+            setIsLoading(false);
+        },
+        [searchParams],
+    );
 
     const updateSearchParams = (updates: Record<string, string>) => {
         const newSearchParams = new URLSearchParams(searchParams);
@@ -128,7 +131,7 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
 
     useEffect(() => {
         fetchData();
-    }, [searchParams]);
+    }, [searchParams, fetchData]);
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
@@ -140,7 +143,7 @@ export default function RecentConfirmedWipesPage({ initialSearchParams }: Recent
         return () => {
             if (intervalId) clearInterval(intervalId);
         };
-    }, [autoRefreshActive]);
+    }, [autoRefreshActive, fetchData]);
 
     const handleRefresh = () => {
         fetchData(true);

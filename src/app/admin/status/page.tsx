@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export const metadata: Metadata = {
@@ -35,7 +34,6 @@ import PageLayout from '@/components/layout/PageLayout';
 
 export default async function StatusPage() {
     // Force dynamic route and no caching
-    const headersList = headers();
     const response = new NextResponse();
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
 

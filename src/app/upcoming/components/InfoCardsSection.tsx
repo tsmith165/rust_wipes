@@ -33,8 +33,8 @@ export default function InfoCardsSection() {
                         </div>
                         <h3 className="mb-3 text-xl font-bold text-st_white">Time Zone Support</h3>
                         <p className="text-st_lightest">
-                            Our schedule automatically adjusts to your selected time zone, so you'll never miss a wipe no matter where you
-                            are in the world.
+                            Our schedule automatically adjusts to your selected time zone, so you&apos;ll never miss a wipe no matter where
+                            you are in the world.
                         </p>
                     </div>
 
@@ -44,8 +44,8 @@ export default function InfoCardsSection() {
                         </div>
                         <h3 className="mb-3 text-xl font-bold text-st_white">Detailed Information</h3>
                         <p className="text-st_lightest">
-                            Get comprehensive details about each server including rank, last wipe date, and whether it's a full wipe or BP
-                            wipe.
+                            Get comprehensive details about each server including rank, last wipe date, and whether it&apos;s a full wipe or
+                            BP wipe.
                         </p>
                     </div>
                 </div>

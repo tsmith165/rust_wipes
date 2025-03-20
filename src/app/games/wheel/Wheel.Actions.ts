@@ -5,7 +5,6 @@ import { user_playtime, wheel_spins, bonus_spins, slot_machine_spins } from '@/d
 import { eq, desc } from 'drizzle-orm';
 import { determineWinningSlot, PAYOUTS, WheelResult, WheelColor } from '@/app/games/wheel/Wheel.Constants';
 import { verifyAuthCode } from '@/app/games/Gambling.Actions';
-import { INITIAL_BONUS_SPINS } from '@/app/games/rusty-slots/RustySlots.Constants';
 import { setSlotBonusType } from '@/app/games/rusty-slots/RustySlots.Actions';
 
 // Standardized response interface
@@ -169,7 +168,7 @@ export async function getRecentWinners(): Promise<ActionResponse<WinnerWithPictu
 
         const winnersWithPictures = recentSpins.map((winner) => {
             // Find the color by matching the display name
-            const colorEntry = Object.entries(PAYOUTS).find(([_, payout]) => payout.displayName === winner.result);
+            const colorEntry = Object.entries(PAYOUTS).find(([, payout]) => payout?.displayName === winner.result);
             const color = colorEntry ? (colorEntry[0] as WheelColor) : 'Yellow'; // Default to Yellow if not found
 
             return {

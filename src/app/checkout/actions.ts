@@ -2,7 +2,7 @@
 
 import Stripe from 'stripe';
 import { db, kits, pending_transactions_table, users, verified_transactions_table } from '@/db/db';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import PROJECT_CONSTANTS from '@/lib/constants';
 import { grantKitAccess } from '@/utils/rust/rustServerCommands';
 

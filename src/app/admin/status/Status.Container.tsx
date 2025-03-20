@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useServerStatusStore } from '@/stores/Store.ServerStatus';
 import { ServerStatusData, restartServer, regularWipe, bpWipe, checkPlugins, getPluginVersions } from './Status.Actions';
@@ -13,7 +13,6 @@ import { CardSuccess } from '@/components/ui/card/Card.Success';
 import { SERVER_GROUPS } from './Status.Constants';
 import { ModalPlugins } from '@/components/overlays/templates/Modal.Plugins';
 import { comparePluginVersions } from '@/app/api/cron/check/plugins/Plugin.Versions';
-import { plugin_data } from '@/db/db';
 import type { PluginData } from '@/db/schema';
 
 const AUTO_REFRESH_SECONDS = 5;
@@ -49,16 +48,7 @@ export function StatusContainer({ initialStatus }: StatusContainerProps) {
         setServers(initialStatus);
     }, [initialStatus, setServers]);
 
-    // Auto-refresh
-    useEffect(() => {
-        const refreshInterval = setInterval(() => {
-            handleAutoRefresh();
-        }, AUTO_REFRESH_INTERVAL);
-
-        return () => clearInterval(refreshInterval);
-    }, []);
-
-    const handleAutoRefresh = async () => {
+    const handleAutoRefresh = useCallback(async () => {
         if (isRefreshing || isAutoRefreshing) return;
         setIsAutoRefreshing(true);
         try {
@@ -70,7 +60,16 @@ export function StatusContainer({ initialStatus }: StatusContainerProps) {
                 setIsAutoRefreshing(false);
             }, 500);
         }
-    };
+    }, [isRefreshing, isAutoRefreshing, router]);
+
+    // Auto-refresh
+    useEffect(() => {
+        const refreshInterval = setInterval(() => {
+            handleAutoRefresh();
+        }, AUTO_REFRESH_INTERVAL);
+
+        return () => clearInterval(refreshInterval);
+    }, [handleAutoRefresh]);
 
     const handleManualRefresh = async () => {
         if (isRefreshing || isAutoRefreshing) return;

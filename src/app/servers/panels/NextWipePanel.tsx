@@ -25,7 +25,7 @@ export function NextWipePanel({ server }: { server: RwServer }) {
         const minutes = parseInt(wipeTime.slice(-2));
 
         // Convert to 12-hour format
-        let period = hours >= 12 ? 'PM' : 'AM';
+        const period = hours >= 12 ? 'PM' : 'AM';
         let standardHours = hours % 12;
         if (standardHours === 0) standardHours = 12;
 
