@@ -1,10 +1,9 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Metadata } from 'next';
 import { fetchFilteredServers } from './actions';
 import { DEFAULT_PARAMS } from './constants';
 import PageLayout from '@/components/layout/PageLayout';
 import UpcomingWipesPageLayout from './components/UpcomingWipesPageLayout';
-import Loading from './loading';
 
 const PAGE_NAME = 'Upcoming Wipes';
 
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
     },
 };
 
-// Separate component for data fetching to use with Suspense
+// Separate component for data fetching
 async function UpcomingWipesContainer() {
     // Fetch initial data based on default parameters
     const initialData = await fetchFilteredServers({
@@ -55,9 +54,7 @@ async function UpcomingWipesContainer() {
 export default function Page() {
     return (
         <PageLayout page="upcoming">
-            <Suspense fallback={<Loading />}>
-                <UpcomingWipesContainer />
-            </Suspense>
+            <UpcomingWipesContainer />
         </PageLayout>
     );
 }
