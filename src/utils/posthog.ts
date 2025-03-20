@@ -9,7 +9,7 @@ const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 });
 
 // For server-side event capture
-export async function captureEvent(event: string, properties?: Record<string, any>) {
+export async function captureEvent(event: string, properties?: Record<string, string | number | boolean>) {
     'use server';
     const cookieStore = await cookies();
     const distinctId = cookieStore.get(COOKIE_KEY)?.value || uuidv4();

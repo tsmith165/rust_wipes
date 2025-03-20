@@ -9,6 +9,16 @@ interface SteamProfile {
     code: string;
 }
 
+interface SteamUserProfile {
+    profile: {
+        name: string;
+        avatarUrl: string;
+        steamId: string;
+    };
+    credits?: number;
+    freeSpins?: number;
+}
+
 interface SteamUserState {
     steamInput: string;
     authCode: string;
@@ -32,7 +42,7 @@ interface SteamUserState {
     // Complex actions
     loadUserData: () => Promise<void>;
     clearUserData: () => void;
-    verifyUser: (profileData: any) => void;
+    verifyUser: (profileData: SteamUserProfile) => void;
 }
 
 export const useSteamUser = create<SteamUserState>()(
@@ -87,6 +97,7 @@ export const useSteamUser = create<SteamUserState>()(
                         });
                     }
                 } catch (error) {
+                    console.error('Error loading user data:', error);
                     get().clearUserData();
                     set({
                         isVerified: false,

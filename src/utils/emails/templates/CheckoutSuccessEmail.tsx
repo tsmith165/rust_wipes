@@ -39,14 +39,15 @@ const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_usern
                         <Section className="flex-col space-y-0.5 px-4 text-stone-300">
                             <Text className="text-lg">Hello {steam_username},</Text>
                             <Text className="text-lg">
-                                Thank you for your {is_subscription ? 'subscription to' : 'purchase of'} the "{kit_name}" kit. Your{' '}
-                                {is_subscription ? 'initial payment' : 'transaction'} of ${price_paid.toFixed(2)} has been successfully
+                                Thank you for your {is_subscription ? 'subscription to' : 'purchase of'} the &quot;{kit_name}&quot; kit.
+                                Your {is_subscription ? 'initial payment' : 'transaction'} of ${price_paid.toFixed(2)} has been successfully
                                 processed.
                             </Text>
                             <Text className="text-lg">We appreciate your support and hope you enjoy your new Rust kit!</Text>
                             <Text className="text-lg">
                                 Your kit is now available for use in-game. To claim your kit, use the command{' '}
-                                <span className="font-bold text-primary_light">/kit {kit_name.toLowerCase()}</span> when you're in the game.
+                                <span className="font-bold text-primary_light">/kit {kit_name.toLowerCase()}</span> when you&apos;re in the
+                                game.
                             </Text>
                             <Text className="text-lg">Please note:</Text>
                             <ul className="list-disc pl-5 text-lg">
@@ -59,7 +60,7 @@ const CheckoutSuccessEmail: React.FC<CheckoutSuccessEmailProps> = ({ steam_usern
                                 )}
                             </ul>
                             <Text className="text-lg">
-                                If you have any questions or issues with your kit, please don't hesitate to contact our support team.
+                                If you have any questions or issues with your kit, please don&apos;t hesitate to contact our support team.
                             </Text>
                             <Text className="text-lg">Good luck, and have fun raiding!</Text>
                             <Text className="text-lg">The Rust Team</Text>

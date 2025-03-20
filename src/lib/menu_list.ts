@@ -1,4 +1,3 @@
-import PROJECT_CONSTANTS from '@/lib/constants';
 import {
     Server,
     Gift,

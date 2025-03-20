@@ -4,6 +4,6 @@ declare module 'rustrcon' {
         login(): void;
         send(message: string, name: string, identifier: number): void;
         destroy(): void;
-        on(event: 'connected' | 'message' | 'error' | 'disconnect', listener: (data: any) => void): void;
+        on(event: 'connected' | 'message' | 'error' | 'disconnect', listener: (data: string) => void): void;
     }
 }

@@ -44,7 +44,7 @@ const SubscriptionCanceledEmail: React.FC<SubscriptionCanceledEmailProps> = ({ s
                         <Section className="flex-col space-y-0.5 px-4 text-stone-300">
                             <Text className="text-lg">Hello {steam_username},</Text>
                             <Text className="text-lg">
-                                We're writing to confirm that your subscription to the "{kit_name}" kit has been canceled.
+                                We&apos;re writing to confirm that your subscription to the &quot;{kit_name}&quot; kit has been canceled.
                             </Text>
                             <Text className="text-lg">
                                 You will continue to have access to the kit until{' '}
@@ -53,13 +53,13 @@ const SubscriptionCanceledEmail: React.FC<SubscriptionCanceledEmailProps> = ({ s
                                 in-game.
                             </Text>
                             <Text className="text-lg">
-                                If you've canceled by mistake or wish to resubscribe in the future, you can do so at any time through our
-                                website.
+                                If you&apos;ve canceled by mistake or wish to resubscribe in the future, you can do so at any time through
+                                our website.
                             </Text>
                             <Text className="text-lg">
-                                We appreciate the support you've shown us and hope you've enjoyed using the kit. If you have any questions
-                                about your cancellation or feedback on your experience, please don't hesitate to reach out to our support
-                                team.
+                                We appreciate the support you&apos;ve shown us and hope you&apos;ve enjoyed using the kit. If you have any
+                                questions about your cancellation or feedback on your experience, please don&apos;t hesitate to reach out to
+                                our support team.
                             </Text>
                             <Text className="text-lg">Thank you for being a part of our community!</Text>
                             <Text className="text-lg">The Rust Team</Text>
