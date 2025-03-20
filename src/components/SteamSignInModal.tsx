@@ -4,6 +4,8 @@ import InputTextbox from '@/components/inputs/InputTextbox';
 import { verifyAndGetCredits } from '@/app/games/Gambling.Actions';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { FaSteam } from 'react-icons/fa';
+import { RiCodeSSlashLine } from 'react-icons/ri';
 
 interface SteamProfileData {
     profile: {
@@ -83,6 +85,7 @@ export default function SteamSignInModal({ steamInput, setSteamInput, code, setC
                     onChange={(e) => setSteamInput(e.target.value)}
                     placeholder="Enter your Steam Profile URL"
                     labelWidth="lg"
+                    icon={<FaSteam className="h-5 w-5 text-stone-950" />}
                 />
                 <InputTextbox
                     idName="auth_code"
@@ -91,6 +94,7 @@ export default function SteamSignInModal({ steamInput, setSteamInput, code, setC
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="Enter your code"
                     labelWidth="lg"
+                    icon={<RiCodeSSlashLine className="h-5 w-5 text-stone-950" />}
                 />
                 <p className="text-center text-primary_light">Type &apos;/auth&apos; in game to get your auth code</p>
                 <p className="text-center text-stone-400">Earn credits for every hour you spend on our servers!</p>

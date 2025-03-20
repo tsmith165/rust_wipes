@@ -191,6 +191,9 @@ export const RustySlotsContainer = function RustySlotsContainer() {
         // Only initialize on client side
         if (typeof window === 'undefined') return;
 
+        // Check if the grid is already initialized
+        if (slotGame.currentGrid.length > 0) return;
+
         const initialGrid = Array(5)
             .fill(0)
             .map(() =>
@@ -199,7 +202,7 @@ export const RustySlotsContainer = function RustySlotsContainer() {
                     .map(() => getRandomSymbol()),
             );
         slotGame.setGrid(initialGrid);
-    }, [slotGame]);
+    }, [slotGame.currentGrid.length, slotGame.setGrid]);
 
     const playSoundSafely = useCallback((soundFunction: () => void) => {
         if (document.visibilityState === 'visible' && document.hasFocus()) {
