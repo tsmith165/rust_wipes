@@ -9,16 +9,12 @@ import EditForm from './EditForm';
 import KitImagePanel from './KitImagePanel';
 import { handleTitleUpdate } from './actions';
 import LoadingSpinner from '@/components/layout/LoadingSpinner';
+import { KitsWithExtraImages } from '@/db/schema';
 
-interface KitData {
-    id: number;
-    name: string;
-    image_path: string;
-    width: number;
-    height: number;
+// Extending KitsWithExtraImages with optional next_id and last_id
+interface KitData extends KitsWithExtraImages {
     next_id?: number;
     last_id?: number;
-    [key: string]: any; // For other properties we might need but don't explicitly type
 }
 
 interface EditProps {
@@ -69,6 +65,7 @@ const Edit: React.FC<EditProps> = ({ kitDataPromise, current_id }) => {
                 setSubmitMessage({ type: 'error', text: result.error || 'An error occurred while updating the title.' });
             }
         } catch (err) {
+            console.error('Error updating title:', err);
             setSubmitMessage({ type: 'error', text: 'An unexpected error occurred.' });
         }
     };

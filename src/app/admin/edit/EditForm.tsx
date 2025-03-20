@@ -114,7 +114,7 @@ const EditForm: React.FC<EditFormProps> = ({ current_kit }) => {
                 setSubmitMessage({ type: 'error', text: result.error || 'An error occurred while submitting changes.' });
             }
         } catch (err) {
-            setSubmitMessage({ type: 'error', text: 'An unexpected error occurred.' });
+            setSubmitMessage({ type: 'error', text: err instanceof Error ? err.message : 'An unexpected error occurred.' });
         }
     };
 

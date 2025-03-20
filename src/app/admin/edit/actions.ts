@@ -49,7 +49,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
             try {
                 contentsObject = JSON.parse(data.contents);
             } catch (err) {
-                return { success: false, error: 'Invalid JSON in contents field' };
+                return { success: false, error: err instanceof Error ? err.message : 'Invalid JSON in contents field' };
             }
 
             await db

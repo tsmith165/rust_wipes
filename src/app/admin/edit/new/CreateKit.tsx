@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { createNewKit } from '@/app/admin/edit/actions';
 import ResizeUploader from '@/app/admin/edit/ResizeUploader';
 import InputTextbox from '@/components/inputs/InputTextbox';
-import InputTextArea from '@/components/inputs/InputTextArea';
 
 interface NewKitData {
     name: string;
@@ -23,15 +22,12 @@ export default function CreateKit() {
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
     const [title, setTitle] = useState('Not yet uploaded');
-    const [description, setDescription] = useState('');
-    const [price, setPrice] = useState(0);
-    const [permissionString, setPermissionString] = useState('');
     const [smallImageUrl, setSmallImageUrl] = useState('Not yet uploaded');
     const [smallWidth, setSmallWidth] = useState(0);
     const [smallHeight, setSmallHeight] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-    const [type, setType] = useState('monthly');
+    const [type, _] = useState('monthly');
 
     const router = useRouter();
 
@@ -113,9 +109,6 @@ export default function CreateKit() {
         setWidth(0);
         setHeight(0);
         setTitle('Not yet uploaded');
-        setDescription('');
-        setPrice(0);
-        setPermissionString('');
         setSmallImageUrl('Not yet uploaded');
         setSmallWidth(0);
         setSmallHeight(0);
