@@ -2,6 +2,8 @@ import React from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import { PHProvider } from '@/app/providers';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 
 import 'tailwindcss/tailwind.css';
 import '@/styles/globals.css';
@@ -23,7 +25,7 @@ const RootProvider = ({ children }: RootLayoutProps) => {
 export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <RootProvider>
-            <html lang="en">
+            <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
                 <body>{children}</body>
             </html>
         </RootProvider>

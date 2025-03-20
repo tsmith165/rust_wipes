@@ -1,24 +1,19 @@
 import typography from '@tailwindcss/typography';
-const plugin = require('tailwindcss/plugin');
+import plugin from 'tailwindcss/plugin';
 import { withUt } from 'uploadthing/tw';
-
-const radialGradientPlugin = plugin(function ({ matchUtilities, theme }: { matchUtilities: any; theme: any }) {
-    matchUtilities(
-        {
-            // map to bg-radient-[*]
-            'bg-radient': (value: any) => ({
-                'background-image': `radial-gradient(${value},var(--tw-gradient-stops))`,
-            }),
-        },
-        { values: theme('radialGradients') },
-    );
-});
+import { fontFamily } from 'tailwindcss/defaultTheme';
+import tailwindcssAnimate from 'tailwindcss-animate';
+import type { PluginAPI } from 'tailwindcss/types/config';
 
 export default withUt({
     darkMode: ['class'],
     content: ['./src/app/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['var(--font-geist-sans)', ...fontFamily.sans],
+                mono: ['var(--font-geist-mono)', ...fontFamily.mono],
+            },
             colors: {
                 primary_light: '#dc2626',
                 primary: '#991b1b',
@@ -68,8 +63,8 @@ export default withUt({
     mode: 'jit',
     plugins: [
         typography,
-        plugin(function ({ addBase, theme, addUtilities }: { addBase: any; theme: any; addUtilities: any }) {
-            // Custom gradeint utility classes
+        plugin(function ({ addUtilities }: PluginAPI) {
+            // Custom gradient utility classes
             const newUtilities = {
                 '.gradient-primary-text': {
                     '@apply text-transparent bg-clip-text bg-gradient-to-t from-primary_light to-primary': {},
@@ -84,6 +79,18 @@ export default withUt({
 
             addUtilities(newUtilities);
         }),
-        require('tailwindcss-animate'),
+        // Radial gradient plugin
+        plugin(function ({ matchUtilities, theme }: PluginAPI) {
+            matchUtilities(
+                {
+                    // map to bg-radient-[*]
+                    'bg-radient': (value: string) => ({
+                        'background-image': `radial-gradient(${value},var(--tw-gradient-stops))`,
+                    }),
+                },
+                { values: theme('radialGradients', {}) },
+            );
+        }),
+        tailwindcssAnimate,
     ],
 });

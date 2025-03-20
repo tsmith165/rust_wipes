@@ -10,7 +10,7 @@ type PageLayoutProps = {
 
 export default function PageLayout({ children, page }: PageLayoutProps) {
     return (
-        <div className="h-[100dvh] bg-stone-900">
+        <div className="h-[100dvh] bg-stone-900 font-sans">
             <Suspense>
                 <PostHogPageView />
             </Suspense>

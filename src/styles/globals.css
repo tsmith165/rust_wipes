@@ -108,7 +108,9 @@ a {
 }
 
 @layer base {
-  :root {
+    :root {
         --radius: 0.5rem;
+        --font-geist-sans: 'GeistSans', system-ui, sans-serif;
+        --font-geist-mono: 'GeistMono', monospace;
     }
 }
