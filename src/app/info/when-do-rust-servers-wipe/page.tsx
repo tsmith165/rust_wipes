@@ -41,8 +41,8 @@ export default function Page() {
                     <h1 className="text-primary_light">When Do Rust Servers Wipe?</h1>
                     <p>
                         Rust server wipes are an integral part of the gameplay experience, ensuring a fresh start for all players and
-                        keeping the game environment dynamic and competitive. In this guide, we'll delve into when Rust servers wipe, why
-                        wipes occur, and how they affect your gameplay.
+                        keeping the game environment dynamic and competitive. In this guide, we&apos;ll delve into when Rust servers wipe,
+                        why wipes occur, and how they affect your gameplay.
                     </p>
 
                     <h2 className="text-primary_light">What is a Rust Server Wipe?</h2>
@@ -52,12 +52,19 @@ export default function Page() {
                         world from becoming overcrowded with player-built structures and to maintain server performance.
                     </p>
 
-                    <h2 className="text-primary_light">When Do Official Rust Servers Wipe?</h2>
+                    <h2 className="text-primary_light">When Do Rust Servers Wipe?</h2>
                     <p>
-                        Official Rust servers wipe on the <strong className="text-primary_light">first Thursday of every month</strong>. The
-                        wipes coincide with the release of monthly game updates from Facepunch Studios, Rust's developers. The exact time of
-                        the wipe is typically around <strong className="text-primary_light">2 PM EST / 11 AM PST / 7 PM BST</strong>, but it
-                        can vary slightly depending on the update release.
+                        Rust servers follow different wipe schedules depending on the server type. The official Facepunch servers and most
+                        community servers follow a predictable pattern:
+                    </p>
+
+                    <h3 className="text-primary">Forced Wipes (1st Thursday of Every Month)</h3>
+                    <p>
+                        Forced wipes occur on the first Thursday of every month and affect all Rust servers (both official and community).
+                        These wipes coincide with the release of monthly game updates from Facepunch Studios, Rust&apos;s developers. The
+                        exact time of the wipe is typically around{' '}
+                        <strong className="text-primary_light">2 PM EST / 11 AM PST / 7 PM BST</strong>, but it can vary slightly depending
+                        on the update release.
                     </p>
 
                     <h2 className="text-primary_light">Types of Wipes</h2>
@@ -99,8 +106,8 @@ export default function Page() {
                     <h2 className="text-primary_light">Community and Modded Servers</h2>
                     <p>
                         Community and modded servers are managed by independent administrators and may have different wipe schedules. Some
-                        servers wipe weekly, bi-weekly, or on custom schedules. It's essential to check the server description or website
-                        for specific wipe times.
+                        servers wipe weekly, bi-weekly, or on custom schedules. It&apos;s essential to check the server description or
+                        website for specific wipe times.
                     </p>
 
                     <h2 className="text-primary_light">Why Do Wipes Occur?</h2>
@@ -122,13 +129,14 @@ export default function Page() {
                             page for the latest schedules.
                         </li>
                         <li>Join server-specific Discord channels or forums.</li>
-                        <li>Follow official Rust announcements on social media and the game's website.</li>
+                        <li>Follow official Rust announcements on social media and the game&apos;s website.</li>
                     </ul>
 
                     <h2 className="text-primary_light">Conclusion</h2>
                     <p>
-                        Understanding when Rust servers wipe helps you plan your gameplay and stay competitive. Whether you're a seasoned
-                        veteran or a new player, staying informed ensures you're ready to dive back into the action after each wipe.
+                        Understanding when Rust servers wipe helps you plan your gameplay and stay competitive. Whether you&apos;re a
+                        seasoned veteran or a new player, staying informed ensures you&apos;re ready to dive back into the action after each
+                        wipe.
                     </p>
                 </article>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { IoIosArrowUp, IoIosArrowDown, IoIosTrash } from 'react-icons/io';
-import { handleImageReorder, handleImageDelete, handleImageTitleEdit } from './actions';
+import { handleImageReorder, handleImageDelete } from './actions';
 import { KitsWithExtraImages, KitExtraImagesType } from '@/db/schema';
 import Image from 'next/image';
 
@@ -36,19 +36,6 @@ const KitImagePanel: React.FC<KitImagePanelProps> = ({ current_kit }) => {
         }
 
         await handleImageDelete(kitId, imagePath);
-    }
-
-    async function handleImageTitleEditAction(formData: FormData) {
-        const imageId = Number(formData.get('imageId'));
-        const newTitle = formData.get('newTitle')?.toString();
-        const imageType = formData.get('imageType')?.toString();
-
-        if (!imageId || !newTitle || !imageType) {
-            console.error(`Required form data missing. Cannot edit image title.`);
-            return;
-        }
-
-        await handleImageTitleEdit(imageId, newTitle);
     }
 
     const renderImages = (images: KitExtraImagesType[], imageType: string) => {

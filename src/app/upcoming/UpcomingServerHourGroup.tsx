@@ -12,6 +12,7 @@ interface ServerData {
     last_wipe: string;
     next_wipe: string;
     is_full_wipe: boolean;
+    is_bp_wipe: boolean;
 }
 
 interface UpcomingServerHourGroupProps {

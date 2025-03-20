@@ -14,8 +14,7 @@ import {
     map_votes,
     player_stats_history,
 } from '@/db/schema';
-import type { KitsWithExtraImages, RwServer, PlayerStats, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
-import type { SQL } from 'drizzle-orm';
+import type { KitsWithExtraImages, RwServer, NextWipeInfo, MapOptions, MapVotes } from '@/db/schema';
 
 interface Server {
     id: number;
@@ -133,7 +132,7 @@ export async function fetchRecentWipesFromDB(params: {
     numServers: number;
     page: number;
 }): Promise<DbWipe[]> {
-    const { country, minPlayers, maxDist, minRank, maxRank, groupLimit, resourceRate, numServers, page } = params;
+    const { country, minPlayers, minRank, maxRank, groupLimit, resourceRate, numServers, page } = params;
     const itemsPerPage = numServers;
     const skip = (page - 1) * itemsPerPage;
 

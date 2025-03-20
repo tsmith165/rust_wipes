@@ -10,13 +10,24 @@ import KitImagePanel from './KitImagePanel';
 import { handleTitleUpdate } from './actions';
 import LoadingSpinner from '@/components/layout/LoadingSpinner';
 
+interface KitData {
+    id: number;
+    name: string;
+    image_path: string;
+    width: number;
+    height: number;
+    next_id?: number;
+    last_id?: number;
+    [key: string]: any; // For other properties we might need but don't explicitly type
+}
+
 interface EditProps {
-    kitDataPromise: Promise<any>;
+    kitDataPromise: Promise<KitData>;
     current_id: number;
 }
 
 const Edit: React.FC<EditProps> = ({ kitDataPromise, current_id }) => {
-    const [kitData, setKitData] = useState<any>(null);
+    const [kitData, setKitData] = useState<KitData | null>(null);
     const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [titleInput, setTitleInput] = useState('');
 
@@ -27,8 +38,8 @@ const Edit: React.FC<EditProps> = ({ kitDataPromise, current_id }) => {
                 setKitData(data);
                 setTitleInput(data.name || '');
                 console.log(`LOADING EDIT DETAILS PAGE - Kit ID: ${current_id}`);
-            } catch (error) {
-                console.error('Error fetching kit data:', error);
+            } catch (err) {
+                console.error('Error fetching kit data:', err);
                 setSubmitMessage({ type: 'error', text: 'Failed to load kit data.' });
             }
         };
@@ -57,7 +68,7 @@ const Edit: React.FC<EditProps> = ({ kitDataPromise, current_id }) => {
             } else {
                 setSubmitMessage({ type: 'error', text: result.error || 'An error occurred while updating the title.' });
             }
-        } catch (error) {
+        } catch (err) {
             setSubmitMessage({ type: 'error', text: 'An unexpected error occurred.' });
         }
     };
@@ -111,7 +122,9 @@ const Edit: React.FC<EditProps> = ({ kitDataPromise, current_id }) => {
                     </form>
                 </div>
                 {submitMessage && (
-                    <div className={`mt-2 rounded-md p-2 ${submitMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-st_white`}>
+                    <div
+                        className={`mt-2 rounded-md p-2 ${submitMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-st_white`}
+                    >
                         {submitMessage.text}
                     </div>
                 )}

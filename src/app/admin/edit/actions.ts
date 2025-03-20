@@ -48,7 +48,7 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
             let contentsObject;
             try {
                 contentsObject = JSON.parse(data.contents);
-            } catch (error) {
+            } catch (err) {
                 return { success: false, error: 'Invalid JSON in contents field' };
             }
 
@@ -72,8 +72,8 @@ export async function onSubmitEditForm(data: SubmitFormData): Promise<{ success:
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
-    } catch (error) {
-        console.error('Error updating kit:', error);
+    } catch (err) {
+        console.error('Error updating kit:', err);
         return { success: false, error: 'Error updating kit' };
     }
 }
@@ -107,8 +107,8 @@ export async function handleImageReorder(
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
-    } catch (error) {
-        console.error('Error reordering images:', error);
+    } catch (err) {
+        console.error('Error reordering images:', err);
         return { success: false, error: 'Error reordering images' };
     }
 }
@@ -125,8 +125,8 @@ export async function handleImageTitleEdit(imageId: number, newTitle: string): P
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
-    } catch (error) {
-        console.error('Error editing image title:', error);
+    } catch (err) {
+        console.error('Error editing image title:', err);
         return { success: false, error: 'Error editing image title' };
     }
 }
@@ -142,8 +142,8 @@ export async function handleImageDelete(kitId: number, imagePath: string): Promi
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
-    } catch (error) {
-        console.error('Error deleting image:', error);
+    } catch (err) {
+        console.error('Error deleting image:', err);
         return { success: false, error: 'Error deleting image' };
     }
 }
@@ -168,8 +168,8 @@ export async function handleTitleUpdate(formData: FormData): Promise<{ success: 
         revalidatePath(`/kits/edit`);
         revalidatePath(`/kits`);
         return { success: true };
-    } catch (error) {
-        console.error('Error updating title:', error);
+    } catch (err) {
+        console.error('Error updating title:', err);
         return { success: false, error: 'Error updating title' };
     }
 }

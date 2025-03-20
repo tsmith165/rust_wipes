@@ -10,8 +10,8 @@ interface KitItemProps {
 
 const KitItemView = ({ kit, handleKitClick, isSelected }: KitItemProps) => {
     const image_path = kit.small_image_path || kit.image_path;
-    let image_width = kit.small_width || kit.width || 0;
-    let image_height = kit.small_height || kit.height || 0;
+    const image_width = kit.small_width || kit.width || 0;
+    const image_height = kit.small_height || kit.height || 0;
 
     return (
         <div

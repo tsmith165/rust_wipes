@@ -62,20 +62,16 @@ interface SteamProfile {
 /**
  * Type Guard to verify if data is of type { x: number; y: number; multiplier: number }[]
  */
-function isStickyMultipliersArray(data: any): data is { x: number; y: number; multiplier: number }[] {
-    return (
-        Array.isArray(data) &&
-        data.every(
-            (item) =>
-                typeof item === 'object' && typeof item.x === 'number' && typeof item.y === 'number' && typeof item.multiplier === 'number',
-        )
-    );
+function isStickyMultipliersArray(
+    data: { x: number; y: number; multiplier: number }[],
+): data is { x: number; y: number; multiplier: number }[] {
+    return Array.isArray(data) && data.every((item) => typeof item === 'object' && 'x' in item && 'y' in item && 'multiplier' in item);
 }
 
 /**
  * Type Guard to verify if data is of type string[][]
  */
-function isStringDoubleArray(data: any): data is string[][] {
+function isStringDoubleArray(data: unknown): data is string[][] {
     return Array.isArray(data) && data.every((row) => Array.isArray(row) && row.every((cell) => typeof cell === 'string'));
 }
 
@@ -373,7 +369,9 @@ function calculatePayout(grid: string[][]): {
     winningCells: number[][];
     bonusCells: number[][];
 } {
-    let payout: { item: string; full_name: string; quantity: number }[] = [];
+    const payout: { item: string; full_name: string; quantity: number }[] = [];
+    const lineMultipliers: { line: number; multiplier: number }[] = [];
+    const lineMatches: { line: number; symbol: string; count: number }[] = [];
     const winningLines: number[][][] = [];
     const winningCells: number[][] = [];
     const bonusCells: number[][] = [];

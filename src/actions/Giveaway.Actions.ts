@@ -2,7 +2,7 @@
 
 import { db } from '@/db/db';
 import { user_playtime } from '@/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { fetchAndStoreProfilePicture } from '@/lib/steam';
 
 interface Player {

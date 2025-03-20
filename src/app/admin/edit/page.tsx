@@ -45,7 +45,7 @@ async function fetchKitData(id: number) {
 
 export default async function Page(props: { searchParams: Promise<{ id?: string }> }) {
     const searchParams = await props.searchParams;
-    let id = searchParams.id ? parseInt(searchParams.id, 10) : null;
+    const id = searchParams.id ? parseInt(searchParams.id, 10) : null;
 
     if (!id) {
         // Fetch the most recent ID if no ID is provided
